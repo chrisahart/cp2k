@@ -1144,7 +1144,7 @@ CONTAINS
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
          IF (calculate_forces) CPABORT("Hirshfeld force NYI.")
-         !CALL hirshfeld_constraint_force(qs_env)
+         !CALL hirshfeld_constraint_force(qs_env) TESTING
       END IF
       CALL timestop(handle)
 
