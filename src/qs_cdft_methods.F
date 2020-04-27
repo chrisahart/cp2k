@@ -1143,8 +1143,9 @@ CONTAINS
          ! Integrate the Hirshfeld constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) THEN 
+         IF (calculate_forces) THEN
            CALL hirshfeld_constraint_force(qs_env)
+         END IF
       END IF
       CALL timestop(handle)
 
@@ -1377,16 +1378,9 @@ CONTAINS
    !> \author  Christian Ahart (04.2020)
    ! **************************************************************************************************
    SUBROUTINE hirshfeld_constraint_force(qs_env)
-      TYPE(qs_environment_type), POINTER                 :: qs_env
-
-      CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_force', &
-         routineP = moduleN//':'//routineN
-
-      CALL timeset(routineN, handle)
+     TYPE(qs_environment_type), POINTER                 :: qs_env
 
       CPABORT("Hirshfeld force NYI.")
-
-      CALL timestop(handle)
 
    END SUBROUTINE hirshfeld_constraint_force
 
