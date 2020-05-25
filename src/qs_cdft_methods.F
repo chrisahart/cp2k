@@ -817,10 +817,12 @@ CONTAINS
       cdft_control => dft_control%qs_control%cdft_control
       is_becke = (cdft_control%type == outer_scf_becke_constraint)
       becke_control => cdft_control%becke_control
-      IF (is_becke .AND. .NOT. ASSOCIATED(becke_control)) &
+
+      IF (is_becke .AND. .NOT. ASSOCIATED(becke_control)) THEN
          CPABORT("Becke control has not been allocated.")
+      END IF
+
       group => cdft_control%group
-      ! Initialize
       nvar = SIZE(cdft_control%target)
       ALLOCATE (strength(nvar))
       ALLOCATE (target_val(nvar))
@@ -829,14 +831,25 @@ CONTAINS
       target_val(:) = cdft_control%target(:)
       dE = 0.0_dp
       dvol = group(1)%weight%pw%pw_grid%dvol
+
       IF (cdft_control%atomic_charges) THEN
          charge => cdft_control%charge
          ALLOCATE (electronic_charge(cdft_control%natoms, dft_control%nspins))
          electronic_charge = 0.0_dp
       END IF
-      ! Calculate value of constraint i.e. int ( rho(r) w(r) dr)
+
+        PRINT *, "dft_control%nspins" dft_control%nspins
+        PRINT *, "SIZE(group)" SIZE(SIZE(group))
+        PRINT *, "group" group
+        PRINT *, "is_becke" is_becke
+        PRINT *, "cdft_control%external_control" cdft_control%external_control
+        PRINT *, "becke_control%cavity_confine" becke_control%cavity_confine
+
+     ! Loop over number of spins, number of atoms in constraint group
       DO i = 1, dft_control%nspins
          DO igroup = 1, SIZE(group)
+
+           ! Determine sign of constraint
             SELECT CASE (group(igroup)%constraint_type)
             CASE (cdft_charge_constraint)
                sign = 1.0_dp
@@ -855,33 +868,51 @@ CONTAINS
             CASE DEFAULT
                CPABORT("Unknown constraint type.")
             END SELECT
+
+            !  Check if the constraint has already been built
             IF (is_becke .AND. (cdft_control%external_control .AND. becke_control%cavity_confine)) THEN
-               ! With external control, we can use cavity_mat as a mask to kahan sum
+
+              ! Check if number of constraint atom groups larger than 1
+              IF (igroup /= 1)
+                CALL cp_abort(__LOCATION__,   "Multiple constraints not supported by parallel mixed calculations.")
+              END IF
+
+               ! With external control, we use cavity_mat as a mask to kahan sum
                eps_cavity = becke_control%eps_cavity
-               IF (igroup /= 1) &
-                  CALL cp_abort(__LOCATION__, &
-                                "Multiple constraints not yet supported by parallel mixed calculations.")
                dE(igroup) = dE(igroup) + sign*accurate_dot_product(group(igroup)%weight%pw%cr3d, rho_r(i)%pw%cr3d, &
                                                                    becke_control%cavity_mat, eps_cavity)*dvol
+
+            !  If new constraint, calculate int ( rho(r) w(r) dr) using summed rectangle rule
             ELSE
-               dE(igroup) = dE(igroup) + sign*accurate_sum(group(igroup)%weight%pw%cr3d*rho_r(i)%pw%cr3d)*dvol
+               dE(igroup) = dE(igroup) + sign * &
+                            accurate_sum(group(igroup)%weight%pw%cr3d * rho_r(i)%pw%cr3d) * dvol
             END IF
-         END DO
+
+         END DO ! DO igroup = 1, SIZE(group)
+
+         !
          IF (cdft_control%atomic_charges) THEN
             DO iatom = 1, cdft_control%natoms
                electronic_charge(iatom, i) = accurate_sum(charge(iatom)%pw%cr3d*rho_r(i)%pw%cr3d)*dvol
             END DO
          END IF
-      END DO
+
+      END DO ! END DO i = 1, dft_control%nspins
+
       CALL get_qs_env(qs_env, energy=energy)
       CALL mp_sum(dE, para_env%group)
+
+      !
       IF (cdft_control%atomic_charges) THEN
          CALL mp_sum(electronic_charge, para_env%group)
       END IF
+
       ! Use fragment densities as reference value (= Becke deformation density)
       IF (cdft_control%fragment_density .AND. .NOT. cdft_control%fragments_integrated) THEN
          CALL prepare_fragment_constraint(qs_env)
       END IF
+
+      !
       IF (dft_control%qs_control%gapw) THEN
          ! GAPW: add core charges (rho_hard - rho_soft)
          IF (cdft_control%fragment_density) &
@@ -1205,7 +1236,7 @@ CONTAINS
       hirshfeld_control => cdft_control%hirshfeld_control
       hirshfeld_env => hirshfeld_control%hirshfeld_env
 
-      ! Build weight function
+      ! Allcoate as needed
       ALLOCATE (is_constraint(natom))
       ALLOCATE (coefficients(natom))
       IF (cdft_control%atomic_charges) THEN
@@ -1214,8 +1245,16 @@ CONTAINS
       END IF
 
       DO igroup = 1, SIZE(cdft_control%group)
+
+        ! Loop over number of atom_group?
+        PRINT *, "SIZE(cdft_control%group)" SIZE(cdft_control%group)
+
          dvol = cdft_control%group(igroup)%weight%pw%pw_grid%dvol
          cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+
+
+         PRINT *, "vol" dvol
+
          ! Keep track of those atoms that are active in this constraint group
          coefficients(:) = 0.0_dp
          is_constraint = .FALSE.
