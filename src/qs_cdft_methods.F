@@ -840,12 +840,12 @@ CONTAINS
       END IF
 
 
-      !logger_test => cp_get_default_logger()
-      !print_section_test => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-      !test = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
+      logger_test => cp_get_default_logger()
+      print_section_test => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+      test = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
 
-      !WRITE (iw, '(T3,A)') &
-      !   'Atom   Element  Gaussian radius (angstrom)'
+      WRITE (iw, '(T3,A)') &
+         'Atom   Element  Gaussian radius (angstrom)'
 
         !PRINT *, "dft_control%nspins" dft_control%nspins
         !PRINT *, "SIZE(group)" SIZE(SIZE(group))
@@ -1421,7 +1421,7 @@ CONTAINS
             DO i = 1, cdft_control%natoms
                CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                CALL rs_grid_release(rs_single(i)%rs_grid)
-               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d,
+               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
