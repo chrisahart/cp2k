@@ -1409,6 +1409,11 @@ CONTAINS
                CALL rs_grid_release(rs_single(i)%rs_grid)
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+
+               ! Print tmp%pw%cr3d, fnorm%pw%cr3d
+
+
+
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
             DEALLOCATE (rs_single)
@@ -1503,25 +1508,21 @@ CONTAINS
            CASE DEFAULT
               CPABORT("Unknown constraint type.")
            END SELECT
+         END DO
+       END DO
 
+       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+       iw = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
 
-           print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-           iw = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
-     WRITE (iw, '(T3,A)') &
-        'Atom   Element  Gaussian radius (angstrom)'
+       WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
+       WRITE (iw, "dft_control%nspins", dft_control%nspins
 
-        WRITE (iw, '(T3,A)') &
-           "dft_control%nspins" dft_control%nspins
-
-       !PRINT *, "dft_control%nspins" dft_control%nspins
        !PRINT *, "SIZE(cdft_control%group)" SIZE(SIZE(cdft_control%group))
        !PRINT *, "cdft_control%group" cdft_control%group
-       !PRINT *, "is_becke" (cdft_control%type == outer_scf_becke_constraint
        !PRINT *, "cdft_control%external_control" cdft_control%external_control
-       !PRINT *, "becke_control%cavity_confine" becke_control%cavity_confine
 
-      CPABORT("Hirshfeld force NYI.")
+       CPABORT("Hirshfeld force NYI.")
 
-   END SUBROUTINE hirshfeld_constraint_force
+     END SUBROUTINE hirshfeld_constraint_force
 
-END MODULE qs_cdft_methods
+   END MODULE qs_cdft_methods
