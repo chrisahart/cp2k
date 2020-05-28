@@ -1491,8 +1491,8 @@ CONTAINS
      iw = cp_print_key_unit_nr(logger, print_section, "TEST", extension=".out")
 
      WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", SIZE(SIZE(cdft_control%group))
-     WRITE (iw, '(T3,A)') "cdft_control%group", cdft_control%group
+     WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", (SIZE(group))
+     WRITE (iw, '(T3,A)') "cdft_control%group", group
      WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
 
     ! Loop over number of spins, number of atoms in constraint group
@@ -1520,7 +1520,7 @@ CONTAINS
            END SELECT
          END DO
        END DO
-       
+
        CPABORT("Hirshfeld force NYI.")
 
      END SUBROUTINE hirshfeld_constraint_force
