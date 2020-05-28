@@ -1476,6 +1476,7 @@ CONTAINS
      CALL qs_rho_get(rho, rho_r=rho_r)
      CPASSERT(ASSOCIATED(qs_kind_set))
 
+     ! Assign variables
      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
      cdft_control => dft_control%qs_control%cdft_control
      group => cdft_control%group
@@ -1484,6 +1485,15 @@ CONTAINS
      target_val(:) = cdft_control%target(:)
      dE = 0.0_dp
      dvol = group(1)%weight%pw%pw_grid%dvol
+
+     ! Print (debugging)
+     print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+     iw = cp_print_key_unit_nr(logger, print_section, "TEST", extension=".out")
+
+     WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
+     WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", SIZE(SIZE(cdft_control%group))
+     WRITE (iw, '(T3,A)') "cdft_control%group", cdft_control%group
+     WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
 
     ! Loop over number of spins, number of atoms in constraint group
      DO i = 1, dft_control%nspins
@@ -1510,17 +1520,7 @@ CONTAINS
            END SELECT
          END DO
        END DO
-
-       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-       iw = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
-
-       WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
-       WRITE (iw, "dft_control%nspins", dft_control%nspins
-
-       !PRINT *, "SIZE(cdft_control%group)" SIZE(SIZE(cdft_control%group))
-       !PRINT *, "cdft_control%group" cdft_control%group
-       !PRINT *, "cdft_control%external_control" cdft_control%external_control
-
+       
        CPABORT("Hirshfeld force NYI.")
 
      END SUBROUTINE hirshfeld_constraint_force
