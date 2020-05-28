@@ -799,6 +799,7 @@ CONTAINS
       TYPE(rho0_mpole_type), POINTER                     :: rho0_mpole
       TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
 
+
       NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
                logger, cdft_constraint_section, qs_kind_set, mp_rho, &
                rho0_mpole, group, charge)
@@ -838,21 +839,6 @@ CONTAINS
          ALLOCATE (electronic_charge(cdft_control%natoms, dft_control%nspins))
          electronic_charge = 0.0_dp
       END IF
-
-
-      logger_test => cp_get_default_logger()
-      print_section_test => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-      test = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
-
-      WRITE (iw, '(T3,A)') &
-         'Atom   Element  Gaussian radius (angstrom)'
-
-        !PRINT *, "dft_control%nspins" dft_control%nspins
-        !PRINT *, "SIZE(group)" SIZE(SIZE(group))
-        !PRINT *, "group" group
-        !PRINT *, "is_becke" is_becke
-        !PRINT *, "cdft_control%external_control" cdft_control%external_control
-        !PRINT *, "becke_control%cavity_confine" becke_control%cavity_confine
 
      ! Loop over number of spins, number of atoms in constraint group
       DO i = 1, dft_control%nspins
@@ -1444,6 +1430,95 @@ CONTAINS
    ! **************************************************************************************************
    SUBROUTINE hirshfeld_constraint_force(qs_env)
      TYPE(qs_environment_type), POINTER                 :: qs_env
+
+     CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_force', &
+        routineP = moduleN//':'//routineN
+
+     INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
+                                                           iw, jatom, natom, nvar
+     LOGICAL                                            :: is_becke, paw_atom
+     REAL(kind=dp)                                      :: dvol, eps_cavity, sign
+     REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
+     REAL(kind=dp), ALLOCATABLE, DIMENSION(:, :)        :: electronic_charge, gapw_offset
+     TYPE(becke_constraint_type), POINTER               :: becke_control
+     TYPE(cdft_control_type), POINTER                   :: cdft_control
+     TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
+     TYPE(cp_logger_type), POINTER                      :: logger
+     TYPE(cp_para_env_type), POINTER                    :: para_env
+     TYPE(dft_control_type), POINTER                    :: dft_control
+     TYPE(mpole_rho_atom), DIMENSION(:), POINTER        :: mp_rho
+     TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
+     TYPE(pw_p_type), DIMENSION(:), POINTER             :: charge, rho_r
+     TYPE(qs_energy_type), POINTER                      :: energy
+     TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
+     TYPE(qs_rho_type), POINTER                         :: rho
+     TYPE(rho0_mpole_type), POINTER                     :: rho0_mpole
+     TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
+     TYPE(section_vals_type), POINTER                   :: print_section
+
+     NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
+              logger, cdft_constraint_section, qs_kind_set, mp_rho, &
+              rho0_mpole, group, charge)
+     CALL timeset(routineN, handle)
+     logger => cp_get_default_logger()
+     CALL get_qs_env(qs_env, &
+                     particle_set=particle_set, &
+                     rho=rho, &
+                     natom=natom, &
+                     dft_control=dft_control, &
+                     para_env=para_env, &
+                     qs_kind_set=qs_kind_set)
+     CALL qs_rho_get(rho, rho_r=rho_r)
+     CPASSERT(ASSOCIATED(qs_kind_set))
+
+     cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+     cdft_control => dft_control%qs_control%cdft_control
+     group => cdft_control%group
+     nvar = SIZE(cdft_control%target)
+     strength(:) = cdft_control%strength(:)
+     target_val(:) = cdft_control%target(:)
+     dE = 0.0_dp
+     dvol = group(1)%weight%pw%pw_grid%dvol
+
+    ! Loop over number of spins, number of atoms in constraint group
+     DO i = 1, dft_control%nspins
+        DO igroup = 1, SIZE(group)
+
+          ! Determine sign of constraint
+           SELECT CASE (group(igroup)%constraint_type)
+           CASE (cdft_charge_constraint)
+              sign = 1.0_dp
+           CASE (cdft_magnetization_constraint)
+              IF (i == 1) THEN
+                 sign = 1.0_dp
+              ELSE
+                 sign = -1.0_dp
+              END IF
+           CASE (cdft_alpha_constraint)
+              sign = 1.0_dp
+              IF (i == 2) CYCLE
+           CASE (cdft_beta_constraint)
+              sign = 1.0_dp
+              IF (i == 1) CYCLE
+           CASE DEFAULT
+              CPABORT("Unknown constraint type.")
+           END SELECT
+
+
+           print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+           iw = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
+     WRITE (iw, '(T3,A)') &
+        'Atom   Element  Gaussian radius (angstrom)'
+
+        WRITE (iw, '(T3,A)') &
+           "dft_control%nspins" dft_control%nspins
+
+       !PRINT *, "dft_control%nspins" dft_control%nspins
+       !PRINT *, "SIZE(cdft_control%group)" SIZE(SIZE(cdft_control%group))
+       !PRINT *, "cdft_control%group" cdft_control%group
+       !PRINT *, "is_becke" (cdft_control%type == outer_scf_becke_constraint
+       !PRINT *, "cdft_control%external_control" cdft_control%external_control
+       !PRINT *, "becke_control%cavity_confine" becke_control%cavity_confine
 
       CPABORT("Hirshfeld force NYI.")
 
