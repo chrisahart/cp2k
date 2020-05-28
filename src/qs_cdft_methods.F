@@ -1486,14 +1486,14 @@ CONTAINS
      dvol = group(1)%weight%pw%pw_grid%dvol
 
      ! Print (debugging)
-     print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-     iw = cp_print_key_unit_nr(logger, print_section, "TEST", extension=".out")
+     ! print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+     !iw = cp_print_key_unit_nr(logger, print_section, "TEST", extension=".out")
 
-     WRITE (iw, '(T3,A)') "Hello world!"
-     WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", (SIZE(group))
-     WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
-     WRITE (iw, '(T3,A)') "dvol", dvol
+     !WRITE (iw, '(T3,A)') "Hello world!"
+     !WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
+     !WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", (SIZE(group))
+     !WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
+     !WRITE (iw, '(T3,A)') "dvol", dvol */
 
     ! Loop over number of spins, number of atoms in constraint group
      DO i = 1, dft_control%nspins
