@@ -770,6 +770,7 @@ CONTAINS
 !> \par   History
 !>        Created 3.2017 [Nico Holmberg]
 !>        Generalized to any CDFT weight function 9.2018 [Nico Holmberg]
+!>        Reformatted and commented 5.2020 [Christian Ahart]
 ! **************************************************************************************************
    SUBROUTINE cdft_constraint_integrate(qs_env)
       TYPE(qs_environment_type), POINTER                 :: qs_env
@@ -838,12 +839,20 @@ CONTAINS
          electronic_charge = 0.0_dp
       END IF
 
-        PRINT *, "dft_control%nspins" dft_control%nspins
-        PRINT *, "SIZE(group)" SIZE(SIZE(group))
-        PRINT *, "group" group
-        PRINT *, "is_becke" is_becke
-        PRINT *, "cdft_control%external_control" cdft_control%external_control
-        PRINT *, "becke_control%cavity_confine" becke_control%cavity_confine
+
+      !logger_test => cp_get_default_logger()
+      !print_section_test => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+      !test = cp_print_key_unit_nr(logger_test, print_section_test, "TEST", extension=".out")
+
+      !WRITE (iw, '(T3,A)') &
+      !   'Atom   Element  Gaussian radius (angstrom)'
+
+        !PRINT *, "dft_control%nspins" dft_control%nspins
+        !PRINT *, "SIZE(group)" SIZE(SIZE(group))
+        !PRINT *, "group" group
+        !PRINT *, "is_becke" is_becke
+        !PRINT *, "cdft_control%external_control" cdft_control%external_control
+        !PRINT *, "becke_control%cavity_confine" becke_control%cavity_confine
 
      ! Loop over number of spins, number of atoms in constraint group
       DO i = 1, dft_control%nspins
@@ -873,7 +882,7 @@ CONTAINS
             IF (is_becke .AND. (cdft_control%external_control .AND. becke_control%cavity_confine)) THEN
 
               ! Check if number of constraint atom groups larger than 1
-              IF (igroup /= 1)
+              IF (igroup /= 1) THEN
                 CALL cp_abort(__LOCATION__,   "Multiple constraints not supported by parallel mixed calculations.")
               END IF
 
@@ -890,19 +899,21 @@ CONTAINS
 
          END DO ! DO igroup = 1, SIZE(group)
 
-         !
+         ! Calculate atomic charges
          IF (cdft_control%atomic_charges) THEN
             DO iatom = 1, cdft_control%natoms
-               electronic_charge(iatom, i) = accurate_sum(charge(iatom)%pw%cr3d*rho_r(i)%pw%cr3d)*dvol
+               electronic_charge(iatom, i) = accurate_sum(charge(iatom)%pw%cr3d*rho_r(i)%pw%cr3d) * dvol
             END DO
          END IF
 
       END DO ! END DO i = 1, dft_control%nspins
 
       CALL get_qs_env(qs_env, energy=energy)
+
+      ! Calculate sum over all igroup?
       CALL mp_sum(dE, para_env%group)
 
-      !
+      ! Calculate sum over all igroup?
       IF (cdft_control%atomic_charges) THEN
          CALL mp_sum(electronic_charge, para_env%group)
       END IF
@@ -912,19 +923,22 @@ CONTAINS
          CALL prepare_fragment_constraint(qs_env)
       END IF
 
-      !
+      ! GAPW code, add core charges (rho_hard - rho_soft)
       IF (dft_control%qs_control%gapw) THEN
-         ! GAPW: add core charges (rho_hard - rho_soft)
-         IF (cdft_control%fragment_density) &
-            CALL cp_abort(__LOCATION__, &
-                          "Fragment constraints not yet compatible with GAPW.")
+
+         IF (cdft_control%fragment_density) THEN
+            CALL cp_abort(__LOCATION__, "Fragment constraints not yet compatible with GAPW.")
+         END IF
+
          ALLOCATE (gapw_offset(nvar, dft_control%nspins))
          gapw_offset = 0.0_dp
          CALL get_qs_env(qs_env, rho0_mpole=rho0_mpole)
          CALL get_rho0_mpole(rho0_mpole, mp_rho=mp_rho)
+
          DO i = 1, dft_control%nspins
             DO igroup = 1, SIZE(group)
                DO iatom = 1, SIZE(group(igroup)%atoms)
+
                   SELECT CASE (group(igroup)%constraint_type)
                   CASE (cdft_charge_constraint)
                      sign = 1.0_dp
@@ -943,15 +957,18 @@ CONTAINS
                   CASE DEFAULT
                      CPABORT("Unknown constraint type.")
                   END SELECT
+
                   jatom = group(igroup)%atoms(iatom)
                   CALL get_atomic_kind(particle_set(jatom)%atomic_kind, kind_number=ikind)
                   CALL get_qs_kind(qs_kind_set(ikind), paw_atom=paw_atom)
+
                   IF (paw_atom) THEN
                      gapw_offset(igroup, i) = gapw_offset(igroup, i) + sign*group(igroup)%coeff(iatom)*mp_rho(jatom)%q0(i)
                   END IF
                END DO
             END DO
          END DO
+
          IF (cdft_control%atomic_charges) THEN
             DO iatom = 1, cdft_control%natoms
                jatom = cdft_control%atoms(iatom)
@@ -970,15 +987,18 @@ CONTAINS
             END DO
          END DO
          DEALLOCATE (gapw_offset)
-      END IF
+      END IF ! GAPW
+
       ! Update constraint value and energy
       cdft_control%value(:) = dE(:)
       energy%cdft = 0.0_dp
       DO ivar = 1, nvar
          energy%cdft = energy%cdft + (dE(ivar) - target_val(ivar))*strength(ivar)
       END DO
+
       ! Print constraint info and atomic CDFT charges
       CALL cdft_constraint_print(qs_env, electronic_charge)
+
       ! Deallocate tmp storage
       DEALLOCATE (dE, strength, target_val)
       IF (cdft_control%atomic_charges) DEALLOCATE (electronic_charge)
@@ -1244,16 +1264,20 @@ CONTAINS
          compute_charge = .FALSE.
       END IF
 
+      !PRINT *, "SIZE(cdft_control%group)" SIZE(cdft_control%group)
+      !PRINT *, "vol" dvol
+
+
+      ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
+      ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
+      ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
+
+      ! Loop over number of atom_group?
       DO igroup = 1, SIZE(cdft_control%group)
 
-        ! Loop over number of atom_group?
-        PRINT *, "SIZE(cdft_control%group)" SIZE(cdft_control%group)
-
+         ! Set values
          dvol = cdft_control%group(igroup)%weight%pw%pw_grid%dvol
          cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
-
-
-         PRINT *, "vol" dvol
 
          ! Keep track of those atoms that are active in this constraint group
          coefficients(:) = 0.0_dp
@@ -1262,9 +1286,8 @@ CONTAINS
             coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
             is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
          END DO
-         ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
+
          ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
-         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
          IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
             CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                             auxbas_pw_pool=auxbas_pw_pool)
@@ -1272,8 +1295,11 @@ CONTAINS
             CALL rs_grid_retain(rs_rho_all)
             CALL rs_grid_zero(rs_rho_all)
          END IF
+
+         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
+
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
          IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             ALLOCATE (rs_single(cdft_control%natoms))
@@ -1384,9 +1410,10 @@ CONTAINS
                                 in_space=REALSPACE)
          CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
          CALL rs_grid_release(rs_rho_constr)
-         CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, tmp%pw%cr3d, &
-                         fnorm%pw%cr3d, divide=.TRUE.)
+         CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+                         tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
          CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+
          ! Compute atomic weight functions if charges are needed
          IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
@@ -1394,15 +1421,16 @@ CONTAINS
             DO i = 1, cdft_control%natoms
                CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                CALL rs_grid_release(rs_single(i)%rs_grid)
-               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
-                               fnorm%pw%cr3d, divide=.TRUE.)
+               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d,
+               tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
             DEALLOCATE (rs_single)
             DEALLOCATE (compute_charge)
          END IF
-      END DO
+      END DO ! ikind = 1, SIZE(atomic_kind_set)
 
+      ! Deallocate temporaries
       DEALLOCATE (is_constraint)
       DEALLOCATE (coefficients)
       CALL timestop(handle)
