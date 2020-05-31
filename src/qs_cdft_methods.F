@@ -10,6 +10,7 @@
 !> \author Nico Holmberg [03.2017]
 ! **************************************************************************************************
 MODULE qs_cdft_methods
+   USE cp_realspace_grid_cube,          ONLY: cp_pw_to_cube
    USE ao_util,                         ONLY: exp_radius_very_extended
    USE atomic_kind_types,               ONLY: atomic_kind_type,&
                                               get_atomic_kind,&
@@ -39,7 +40,8 @@ MODULE qs_cdft_methods
                                               section_vals_type
    USE kahan_sum,                       ONLY: accurate_dot_product,&
                                               accurate_sum
-   USE kinds,                           ONLY: dp,&
+   USE kinds,                           ONLY: default_path_length,&
+                                              dp,&
                                               int_8
    USE message_passing,                 ONLY: mp_sum
    USE particle_types,                  ONLY: particle_type
@@ -1446,7 +1448,7 @@ CONTAINS
         routineP = moduleN//':'//routineN
 
      INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
-                                                           iw_test1, iw_test2, jatom, natom, nvar
+                                                           iw_test1, iw_test2, iw_cube, jatom, natom, nvar
      REAL(kind=dp)                                      :: dvol, eps_cavity, sign
      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
      TYPE(cdft_control_type), POINTER                   :: cdft_control
@@ -1463,6 +1465,7 @@ CONTAINS
      TYPE(rho0_mpole_type), POINTER                     :: rho0_mpole
      TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
      TYPE(section_vals_type), POINTER                   :: print_section
+     CHARACTER(LEN=default_path_length)                 :: middle_name
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
@@ -1499,6 +1502,14 @@ CONTAINS
      WRITE (iw_test2, '(T3,A)') "dvol", dvol
      !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
      CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+
+     middle_name = "test"
+     iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
+     CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, &
+                            iw_cube, &
+                            "CDFT Weight Function", &
+                            stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+     CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
      ! Call ABORT
      CPABORT("Hirshfeld force NYI.")
