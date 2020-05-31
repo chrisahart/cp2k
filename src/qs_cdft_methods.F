@@ -1467,6 +1467,8 @@ CONTAINS
      TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
      TYPE(section_vals_type), POINTER                   :: print_section
      CHARACTER(LEN=default_path_length)                 :: middle_name
+     TYPE(particle_list_type), POINTER                  :: particles
+     TYPE(qs_subsys_type), POINTER                      :: subsys
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
@@ -1485,6 +1487,8 @@ CONTAINS
      cdft_control => dft_control%qs_control%cdft_control
      group => cdft_control%group
      dvol = group(1)%weight%pw%pw_grid%dvol
+
+     CALL qs_subsys_get(subsys, particles=particles)
 
      ! Print (debugging)
      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
@@ -1507,9 +1511,7 @@ CONTAINS
      ! Print promolecular density to .cube
      middle_name = "test"
      iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
-     CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, &
-                            iw_cube, &
-                            "CDFT Weight Function", &
+     CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, iw_cube, "CDFT Weight Function", particles=particles, &
                             stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
      CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
