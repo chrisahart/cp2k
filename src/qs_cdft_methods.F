@@ -1421,6 +1421,9 @@ CONTAINS
          END IF
       END DO ! ikind = 1, SIZE(atomic_kind_set)
 
+      ! Print fnorm%pw%cr3d to cube file
+      !fnorm
+
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
       DEALLOCATE (coefficients)
@@ -1440,7 +1443,7 @@ CONTAINS
         routineP = moduleN//':'//routineN
 
      INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
-                                                           iw, jatom, natom, nvar
+                                                           iw_test, jatom, natom, nvar
      LOGICAL                                            :: is_becke, paw_atom
      REAL(kind=dp)                                      :: dvol, eps_cavity, sign
      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
@@ -1448,7 +1451,7 @@ CONTAINS
      TYPE(becke_constraint_type), POINTER               :: becke_control
      TYPE(cdft_control_type), POINTER                   :: cdft_control
      TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
-     TYPE(cp_logger_type), POINTER                      :: logger
+     TYPE(cp_logger_type), POINTER                      :: logger_test
      TYPE(cp_para_env_type), POINTER                    :: para_env
      TYPE(dft_control_type), POINTER                    :: dft_control
      TYPE(mpole_rho_atom), DIMENSION(:), POINTER        :: mp_rho
@@ -1465,7 +1468,7 @@ CONTAINS
               logger, cdft_constraint_section, qs_kind_set, mp_rho, &
               rho0_mpole, group, charge)
      CALL timeset(routineN, handle)
-     logger => cp_get_default_logger()
+     logger_test => cp_get_default_logger()
      CALL get_qs_env(qs_env, &
                      particle_set=particle_set, &
                      rho=rho, &
@@ -1485,11 +1488,13 @@ CONTAINS
      target_val(:) = cdft_control%target(:)
      dvol = group(1)%weight%pw%pw_grid%dvol
 
-     ! Print (debugging)
-     ! print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-     !iw = cp_print_key_unit_nr(logger, print_section, "TEST", extension=".out")
+     open(99, file = 'data1.dat', status = 'new')
+     write(99,*) "Hello world 99 "
+      PRINT *, "Hello world default"
 
-     !WRITE (iw, '(T3,A)') "Hello world!"
+     ! Print (debugging)
+     !iw_test = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+     !WRITE (iw_test, '(T3,A)') "Hello world!"
      !WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
      !WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", (SIZE(group))
      !WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
