@@ -1445,64 +1445,6 @@ CONTAINS
      CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_force', &
         routineP = moduleN//':'//routineN
 
-     INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
-                                                           iw_test, jatom, natom, nvar
-     LOGICAL                                            :: is_becke, paw_atom
-     REAL(kind=dp)                                      :: dvol, eps_cavity, sign
-     REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
-     REAL(kind=dp), ALLOCATABLE, DIMENSION(:, :)        :: electronic_charge, gapw_offset
-     TYPE(becke_constraint_type), POINTER               :: becke_control
-     TYPE(cdft_control_type), POINTER                   :: cdft_control
-     TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
-     TYPE(cp_logger_type), POINTER                      :: logger_test
-     TYPE(cp_para_env_type), POINTER                    :: para_env
-     TYPE(dft_control_type), POINTER                    :: dft_control
-     TYPE(mpole_rho_atom), DIMENSION(:), POINTER        :: mp_rho
-     TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
-     TYPE(pw_p_type), DIMENSION(:), POINTER             :: charge, rho_r
-     TYPE(qs_energy_type), POINTER                      :: energy
-     TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
-     TYPE(qs_rho_type), POINTER                         :: rho
-     TYPE(rho0_mpole_type), POINTER                     :: rho0_mpole
-     TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
-     TYPE(section_vals_type), POINTER                   :: print_section
-
-     NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
-              logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
-              rho0_mpole, group, charge)
-     CALL timeset(routineN, handle)
-     logger_test => cp_get_default_logger()
-     CALL get_qs_env(qs_env, &
-                     particle_set=particle_set, &
-                     rho=rho, &
-                     natom=natom, &
-                     dft_control=dft_control, &
-                     para_env=para_env, &
-                     qs_kind_set=qs_kind_set)
-     CALL qs_rho_get(rho, rho_r=rho_r)
-     CPASSERT(ASSOCIATED(qs_kind_set))
-
-     ! Assign variables
-     cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-     cdft_control => dft_control%qs_control%cdft_control
-     group => cdft_control%group
-     nvar = SIZE(cdft_control%target)
-     strength(:) = cdft_control%strength(:)
-     target_val(:) = cdft_control%target(:)
-     dvol = group(1)%weight%pw%pw_grid%dvol
-
-     !open(99, file = 'data1.dat', status = 'new')
-     !write(99,*) "Hello world 99 "
-    !  PRINT *, "Hello world default"
-
-     ! Print (debugging)
-     !iw_test = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
-     !WRITE (iw_test, '(T3,A)') "Hello world!"
-     !WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     !WRITE (iw, '(T3,A)') "dvol", dvol
-     !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
-     !CALL cp_print_key_finished_output(iw_test, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
 
        CPABORT("Hirshfeld force NYI.")
 
