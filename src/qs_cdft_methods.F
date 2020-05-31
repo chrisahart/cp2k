@@ -36,7 +36,7 @@ MODULE qs_cdft_methods
                                               cdft_magnetization_constraint,&
                                               outer_scf_becke_constraint,&
                                               outer_scf_hirshfeld_constraint
-   USE input_section_types,             ONLY: section_get_ivals &
+   USE input_section_types,             ONLY: section_get_ivals, &
                                               section_vals_get_subs_vals,&
                                               section_vals_type
    USE kahan_sum,                       ONLY: accurate_dot_product,&
@@ -1492,7 +1492,7 @@ CONTAINS
      WRITE (iw_test1, '(T3,A)') "Hello world!"
      WRITE (iw_test1, '(T3,A)') "dft_control%nspins", dft_control%nspins
      WRITE (iw_test1, '(T3,A)') "dvol", dvol
-     WRITE (iw_test1, '(T3,A)') "SIZE(fnorm%pw%cr3d)",  SIZE(fnorm%pw%cr3d)
+     !WRITE (iw_test1, '(T3,A)') "SIZE(fnorm%pw%cr3d)",  SIZE(fnorm%pw%cr3d)
      CALL cp_print_key_finished_output(iw_test1, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
      ! Print (debugging)
