@@ -1409,11 +1409,6 @@ CONTAINS
                CALL rs_grid_release(rs_single(i)%rs_grid)
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-
-               ! Print tmp%pw%cr3d, fnorm%pw%cr3d
-
-
-
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
             DEALLOCATE (rs_single)
@@ -1422,7 +1417,15 @@ CONTAINS
       END DO ! ikind = 1, SIZE(atomic_kind_set)
 
       ! Print fnorm%pw%cr3d to cube file
-      !fnorm
+
+      !logger => cp_get_default_logger()
+
+      !unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test_cube")
+
+      !CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", &
+      !particles=particles,   stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+      !CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
@@ -1465,7 +1468,7 @@ CONTAINS
      TYPE(section_vals_type), POINTER                   :: print_section
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
-              logger, cdft_constraint_section, qs_kind_set, mp_rho, &
+              logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
               rho0_mpole, group, charge)
      CALL timeset(routineN, handle)
      logger_test => cp_get_default_logger()
@@ -1499,6 +1502,7 @@ CONTAINS
      !WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", (SIZE(group))
      !WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
      !WRITE (iw, '(T3,A)') "dvol", dvol */
+     !CALL cp_print_key_finished_output(iw_test, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
     ! Loop over number of spins, number of atoms in constraint group
      DO i = 1, dft_control%nspins
