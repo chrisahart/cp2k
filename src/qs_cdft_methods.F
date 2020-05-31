@@ -1491,44 +1491,18 @@ CONTAINS
      target_val(:) = cdft_control%target(:)
      dvol = group(1)%weight%pw%pw_grid%dvol
 
-     open(99, file = 'data1.dat', status = 'new')
-     write(99,*) "Hello world 99 "
-      PRINT *, "Hello world default"
+     !open(99, file = 'data1.dat', status = 'new')
+     !write(99,*) "Hello world 99 "
+    !  PRINT *, "Hello world default"
 
      ! Print (debugging)
-     !iw_test = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+     !iw_test = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
      !WRITE (iw_test, '(T3,A)') "Hello world!"
      !WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     !WRITE (iw, '(T3,A)') "SIZE(cdft_control%group)", (SIZE(group))
-     !WRITE (iw, '(T3,A)') "cdft_control%external_control", cdft_control%external_control
-     !WRITE (iw, '(T3,A)') "dvol", dvol */
-     !CALL cp_print_key_finished_output(iw_test, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+     !WRITE (iw, '(T3,A)') "dvol", dvol
+     !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
+     !CALL cp_print_key_finished_output(iw_test, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-    ! Loop over number of spins, number of atoms in constraint group
-     DO i = 1, dft_control%nspins
-        DO igroup = 1, SIZE(group)
-
-          ! Determine sign of constraint
-           SELECT CASE (group(igroup)%constraint_type)
-           CASE (cdft_charge_constraint)
-              sign = 1.0_dp
-           CASE (cdft_magnetization_constraint)
-              IF (i == 1) THEN
-                 sign = 1.0_dp
-              ELSE
-                 sign = -1.0_dp
-              END IF
-           CASE (cdft_alpha_constraint)
-              sign = 1.0_dp
-              IF (i == 2) CYCLE
-           CASE (cdft_beta_constraint)
-              sign = 1.0_dp
-              IF (i == 1) CYCLE
-           CASE DEFAULT
-              CPABORT("Unknown constraint type.")
-           END SELECT
-         END DO
-       END DO
 
        CPABORT("Hirshfeld force NYI.")
 
