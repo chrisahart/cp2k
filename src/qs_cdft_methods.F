@@ -10,6 +10,7 @@
 !> \author Nico Holmberg [03.2017]
 ! **************************************************************************************************
 MODULE qs_cdft_methods
+   USE particle_list_types,             ONLY: particle_list_type
    USE cp_realspace_grid_cube,          ONLY: cp_pw_to_cube
    USE ao_util,                         ONLY: exp_radius_very_extended
    USE atomic_kind_types,               ONLY: atomic_kind_type,&
