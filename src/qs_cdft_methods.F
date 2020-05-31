@@ -36,7 +36,8 @@ MODULE qs_cdft_methods
                                               cdft_magnetization_constraint,&
                                               outer_scf_becke_constraint,&
                                               outer_scf_hirshfeld_constraint
-   USE input_section_types,             ONLY: section_vals_get_subs_vals,&
+   USE input_section_types,             ONLY: section_get_ivals &
+                                              section_vals_get_subs_vals,&
                                               section_vals_type
    USE kahan_sum,                       ONLY: accurate_dot_product,&
                                               accurate_sum
@@ -1503,6 +1504,7 @@ CONTAINS
      !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
      CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
+     ! Print promolecular density to .cube
      middle_name = "test"
      iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
      CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, &
@@ -1512,7 +1514,7 @@ CONTAINS
      CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
      ! Call ABORT
-     CPABORT("Hirshfeld force NYI.")
+     CPABORT("Hirshfeld force not yet implemented.")
 
      END SUBROUTINE hirshfeld_constraint_force
 
