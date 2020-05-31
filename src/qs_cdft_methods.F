@@ -1489,12 +1489,13 @@ CONTAINS
      !dvol = group(1)%weight%pw%pw_grid%dvol
 
      ! Print (debugging)
-     !iw_test = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
-     !WRITE (iw_test, '(T3,A)') "Hello world!"
+     cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+     iw_test = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+     WRITE (iw_test, '(T3,A)') "Hello world!"
      !WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
      !WRITE (iw, '(T3,A)') "dvol", dvol
      !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
-     !CALL cp_print_key_finished_output(iw_test, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+     CALL cp_print_key_finished_output(iw_test, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
 
        CPABORT("Hirshfeld force NYI.")
