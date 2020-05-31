@@ -1446,7 +1446,7 @@ CONTAINS
         routineP = moduleN//':'//routineN
 
      INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
-                                                           iw_test, jatom, natom, nvar
+                                                           iw_test1, iw_test2, jatom, natom, nvar
      REAL(kind=dp)                                      :: dvol, eps_cavity, sign
      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
      TYPE(cdft_control_type), POINTER                   :: cdft_control
@@ -1476,29 +1476,32 @@ CONTAINS
                      dft_control=dft_control, &
                      para_env=para_env, &
                      qs_kind_set=qs_kind_set)
-    ! CALL qs_rho_get(rho, rho_r=rho_r)
-    ! CPASSERT(ASSOCIATED(qs_kind_set))
 
      ! Assign variables
-     !cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-     !cdft_control => dft_control%qs_control%cdft_control
-     !group => cdft_control%group
-     !nvar = SIZE(cdft_control%target)
-     !strength(:) = cdft_control%strength(:)
-     !target_val(:) = cdft_control%target(:)
-     !dvol = group(1)%weight%pw%pw_grid%dvol
+     cdft_control => dft_control%qs_control%cdft_control
+     group => cdft_control%group
+     dvol = group(1)%weight%pw%pw_grid%dvol
 
      ! Print (debugging)
      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-     iw_test = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
-     WRITE (iw_test, '(T3,A)') "Hello world!"
-     !WRITE (iw, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     !WRITE (iw, '(T3,A)') "dvol", dvol
+     iw_test1 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+     WRITE (iw_test1, '(T3,A)') "Hello world!"
+     WRITE (iw_test1, '(T3,A)') "dft_control%nspins", dft_control%nspins
+     WRITE (iw_test1, '(T3,A)') "dvol", dvol
+     WRITE (iw_test1, '(T3,A)') "SIZE(fnorm%pw%cr3d)",  SIZE(fnorm%pw%cr3d)
+     CALL cp_print_key_finished_output(iw_test1, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+
+     ! Print (debugging)
+     middle_name = "test"
+     iw_test2 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".test")
+     WRITE (iw_test2, '(T3,A)') "Hello world!"
+     WRITE (iw_test2, '(T3,A)') "dft_control%nspins", dft_control%nspins
+     WRITE (iw_test2, '(T3,A)') "dvol", dvol
      !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
-     CALL cp_print_key_finished_output(iw_test, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+     CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-
-       CPABORT("Hirshfeld force NYI.")
+     ! Call ABORT
+     CPABORT("Hirshfeld force NYI.")
 
      END SUBROUTINE hirshfeld_constraint_force
 
