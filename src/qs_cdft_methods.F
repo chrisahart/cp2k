@@ -1491,6 +1491,8 @@ CONTAINS
 
      CALL qs_subsys_get(subsys, particles=particles)
 
+     PRINT *, "1"
+
      ! Print (debugging)
      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
      iw_test1 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
@@ -1499,6 +1501,8 @@ CONTAINS
      WRITE (iw_test1, '(T3,A)') "dvol", dvol
      !WRITE (iw_test1, '(T3,A)') "SIZE(fnorm%pw%cr3d)",  SIZE(fnorm%pw%cr3d)
      CALL cp_print_key_finished_output(iw_test1, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+
+     PRINT *, "2"
 
      ! Print (debugging)
      middle_name = "test"
@@ -1509,15 +1513,21 @@ CONTAINS
      !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
      CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
+      PRINT *, "4"
+
      ! Print promolecular density to .cube
-     middle_name = "test"
-     iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
-     CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, iw_cube, "CDFT Weight Function", particles=particles, &
-                            stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-     CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+     !middle_name = "test"
+     !iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
+     !CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, iw_cube, "CDFT Weight Function", particles=particles, &
+    !                        stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+    ! CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+
+     PRINT *, "3"
 
      ! Call ABORT
      CPABORT("Hirshfeld force not yet implemented.")
+
+     PRINT *, "4"
 
      END SUBROUTINE hirshfeld_constraint_force
 
