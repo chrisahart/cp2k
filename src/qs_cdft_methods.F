@@ -1436,6 +1436,8 @@ CONTAINS
       DEALLOCATE (coefficients)
       CALL timestop(handle)
 
+       PRINT *, "end hirshfeld_constraint_low"
+
    END SUBROUTINE hirshfeld_constraint_low
 
    ! **************************************************************************************************
@@ -1471,6 +1473,8 @@ CONTAINS
      TYPE(particle_list_type), POINTER                  :: particles
      TYPE(qs_subsys_type), POINTER                      :: subsys
 
+      PRINT *, "start hirshfeld_constraint_force"
+
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
               rho0_mpole, group, charge)
@@ -1489,7 +1493,7 @@ CONTAINS
      group => cdft_control%group
      dvol = group(1)%weight%pw%pw_grid%dvol
 
-     CALL qs_subsys_get(subsys, particles=particles)
+     !CALL qs_subsys_get(subsys, particles=particles)
 
      PRINT *, "1"
 
