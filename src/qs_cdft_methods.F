@@ -1526,7 +1526,7 @@ CONTAINS
     !                        stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
     ! CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-     /* PRINT *, "3" */
+     PRINT *, "3"
 
      ! Call ABORT
      CPABORT("Hirshfeld force not yet implemented.")
