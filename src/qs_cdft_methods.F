@@ -1504,7 +1504,7 @@ PRINT *, "d"
 PRINT *, "g"
      PRINT *, "1"
 
-     Print (debugging)
+    ! Print (debugging)
      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
      iw_test1 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
      WRITE (iw_test1, '(T3,A)') "Hello world!"
