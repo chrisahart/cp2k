@@ -1478,8 +1478,12 @@ CONTAINS
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
               rho0_mpole, group, charge)
+
+              PRINT *, "a"
      CALL timeset(routineN, handle)
+     PRINT *, "b"
      logger_test => cp_get_default_logger()
+     PRINT *, "c"
      CALL get_qs_env(qs_env, &
                      subsys=subsys, &
                      particle_set=particle_set, &
@@ -1488,14 +1492,16 @@ CONTAINS
                      dft_control=dft_control, &
                      para_env=para_env, &
                      qs_kind_set=qs_kind_set)
-
+PRINT *, "d"
      ! Assign variables
      cdft_control => dft_control%qs_control%cdft_control
+     PRINT *, "e"
      group => cdft_control%group
      dvol = group(1)%weight%pw%pw_grid%dvol
+     PRINT *, "f"
 
      CALL qs_subsys_get(subsys, particles=particles)
-
+PRINT *, "g"
      PRINT *, "1"
 
      ! Print (debugging)
