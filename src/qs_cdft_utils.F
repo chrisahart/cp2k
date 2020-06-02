@@ -1322,4 +1322,60 @@ CONTAINS
 
    END SUBROUTINE cdft_print_weight_function
 
+
+   ! **************************************************************************************************
+   !> \brief Prints CDFT weight functions to cube files
+   !> \param qs_env the qs_env where to build the constraint
+   !> \par   History
+   !>        Created 9.2018 [Nico Holmberg]
+   ! **************************************************************************************************
+      SUBROUTINE cdft_print_hirshfeld_density(qs_env)
+         TYPE(qs_environment_type), POINTER                 :: qs_env
+
+         CHARACTER(len=*), PARAMETER :: routineN = 'cdft_print_hirshfeld_density', &
+            routineP = moduleN//':'//routineN
+
+         CHARACTER(LEN=default_path_length)                 :: middle_name
+         INTEGER                                            :: igroup, unit_nr
+         LOGICAL                                            :: mpi_io
+         TYPE(cdft_control_type), POINTER                   :: cdft_control
+         TYPE(cp_logger_type), POINTER                      :: logger
+         TYPE(cp_para_env_type), POINTER                    :: para_env
+         TYPE(dft_control_type), POINTER                    :: dft_control
+         TYPE(particle_list_type), POINTER                  :: particles
+         TYPE(qs_subsys_type), POINTER                      :: subsys
+         TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
+
+         NULLIFY (cdft_constraint_section, logger, particles, dft_control, &
+                  para_env, subsys, cdft_control)
+         logger => cp_get_default_logger()
+
+         CALL get_qs_env(qs_env, subsys=subsys, para_env=para_env, dft_control=dft_control)
+         CALL qs_subsys_get(subsys, particles=particles)
+         cdft_control => dft_control%qs_control%cdft_control
+         cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+
+         DO igroup = 1, SIZE(cdft_control%group)
+            mpi_io = .TRUE.
+            middle_name = "cdft_weight_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+            unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+                                           middle_name=middle_name, &
+                                           extension=".cube", file_position="REWIND", &
+                                           log_filename=.FALSE., mpi_io=mpi_io)
+            ! Note PROGRAM_RUN_INFO section neeeds to be active!
+            IF (para_env%ionode .AND. unit_nr .LT. 1) &
+               CALL cp_abort(__LOCATION__, &
+                             "Please turn on PROGRAM_RUN_INFO to print CDFT weight function.")
+
+            CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, &
+                               unit_nr, &
+                               "CDFT Weight Function", &
+                               particles=particles, &
+                               stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"), &
+                               mpi_io=mpi_io)
+            CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
+         END DO
+
+      END SUBROUTINE cdft_print_hirshfeld_density
+
 END MODULE qs_cdft_utils

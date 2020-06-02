@@ -1413,23 +1413,23 @@ CONTAINS
                CALL rs_grid_release(rs_single(i)%rs_grid)
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+
+               ! Save atomic density
+               !cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
             DEALLOCATE (rs_single)
             DEALLOCATE (compute_charge)
          END IF
+
+         ! Save promolecular density
+         !cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
+
       END DO ! ikind = 1, SIZE(atomic_kind_set)
 
-      ! Print fnorm%pw%cr3d to cube file
-
-      !logger => cp_get_default_logger()
-
-      !unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test_cube")
-
-      !CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", &
-      !particles=particles,   stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
-      !CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+      ! Print densitites
+      !CALL cdft_print_hirshfeld_density(qs_env)
 
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
@@ -1475,25 +1475,25 @@ CONTAINS
 
       PRINT *, "start hirshfeld_constraint_force"
 
-     ! NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
-     !          logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
-     !          rho0_mpole, group, charge)
-     ! CALL timeset(routineN, handle)
-     ! logger_test => cp_get_default_logger()
-     ! CALL get_qs_env(qs_env, &
-     !                 particle_set=particle_set, &
-     !                 rho=rho, &
-     !                 natom=natom, &
-     !                 dft_control=dft_control, &
-     !                 para_env=para_env, &
-     !                 qs_kind_set=qs_kind_set)
+     NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
+              logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
+              rho0_mpole, group, charge)
+     CALL timeset(routineN, handle)
+     logger_test => cp_get_default_logger()
+     CALL get_qs_env(qs_env, &
+                     particle_set=particle_set, &
+                     rho=rho, &
+                     natom=natom, &
+                     dft_control=dft_control, &
+                     para_env=para_env, &
+                     qs_kind_set=qs_kind_set)
 
      ! Assign variables
-     ! cdft_control => dft_control%qs_control%cdft_control
-     ! group => cdft_control%group
-     ! dvol = group(1)%weight%pw%pw_grid%dvol
+     cdft_control => dft_control%qs_control%cdft_control
+     group => cdft_control%group
+     dvol = group(1)%weight%pw%pw_grid%dvol
 
-     !CALL qs_subsys_get(subsys, particles=particles)
+     CALL qs_subsys_get(subsys, particles=particles)
 
      PRINT *, "1"
 
