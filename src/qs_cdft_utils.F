@@ -1381,7 +1381,7 @@ CONTAINS
           END DO ! END DO i = 1, dft_control%nspins
 
           ! Loop over CDFT atoms printing atomic densities (cdft_control%hirsh_rho_atomic(i)%pw%cr3d)
-           DO iatom = 1, SIZE(cdft_control%natoms)
+           DO iatom = 1, cdft_control%natoms
 
              mpi_io = .TRUE.
              middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
@@ -1395,7 +1395,7 @@ CONTAINS
                 CALL cp_abort(__LOCATION__, &
                               "Please turn on PROGRAM_RUN_INFO to print CDFT Hirshfeld densities.")
 
-             CALL cp_pw_to_cube(cdft_control%hirsh_rho_atomic(i)%pw, &
+             CALL cp_pw_to_cube(cdft_control%hirsh_rho_atomic(iatom)%pw, &
                                 unit_nr, &
                                 "CDFT Weight Function", &
                                 particles=particles, &
