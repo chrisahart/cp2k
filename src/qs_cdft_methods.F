@@ -1418,7 +1418,8 @@ PRINT *, "a"
                ! Save hirshfeld atomic density
                plot_hirshfeld_density = .TRUE.
                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-                 cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+PRINT *, "aa"
+                 !cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END IF
 PRINT *, "b"
             END DO
@@ -1436,7 +1437,7 @@ PRINT *, "c"
 PRINT *, "d"
       ! Print hirshfeld densitites
       IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-        CALL cdft_print_hirshfeld_density(qs_env)
+        !CALL cdft_print_hirshfeld_density(qs_env)
       END IF
 PRINT *, "e"
       ! Deallocate temporaries
