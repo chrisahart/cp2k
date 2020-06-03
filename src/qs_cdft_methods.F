@@ -1415,7 +1415,7 @@ CONTAINS
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 
                ! Save atomic density
-               cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+               cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
@@ -1538,11 +1538,44 @@ PRINT *, "g"
 
      PRINT *, "3"
 
-     ! Call ABORT
-     CPABORT("Hirshfeld force not yet implemented.")
+
 
      PRINT *, "4"
 
-     END SUBROUTINE hirshfeld_constraint_force
+     ! Print Hirshfeld densities
+     CALL cdft_print_hirshfeld_density(qs_env)
+
+     ! Loop over number of spins, number of atoms in constraint group
+      DO i = 1, dft_control%nspins
+         DO igroup = 1, SIZE(group)
+
+           ! Determine sign of constraint
+            SELECT CASE (group(igroup)%constraint_type)
+            CASE (cdft_charge_constraint)
+               sign = 1.0_dp
+            CASE (cdft_magnetization_constraint)
+               IF (i == 1) THEN
+                  sign = 1.0_dp
+               ELSE
+                  sign = -1.0_dp
+               END IF
+            CASE (cdft_alpha_constraint)
+               sign = 1.0_dp
+               IF (i == 2) CYCLE
+            CASE (cdft_beta_constraint)
+               sign = 1.0_dp
+               IF (i == 1) CYCLE
+            CASE DEFAULT
+               CPABORT("Unknown constraint type.")
+            END SELECT
+
+      END DO ! END DO i = 1, dft_control%nspins
+
+      PRINT *, "5"
+
+      ! Call ABORT
+      CPABORT("Hirshfeld force not yet implemented.")
+
+    END SUBROUTINE hirshfeld_constraint_force
 
    END MODULE qs_cdft_methods

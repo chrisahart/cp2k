@@ -195,8 +195,6 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
       TYPE(pw_p_type)                      :: hirsh_rho_promolecular
-         TYPE(pw_p_type), POINTER, &
-            DIMENSION(:)                      :: hirsh_rho_atomic
    END TYPE cdft_group_type
 
    TYPE cdft_control_type
@@ -238,6 +236,8 @@ MODULE qs_cdft_types
       TYPE(pw_p_type), POINTER, &
          DIMENSION(:, :)                   :: fragments
       TYPE(qs_outer_scf_type)              :: constraint
+      TYPE(pw_p_type), POINTER, &
+         DIMENSION(:)                      :: hirsh_rho_atomic
    END TYPE cdft_control_type
 
    CHARACTER(len=*), PARAMETER, PRIVATE :: moduleN = 'qs_cdft_types'
