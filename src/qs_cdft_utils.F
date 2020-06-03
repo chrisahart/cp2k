@@ -201,10 +201,12 @@ CONTAINS
       ! Zero weight functions
       DO igroup = 1, SIZE(group)
          group(igroup)%weight%pw%cr3d = 0.0_dp
+         group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
       END DO
       IF (cdft_control%atomic_charges) THEN
          DO iatom = 1, cdft_control%natoms
             cdft_control%charge(iatom)%pw%cr3d = 0.0_dp
+            cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
       END IF
       ! Allocate storage for cell adjustment coefficients and needed distance vectors
@@ -672,6 +674,7 @@ CONTAINS
       ALLOCATE (cdft_control%atoms(cdft_control%natoms))
       ALLOCATE (cdft_control%is_constraint(cdft_control%natoms))
       IF (cdft_control%atomic_charges) ALLOCATE (cdft_control%charge(cdft_control%natoms))
+      ALLOCATE (cdft_control%hirsh_rho_atomic(cdft_control%natoms))
       cdft_control%atoms(1:SIZE(atomlist)) = atomlist
       IF (ASSOCIATED(dummylist)) THEN
          cdft_control%atoms(1 + SIZE(atomlist):) = dummylist
@@ -1355,6 +1358,8 @@ CONTAINS
          cdft_control => dft_control%qs_control%cdft_control
          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
+         PRINT *, "start cdft_print_hirshfeld_density"
+
          ! Loop over CDFT control groups printing promolecular density
              DO igroup = 1, SIZE(cdft_control%group)
 
@@ -1380,6 +1385,8 @@ CONTAINS
 
           END DO ! END DO i = 1, dft_control%nspins
 
+          PRINT *, "a"
+
           ! Loop over CDFT atoms printing atomic densities (cdft_control%hirsh_rho_atomic(i)%pw%cr3d)
            DO iatom = 1, cdft_control%natoms
 
@@ -1404,6 +1411,8 @@ CONTAINS
              CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
 
            END DO
+
+           PRINT *, "end cdft_print_hirshfeld_density"
 
       END SUBROUTINE cdft_print_hirshfeld_density
 

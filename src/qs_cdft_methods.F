@@ -1406,36 +1406,39 @@ CONTAINS
          IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                    in_space=REALSPACE)
+
+        PRINT *, "start hirshfeld_constraint_low"
+
             DO i = 1, cdft_control%natoms
                CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                CALL rs_grid_release(rs_single(i)%rs_grid)
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-
+PRINT *, "a"
                ! Save hirshfeld atomic density
                plot_hirshfeld_density = .TRUE.
                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
                  cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END IF
-
+PRINT *, "b"
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
             DEALLOCATE (rs_single)
             DEALLOCATE (compute_charge)
          END IF
-
+PRINT *, "c"
          ! Save hirshfeld promolecular density
          IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
            cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
          END IF
 
       END DO ! ikind = 1, SIZE(atomic_kind_set)
-
+PRINT *, "d"
       ! Print hirshfeld densitites
       IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
         CALL cdft_print_hirshfeld_density(qs_env)
       END IF
-
+PRINT *, "e"
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
       DEALLOCATE (coefficients)
