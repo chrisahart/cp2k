@@ -1415,7 +1415,7 @@ CONTAINS
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 
                ! Save atomic density
-               !cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+               cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
@@ -1424,7 +1424,7 @@ CONTAINS
          END IF
 
          ! Save promolecular density
-         !cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
+         cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
 
       END DO ! ikind = 1, SIZE(atomic_kind_set)
 
@@ -1508,30 +1508,33 @@ PRINT *, "g"
      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
      iw_test1 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
      WRITE (iw_test1, '(T3,A)') "Hello world!"
-     WRITE (iw_test1, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     WRITE (iw_test1, '(T3,A)') "dvol", dvol
+     ! WRITE (iw_test1, '(T3,A)') "dft_control%nspins", dft_control%nspins
+     ! WRITE (iw_test1, '(T3,A)') "dvol", dvol
      !WRITE (iw_test1, '(T3,A)') "SIZE(fnorm%pw%cr3d)",  SIZE(fnorm%pw%cr3d)
      CALL cp_print_key_finished_output(iw_test1, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
      PRINT *, "2"
 
      !! Print (debugging)
-     middle_name = "test"
-     iw_test2 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".test")
-     WRITE (iw_test2, '(T3,A)') "Hello world!"
-     WRITE (iw_test2, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     WRITE (iw_test2, '(T3,A)') "dvol", dvol
-     !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
-     CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+     ! middle_name = "test"
+     ! iw_test2 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".test")
+     ! WRITE (iw_test2, '(T3,A)') "Hello world!"
+     ! WRITE (iw_test2, '(T3,A)') "dft_control%nspins", dft_control%nspins
+     ! WRITE (iw_test2, '(T3,A)') "dvol", dvol
+     ! !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
+     ! CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
       PRINT *, "4"
 
      ! Print promolecular density to .cube
+
      middle_name = "test"
      iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
-     CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, iw_cube, "CDFT Weight Function", particles=particles, &
-                           stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-    CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
+     ! CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, iw_cube, "CDFT Weight Function", particles=particles, &
+                      ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+     CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, iw_cube, "CDFT Weight Function", particles=particles, &
+                        stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+     CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
      PRINT *, "3"
 
