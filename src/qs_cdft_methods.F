@@ -1254,10 +1254,6 @@ CONTAINS
          compute_charge = .FALSE.
       END IF
 
-      !PRINT *, "SIZE(cdft_control%group)" SIZE(cdft_control%group)
-      !PRINT *, "vol" dvol
-
-
       ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
       ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
       ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
@@ -1429,7 +1425,7 @@ CONTAINS
       END DO ! ikind = 1, SIZE(atomic_kind_set)
 
       ! Print densitites
-      !CALL cdft_print_hirshfeld_density(qs_env)
+      CALL cdft_print_hirshfeld_density(qs_env)
 
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
