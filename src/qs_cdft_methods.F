@@ -1412,8 +1412,8 @@ CONTAINS
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 
                ! Save hirshfeld atomic density
-               plot_hirshfeld_density = TRUE
-               IF (plot_hirshfeld_density == TRUE) THEN
+               plot_hirshfeld_density = .TRUE.
+               IF (plot_hirshfeld_density == .TRUE.) THEN
                  cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END IF
 
@@ -1424,14 +1424,14 @@ CONTAINS
          END IF
 
          ! Save hirshfeld promolecular density
-         IF (plot_hirshfeld_density == TRUE) THEN
+         IF (plot_hirshfeld_density == .TRUE.) THEN
            cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
          END IF
 
       END DO ! ikind = 1, SIZE(atomic_kind_set)
 
       ! Print hirshfeld densitites
-      IF (plot_hirshfeld_density == TRUE) THEN
+      IF (plot_hirshfeld_density == .TRUE.) THEN
         CALL cdft_print_hirshfeld_density(qs_env)
       END IF
 
@@ -1574,7 +1574,6 @@ PRINT *, "g"
             END SELECT
 
         END DO ! END DO igroup = 1, SIZE(group)
-
       END DO ! END DO i = 1, dft_control%nspins
 
       PRINT *, "5"
