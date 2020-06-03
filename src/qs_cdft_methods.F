@@ -1573,6 +1573,8 @@ PRINT *, "g"
                CPABORT("Unknown constraint type.")
             END SELECT
 
+        END DO ! END DO igroup = 1, SIZE(group)
+
       END DO ! END DO i = 1, dft_control%nspins
 
       PRINT *, "5"
