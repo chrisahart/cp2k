@@ -194,7 +194,8 @@ MODULE qs_cdft_types
          DIMENSION(:, :, :, :)             :: gradients
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
-      TYPE(pw_p_type)                      :: hirsh_rho_promolecular
+      REAL(KIND=dp), POINTER, &
+         DIMENSION(:)             :: hirsh_rho_promolecular
    END TYPE cdft_group_type
 
    TYPE cdft_control_type
@@ -362,6 +363,7 @@ CONTAINS
       NULLIFY (cdft_control%fragments)
       NULLIFY (cdft_control%group)
       NULLIFY (cdft_control%charge)
+      NULLIFY (cdft_control%hirsh_rho_atomic)
       cdft_control%natoms = 0
       cdft_control%type = outer_scf_none
       cdft_control%need_pot = .TRUE.
@@ -455,6 +457,8 @@ CONTAINS
             DEALLOCATE (cdft_control%is_constraint)
          IF (ASSOCIATED(cdft_control%charge)) &
             DEALLOCATE (cdft_control%charge)
+         IF (ASSOCIATED(cdft_control%hirsh_rho_atomic)) &
+            DEALLOCATE (cdft_control%hirsh_rho_atomic)
          ! Constraint atom groups
          IF (ASSOCIATED(cdft_control%group)) THEN
             DO i = 1, SIZE(cdft_control%group)
@@ -466,6 +470,8 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%d_sum_const_dR)
                IF (ASSOCIATED(cdft_control%group(i)%gradients)) &
                   DEALLOCATE (cdft_control%group(i)%gradients)
+                  IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
+                     DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
             END DO
