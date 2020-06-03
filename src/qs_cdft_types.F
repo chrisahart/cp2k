@@ -194,8 +194,7 @@ MODULE qs_cdft_types
          DIMENSION(:, :, :, :)             :: gradients
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
-      REAL(KIND=dp), POINTER, &
-         DIMENSION(:)             :: hirsh_rho_promolecular
+      REAL(pw_p_type)           :: hirsh_rho_promolecular
    END TYPE cdft_group_type
 
    TYPE cdft_control_type
@@ -470,8 +469,8 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%d_sum_const_dR)
                IF (ASSOCIATED(cdft_control%group(i)%gradients)) &
                   DEALLOCATE (cdft_control%group(i)%gradients)
-                  IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
-                     DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
+                  !IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
+                !     DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
             END DO
