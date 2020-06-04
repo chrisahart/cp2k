@@ -1430,7 +1430,7 @@ PRINT *, "b"
 PRINT *, "c"
          ! Save hirshfeld promolecular density
          IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-           cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
+           !cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0 !fnorm%pw%cr3d
          END IF
 
       END DO !igroup = 1, SIZE(cdft_control%group)

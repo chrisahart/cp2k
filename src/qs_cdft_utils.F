@@ -573,7 +573,7 @@ CONTAINS
          ALLOCATE (cdft_control%group(k)%coeff(natoms))
          NULLIFY (cdft_control%group(k)%weight%pw)
          NULLIFY (cdft_control%group(k)%gradients)
-         !NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular)
+         NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
          NULLIFY (cdft_control%group(k)%integrated)
          tot_natoms = tot_natoms + natoms
          ! Now parse
