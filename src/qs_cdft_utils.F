@@ -1132,16 +1132,11 @@ CONTAINS
           cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
       END DO
 
-      PRINT *, "gradients"
-
-      DO igroup = 1, SIZE(cdft_control%group)
-        PRINT *, igroup
-          cdft_control%group(igroup)%gradients = 0.0_dp
-      END DO
-
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
       CALL timestop(handle)
+
+      PRINT *, "end hirshfeld_constraint_init"
 
    END SUBROUTINE hirshfeld_constraint_init
 
