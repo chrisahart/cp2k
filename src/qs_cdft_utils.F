@@ -201,12 +201,10 @@ CONTAINS
       ! Zero weight functions
       DO igroup = 1, SIZE(group)
          group(igroup)%weight%pw%cr3d = 0.0_dp
-         group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
       END DO
       IF (cdft_control%atomic_charges) THEN
          DO iatom = 1, cdft_control%natoms
             cdft_control%charge(iatom)%pw%cr3d = 0.0_dp
-            cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
       END IF
       ! Allocate storage for cell adjustment coefficients and needed distance vectors
@@ -1099,6 +1097,17 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
+      DO igroup = 1, SIZE(group)
+         group(igroup)%weight%pw%cr3d = 0.0_dp
+         group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+      END DO
+      IF (cdft_control%atomic_charges) THEN
+         DO iatom = 1, cdft_control%natoms
+            cdft_control%charge(iatom)%pw%cr3d = 0.0_dp
+            cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+         END DO
+      END IF
+
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
       CALL timestop(handle)
@@ -1364,17 +1373,14 @@ CONTAINS
          ! Loop over CDFT control groups printing promolecular density
              DO igroup = 1, SIZE(cdft_control%group)
 
+               PRINT *, "i"
+
                mpi_io = .TRUE.
                middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                               middle_name=middle_name, &
                                               extension=".cube", file_position="REWIND", &
                                               log_filename=.FALSE., mpi_io=mpi_io)
-
-               ! Note PROGRAM_RUN_INFO section neeeds to be active!
-               IF (para_env%ionode .AND. unit_nr .LT. 1) &
-                  CALL cp_abort(__LOCATION__, &
-                                "Please turn on PROGRAM_RUN_INFO to print CDFT Hirshfeld densities.")
 
                CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
                                   unit_nr, &
@@ -1397,11 +1403,6 @@ CONTAINS
                                             middle_name=middle_name, &
                                             extension=".cube", file_position="REWIND", &
                                             log_filename=.FALSE., mpi_io=mpi_io)
-
-             ! Note PROGRAM_RUN_INFO section neeeds to be active!
-             IF (para_env%ionode .AND. unit_nr .LT. 1) &
-                CALL cp_abort(__LOCATION__, &
-                              "Please turn on PROGRAM_RUN_INFO to print CDFT Hirshfeld densities.")
 
              CALL cp_pw_to_cube(cdft_control%hirsh_rho_atomic(iatom)%pw, &
                                 unit_nr, &
