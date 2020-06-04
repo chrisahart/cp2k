@@ -1103,10 +1103,17 @@ CONTAINS
       ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(cdft_control%natoms))
       PRINT *, "b"
       cdft_control%group(1)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
+
+
       PRINT *, "c"
       ALLOCATE (cdft_control%group(1)%hirsh_gradients(cdft_control%natoms))
-      NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular%pw)
       PRINT *, "d"
+      cdft_control%group(1)%hirsh_gradients(cdft_control%natoms) = 0.0_dp
+
+      PRINT *, "e"
+      NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular%pw)
+      PRINT *, "f"
+      cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
 
       PRINT *, "weight"
 
