@@ -1016,6 +1016,7 @@ CONTAINS
       cdft_control => dft_control%qs_control%cdft_control
       hirshfeld_control => cdft_control%hirshfeld_control
       hirshfeld_env => hirshfeld_control%hirshfeld_env
+      group => cdft_control%group
 
       ! Setup the Hirshfeld shape function
       IF (.NOT. ASSOCIATED(hirshfeld_env%kind_shape_fn)) THEN
@@ -1065,7 +1066,6 @@ CONTAINS
       ! Print some additional information about the calculation on the first iteration
       IF (cdft_control%first_iteration) THEN
          IF (iw > 0) THEN
-            group => cdft_control%group
             CALL get_qs_env(qs_env, particle_set=particle_set)
             IF (ASSOCIATED(hirshfeld_control%radii)) THEN
                WRITE (iw, '(T3,A)') &
@@ -1097,9 +1097,13 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
+      PRINT *, "hirsh_rho_promolecular"
+
       DO igroup = 1, SIZE(group)
          group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
       END DO
+
+      PRINT *, "hirsh_rho_atomic"
 
          DO iatom = 1, cdft_control%natoms
             cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
