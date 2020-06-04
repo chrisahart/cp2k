@@ -571,7 +571,6 @@ CONTAINS
          ALLOCATE (cdft_control%group(k)%coeff(natoms))
          NULLIFY (cdft_control%group(k)%weight%pw)
          NULLIFY (cdft_control%group(k)%gradients)
-         NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
          NULLIFY (cdft_control%group(k)%integrated)
          tot_natoms = tot_natoms + natoms
          ! Now parse
@@ -674,6 +673,7 @@ CONTAINS
       ALLOCATE (cdft_control%is_constraint(cdft_control%natoms))
       IF (cdft_control%atomic_charges) ALLOCATE (cdft_control%charge(cdft_control%natoms))
       ALLOCATE (cdft_control%hirsh_rho_atomic(cdft_control%natoms))
+      ALLOCATE (cdft_control%hirsh_gradients(cdft_control%natoms))
       cdft_control%atoms(1:SIZE(atomlist)) = atomlist
       IF (ASSOCIATED(dummylist)) THEN
          cdft_control%atoms(1 + SIZE(atomlist):) = dummylist
@@ -1104,6 +1104,13 @@ CONTAINS
             cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
 
+         PRINT *, "hirsh_gradients"
+
+            DO iatom = 1, cdft_control%natoms
+              PRINT *, iatom
+               cdft_control%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
+            END DO
+
          PRINT *, "weight"
 
          DO igroup = 1, SIZE(group)
@@ -1111,11 +1118,25 @@ CONTAINS
             group(igroup)%weight%pw%cr3d = 0.0_dp
          END DO
 
+         PRINT *, "weight"
+
+         DO igroup = 1, SIZE(group)
+           PRINT *, igroup
+            cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+         END DO
+
       PRINT *, "hirsh_rho_promolecular"
 
       DO igroup = 1, SIZE(cdft_control%group)
         PRINT *, igroup
-         ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+      END DO
+
+      PRINT *, "gradients"
+
+      DO igroup = 1, SIZE(cdft_control%group)
+        PRINT *, igroup
+          cdft_control%group(igroup)%gradients = 0.0_dp
       END DO
 
       ! Radii no longer needed
