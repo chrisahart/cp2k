@@ -597,6 +597,7 @@ CONTAINS
                IF (jj > natoms) CPABORT("Length of keywords ATOMS and COEFF must match.")
                IF (ABS(rtmplist(i)) /= 1.0_dp) CPABORT("Keyword COEFF accepts only values +/-1.0")
                cdft_control%group(k)%coeff(jj) = rtmplist(i)
+
             END DO
          END DO
          IF (jj < natoms) CPABORT("Length of keywords ATOMS and COEFF must match.")
@@ -1101,15 +1102,24 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
+      PRINT *, "weight"
+
+      DO igroup = 1, SIZE(group)
+         group(igroup)%weight%pw%cr3d = 0.0_dp
+      END DO
+
+      PRINT *, "weight"
+
+      DO igroup = 1, SIZE(cdft_control%group)
+         cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+      END DO
+
+
       PRINT *, "hirsh_rho_atomic"
 
       DO igroup = 1, SIZE(cdft_control%group)
         PRINT *, SIZE(cdft_control%group)
         PRINT *, igroup
-
-        ! Zero Hirshfeld promolecular density
-          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-          PRINT *, "hirsh_rho_promolecular"
 
         DO iatom = 1, cdft_control%natoms
             PRINT *, cdft_control%natoms
@@ -1122,6 +1132,11 @@ CONTAINS
              cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
              PRINT *, "hirsh_gradients"
       END DO
+
+      ! Zero Hirshfeld promolecular density
+        cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+        PRINT *, "hirsh_rho_promolecular"
+
     END DO
 
       ! Radii no longer needed
@@ -1429,13 +1444,6 @@ CONTAINS
                END DO
 
           END DO ! END DO i = 1, dft_control%nspins
-
-          PRINT *, "a"
-
-          ! Loop over CDFT atoms printing atomic densities (cdft_control%hirsh_rho_atomic(i)%pw%cr3d)
-
-
-
 
            PRINT *, "end cdft_print_hirshfeld_density"
 
