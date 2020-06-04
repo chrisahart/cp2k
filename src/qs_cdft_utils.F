@@ -1115,10 +1115,6 @@ CONTAINS
             PRINT *, cdft_control%natoms
             PRINT *, iatom
 
-            ! Zero weight function
-            cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
-            PRINT *, "weight"
-
             ! Zero Hirshfeld atomic density and gradients
              cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
              PRINT *, "hirsh_rho_atomic"
