@@ -567,7 +567,7 @@ CONTAINS
                CPABORT("Each ATOM_GROUP must contain at least 1 atom.")
             natoms = natoms + SIZE(tmplist)
          END DO
-         
+
          ALLOCATE (cdft_control%group(k)%atoms(natoms))
          ALLOCATE (cdft_control%group(k)%coeff(natoms))
          ALLOCATE (cdft_control%group(k)%hirsh_rho_atomic(natoms))
@@ -678,8 +678,6 @@ CONTAINS
       ALLOCATE (cdft_control%atoms(cdft_control%natoms))
       ALLOCATE (cdft_control%is_constraint(cdft_control%natoms))
       IF (cdft_control%atomic_charges) ALLOCATE (cdft_control%charge(cdft_control%natoms))
-      ALLOCATE (cdft_control%group%hirsh_rho_atomic(cdft_control%natoms))
-      ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
       cdft_control%atoms(1:SIZE(atomlist)) = atomlist
       IF (ASSOCIATED(dummylist)) THEN
          cdft_control%atoms(1 + SIZE(atomlist):) = dummylist
