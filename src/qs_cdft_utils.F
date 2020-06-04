@@ -567,11 +567,17 @@ CONTAINS
                CPABORT("Each ATOM_GROUP must contain at least 1 atom.")
             natoms = natoms + SIZE(tmplist)
          END DO
+         
          ALLOCATE (cdft_control%group(k)%atoms(natoms))
          ALLOCATE (cdft_control%group(k)%coeff(natoms))
+         ALLOCATE (cdft_control%group(k)%hirsh_rho_atomic(natoms))
+         ALLOCATE (cdft_control%group(k)%hirsh_gradients(natoms))
+
+         NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
          NULLIFY (cdft_control%group(k)%weight%pw)
          NULLIFY (cdft_control%group(k)%gradients)
          NULLIFY (cdft_control%group(k)%integrated)
+
          tot_natoms = tot_natoms + natoms
          ! Now parse
          jj = 0

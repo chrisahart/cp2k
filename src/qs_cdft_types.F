@@ -364,8 +364,6 @@ CONTAINS
       NULLIFY (cdft_control%fragments)
       NULLIFY (cdft_control%group)
       NULLIFY (cdft_control%charge)
-      NULLIFY (cdft_control%hirsh_rho_atomic)
-      NULLIFY (cdft_control%hirsh_gradients)
       cdft_control%natoms = 0
       cdft_control%type = outer_scf_none
       cdft_control%need_pot = .TRUE.
@@ -459,10 +457,6 @@ CONTAINS
             DEALLOCATE (cdft_control%is_constraint)
          IF (ASSOCIATED(cdft_control%charge)) &
             DEALLOCATE (cdft_control%charge)
-         IF (ASSOCIATED(cdft_control%hirsh_rho_atomic)) &
-            DEALLOCATE (cdft_control%hirsh_rho_atomic)
-            IF (ASSOCIATED(cdft_control%hirsh_gradients)) &
-               DEALLOCATE (cdft_control%hirsh_gradients)
          ! Constraint atom groups
          IF (ASSOCIATED(cdft_control%group)) THEN
             DO i = 1, SIZE(cdft_control%group)
@@ -470,6 +464,10 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
                   DEALLOCATE (cdft_control%group(i)%coeff)
+                  IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
+                     DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+                     IF (ASSOCIATED(cdft_control%group(i)%hirsh_gradients)) &
+                        DEALLOCATE (cdft_control%group(i)%hirsh_gradients)
                IF (ALLOCATED(cdft_control%group(i)%d_sum_const_dR)) &
                   DEALLOCATE (cdft_control%group(i)%d_sum_const_dR)
                IF (ASSOCIATED(cdft_control%group(i)%gradients)) &
