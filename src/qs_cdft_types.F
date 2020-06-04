@@ -239,7 +239,7 @@ MODULE qs_cdft_types
       TYPE(pw_p_type), POINTER, &
          DIMENSION(:)                      :: hirsh_rho_atomic
          TYPE(pw_p_type), POINTER, &
-            DIMENSION(:, :, :)                      :: hirsh_gradients
+            DIMENSION(:)                      :: hirsh_gradients
    END TYPE cdft_control_type
 
    CHARACTER(len=*), PARAMETER, PRIVATE :: moduleN = 'qs_cdft_types'
