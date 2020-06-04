@@ -1097,17 +1097,21 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
-      PRINT *, "hirsh_rho_promolecular"
-
-      DO igroup = 1, SIZE(group)
-         group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-      END DO
-
       PRINT *, "hirsh_rho_atomic"
 
          DO iatom = 1, cdft_control%natoms
+           PRINT *, iatom
             cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
+
+      PRINT *, "hirsh_rho_promolecular"
+
+      DO igroup = 1, SIZE(group)
+        PRINT *, igroup
+         group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+      END DO
+
+
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
