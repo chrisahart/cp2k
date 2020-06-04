@@ -570,10 +570,6 @@ CONTAINS
 
          ALLOCATE (cdft_control%group(k)%atoms(natoms))
          ALLOCATE (cdft_control%group(k)%coeff(natoms))
-         ALLOCATE (cdft_control%group(k)%hirsh_rho_atomic(natoms))
-         ALLOCATE (cdft_control%group(k)%hirsh_gradients(natoms))
-
-         NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
          NULLIFY (cdft_control%group(k)%weight%pw)
          NULLIFY (cdft_control%group(k)%gradients)
          NULLIFY (cdft_control%group(k)%integrated)
@@ -1016,6 +1012,11 @@ CONTAINS
       logger => cp_get_default_logger()
       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
       iw = cp_print_key_unit_nr(logger, print_section, "PROGRAM_RUN_INFO", extension=".cdftLog")
+
+
+      ALLOCATE (cdft_control%group(k)%hirsh_rho_atomic(cdft_control%natoms))
+      ALLOCATE (cdft_control%group(k)%hirsh_gradients(cdft_control%natoms))
+      NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
 
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
