@@ -1147,9 +1147,16 @@ CONTAINS
              PRINT *, "hirsh_gradients"
       END DO
 
+      PRINT *, "hirsh_rho_promolecular 1"
       ! Zero Hirshfeld promolecular density
-        cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-        PRINT *, "hirsh_rho_promolecular"
+        cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+        PRINT *, "hirsh_rho_promolecular 1 end"
+
+        PRINT *, "hirsh_rho_promolecular igroup start"
+        PRINT *, igroup
+        ! Zero Hirshfeld promolecular density
+          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+          PRINT *, "hirsh_rho_promolecular igroup end"
 
     END DO
 
