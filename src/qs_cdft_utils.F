@@ -1111,7 +1111,7 @@ CONTAINS
       cdft_control%group(1)%hirsh_gradients(cdft_control%natoms)%pw%cr3d = 0.0_dp
 
       PRINT *, "e"
-      NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular%pw)
+      NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular)
       PRINT *, "f"
       cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
 
