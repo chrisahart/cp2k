@@ -1014,9 +1014,9 @@ CONTAINS
       iw = cp_print_key_unit_nr(logger, print_section, "PROGRAM_RUN_INFO", extension=".cdftLog")
 
 
-      ALLOCATE (cdft_control%group(k)%hirsh_rho_atomic(cdft_control%natoms))
-      ALLOCATE (cdft_control%group(k)%hirsh_gradients(cdft_control%natoms))
-      NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
+      ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(cdft_control%natoms))
+      ALLOCATE (cdft_control%group(1)%hirsh_gradients(cdft_control%natoms))
+      NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular%pw)
 
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
