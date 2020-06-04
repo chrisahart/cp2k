@@ -1098,12 +1098,10 @@ CONTAINS
       END IF
 
       DO igroup = 1, SIZE(group)
-         group(igroup)%weight%pw%cr3d = 0.0_dp
          group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
       END DO
-      IF (cdft_control%atomic_charges) THEN
+
          DO iatom = 1, cdft_control%natoms
-            cdft_control%charge(iatom)%pw%cr3d = 0.0_dp
             cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
       END IF

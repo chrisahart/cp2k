@@ -1419,7 +1419,7 @@ PRINT *, "a"
                plot_hirshfeld_density = .TRUE.
                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
 PRINT *, "aa"
-                 !cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+                 cdft_control%hirsh_rho_atomic(i)%pw = tmp%pw
                END IF
 PRINT *, "b"
             END DO
