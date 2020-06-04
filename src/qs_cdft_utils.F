@@ -1104,7 +1104,6 @@ CONTAINS
          DO iatom = 1, cdft_control%natoms
             cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
-      END IF
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
