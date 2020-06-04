@@ -1104,14 +1104,19 @@ CONTAINS
             cdft_control%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
          END DO
 
+         PRINT *, "weight"
+
+         DO igroup = 1, SIZE(group)
+           PRINT *, igroup
+            group(igroup)%weight%pw%cr3d = 0.0_dp
+         END DO
+
       PRINT *, "hirsh_rho_promolecular"
 
-      DO igroup = 1, SIZE(group)
+      DO igroup = 1, SIZE(cdft_control%group)
         PRINT *, igroup
-         group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+         ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
       END DO
-
-
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
@@ -1376,26 +1381,26 @@ CONTAINS
          PRINT *, "start cdft_print_hirshfeld_density"
 
          ! Loop over CDFT control groups printing promolecular density
-             DO igroup = 1, SIZE(cdft_control%group)
-
-               PRINT *, "i"
-
-               mpi_io = .TRUE.
-               middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
-               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
-                                              middle_name=middle_name, &
-                                              extension=".cube", file_position="REWIND", &
-                                              log_filename=.FALSE., mpi_io=mpi_io)
-
-               CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
-                                  unit_nr, &
-                                  "CDFT Weight Function", &
-                                  particles=particles, &
-                                  stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"), &
-                                  mpi_io=mpi_io)
-               CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
-
-          END DO ! END DO i = 1, dft_control%nspins
+          !    DO igroup = 1, SIZE(cdft_control%group)
+          !
+          !      PRINT *, "i"
+          !
+          !      mpi_io = .TRUE.
+          !      middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+          !      unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+          !                                     middle_name=middle_name, &
+          !                                     extension=".cube", file_position="REWIND", &
+          !                                     log_filename=.FALSE., mpi_io=mpi_io)
+          !
+          !      CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
+          !                         unit_nr, &
+          !                         "CDFT Weight Function", &
+          !                         particles=particles, &
+          !                         stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"), &
+          !                         mpi_io=mpi_io)
+          !      CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
+          !
+          ! END DO ! END DO i = 1, dft_control%nspins
 
           PRINT *, "a"
 
