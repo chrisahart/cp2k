@@ -1108,7 +1108,7 @@ CONTAINS
       PRINT *, "c"
       ALLOCATE (cdft_control%group(1)%hirsh_gradients(cdft_control%natoms))
       PRINT *, "d"
-      cdft_control%group(1)%hirsh_gradients(cdft_control%natoms) = 0.0_dp
+      cdft_control%group(1)%hirsh_gradients(cdft_control%natoms)%pw%cr3d = 0.0_dp
 
       PRINT *, "e"
       NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular%pw)
