@@ -1099,66 +1099,100 @@ CONTAINS
       END IF
 
 
-      PRINT *, "a"
-      ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(cdft_control%natoms))
-      PRINT *, "b"
-      cdft_control%group(1)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
-
-
-      PRINT *, "c"
-      ALLOCATE (cdft_control%group(1)%hirsh_gradients(cdft_control%natoms))
-      PRINT *, "d"
-      cdft_control%group(1)%hirsh_gradients(1)%pw%cr3d = 0.0_dp
-
-      PRINT *, "e"
-      ALLOCATE (cdft_control%group(1)%hirsh_rho_promolecular)
-      !NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular)
-      PRINT *, "f"
-      cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-
-      PRINT *, "weight"
-
-      DO igroup = 1, SIZE(group)
-         group(igroup)%weight%pw%cr3d = 0.0_dp
-      END DO
-
-      PRINT *, "weight"
-
+      PRINT *, "start"
       DO igroup = 1, SIZE(cdft_control%group)
-         cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
-      END DO
 
+        PRINT *, "a"
+        ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
 
-      PRINT *, "hirsh_rho_atomic"
+        PRINT *, "b"
+        ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
 
-      DO igroup = 1, SIZE(cdft_control%group)
-        PRINT *, SIZE(cdft_control%group)
-        PRINT *, igroup
-
-        DO iatom = 1, cdft_control%natoms
-            PRINT *, cdft_control%natoms
-            PRINT *, iatom
-
-            ! Zero Hirshfeld atomic density and gradients
-             cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
-             PRINT *, "hirsh_rho_atomic"
-
-             cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
-             PRINT *, "hirsh_gradients"
-      END DO
-
-      PRINT *, "hirsh_rho_promolecular 1"
-      ! Zero Hirshfeld promolecular density
+        PRINT *, "c"
+        ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
         cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-        PRINT *, "hirsh_rho_promolecular 1 end"
 
-        PRINT *, "hirsh_rho_promolecular igroup start"
-        PRINT *, igroup
-        ! Zero Hirshfeld promolecular density
-          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-          PRINT *, "hirsh_rho_promolecular igroup end"
+      END DO
+      PRINT *, "end"
 
+      PRINT *, "start"
+      DO igroup = 1, SIZE(cdft_control%group)
+          DO iatom = 1, cdft_control%natoms
+
+        PRINT *, "a"
+        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+
+        PRINT *, "b"
+        cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
+
+      END DO
     END DO
+      PRINT *, "end"
+
+
+
+
+
+      ! PRINT *, "a"
+      ! ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(cdft_control%natoms))
+      ! PRINT *, "b"
+      ! cdft_control%group(1)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
+      !
+      !
+      ! PRINT *, "c"
+      ! ALLOCATE (cdft_control%group(1)%hirsh_gradients(cdft_control%natoms))
+      ! PRINT *, "d"
+      ! cdft_control%group(1)%hirsh_gradients(1)%pw%cr3d = 0.0_dp
+      !
+      ! PRINT *, "e"
+      ! ALLOCATE (cdft_control%group(1)%hirsh_rho_promolecular)
+      ! !NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular)
+      ! PRINT *, "f"
+      ! cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+      !
+      ! PRINT *, "weight"
+      !
+      ! DO igroup = 1, SIZE(group)
+      !    group(igroup)%weight%pw%cr3d = 0.0_dp
+      ! END DO
+      !
+      ! PRINT *, "weight"
+      !
+      ! DO igroup = 1, SIZE(cdft_control%group)
+      !    cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+      ! END DO
+      !
+      !
+      ! PRINT *, "hirsh_rho_atomic"
+
+      ! DO igroup = 1, SIZE(cdft_control%group)
+      !   PRINT *, SIZE(cdft_control%group)
+      !   PRINT *, igroup
+      !
+      !   DO iatom = 1, cdft_control%natoms
+      !       PRINT *, cdft_control%natoms
+      !       PRINT *, iatom
+      !
+      !       ! Zero Hirshfeld atomic density and gradients
+      !        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+      !        PRINT *, "hirsh_rho_atomic"
+      !
+      !        cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
+      !        PRINT *, "hirsh_gradients"
+      ! END DO
+
+      ! PRINT *, "hirsh_rho_promolecular 1"
+      ! ! Zero Hirshfeld promolecular density
+      !   cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+      !   PRINT *, "hirsh_rho_promolecular 1 end"
+      !
+      !   PRINT *, "hirsh_rho_promolecular igroup start"
+      !   PRINT *, igroup
+        ! Zero Hirshfeld promolecular density
+    !       cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+    !       PRINT *, "hirsh_rho_promolecular igroup end"
+    !
+    ! END DO
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
