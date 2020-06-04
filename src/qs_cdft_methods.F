@@ -1419,12 +1419,12 @@ PRINT *, "a"
                plot_hirshfeld_density = .TRUE.
                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
 PRINT *, "aa"
-                 cdft_control%hirsh_rho_atomic(i)%pw%cr3d = 0.0_dp
-                 PRINT *, "zero"
-                 cdft_control%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-                 PRINT *, "cr3d"
-                 cdft_control%hirsh_rho_atomic(i)%pw = tmp%pw
-                 PRINT *, "equal"
+                 ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = 0.0_dp
+                 ! PRINT *, "zero"
+                 ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+                 ! PRINT *, "cr3d"
+                 ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw = tmp%pw
+                 ! PRINT *, "equal"
                END IF
 PRINT *, "b"
             END DO
