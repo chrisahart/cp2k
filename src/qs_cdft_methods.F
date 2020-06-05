@@ -1441,9 +1441,9 @@ PRINT *, "c"
       END DO !igroup = 1, SIZE(cdft_control%group)
 PRINT *, "d"
       ! Print hirshfeld densitites
-      ! IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-      !   CALL cdft_print_hirshfeld_density(qs_env)
-      ! END IF
+      IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
+        CALL cdft_print_hirshfeld_density(qs_env)
+      END IF
 PRINT *, "e"
 
 ! Calculate gradient (atomic/promolecular)
