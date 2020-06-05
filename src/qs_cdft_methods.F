@@ -1424,7 +1424,7 @@ PRINT *, "aa"
 
                   cdft_control%group(igroup)%hirsh_gradients(i) = cdft_control%group(igroup)%weight
                   ! cdft_control%group(igroup)%hirsh_gradients(i)%pw%cr3d = 2.0_dp
-                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pwcr3d
+                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                  ! PRINT *, "equal"
                END IF
 PRINT *, "b"
