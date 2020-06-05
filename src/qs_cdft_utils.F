@@ -1130,9 +1130,9 @@ CONTAINS
           DO iatom = 1, cdft_control%natoms
 
         PRINT *, "a"
-        PRINT *, igroup
-        PRINT *, cdft_control%natoms
-        PRINT *, SIZE(cdft_control%group)
+        PRINT *, "igroup", igroup
+        PRINT *, "cdft_control%natoms", cdft_control%natoms
+        PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
         cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
 
         PRINT *, "b"
@@ -1496,30 +1496,38 @@ CONTAINS
          ! Loop over CDFT control groups printing promolecular density
              DO igroup = 1, SIZE(cdft_control%group)
 
-               PRINT *, "igroup"
+               PRINT *, igroup
 
                middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(iatom)))
                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                               middle_name=middle_name, extension=".cube")
-               CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, unit_nr, "CDFT Weight Function",&
-                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+               ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, unit_nr, "CDFT Weight Function",&
+                ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+                CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
+                                 stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+
+
+
                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
                ! Loop atoms in control group printing atomic densities
-               DO iatom = 1, cdft_control%natoms
+               ! DO iatom = 1, cdft_control%natoms
+               !
+               !   PRINT *, iatom
+               !
+               !   middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
+               !   unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+               !                                  middle_name=middle_name, extension=".cube")
+               !   CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, unit_nr, "CDFT Weight Function",&
+               !    particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+               !   CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+               !
+               ! END DO
 
-                 PRINT *, iatom
-
-                 middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
-                 unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
-                                                middle_name=middle_name, extension=".cube")
-                 CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, unit_nr, "CDFT Weight Function",&
-                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-                 CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
-               END DO
-
-          END DO ! END DO i = 1, dft_control%nspins
+          END DO ! igroup = 1, SIZE(cdft_control%group)
 
            PRINT *, "end cdft_print_hirshfeld_density"
 
