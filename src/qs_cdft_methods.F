@@ -1454,7 +1454,7 @@ DO igroup = 1, SIZE(cdft_control%group)
     DO iatom  = 1, (cdft_control%natoms)
 
       CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(i)%pw%cr3d, &
-        cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d, cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d )
+        cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d, cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
 
       END DO
     END DO
