@@ -1483,6 +1483,7 @@ DO igroup = 1, SIZE(cdft_control%group)
      INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
                                                            iw_test1, iw_test2, iw_cube, jatom, natom, nvar
      REAL(kind=dp)                                      :: dvol, eps_cavity, sign
+     INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
      TYPE(cdft_control_type), POINTER                   :: cdft_control
      TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
@@ -1501,12 +1502,13 @@ DO igroup = 1, SIZE(cdft_control%group)
      CHARACTER(LEN=default_path_length)                 :: middle_name
      TYPE(particle_list_type), POINTER                  :: particles
      TYPE(qs_subsys_type), POINTER                      :: subsys
+     TYPE(qs_force_type), DIMENSION(:), POINTER         :: force
 
       PRINT *, "start hirshfeld_constraint_force"
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
-              rho0_mpole, group, charge)
+              rho0_mpole, group, charge, force)
 
               PRINT *, "a"
      CALL timeset(routineN, handle)
@@ -1517,6 +1519,7 @@ DO igroup = 1, SIZE(cdft_control%group)
                      subsys=subsys, &
                      particle_set=particle_set, &
                      rho=rho, &
+                     force=force, &
                      natom=natom, &
                      dft_control=dft_control, &
                      para_env=para_env, &
@@ -1528,6 +1531,13 @@ PRINT *, "d"
      group => cdft_control%group
      dvol = group(1)%weight%pw%pw_grid%dvol
      PRINT *, "f"
+
+     ALLOCATE (atom_of_kind(natom))
+     ALLOCATE (kind_of(natom))
+
+     CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
+                              atom_of_kind=atom_of_kind, &
+                              kind_of=kind_of)
 
      CALL qs_subsys_get(subsys, particles=particles)
 PRINT *, "g"
@@ -1614,7 +1624,7 @@ PRINT *, "g"
       ! by the number of processes when the final force%rho_elec is constructed in qs_force
       ! by mp_summing [the final integrated(:,:) is distributed on all processors]
       IF (para_env%ionode) THEN
-         DO igroup = 1, SIZE(group)
+         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom = 1, natom
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
