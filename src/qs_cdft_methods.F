@@ -1420,12 +1420,9 @@ PRINT *, "a"
                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
 PRINT *, "aa"
                   cdft_control%group(igroup)%hirsh_rho_atomic(i) = cdft_control%group(igroup)%weight
-                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = 2.0_dp
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d =tmp%pw%cr3d
 
                   cdft_control%group(igroup)%hirsh_gradients(i) = cdft_control%group(igroup)%weight
-                  ! cdft_control%group(igroup)%hirsh_gradients(i)%pw%cr3d = 2.0_dp
-                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-                 ! PRINT *, "equal"
                END IF
 PRINT *, "b"
             END DO
@@ -1450,14 +1447,14 @@ PRINT *, "d"
 PRINT *, "e"
 
 ! Calculate gradient (atomic/promolecular)
-DO igroup = 1, SIZE(cdft_control%group)
-    DO iatom  = 1, (cdft_control%natoms)
-
-      CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d, &
-        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d, cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
-
-      END DO
-    END DO
+! DO igroup = 1, SIZE(cdft_control%group)
+!     DO iatom  = 1, (cdft_control%natoms)
+!
+!       CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d, &
+!         cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d, cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
+!
+!       END DO
+!     END DO
 
 
       ! Deallocate temporaries
@@ -1620,6 +1617,8 @@ PRINT *, "g"
 
 
 
+        CPABORT("Hirshfeld force not yet implemented.")
+
 
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
       ! by the number of processes when the final force%rho_elec is constructed in qs_force
@@ -1635,7 +1634,7 @@ PRINT *, "g"
       END IF
 
       ! Call ABORT
-      ! CPABORT("Hirshfeld force not yet implemented.")
+
 
     END SUBROUTINE hirshfeld_constraint_force
 
