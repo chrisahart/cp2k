@@ -1497,6 +1497,7 @@ CONTAINS
              DO igroup = 1, SIZE(cdft_control%group)
 
                PRINT *, igroup
+               PRINT *, SIZE(cdft_control%group)
 
                PRINT *, "a"
 
@@ -1506,6 +1507,9 @@ CONTAINS
 
                 PRINT *, "a"
                 cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
+
+                PRINT *, "a"
+                cdft_control%group(igroup)%hirsh_rho_promolecular%pw = cdft_control%group(igroup)%weight%pw
 
                 PRINT *, "b"
 
