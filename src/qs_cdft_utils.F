@@ -1505,7 +1505,7 @@ CONTAINS
                                               middle_name=middle_name, extension=".cube")
 
                 PRINT *, "a"
-                cdft_control%group(igroup)%hirsh_rho_promolecular%pw = 1.0_dp
+                cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
                 PRINT *, "b"
 
