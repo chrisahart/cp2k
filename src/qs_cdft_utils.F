@@ -1430,7 +1430,7 @@ CONTAINS
                 ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom) = cdft_control%group(igroup)%weight
                 ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 2.0_dp
 
-                middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+                middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
                 unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                                file_position="REWIND", middle_name=middle_name, extension=".cube")
 
