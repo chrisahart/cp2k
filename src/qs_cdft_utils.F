@@ -1508,14 +1508,14 @@ CONTAINS
                                               file_position="REWIND", middle_name=middle_name, extension=".cube")
 
                 PRINT *, "a"
-                cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
+                ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
                 PRINT *, "a"
-                cdft_control%group(igroup)%hirsh_rho_promolecular%pw = cdft_control%group(igroup)%weight%pw
+                ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw = cdft_control%group(igroup)%weight%pw
 
                 PRINT *, "b"
 
-                tmp = cdft_control%group(igroup)%hirsh_rho_promolecular
+                tmp = cdft_control%group(igroup)%weight !cdft_control%group(igroup)%hirsh_rho_promolecular
 
                ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
                 ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
@@ -1530,6 +1530,34 @@ CONTAINS
                 PRINT *, "c"
 
                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+
+
+
+               PRINT *, "d"
+
+               tmp = cdft_control%group(1)%hirsh_rho_promolecular
+
+              ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
+               ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+               middle_name = "hirsh_rho_promolecular2_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
+
+               CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function",&
+                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+               ! CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
+                                ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+
+               PRINT *, "e"
+
+              CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+
+
+
+
 
                ! Loop atoms in control group printing atomic densities
                ! DO iatom = 1, cdft_control%natoms
