@@ -1503,7 +1503,7 @@ CONTAINS
 
                middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
-                                              middle_name=middle_name, extension=".cube")
+                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 
                 PRINT *, "a"
                 cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
@@ -1513,8 +1513,11 @@ CONTAINS
 
                 PRINT *, "b"
 
-               CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, unit_nr, "CDFT Weight Function",&
+               CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
                 particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+                ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, unit_nr, "CDFT Weight Function",&
+                 ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
                 ! CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
                                  ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
