@@ -194,12 +194,13 @@ MODULE qs_cdft_types
          DIMENSION(:, :, :, :)             :: gradients
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
-      TYPE(pw_p_type), POINTER                      :: hirsh_rho_promolecular
+      TYPE(pw_p_type), POINTER             :: hirsh_rho_promolecular
       TYPE(pw_p_type), POINTER, &
          DIMENSION(:)                      :: hirsh_rho_atomic
-         TYPE(pw_p_type), POINTER, &
-            DIMENSION(:)                      :: hirsh_gradients
-   END TYPE cdft_group_type
+      TYPE(pw_p_type), POINTER, &
+         DIMENSION(:)                      :: hirsh_gradients
+
+    END TYPE cdft_group_type
 
    TYPE cdft_control_type
       CHARACTER(LEN=default_path_length)   :: fragment_a_fname, &

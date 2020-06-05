@@ -1099,7 +1099,7 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
-      ! Acclocate
+      ! Allocate
       PRINT *, "start"
       DO igroup = 1, SIZE(cdft_control%group)
 
@@ -1119,7 +1119,7 @@ CONTAINS
       DO igroup = 1, SIZE(cdft_control%group)
 
         PRINT *, "d"
-        cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+        cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
           DO iatom = 1, cdft_control%natoms
 
@@ -1129,10 +1129,10 @@ CONTAINS
         PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
 
         PRINT *, "e"
-        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
 
         PRINT *, "f"
-        cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
+        cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
 
       END DO
     END DO
