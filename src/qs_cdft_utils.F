@@ -1104,13 +1104,13 @@ CONTAINS
       DO igroup = 1, SIZE(cdft_control%group)
 
         !PRINT *, "a"
-        !ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
+        ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
 
         PRINT *, "b"
         ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
 
         PRINT *, "c"
-        ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
+        !ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
 
       END DO
       PRINT *, "end"
