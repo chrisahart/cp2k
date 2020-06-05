@@ -1481,6 +1481,7 @@ CONTAINS
          TYPE(particle_list_type), POINTER                  :: particles
          TYPE(qs_subsys_type), POINTER                      :: subsys
          TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
+         TYPE(pw_p_type)                                    :: tmp
 
          NULLIFY (cdft_constraint_section, logger, particles, dft_control, &
                   para_env, subsys, cdft_control)
@@ -1513,11 +1514,13 @@ CONTAINS
 
                 PRINT *, "b"
 
-               CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
-                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+                temp = cdft_control%group(igroup)%hirsh_rho_promolecular
 
-                ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, unit_nr, "CDFT Weight Function",&
-                 ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+               ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
+                ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+                CALL cp_pw_to_cube(temp%pw, unit_nr, "CDFT Weight Function",&
+                 particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
                 ! CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
                                  ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
