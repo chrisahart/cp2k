@@ -1515,12 +1515,12 @@ CONTAINS
 
                 PRINT *, "b"
 
-                temp = cdft_control%group(igroup)%hirsh_rho_promolecular
+                tmp = cdft_control%group(igroup)%hirsh_rho_promolecular
 
                ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
                 ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
-                CALL cp_pw_to_cube(temp%pw, unit_nr, "CDFT Weight Function",&
+                CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function",&
                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
                 ! CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
