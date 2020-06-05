@@ -463,12 +463,12 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
                   DEALLOCATE (cdft_control%group(i)%coeff)
-                  IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
-                     DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-                     IF (ASSOCIATED(cdft_control%group(i)%hirsh_gradients)) &
-                        DEALLOCATE (cdft_control%group(i)%hirsh_gradients)
-                        IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
-                           DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
+                  ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
+                  !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+                  !    IF (ASSOCIATED(cdft_control%group(i)%hirsh_gradients)) &
+                  !       DEALLOCATE (cdft_control%group(i)%hirsh_gradients)
+                  !       IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
+                  !          DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
                IF (ALLOCATED(cdft_control%group(i)%d_sum_const_dR)) &
                   DEALLOCATE (cdft_control%group(i)%d_sum_const_dR)
                IF (ASSOCIATED(cdft_control%group(i)%gradients)) &
