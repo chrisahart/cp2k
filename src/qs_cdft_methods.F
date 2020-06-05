@@ -1419,10 +1419,11 @@ PRINT *, "a"
                plot_hirshfeld_density = .TRUE.
                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
 PRINT *, "aa"
-                 ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = 0.0_dp
-                 ! PRINT *, "zero"
-                 ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-                 ! PRINT *, "cr3d"
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i) = cdft_control%group(igroup)%weight
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = 2.0_dp
+
+                  cdft_control%group(igroup)%hirsh_gradients(i) = cdft_control%group(igroup)%weight
+                  cdft_control%group(igroup)%hirsh_gradients(i)%pw%cr3d = 2.0_dp
                  ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw = tmp%pw
                  ! PRINT *, "equal"
                END IF
@@ -1435,6 +1436,8 @@ PRINT *, "b"
 PRINT *, "c"
          ! Save hirshfeld promolecular density
          IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
+           cdft_control%group(igroup)%hirsh_rho_promolecular = cdft_control%group(igroup)%weight
+           cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
            !cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0 !fnorm%pw%cr3d
          END IF
 
@@ -1445,6 +1448,18 @@ PRINT *, "d"
         CALL cdft_print_hirshfeld_density(qs_env)
       END IF
 PRINT *, "e"
+
+! Calculate gradient (atomic/promolecular)
+DO igroup = 1, SIZE(cdft_control%group)
+    DO iatom  = 1, (cdft_control%natoms)
+
+      CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(i)%pw%cr3d, &
+        cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d, cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d )
+
+      END DO
+    END DO
+
+
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
       DEALLOCATE (coefficients)
