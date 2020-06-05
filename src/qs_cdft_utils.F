@@ -1099,7 +1099,7 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
-
+      ! Acclocate
       PRINT *, "start"
       DO igroup = 1, SIZE(cdft_control%group)
 
@@ -1111,39 +1111,22 @@ CONTAINS
 
         PRINT *, "c"
         ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
-        cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
 
       END DO
       PRINT *, "end"
 
-      ! PRINT *, "start"
-      ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
-      ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
-      !
-      ! PRINT *, "b"
-      ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
-      !
-      ! PRINT *, "b"
-      ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
-
-
+      ! Zero
       DO igroup = 1, SIZE(cdft_control%group)
+
+        PRINT *, "d"
+        cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
+
           DO iatom = 1, cdft_control%natoms
 
         PRINT *, "a"
         PRINT *, "igroup", igroup
         PRINT *, "cdft_control%natoms", cdft_control%natoms
         PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
-        cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
-
-        PRINT *, "b"
-        cdft_control%group(igroup)%hirsh_gradients(1)%pw%cr3d = 0.0_dp
-
-        PRINT *, "c"
-        cdft_control%group(igroup)%hirsh_rho_atomic(2)%pw%cr3d = 0.0_dp
-
-        PRINT *, "d"
-        cdft_control%group(igroup)%hirsh_gradients(2)%pw%cr3d = 0.0_dp
 
         PRINT *, "e"
         cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
@@ -1154,81 +1137,6 @@ CONTAINS
       END DO
     END DO
       PRINT *, "end"
-
-
-      ! DO igroup = 1, SIZE(group)
-      !    group(igroup)%weight%pw%cr3d = 0.0_dp
-      ! END DO
-      ! IF (cdft_control%atomic_charges) THEN
-      !    DO iatom = 1, cdft_control%natoms
-      !       cdft_control%charge(iatom)%pw%cr3d = 0.0_dp
-      !    END DO
-      ! END IF
-
-
-
-
-
-      ! PRINT *, "a"
-      ! ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(cdft_control%natoms))
-      ! PRINT *, "b"
-      ! cdft_control%group(1)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
-      !
-      !
-      ! PRINT *, "c"
-      ! ALLOCATE (cdft_control%group(1)%hirsh_gradients(cdft_control%natoms))
-      ! PRINT *, "d"
-      ! cdft_control%group(1)%hirsh_gradients(1)%pw%cr3d = 0.0_dp
-      !
-      ! PRINT *, "e"
-      ! ALLOCATE (cdft_control%group(1)%hirsh_rho_promolecular)
-      ! !NULLIFY (cdft_control%group(1)%hirsh_rho_promolecular)
-      ! PRINT *, "f"
-      ! cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-      !
-      ! PRINT *, "weight"
-      !
-      ! DO igroup = 1, SIZE(group)
-      !    group(igroup)%weight%pw%cr3d = 0.0_dp
-      ! END DO
-      !
-      ! PRINT *, "weight"
-      !
-      ! DO igroup = 1, SIZE(cdft_control%group)
-      !    cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
-      ! END DO
-      !
-      !
-      ! PRINT *, "hirsh_rho_atomic"
-
-      ! DO igroup = 1, SIZE(cdft_control%group)
-      !   PRINT *, SIZE(cdft_control%group)
-      !   PRINT *, igroup
-      !
-      !   DO iatom = 1, cdft_control%natoms
-      !       PRINT *, cdft_control%natoms
-      !       PRINT *, iatom
-      !
-      !       ! Zero Hirshfeld atomic density and gradients
-      !        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
-      !        PRINT *, "hirsh_rho_atomic"
-      !
-      !        cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
-      !        PRINT *, "hirsh_gradients"
-      ! END DO
-
-      ! PRINT *, "hirsh_rho_promolecular 1"
-      ! ! Zero Hirshfeld promolecular density
-      !   cdft_control%group(1)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-      !   PRINT *, "hirsh_rho_promolecular 1 end"
-      !
-      !   PRINT *, "hirsh_rho_promolecular igroup start"
-      !   PRINT *, igroup
-        ! Zero Hirshfeld promolecular density
-    !       cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 0.0_dp
-    !       PRINT *, "hirsh_rho_promolecular igroup end"
-    !
-    ! END DO
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
@@ -1500,78 +1408,32 @@ CONTAINS
 
                PRINT *, igroup
                PRINT *, SIZE(cdft_control%group)
-
                PRINT *, "a"
 
                middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                               file_position="REWIND", middle_name=middle_name, extension=".cube")
 
-                PRINT *, "a"
-                ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
-
-                PRINT *, "a"
-                ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw = cdft_control%group(igroup)%weight%pw
-
                 PRINT *, "b"
 
-                tmp = cdft_control%group(igroup)%weight !cdft_control%group(igroup)%hirsh_rho_promolecular
-
-               ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
-                ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
-                CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function",&
+                CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function",&
                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
-                ! CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
-                                 ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
-
-                PRINT *, "c"
 
                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-
-
-               PRINT *, "d"
-
-               tmp = cdft_control%group(1)%hirsh_rho_promolecular
-
-              ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw, unit_nr, "CDFT Weight Function",&
-               ! particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+               PRINT *, "c"
 
                middle_name = "hirsh_rho_promolecular2_"//TRIM(ADJUSTL(cp_to_string(igroup)))
                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                               file_position="REWIND", middle_name=middle_name, extension=".cube")
 
-               CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function",&
+                PRINT *, "d"
+               CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, unit_nr, "CDFT Weight Function",&
                 particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
-               ! CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function", particles=particles, &
-                                ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
 
                PRINT *, "e"
 
               CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
-
-
-
-
-               ! Loop atoms in control group printing atomic densities
-               ! DO iatom = 1, cdft_control%natoms
-               !
-               !   PRINT *, iatom
-               !
-               !   middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
-               !   unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
-               !                                  middle_name=middle_name, extension=".cube")
-               !   CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, unit_nr, "CDFT Weight Function",&
-               !    particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-               !   CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
-               !
-               ! END DO
 
           END DO ! igroup = 1, SIZE(cdft_control%group)
 
