@@ -1406,22 +1406,25 @@ CONTAINS
          ! Loop over CDFT control groups printing promolecular density
              DO igroup = 1, SIZE(cdft_control%group)
 
-               PRINT *, igroup
-               PRINT *, SIZE(cdft_control%group)
-               PRINT *, "a"
+               ! PRINT *, igroup
+               ! PRINT *, SIZE(cdft_control%group)
+               ! PRINT *, "a"
+               !
+               ! middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+               ! unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+               !                                file_position="REWIND", middle_name=middle_name, extension=".cube")
+               !
+               !  PRINT *, "b"
+               !
+               !  CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function",&
+               !   particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+               !
+               ! CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+               !
+               ! PRINT *, "c"
 
-               middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
-               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
-                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
-
-                PRINT *, "b"
-
-                CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, unit_nr, "CDFT Weight Function",&
-                 particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-
-               CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
-               PRINT *, "c"
+               cdft_control%group(igroup)%hirsh_rho_promolecular = cdft_control%group(igroup)%weight
+               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
                middle_name = "hirsh_rho_promolecular2_"//TRIM(ADJUSTL(cp_to_string(igroup)))
                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
