@@ -1115,19 +1115,52 @@ CONTAINS
       END DO
       PRINT *, "end"
 
-      PRINT *, "start"
+      ! PRINT *, "start"
+      ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+      ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
+      !
+      ! PRINT *, "b"
+      ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+      !
+      ! PRINT *, "b"
+      ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
+
+
       DO igroup = 1, SIZE(cdft_control%group)
           DO iatom = 1, cdft_control%natoms
 
         PRINT *, "a"
-        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+        PRINT *, "igroup"
+        cdft_control%group(igroup)%hirsh_rho_atomic(1)%pw%cr3d = 0.0_dp
 
         PRINT *, "b"
+        cdft_control%group(igroup)%hirsh_gradients(1)%pw%cr3d = 0.0_dp
+
+        PRINT *, "c"
+        cdft_control%group(igroup)%hirsh_rho_atomic(2)%pw%cr3d = 0.0_dp
+
+        PRINT *, "d"
+        cdft_control%group(igroup)%hirsh_gradients(2)%pw%cr3d = 0.0_dp
+
+        PRINT *, "e"
+        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 0.0_dp
+
+        PRINT *, "f"
         cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 0.0_dp
 
       END DO
     END DO
       PRINT *, "end"
+
+
+      ! DO igroup = 1, SIZE(group)
+      !    group(igroup)%weight%pw%cr3d = 0.0_dp
+      ! END DO
+      ! IF (cdft_control%atomic_charges) THEN
+      !    DO iatom = 1, cdft_control%natoms
+      !       cdft_control%charge(iatom)%pw%cr3d = 0.0_dp
+      !    END DO
+      ! END IF
 
 
 
