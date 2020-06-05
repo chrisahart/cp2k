@@ -1485,6 +1485,7 @@ DO igroup = 1, SIZE(cdft_control%group)
      REAL(kind=dp)                                      :: dvol, eps_cavity, sign
      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
+     TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
      TYPE(cdft_control_type), POINTER                   :: cdft_control
      TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
      TYPE(cp_logger_type), POINTER                      :: logger_test
