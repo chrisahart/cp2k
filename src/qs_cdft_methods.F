@@ -1416,7 +1416,7 @@ CONTAINS
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 PRINT *, "a"
                ! Save hirshfeld atomic density
-               plot_hirshfeld_density = .TRUE.
+               ! plot_hirshfeld_density = .TRUE.
 !                IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
 ! PRINT *, "aa"
 !                   cdft_control%group(igroup)%hirsh_rho_atomic(i) = cdft_control%group(igroup)%weight
@@ -1441,6 +1441,7 @@ PRINT *, "c"
       END DO !igroup = 1, SIZE(cdft_control%group)
 PRINT *, "d"
       ! Print hirshfeld densitites
+      plot_hirshfeld_density = .TRUE.
       IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
         CALL cdft_print_hirshfeld_density(qs_env)
       END IF
