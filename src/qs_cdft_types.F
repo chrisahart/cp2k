@@ -195,8 +195,10 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
       TYPE(pw_p_type)             :: hirsh_rho_promolecular
-      TYPE(pw_p_type), DIMENSION(:), POINTER                       :: hirsh_rho_atomic
-      TYPE(pw_p_type), DIMENSION(:), POINTER                      :: hirsh_gradients
+      TYPE(pw_p_type), POINTER, &
+         DIMENSION(:)                      :: hirsh_rho_atomic
+      TYPE(pw_p_type), POINTER, &
+         DIMENSION(:)                      :: hirsh_gradients
 
     END TYPE cdft_group_type
 
@@ -463,10 +465,10 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
                   DEALLOCATE (cdft_control%group(i)%coeff)
-                  ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
-                  !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-                  !    IF (ASSOCIATED(cdft_control%group(i)%hirsh_gradients)) &
-                  !       DEALLOCATE (cdft_control%group(i)%hirsh_gradients)
+                  IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
+                     DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+                     IF (ASSOCIATED(cdft_control%group(i)%hirsh_gradients)) &
+                        DEALLOCATE (cdft_control%group(i)%hirsh_gradients)
                   !       IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
                   !          DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
                IF (ALLOCATED(cdft_control%group(i)%d_sum_const_dR)) &
