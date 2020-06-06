@@ -1405,8 +1405,9 @@ CONTAINS
          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-         dvol = group(1)%weight%pw%pw_grid%dvol
+         dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
+         PRINT *, "start cdft_print_hirshfeld_density"
          DO k = bo(1, 1), bo(2, 1)
             DO j = bo(1, 2), bo(2, 2)
                DO i = bo(1, 3), bo(2, 3)
@@ -1416,7 +1417,7 @@ CONTAINS
                END DO
                END DO
 
-         PRINT *, "start cdft_print_hirshfeld_density"
+         PRINT *, "Loop over CDFT control groups printing promolecular density"
 
          ! ! Loop over CDFT control groups printing promolecular density
              DO igroup = 1, SIZE(cdft_control%group)
