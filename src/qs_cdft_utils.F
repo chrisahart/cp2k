@@ -572,7 +572,7 @@ CONTAINS
          ALLOCATE (cdft_control%group(k)%atoms(natoms))
          ALLOCATE (cdft_control%group(k)%coeff(natoms))
          NULLIFY (cdft_control%group(k)%weight%pw)
-         NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
+        ! NULLIFY (cdft_control%group(k)%hirsh_rho_promolecular%pw)
          NULLIFY (cdft_control%group(k)%gradients)
          NULLIFY (cdft_control%group(k)%integrated)
 
@@ -1101,7 +1101,7 @@ CONTAINS
       END IF
 
       ! Allocate
-      PRINT *, "start"
+      PRINT *, "start hirshfeld_constraint_init"
       DO igroup = 1, SIZE(cdft_control%group)
 
         !PRINT *, "a"
@@ -1399,15 +1399,19 @@ CONTAINS
                   para_env, subsys, cdft_control)
          logger => cp_get_default_logger()
 
+         PRINT *, "start cdft_print_hirshfeld_density"
+
          CALL get_qs_env(qs_env, subsys=subsys, para_env=para_env, dft_control=dft_control)
          CALL qs_subsys_get(subsys, particles=particles)
          cdft_control => dft_control%qs_control%cdft_control
          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
+         PRINT *, "a"
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+         PRINT *, "b"
          dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
+         PRINT *, "c"
 
-         PRINT *, "start cdft_print_hirshfeld_density"
          DO k = bo(1, 1), bo(2, 1)
             DO j = bo(1, 2), bo(2, 2)
                DO i = bo(1, 3), bo(2, 3)
