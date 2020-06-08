@@ -1006,14 +1006,16 @@ CONTAINS
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
       TYPE(section_vals_type), POINTER                   :: print_section
+      TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
 
       NULLIFY (cdft_control, hirshfeld_control, hirshfeld_env, qs_kind_set, atomic_kind_set, &
-               radii_list, dft_control, group, atomic_kind, atom_list)
+               radii_list, dft_control, group, atomic_kind, atom_list, auxbas_pw_pool)
       CALL timeset(routineN, handle)
 
       logger => cp_get_default_logger()
       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
       iw = cp_print_key_unit_nr(logger, print_section, "PROGRAM_RUN_INFO", extension=".cdftLog")
+      auxbas_pw_pool => pw_env%pw_pools(pw_env%auxbas_grid)%pool
 
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
@@ -1101,29 +1103,29 @@ CONTAINS
       END IF
 
       ! Associate
-      IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_rho_atomic)) &
-        ALLOCATE (cdft_control%group%hirsh_rho_atomic(cdft_control%natoms))
-
-      IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_gradients)) &
-        ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
+      ! IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_rho_atomic)) &
+      !   ALLOCATE (cdft_control%group%hirsh_rho_atomic(cdft_control%natoms))
+      !
+      ! IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_gradients)) &
+      !   ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
 
 
         ! Initialise
       DO igroup = 1, SIZE(cdft_control%group)
 
          PRINT *, "a"
-          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
-                                      use_data=REALDATA3D, in_space=REALSPACE)
+          ! CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
+          !                             use_data=REALDATA3D, in_space=REALSPACE)
           cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
           DO iatom = 1, cdft_control%natoms
 
-            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms), &
-                                      use_data=REALDATA3D, in_space=REALSPACE)
+            ! CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms), &
+            !                           use_data=REALDATA3D, in_space=REALSPACE)
             cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
 
-            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms), &
-                                      use_data=REALDATA3D, in_space=REALSPACE)
+            ! CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms), &
+            !                           use_data=REALDATA3D, in_space=REALSPACE)
             cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
 
           END DO
