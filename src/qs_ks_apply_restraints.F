@@ -104,11 +104,11 @@ CONTAINS
                  PRINT *, "cdft_control%natoms", cdft_control%natoms
 
                IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) &
-               PRINT *, "hirsh_rho_atomic"
+               PRINT *, "ASSOCIATED hirsh_rho_atomic"
                  ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
 
                IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_gradients)) &
-               PRINT *, "hirsh_rho_atomic"
+               PRINT *, "ASSOCIATED hirsh_gradients"
                  ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
 
                  PRINT *, "manual"
