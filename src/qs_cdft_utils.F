@@ -1100,18 +1100,38 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
+      ! Associate
+      IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_rho_atomic)) &
+        ALLOCATE (cdft_control%group%hirsh_rho_atomic(cdft_control%natoms))
+
+      IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_gradients)) &
+        ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
+
+
+        ! Initialise
       DO igroup = 1, SIZE(cdft_control%group)
 
          PRINT *, "a"
           CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
                                       use_data=REALDATA3D, in_space=REALSPACE)
+          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
+          DO iatom = 1, cdft_control%natoms
+
+            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms), &
+                                      use_data=REALDATA3D, in_space=REALSPACE)
+            cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+
+            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms), &
+                                      use_data=REALDATA3D, in_space=REALSPACE)
+            cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
+
+          END DO
        END DO
        PRINT *, "end"
 
-       ! IF (.NOT. ASSOCIATED(cdft_control%charge)) &
-       !    ALLOCATE (cdft_control%charge(cdft_control%natoms))
-       ! DO iatom = 1, cdft_control%natoms
+
+       !
        !    CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%charge(iatom)%pw, &
        !                           use_data=REALDATA3D, in_space=REALSPACE)
        ! END DO
@@ -1135,10 +1155,10 @@ CONTAINS
   !   PRINT *, "end"
   !
   !   ! Zero
-    DO igroup = 1, SIZE(cdft_control%group)
-
-      PRINT *, "d"
-      cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
+    ! DO igroup = 1, SIZE(cdft_control%group)
+    !
+    !   PRINT *, "d"
+    !   cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
       !   DO iatom = 1, cdft_control%natoms
       !
@@ -1154,7 +1174,7 @@ CONTAINS
       ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
 
     ! END DO
-  END DO
+  ! END DO
   !   PRINT *, "end"
 
       ! Radii no longer needed

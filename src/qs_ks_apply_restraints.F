@@ -83,9 +83,24 @@ CONTAINS
          CASE (outer_scf_becke_constraint, outer_scf_hirshfeld_constraint)
             IF (cdft_control%need_pot) THEN
                ! First SCF iteraration => allocate storage
+
+               IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_rho_atomic)) &
+                 ALLOCATE (cdft_control%group%hirsh_rho_atomic(cdft_control%natoms))
+
+               IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_gradients)) &
+                 ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
+
                DO igroup = 1, SIZE(cdft_control%group)
                   CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight%pw, &
                                          use_data=REALDATA3D, in_space=REALSPACE)
+
+
+
+                                         CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
+                                           use_data=REALDATA3D, in_space=REALSPACE)
+
+
+
                   ! Sanity check
                   IF (cdft_control%group(igroup)%constraint_type /= cdft_charge_constraint &
                       .AND. dft_control%nspins == 1) &
@@ -98,6 +113,12 @@ CONTAINS
                   DO iatom = 1, cdft_control%natoms
                      CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%charge(iatom)%pw, &
                                             use_data=REALDATA3D, in_space=REALSPACE)
+
+                                            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom), &
+                                              use_data=REALDATA3D, in_space=REALSPACE)
+
+                                            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(iatom), &
+                                              use_data=REALDATA3D, in_space=REALSPACE)
                   END DO
                END IF
                ! Another sanity check
@@ -115,7 +136,7 @@ CONTAINS
             IF (cdft_control%type == outer_scf_becke_constraint) THEN
                CALL becke_constraint(qs_env, calc_pot=cdft_control%need_pot, calculate_forces=calculate_forces)
             ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-               CALL hirshfeld_constraint(qs_env, calc_pot=cdft_control%need_pot, calculate_forces=calculate_forces)
+              CALL hirshfeld_constraint(qs_env, calc_pot=cdft_control%need_pot, calculate_forces=calculate_forces)
             END IF
             DO igroup = 1, SIZE(cdft_control%group)
                CALL pw_scale(cdft_control%group(igroup)%weight%pw, cdft_control%group(igroup)%weight%pw%pw_grid%dvol)
