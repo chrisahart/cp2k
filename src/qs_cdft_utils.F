@@ -1111,7 +1111,7 @@ CONTAINS
       ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
 
       PRINT *, "c"
-      ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
+      ! ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
 
     END DO
     PRINT *, "end"
