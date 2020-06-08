@@ -1100,44 +1100,62 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
-      ! Allocate
-    PRINT *, "start"
-    DO igroup = 1, SIZE(cdft_control%group)
+      DO igroup = 1, SIZE(cdft_control%group)
 
-      PRINT *, "a"
-      ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
+         PRINT *, "a"
+          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
+                                      use_data=REALDATA3D, in_space=REALSPACE)
 
-      PRINT *, "b"
-      ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
+       END DO
+       PRINT *, "end"
 
-      PRINT *, "c"
-      ! ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
+       ! IF (.NOT. ASSOCIATED(cdft_control%charge)) &
+       !    ALLOCATE (cdft_control%charge(cdft_control%natoms))
+       ! DO iatom = 1, cdft_control%natoms
+       !    CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%charge(iatom)%pw, &
+       !                           use_data=REALDATA3D, in_space=REALSPACE)
+       ! END DO
 
-    END DO
-    PRINT *, "end"
 
-    ! Zero
+
+  !     ! Allocate
+  !   PRINT *, "start"
+  !   DO igroup = 1, SIZE(cdft_control%group)
+  !
+  !     PRINT *, "a"
+  !     ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
+  !
+  !     PRINT *, "b"
+  !     ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
+  !
+  !     PRINT *, "c"
+  !     ! ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
+  !
+  !   END DO
+  !   PRINT *, "end"
+  !
+  !   ! Zero
     DO igroup = 1, SIZE(cdft_control%group)
 
       PRINT *, "d"
       cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
 
-        DO iatom = 1, cdft_control%natoms
+      !   DO iatom = 1, cdft_control%natoms
+      !
+      ! PRINT *, "a"
+      ! PRINT *, "igroup", igroup
+      ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+      ! PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
+      !
+      ! PRINT *, "e"
+      ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+      !
+      ! PRINT *, "f"
+      ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
 
-      PRINT *, "a"
-      PRINT *, "igroup", igroup
-      PRINT *, "cdft_control%natoms", cdft_control%natoms
-      PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
-
-      PRINT *, "e"
-      cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-
-      PRINT *, "f"
-      cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
-
-    END DO
+    ! END DO
   END DO
-    PRINT *, "end"
+  !   PRINT *, "end"
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
