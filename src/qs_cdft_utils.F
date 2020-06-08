@@ -1015,7 +1015,7 @@ CONTAINS
       logger => cp_get_default_logger()
       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
       iw = cp_print_key_unit_nr(logger, print_section, "PROGRAM_RUN_INFO", extension=".cdftLog")
-      auxbas_pw_pool => pw_env%pw_pools(pw_env%auxbas_grid)%pool
+
 
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
@@ -1101,6 +1101,8 @@ CONTAINS
          END IF
          cdft_control%first_iteration = .FALSE.
       END IF
+
+      ! auxbas_pw_pool => pw_env%pw_pools(pw_env%auxbas_grid)%pool
 
       ! Associate
       ! IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_rho_atomic)) &
