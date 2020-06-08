@@ -1012,7 +1012,7 @@ CONTAINS
       NULLIFY (cdft_control, hirshfeld_control, hirshfeld_env, qs_kind_set, atomic_kind_set, &
                radii_list, dft_control, group, atomic_kind, atom_list, auxbas_pw_pool)
       CALL timeset(routineN, handle)
-      CALL get_qs_env(qs_env, dft_control=dft_control, pw_env_get=pw_env)
+      CALL get_qs_env(qs_env, dft_control=dft_control, pw_env=pw_env)
       CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
 
       logger => cp_get_default_logger()
