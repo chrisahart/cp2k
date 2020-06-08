@@ -1124,11 +1124,11 @@ CONTAINS
 
             ! CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms), &
             !                           use_data=REALDATA3D, in_space=REALSPACE)
-            cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+            ! cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
 
             ! CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms), &
             !                           use_data=REALDATA3D, in_space=REALSPACE)
-            cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
+            ! cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
 
           END DO
        END DO

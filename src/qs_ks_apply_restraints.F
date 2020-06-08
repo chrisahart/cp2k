@@ -106,17 +106,17 @@ CONTAINS
                                    "Spin constraints require a spin polarized calculation.")
                END DO
 
-               DO igroup = 1, SIZE(cdft_control%group)
-
-                 DO iatom = 1, cdft_control%natoms
-
-                                         CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
-                                           use_data=REALDATA3D, in_space=REALSPACE)
-
-                                         CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(iatom)%pw, &
-                                           use_data=REALDATA3D, in_space=REALSPACE)
-               END DO
-               END DO
+               ! DO igroup = 1, SIZE(cdft_control%group)
+               !
+               !   DO iatom = 1, cdft_control%natoms
+               !
+               !                           CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
+               !                             use_data=REALDATA3D, in_space=REALSPACE)
+               !
+               !                           CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(iatom)%pw, &
+               !                             use_data=REALDATA3D, in_space=REALSPACE)
+               ! END DO
+               ! END DO
 
                IF (cdft_control%atomic_charges) THEN
                   IF (.NOT. ASSOCIATED(cdft_control%charge)) &
