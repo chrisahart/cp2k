@@ -90,35 +90,38 @@ CONTAINS
                IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_gradients)) &
                  ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
 
-               DO igroup = 1, SIZE(cdft_control%group)
-                  CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight%pw, &
-                                         use_data=REALDATA3D, in_space=REALSPACE)
+                 DO igroup = 1, SIZE(cdft_control%group)
+                   CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight%pw, &
+                      use_data=REALDATA3D, in_space=REALSPACE)
 
+                   CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
+                      use_data=REALDATA3D, in_space=REALSPACE)
 
-
-                                         CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
-                                           use_data=REALDATA3D, in_space=REALSPACE)
-
-
-
-                  ! Sanity check
+                   ! Sanity check
                   IF (cdft_control%group(igroup)%constraint_type /= cdft_charge_constraint &
                       .AND. dft_control%nspins == 1) &
                      CALL cp_abort(__LOCATION__, &
                                    "Spin constraints require a spin polarized calculation.")
                END DO
+
+               DO igroup = 1, SIZE(cdft_control%group)
+
+                 DO iatom = 1, cdft_control%natoms
+
+                                         CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
+                                           use_data=REALDATA3D, in_space=REALSPACE)
+
+                                         CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(iatom)%pw, &
+                                           use_data=REALDATA3D, in_space=REALSPACE)
+               END DO
+               END DO
+
                IF (cdft_control%atomic_charges) THEN
                   IF (.NOT. ASSOCIATED(cdft_control%charge)) &
                      ALLOCATE (cdft_control%charge(cdft_control%natoms))
                   DO iatom = 1, cdft_control%natoms
                      CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%charge(iatom)%pw, &
                                             use_data=REALDATA3D, in_space=REALSPACE)
-
-                                            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom), &
-                                              use_data=REALDATA3D, in_space=REALSPACE)
-
-                                            CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(iatom), &
-                                              use_data=REALDATA3D, in_space=REALSPACE)
                   END DO
                END IF
                ! Another sanity check
