@@ -1101,43 +1101,43 @@ CONTAINS
       END IF
 
       ! Allocate
-      PRINT *, "start hirshfeld_constraint_init"
-      DO igroup = 1, SIZE(cdft_control%group)
+    PRINT *, "start"
+    DO igroup = 1, SIZE(cdft_control%group)
 
-        !PRINT *, "a"
-        ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
+      PRINT *, "a"
+      ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
 
-        PRINT *, "b"
-        ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
+      PRINT *, "b"
+      ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
 
-        PRINT *, "c"
-        !ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
+      PRINT *, "c"
+      ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
 
-      END DO
-      PRINT *, "end"
-
-      ! Initialise
-      DO igroup = 1, SIZE(cdft_control%group)
-
-        PRINT *, "d"
-        cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
-
-          DO iatom = 1, cdft_control%natoms
-
-        PRINT *, "a"
-        PRINT *, "igroup", igroup
-        PRINT *, "cdft_control%natoms", cdft_control%natoms
-        PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
-
-        PRINT *, "e"
-        cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-
-        PRINT *, "f"
-        cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
-
-      END DO
     END DO
-      PRINT *, "end"
+    PRINT *, "end"
+
+    ! Zero
+    DO igroup = 1, SIZE(cdft_control%group)
+
+      PRINT *, "d"
+      cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
+
+        DO iatom = 1, cdft_control%natoms
+
+      PRINT *, "a"
+      PRINT *, "igroup", igroup
+      PRINT *, "cdft_control%natoms", cdft_control%natoms
+      PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
+
+      PRINT *, "e"
+      cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+
+      PRINT *, "f"
+      cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
+
+    END DO
+  END DO
+    PRINT *, "end"
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
@@ -1406,20 +1406,20 @@ CONTAINS
          cdft_control => dft_control%qs_control%cdft_control
          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
-         PRINT *, "a"
-         bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-         PRINT *, "b"
-         dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
-         PRINT *, "c"
-
-         DO k = bo(1, 1), bo(2, 1)
-            DO j = bo(1, 2), bo(2, 2)
-               DO i = bo(1, 3), bo(2, 3)
-                 !group(igroup)%weight%pw%cr3d(k, j, i)
-                 cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d(k, j, i) = 1.0_dp !cdft_control%group(igroup)%weight%pw%cr3d(k, j, i)
-               END DO
-               END DO
-               END DO
+         ! PRINT *, "a"
+         ! bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+         ! PRINT *, "b"
+         ! dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
+         ! PRINT *, "c"
+         !
+         ! DO k = bo(1, 1), bo(2, 1)
+         !    DO j = bo(1, 2), bo(2, 2)
+         !       DO i = bo(1, 3), bo(2, 3)
+         !         !group(igroup)%weight%pw%cr3d(k, j, i)
+         !         cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d(k, j, i) = 1.0_dp !cdft_control%group(igroup)%weight%pw%cr3d(k, j, i)
+         !       END DO
+         !       END DO
+         !       END DO
 
          PRINT *, "Loop over CDFT control groups printing promolecular density"
 
