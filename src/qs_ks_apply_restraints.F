@@ -85,7 +85,7 @@ CONTAINS
                ! First SCF iteraration => allocate storage
 
                  DO igroup = 1, SIZE(cdft_control%group)
-                   
+
                    CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight%pw, &
                       use_data=REALDATA3D, in_space=REALSPACE)
 
@@ -100,12 +100,19 @@ CONTAINS
                END DO
 
                DO igroup = 1, SIZE(cdft_control%group)
+                 PRINT *, "igroup", igroup
+                 PRINT *, "cdft_control%natoms", cdft_control%natoms
 
                IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) &
+               PRINT *, "hirsh_rho_atomic"
                  ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
 
                IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_gradients)) &
+               PRINT *, "hirsh_rho_atomic"
                  ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
+
+                 PRINT *, "manual"
+                ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(2))
 
                  DO iatom = 1, cdft_control%natoms
 
