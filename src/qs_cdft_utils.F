@@ -1011,6 +1011,7 @@ CONTAINS
       NULLIFY (cdft_control, hirshfeld_control, hirshfeld_env, qs_kind_set, atomic_kind_set, &
                radii_list, dft_control, group, atomic_kind, atom_list, auxbas_pw_pool)
       CALL timeset(routineN, handle)
+      CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
 
       logger => cp_get_default_logger()
       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
@@ -1101,6 +1102,48 @@ CONTAINS
          END IF
          cdft_control%first_iteration = .FALSE.
       END IF
+
+
+
+      ! Initalise
+      DO igroup = 1, SIZE(cdft_control%group)
+
+        CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight%pw, &
+           use_data=REALDATA3D, in_space=REALSPACE)
+
+        CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
+           use_data=REALDATA3D, in_space=REALSPACE)
+    END DO
+
+    DO igroup = 1, SIZE(cdft_control%group)
+      PRINT *, "igroup", igroup
+      PRINT *, "cdft_control%natoms", cdft_control%natoms
+
+    IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) &
+    PRINT *, "ASSOCIATED hirsh_rho_atomic"
+      ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
+
+    IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_gradients)) &
+    PRINT *, "ASSOCIATED hirsh_gradients"
+      ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
+
+      PRINT *, "manual"
+     ALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(2))
+
+      DO iatom = 1, cdft_control%natoms
+
+                              CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
+                                use_data=REALDATA3D, in_space=REALSPACE)
+
+                              CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_gradients(iatom)%pw, &
+                                use_data=REALDATA3D, in_space=REALSPACE)
+    END DO
+    END DO
+
+
+
+
+
 
       ! auxbas_pw_pool => pw_env%pw_pools(pw_env%auxbas_grid)%pool
 
