@@ -1007,10 +1007,12 @@ CONTAINS
       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
       TYPE(section_vals_type), POINTER                   :: print_section
       TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
+      TYPE(pw_env_type), POINTER                         :: pw_env
 
       NULLIFY (cdft_control, hirshfeld_control, hirshfeld_env, qs_kind_set, atomic_kind_set, &
                radii_list, dft_control, group, atomic_kind, atom_list, auxbas_pw_pool)
       CALL timeset(routineN, handle)
+      CALL get_qs_env(qs_env, dft_control=dft_control, pw_env_get=pw_env)
       CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
 
       logger => cp_get_default_logger()
@@ -1018,7 +1020,7 @@ CONTAINS
       iw = cp_print_key_unit_nr(logger, print_section, "PROGRAM_RUN_INFO", extension=".cdftLog")
 
 
-      CALL get_qs_env(qs_env, dft_control=dft_control)
+
       cdft_control => dft_control%qs_control%cdft_control
       hirshfeld_control => cdft_control%hirshfeld_control
       hirshfeld_env => hirshfeld_control%hirshfeld_env
