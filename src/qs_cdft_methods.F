@@ -1408,54 +1408,50 @@ CONTAINS
                                    in_space=REALSPACE)
 
         PRINT *, "start hirshfeld_constraint_low"
+        plot_hirshfeld_density = .TRUE.
 
             DO i = 1, cdft_control%natoms
                CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                CALL rs_grid_release(rs_single(i)%rs_grid)
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
                tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-PRINT *, "a"
-               ! Save hirshfeld atomic density
-               plot_hirshfeld_density = .TRUE.
-               IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-PRINT *, "aa"
-                  ! cdft_control%group(igroup)%hirsh_rho_atomic(i) = cdft_control%group(igroup)%weight
-                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d =tmp%pw%cr3d
 
-                  ! cdft_control%group(igroup)%hirsh_gradients(i) = cdft_control%group(igroup)%weight
+               ! Save hirshfeld atomic density
+               PRINT *, "Save hirshfeld atomic density"
+               IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END IF
-PRINT *, "b"
+
             END DO
             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
             DEALLOCATE (rs_single)
             DEALLOCATE (compute_charge)
          END IF
-PRINT *, "c"
+
          ! Save hirshfeld promolecular density
+         PRINT *, "Save hirshfeld promolecular density"
          IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-           ! cdft_control%group(igroup)%hirsh_rho_promolecular = cdft_control%group(igroup)%weight
-           ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
            cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
          END IF
-
       END DO !igroup = 1, SIZE(cdft_control%group)
-PRINT *, "d"
+
       ! Print hirshfeld densitites
+      PRINT *, "Print hirshfeld densitites"
       IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
         CALL cdft_print_hirshfeld_density(qs_env)
       END IF
-PRINT *, "e"
 
-! Calculate gradient (atomic/promolecular)
-! DO igroup = 1, SIZE(cdft_control%group)
-!     DO iatom  = 1, (cdft_control%natoms)
-!
-!       CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d, &
-!         cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d, cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
-!
-!       END DO
-!     END DO
+  ! Calculate gradient (atomic/promolecular)
+  PRINT *, "Calculate gradient"
+  DO igroup = 1, SIZE(cdft_control%group)
+      DO iatom  = 1, (cdft_control%natoms)
 
+        CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d, &
+          cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d, &
+          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
+
+        END DO
+      END DO
 
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
@@ -1508,11 +1504,8 @@ PRINT *, "e"
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
               rho0_mpole, group, charge, force)
 
-              PRINT *, "a"
      CALL timeset(routineN, handle)
-     PRINT *, "b"
      logger_test => cp_get_default_logger()
-     PRINT *, "c"
      CALL get_qs_env(qs_env, &
                      subsys=subsys, &
                      particle_set=particle_set, &
@@ -1522,13 +1515,11 @@ PRINT *, "e"
                      dft_control=dft_control, &
                      para_env=para_env, &
                      qs_kind_set=qs_kind_set)
-PRINT *, "d"
+
      ! Assign variables
      cdft_control => dft_control%qs_control%cdft_control
-     PRINT *, "e"
      group => cdft_control%group
      dvol = group(1)%weight%pw%pw_grid%dvol
-     PRINT *, "f"
 
      ALLOCATE (atom_of_kind(natom))
      ALLOCATE (kind_of(natom))
@@ -1538,49 +1529,6 @@ PRINT *, "d"
                               kind_of=kind_of)
 
      CALL qs_subsys_get(subsys, particles=particles)
-PRINT *, "g"
-     PRINT *, "1"
-
-    !! Print (debugging)
-     cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-     iw_test1 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
-     WRITE (iw_test1, '(T3,A)') "Hello world!"
-     ! WRITE (iw_test1, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     ! WRITE (iw_test1, '(T3,A)') "dvol", dvol
-     !WRITE (iw_test1, '(T3,A)') "SIZE(fnorm%pw%cr3d)",  SIZE(fnorm%pw%cr3d)
-     CALL cp_print_key_finished_output(iw_test1, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
-     PRINT *, "2"
-
-     !! Print (debugging)
-     ! middle_name = "test"
-     ! iw_test2 = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".test")
-     ! WRITE (iw_test2, '(T3,A)') "Hello world!"
-     ! WRITE (iw_test2, '(T3,A)') "dft_control%nspins", dft_control%nspins
-     ! WRITE (iw_test2, '(T3,A)') "dvol", dvol
-     ! !WRITE (iw, '(T3,A)') " fnorm%pw%cr3d",  fnorm%pw%cr3d
-     ! CALL cp_print_key_finished_output(iw_test2, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
-      PRINT *, "4"
-
-     ! Print promolecular density to .cube
-
-     ! middle_name = "test"
-     ! iw_cube = cp_print_key_unit_nr(logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO", middle_name=middle_name, extension=".cube")
-     ! CALL cp_pw_to_cube(cdft_control%group(1)%weight%pw, iw_cube, "CDFT Weight Function", particles=particles, &
-                      ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-     ! CALL cp_pw_to_cube(cdft_control%group(igroup)%hirsh_rho_promolecular%pw, iw_cube, "CDFT Weight Function", particles=particles, &
-                        ! stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
-     ! CALL cp_print_key_finished_output(iw_cube, logger_test, cdft_constraint_section, "PROGRAM_RUN_INFO")
-
-     PRINT *, "3"
-
-
-
-     PRINT *, "4"
-
-     ! Print Hirshfeld densities
-     !CALL cdft_print_hirshfeld_density(qs_env)
 
      ! Loop over number of spins, number of atoms in constraint group
       DO i = 1, dft_control%nspins

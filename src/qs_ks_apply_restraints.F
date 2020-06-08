@@ -83,19 +83,15 @@ CONTAINS
          CASE (outer_scf_becke_constraint, outer_scf_hirshfeld_constraint)
             IF (cdft_control%need_pot) THEN
                ! First SCF iteraration => allocate storage
-
                  DO igroup = 1, SIZE(cdft_control%group)
-
                    CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight%pw, &
                       use_data=REALDATA3D, in_space=REALSPACE)
-
                    ! Sanity check
                   IF (cdft_control%group(igroup)%constraint_type /= cdft_charge_constraint &
                       .AND. dft_control%nspins == 1) &
                      CALL cp_abort(__LOCATION__, &
                                    "Spin constraints require a spin polarized calculation.")
                END DO
-
                IF (cdft_control%atomic_charges) THEN
                   IF (.NOT. ASSOCIATED(cdft_control%charge)) &
                      ALLOCATE (cdft_control%charge(cdft_control%natoms))
