@@ -93,11 +93,11 @@ CONTAINS
                    CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
                       use_data=REALDATA3D, in_space=REALSPACE)
 
-                      IF (.NOT. ASSOCIATED(cdft_control%group%hirsh_rho_atomic)) &
+                      IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) &
                         ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
 
                       IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_gradients)) &
-                        ALLOCATE (cdft_control%group%hirsh_gradients(cdft_control%natoms))
+                        ALLOCATE (cdft_control%group(igroup)%hirsh_gradients(cdft_control%natoms))
 
                    ! Sanity check
                   IF (cdft_control%group(igroup)%constraint_type /= cdft_charge_constraint &
