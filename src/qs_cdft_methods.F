@@ -1311,6 +1311,9 @@ CONTAINS
             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
             ALLOCATE (cores(natom))
 
+            PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+            PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
+
             DO iex = 1, numexp
                alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
@@ -1497,12 +1500,17 @@ CONTAINS
      TYPE(particle_list_type), POINTER                  :: particles
      TYPE(qs_subsys_type), POINTER                      :: subsys
      TYPE(qs_force_type), DIMENSION(:), POINTER         :: force
+     TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
+     TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
 
       PRINT *, "start hirshfeld_constraint_force"
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
-              rho0_mpole, group, charge, force)
+              rho0_mpole, group, charge, force, hirshfeld_env)
+
+              hirshfeld_control => cdft_control%hirshfeld_control
+              hirshfeld_env => hirshfeld_control%hirshfeld_env
 
      CALL timeset(routineN, handle)
      logger_test => cp_get_default_logger()
@@ -1558,6 +1566,9 @@ CONTAINS
       END DO ! END DO i = 1, dft_control%nspins
 
       PRINT *, "5"
+
+      PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+      PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
 
       ! group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign* &
       !                                  group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)* &
