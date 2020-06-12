@@ -48,7 +48,7 @@ MODULE atom_fit
     USE cp_log_handling,                 ONLY: cp_get_default_logger,&
                                               cp_logger_type
   USE cp_output_handling,              ONLY: cp_print_key_finished_output,&
-                                             cp_print_key_unit_nr                                              
+                                             cp_print_key_unit_nr
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -77,14 +77,14 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE atom_fit_density(atom, num_gto, norder, iunit, powell_section, results)
       TYPE(atom_type), POINTER                           :: atom
-      INTEGER, INTENT(IN)                                :: num_gto, norder, iunit
+      INTEGER, INTENT(IN)                                :: num_gto, norder!, iunit
       TYPE(section_vals_type), OPTIONAL, POINTER         :: powell_section
       REAL(KIND=dp), DIMENSION(:), OPTIONAL              :: results
 
       CHARACTER(len=*), PARAMETER :: routineN = 'atom_fit_density', &
          routineP = moduleN//':'//routineN
 
-      INTEGER                                            :: n10, iw
+      INTEGER                                            :: n10, iunit
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: co
       REAL(KIND=dp), DIMENSION(2)                        :: x
       TYPE(opgrid_type), POINTER                         :: density
