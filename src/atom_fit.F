@@ -103,7 +103,7 @@ CONTAINS
       !PRINT *, "atom%orbitals%pmat", atom%orbitals%pmat ! REAL(KIND=dp), DIMENSION(:, :, :), POINTER , pmat
       PRINT *, "density%op", density%op ! REAL(KIND=dp), DIMENSION(:), POINTER
       PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
-      PRINT *. " basis%nbas(l)",  atom%basis%nbas(atom%state%maxl_occ)
+      PRINT *, " basis%nbas(l)",  atom%basis%nbas(atom%state%maxl_occ)
 
       ostate%nf = 0
       ostate%nvar = 2
