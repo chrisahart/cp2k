@@ -77,14 +77,14 @@ CONTAINS
 ! **************************************************************************************************
    SUBROUTINE atom_fit_density(atom, num_gto, norder, iunit, powell_section, results)
       TYPE(atom_type), POINTER                           :: atom
-      INTEGER, INTENT(IN)                                :: num_gto, norder!, iunit
+      INTEGER, INTENT(IN)                                :: num_gto, norder, iunit
       TYPE(section_vals_type), OPTIONAL, POINTER         :: powell_section
       REAL(KIND=dp), DIMENSION(:), OPTIONAL              :: results
 
       CHARACTER(len=*), PARAMETER :: routineN = 'atom_fit_density', &
          routineP = moduleN//':'//routineN
 
-      INTEGER                                            :: n10, iunit
+      INTEGER                                            :: n10, iw
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: co
       REAL(KIND=dp), DIMENSION(2)                        :: x
       TYPE(opgrid_type), POINTER                         :: density
@@ -94,7 +94,7 @@ CONTAINS
 
       NULLIFY (logger)
       logger => cp_get_default_logger()
-      iunit = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+      iw = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
 
       ALLOCATE (co(num_gto))
       co = 0._dp
