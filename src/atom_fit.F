@@ -88,6 +88,7 @@ CONTAINS
       TYPE(opgrid_type), POINTER                         :: density
       TYPE(opt_state_type)                               :: ostate
       TYPE(cp_logger_type), POINTER                      :: logger
+      TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
 
       NULLIFY (logger)
       logger => cp_get_default_logger()
@@ -106,9 +107,10 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      WRITE (iunit, ) "density%op", density%op ! REAL(KIND=dp), DIMENSION(:), POINTER
-      WRITE (iunit, ) "atom%state%maxl_occ", atom%state%maxl_occ
-      WRITE (iunit, ) basis%nbas(l)",  atom%basis%nbas(atom%state%maxl_occ)
+      WRITE (iunit, FMT='(A)') "density%op", density%op ! Density on radial grid
+      WRITE (iunit, FMT='(A)') "atom%state%maxl_occ", atom%state%maxl_occ !
+      WRITE (iunit, FMT='(A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      WRITE (iunit, FMT='(A)') "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
       ostate%nvar = 2
@@ -1378,7 +1380,7 @@ CONTAINS
       den(:) = (den(:) - density%op(:))**2
       aerr = SQRT(integrate_grid(den, atom%basis%grid))
 
-      PRINT *, "aerr", aerr
+      WRITE (iunit, FMT='(A)') "aerr", aerr
 
       DEALLOCATE (pe, bf, den)
 
