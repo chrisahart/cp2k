@@ -195,7 +195,7 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
 
-      TYPE(pw_p_type)                      :: weight_dr
+      ! TYPE(pw_p_type)                      :: weight_dr
 
       TYPE(pw_p_type)             :: hirsh_rho_promolecular
       TYPE(pw_p_type), POINTER, &

@@ -1228,13 +1228,13 @@ CONTAINS
       TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
       TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
       TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
-      TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
+      ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
       TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
 
       NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
                auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
-               hirshfeld_control, rs_single, rs_single_dr)
+               hirshfeld_control, rs_single)
 
       CALL timeset(routineN, handle)
       CALL get_qs_env(qs_env, &

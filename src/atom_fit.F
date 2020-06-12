@@ -45,6 +45,8 @@ MODULE atom_fit
                                               evolt
    USE powell,                          ONLY: opt_state_type,&
                                               powell_optimize
+    USE cp_log_handling,                 ONLY: cp_get_default_logger,&
+                                              cp_logger_type
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -80,11 +82,16 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'atom_fit_density', &
          routineP = moduleN//':'//routineN
 
-      INTEGER                                            :: n10
+      INTEGER                                            :: n10, iw
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: co
       REAL(KIND=dp), DIMENSION(2)                        :: x
       TYPE(opgrid_type), POINTER                         :: density
       TYPE(opt_state_type)                               :: ostate
+      TYPE(cp_logger_type), POINTER                      :: logger
+
+      NULLIFY (logger)
+      logger => cp_get_default_logger()
+      iunit = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
 
       ALLOCATE (co(num_gto))
       co = 0._dp
@@ -99,11 +106,9 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      !PRINT *, " atom%orbitals%wfn",  atom%orbitals%wfn ! REAL(KIND=dp), DIMENSION(:, :, :), POINTER , printed to restart WFN file
-      !PRINT *, "atom%orbitals%pmat", atom%orbitals%pmat ! REAL(KIND=dp), DIMENSION(:, :, :), POINTER , pmat
-      PRINT *, "density%op", density%op ! REAL(KIND=dp), DIMENSION(:), POINTER
-      PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
-      PRINT *, " basis%nbas(l)",  atom%basis%nbas(atom%state%maxl_occ)
+      WRITE (iunit, ) "density%op", density%op ! REAL(KIND=dp), DIMENSION(:), POINTER
+      WRITE (iunit, ) "atom%state%maxl_occ", atom%state%maxl_occ
+      WRITE (iunit, ) basis%nbas(l)",  atom%basis%nbas(atom%state%maxl_occ)
 
       ostate%nf = 0
       ostate%nvar = 2
@@ -167,6 +172,8 @@ CONTAINS
       END IF
 
       DEALLOCATE (co)
+
+        CALL cp_print_key_finished_output(iunit, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
    END SUBROUTINE atom_fit_density
 ! **************************************************************************************************
