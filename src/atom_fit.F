@@ -110,10 +110,10 @@ CONTAINS
       END IF
 
       WRITE (iw, '(A)') " Expansion coefficients"
-      WRITE (iw, *) "density%op", density%op ! Density on radial grid
-      WRITE (iw,*) "atom%state%maxl_occ", atom%state%maxl_occ !
-      WRITE (iw,*) "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
-      WRITE (iw, *) "atom%basis%nbas",  atom%basis%nbas
+      WRITE (iw, '(A)') "density%op", density%op ! Density on radial grid
+      WRITE (iw, '(A)') "atom%state%maxl_occ", atom%state%maxl_occ !
+      WRITE (iw, '(A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      WRITE (iw, '(A)') "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
       ostate%nvar = 2
