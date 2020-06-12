@@ -1371,6 +1371,8 @@ CONTAINS
       den(:) = (den(:) - density%op(:))**2
       aerr = SQRT(integrate_grid(den, atom%basis%grid))
 
+      PRINT *, "aerr", aerr
+
       DEALLOCATE (pe, bf, den)
 
       DEALLOCATE (tval, uval, smat)
