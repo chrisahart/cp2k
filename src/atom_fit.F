@@ -99,6 +99,12 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
+      !PRINT *, " atom%orbitals%wfn",  atom%orbitals%wfn ! REAL(KIND=dp), DIMENSION(:, :, :), POINTER , printed to restart WFN file
+      !PRINT *, "atom%orbitals%pmat", atom%orbitals%pmat ! REAL(KIND=dp), DIMENSION(:, :, :), POINTER , pmat
+      PRINT *, "density%op", density%op ! REAL(KIND=dp), DIMENSION(:), POINTER
+      PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
+      PRINT *. " basis%nbas(l)",  atom%basis%nbas(atom%state%maxl_occ)
+
       ostate%nf = 0
       ostate%nvar = 2
       x(1) = 0.10_dp !starting point of geometric series
