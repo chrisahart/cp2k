@@ -1228,12 +1228,13 @@ CONTAINS
       TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
       TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
       TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
+      TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
       TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
 
       NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
                auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
-               hirshfeld_control, rs_single)
+               hirshfeld_control, rs_single, rs_single_dr)
 
       CALL timeset(routineN, handle)
       CALL get_qs_env(qs_env, &
@@ -1313,6 +1314,8 @@ CONTAINS
 
             PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
             PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
+            PRINT *, "numexp", numexp
+            PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
 
             DO iex = 1, numexp
                alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -1333,6 +1336,9 @@ CONTAINS
                      cores(npme) = iatom
                   ENDIF
                END DO
+
+               PRINT *, "npme", npme
+
                DO j = 1, npme
                   iatom = cores(j)
                   atom_a = atom_list(iatom)
@@ -1350,6 +1356,7 @@ CONTAINS
                                              rs_rho_all, cell, cube_info, radius=radius, &
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
+
                   IF (is_constraint(atom_a)) THEN
                      radius_constr = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                               ra=ra, rb=ra, rp=ra, &
@@ -1364,6 +1371,10 @@ CONTAINS
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
                   END IF
+
+                  PRINT *, "radius", radius
+                  PRINT *, "radius_constr", radius_constr
+
                   IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                      IF (compute_charge(atom_a)) THEN
                         DO iatom = 1, cdft_control%natoms
@@ -1375,12 +1386,14 @@ CONTAINS
                                                    rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
                                                    ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                    subpatch_pattern=subpatch_pattern)
+                        !rs_single_dr = -2 * r * coefficients(atom_a) * rs_single
                      END IF
                   END IF
-               END DO
-            END DO
+
+               END DO !j = 1, npme
+            END DO !  iex = 1, numexp
             DEALLOCATE (cores)
-         END DO
+         END DO !ikind = 1, SIZE(atomic_kind_set)
          DEALLOCATE (pab)
 
          ! Transfer rs_rho_all to the correct grid and save it
