@@ -47,6 +47,8 @@ MODULE atom_fit
                                               powell_optimize
     USE cp_log_handling,                 ONLY: cp_get_default_logger,&
                                               cp_logger_type
+  USE cp_output_handling,              ONLY: cp_print_key_finished_output,&
+                                             cp_print_key_unit_nr                                              
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -107,10 +109,10 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      WRITE (iunit, FMT='(A)') "density%op", density%op ! Density on radial grid
-      WRITE (iunit, FMT='(A)') "atom%state%maxl_occ", atom%state%maxl_occ !
-      WRITE (iunit, FMT='(A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
-      WRITE (iunit, FMT='(A)') "atom%basis%nbas",  atom%basis%nbas
+      ! WRITE iunitiw, '(/,T3,A)') "density%op", density%op ! Density on radial grid
+      ! WRITE iunitiw, '(/,T3,A)') "atom%state%maxl_occ", atom%state%maxl_occ !
+      ! WRITE iunitiw, '(/,T3,A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      ! WRITE iunitiw, '(/,T3,A)') "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
       ostate%nvar = 2
@@ -139,6 +141,8 @@ CONTAINS
          IF (ostate%state == 2) THEN
             CALL density_fit(density, atom, num_gto, x(1), x(2), co, ostate%f)
          END IF
+
+         ! WRITE iunitiw, '(/,T3,A)') "aerr", ostate%f
 
          IF (ostate%state == -1) EXIT
 
@@ -1379,8 +1383,6 @@ CONTAINS
       den(:) = den(:)*fourpi
       den(:) = (den(:) - density%op(:))**2
       aerr = SQRT(integrate_grid(den, atom%basis%grid))
-
-      WRITE (iunit, FMT='(A)') "aerr", aerr
 
       DEALLOCATE (pe, bf, den)
 
