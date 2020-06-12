@@ -92,9 +92,9 @@ CONTAINS
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
 
-      ! NULLIFY (logger)
-      ! logger => cp_get_default_logger()
-      ! iw = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+      NULLIFY (logger)
+      logger => cp_get_default_logger()
+      iw = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
 
       ALLOCATE (co(num_gto))
       co = 0._dp
@@ -109,11 +109,11 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      ! WRITE (iw, '(A)') " Expansion coefficients"
-      ! WRITE (iw, *) "density%op", density%op ! Density on radial grid
-      ! WRITE (iw,*) "atom%state%maxl_occ", atom%state%maxl_occ !
-      ! WRITE (iw,*) "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
-      ! WRITE (iw, *) "atom%basis%nbas",  atom%basis%nbas
+      WRITE (iw, '(A)') " Expansion coefficients"
+      WRITE (iw, *) "density%op", density%op ! Density on radial grid
+      WRITE (iw,*) "atom%state%maxl_occ", atom%state%maxl_occ !
+      WRITE (iw,*) "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      WRITE (iw, *) "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
       ostate%nvar = 2
