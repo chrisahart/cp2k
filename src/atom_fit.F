@@ -109,10 +109,10 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      ! WRITE iunitiw, '(/,T3,A)') "density%op", density%op ! Density on radial grid
-      ! WRITE iunitiw, '(/,T3,A)') "atom%state%maxl_occ", atom%state%maxl_occ !
-      ! WRITE iunitiw, '(/,T3,A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
-      ! WRITE iunitiw, '(/,T3,A)') "atom%basis%nbas",  atom%basis%nbas
+      WRITE (iw, '(/,T3,A)') "density%op", density%op ! Density on radial grid
+      WRITE (iw, '(/,T3,A)') "atom%state%maxl_occ", atom%state%maxl_occ !
+      WRITE (iw, '(/,T3,A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      WRITE (iw, '(/,T3,A)') "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
       ostate%nvar = 2
@@ -131,8 +131,8 @@ CONTAINS
       ostate%unit = iunit
 
       ostate%state = 0
-      IF (iunit > 0) THEN
-         WRITE (iunit, '(/," POWELL| Start optimization procedure")')
+      IF (iw > 0) THEN
+         WRITE (iw, '(/," POWELL| Start optimization procedure")')
       END IF
       n10 = ostate%maxfun/10
 
@@ -142,7 +142,7 @@ CONTAINS
             CALL density_fit(density, atom, num_gto, x(1), x(2), co, ostate%f)
          END IF
 
-         ! WRITE iunitiw, '(/,T3,A)') "aerr", ostate%f
+          WRITE (iw, '(/,T3,A)') "aerr", ostate%f
 
          IF (ostate%state == -1) EXIT
 
@@ -160,14 +160,14 @@ CONTAINS
 
       CALL release_opgrid(density)
 
-      IF (iunit > 0) THEN
-         WRITE (iunit, '(" POWELL| Number of function evaluations",T71,I10)') ostate%nf
-         WRITE (iunit, '(" POWELL| Final value of function",T61,G20.10)') ostate%fopt
-         WRITE (iunit, '(" Optimized representation of density using a Geometrical Gaussian basis")')
-         WRITE (iunit, '(A,I3,/,T10,A,F10.6,T48,A,F10.6)') " Number of Gaussians:", num_gto, &
+      IF (iw > 0) THEN
+         WRITE (iw, '(" POWELL| Number of function evaluations",T71,I10)') ostate%nf
+         WRITE (iw, '(" POWELL| Final value of function",T61,G20.10)') ostate%fopt
+         WRITE (iw, '(" Optimized representation of density using a Geometrical Gaussian basis")')
+         WRITE (iw, '(A,I3,/,T10,A,F10.6,T48,A,F10.6)') " Number of Gaussians:", num_gto, &
             "Starting exponent:", x(1), "Proportionality factor:", x(2)
-         WRITE (iunit, '(A)') " Expansion coefficients"
-         WRITE (iunit, '(4F20.10)') co(1:num_gto)
+         WRITE (iw, '(A)') " Expansion coefficients"
+         WRITE (iw, '(4F20.10)') co(1:num_gto)
       END IF
 
       IF (PRESENT(results)) THEN
@@ -179,7 +179,7 @@ CONTAINS
 
       DEALLOCATE (co)
 
-        CALL cp_print_key_finished_output(iunit, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+        CALL cp_print_key_finished_output(iw, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
    END SUBROUTINE atom_fit_density
 ! **************************************************************************************************
