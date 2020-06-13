@@ -109,13 +109,13 @@ CONTAINS
       PRINT *, "density%op"
       PRINT *, density%op ! Density on radial grid
 
-      PRINT *, "atom%basis%grid%rad(k)"
-      PRINT *, atom%basis%grid%rad(1) ! Radial grid
+      PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
+      PRINT *, "atom%basis%grid%rad" ! Radial grid
 
       PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
       PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
       PRINT *, "atom%basis%nbas",  atom%basis%nbas
-      PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
+
 
       ostate%nf = 0
       ostate%nvar = 2
