@@ -106,7 +106,7 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      PRINT *, "density%op" 
+      PRINT *, "density%op"
       PRINT *, density%op ! Density on radial grid
       PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
       PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
@@ -171,7 +171,7 @@ CONTAINS
       PRINT *, "Number of function evaluations", ostate%nf
       PRINT *, "Final value of function", ostate%fopt
       PRINT *, " Number of Gaussians:", num_gto, "Starting exponent:", x(1), "Proportionality factor:", x(2)
-      PRINT *, Expansion coefficients"
+      PRINT *, "Expansion coefficients"
       PRINT *, co(1:num_gto)
 
       IF (PRESENT(results)) THEN
