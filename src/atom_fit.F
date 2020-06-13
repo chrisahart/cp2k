@@ -109,7 +109,7 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      WRITE (iw, '(A)') " Expansion coefficients"
+      WRITE (iw, '(T3,A)') "Hello world"
       ! WRITE (iw, '(A)') "density%op", density%op ! Density on radial grid
       ! WRITE (iw, '(A)') "atom%state%maxl_occ", atom%state%maxl_occ !
       ! WRITE (iw, '(A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
