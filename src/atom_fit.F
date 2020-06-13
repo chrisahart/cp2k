@@ -49,6 +49,8 @@ MODULE atom_fit
                                               cp_logger_type
   USE cp_output_handling,              ONLY: cp_print_key_finished_output,&
                                              cp_print_key_unit_nr
+  USE input_section_types,             ONLY: section_get_ivals, &
+                                            section_vals_get_subs_vals,&
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -92,8 +94,11 @@ CONTAINS
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
 
+      PRINT *, "start atom_fit_density"
+
       NULLIFY (logger)
       logger => cp_get_default_logger()
+      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
       iw = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
 
       ALLOCATE (co(num_gto))
@@ -109,8 +114,10 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
+      PRINT *, "printing"
+
       WRITE (iw, '(T3,A)') "Hello world"
-      ! WRITE (iw, '(A)') "density%op", density%op ! Density on radial grid
+      WRITE (iw, '(A)') "density%op", density%op ! Density on radial grid
       ! WRITE (iw, '(A)') "atom%state%maxl_occ", atom%state%maxl_occ !
       ! WRITE (iw, '(A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
       ! WRITE (iw, '(A)') "atom%basis%nbas",  atom%basis%nbas
