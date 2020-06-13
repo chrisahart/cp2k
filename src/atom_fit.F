@@ -111,6 +111,8 @@ CONTAINS
 
       PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
       PRINT *, "atom%basis%grid%rad" ! Radial grid
+      PRINT *, atom%basis%grid%rad ! Radial grid
+
 
       PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
       PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
