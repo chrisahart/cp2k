@@ -45,12 +45,6 @@ MODULE atom_fit
                                               evolt
    USE powell,                          ONLY: opt_state_type,&
                                               powell_optimize
-    USE cp_log_handling,                 ONLY: cp_get_default_logger,&
-                                              cp_logger_type
-  USE cp_output_handling,              ONLY: cp_print_key_finished_output,&
-                                             cp_print_key_unit_nr
-  USE input_section_types,             ONLY: section_get_ivals, &
-                                            section_vals_get_subs_vals,&
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -91,8 +85,6 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(2)                        :: x
       TYPE(opgrid_type), POINTER                         :: density
       TYPE(opt_state_type)                               :: ostate
-      TYPE(cp_logger_type), POINTER                      :: logger
-      TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
 
       PRINT *, "start atom_fit_density"
 
@@ -114,9 +106,10 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      PRINT *, "density%op", density%op ! Density on radial grid
+      PRINT *, "density%op" 
+      PRINT *, density%op ! Density on radial grid
       PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
-      PRINT *, "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
       PRINT *, "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
@@ -175,13 +168,11 @@ CONTAINS
          WRITE (iunit, '(4F20.10)') co(1:num_gto)
       END IF
 
-      PRINT (*, '(" POWELL| Number of function evaluations",T71,I10)') ostate%nf
-      PRINT (*, '(" POWELL| Final value of function",T61,G20.10)') ostate%fopt
-      PRINT (*, '(" Optimized representation of density using a Geometrical Gaussian basis")')
-      PRINT (*, '(A,I3,/,T10,A,F10.6,T48,A,F10.6)') " Number of Gaussians:", num_gto, &
-         "Starting exponent:", x(1), "Proportionality factor:", x(2)
-      PRINT (*, '(A)') " Expansion coefficients"
-      PRINT (*, '(4F20.10)') co(1:num_gto)
+      PRINT *, "Number of function evaluations", ostate%nf
+      PRINT *, "Final value of function", ostate%fopt
+      PRINT *, " Number of Gaussians:", num_gto, "Starting exponent:", x(1), "Proportionality factor:", x(2)
+      PRINT *, Expansion coefficients"
+      PRINT *, co(1:num_gto)
 
       IF (PRESENT(results)) THEN
          CPASSERT(SIZE(results) >= num_gto + 2)
