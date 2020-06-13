@@ -96,10 +96,10 @@ CONTAINS
 
       PRINT *, "start atom_fit_density"
 
-      NULLIFY (logger)
-      logger => cp_get_default_logger()
-      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-      iw = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
+      ! NULLIFY (logger)
+      ! logger => cp_get_default_logger()
+      ! cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+      ! iw = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", extension=".test")
 
       ALLOCATE (co(num_gto))
       co = 0._dp
@@ -114,13 +114,10 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      PRINT *, "printing"
-
-      WRITE (iw, '(T3,A)') "Hello world"
-      WRITE (iw, '(A)') "density%op", density%op ! Density on radial grid
-      ! WRITE (iw, '(A)') "atom%state%maxl_occ", atom%state%maxl_occ !
-      ! WRITE (iw, '(A)') "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
-      ! WRITE (iw, '(A)') "atom%basis%nbas",  atom%basis%nbas
+      PRINT *, "density%op", density%op ! Density on radial grid
+      PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
+      PRINT *, "atom%basis%nbas(atom%state%maxl_occ"",  atom%basis%nbas(atom%state%maxl_occ)
+      PRINT *, "atom%basis%nbas",  atom%basis%nbas
 
       ostate%nf = 0
       ostate%nvar = 2
@@ -150,7 +147,7 @@ CONTAINS
             CALL density_fit(density, atom, num_gto, x(1), x(2), co, ostate%f)
          END IF
 
-          ! WRITE (iw, '(/,T3,A)') "aerr", ostate%f
+        PRINT *, "aerr", ostate%f
 
          IF (ostate%state == -1) EXIT
 
@@ -177,6 +174,14 @@ CONTAINS
          WRITE (iunit, '(A)') " Expansion coefficients"
          WRITE (iunit, '(4F20.10)') co(1:num_gto)
       END IF
+
+      PRINT (*, '(" POWELL| Number of function evaluations",T71,I10)') ostate%nf
+      PRINT (*, '(" POWELL| Final value of function",T61,G20.10)') ostate%fopt
+      PRINT (*, '(" Optimized representation of density using a Geometrical Gaussian basis")')
+      PRINT (*, '(A,I3,/,T10,A,F10.6,T48,A,F10.6)') " Number of Gaussians:", num_gto, &
+         "Starting exponent:", x(1), "Proportionality factor:", x(2)
+      PRINT (*, '(A)') " Expansion coefficients"
+      PRINT (*, '(4F20.10)') co(1:num_gto)
 
       IF (PRESENT(results)) THEN
          CPASSERT(SIZE(results) >= num_gto + 2)
