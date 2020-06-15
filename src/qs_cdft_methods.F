@@ -1470,8 +1470,8 @@ CONTAINS
         DO iatom = 1, cdft_control%natoms
 
           ! Calculate radial derivative of atomic density
-           CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
-             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw, auxbas_rs_desc)
+           CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom), &
+             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom), auxbas_rs_desc)
 
        END DO
      END DO
