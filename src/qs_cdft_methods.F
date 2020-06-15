@@ -1474,7 +1474,7 @@ CONTAINS
            CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
             test, auxbas_rs_desc)
 
-             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw = test%pw
+             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw%cr3d = test%pw%cr3d
 
        END DO
      END DO
