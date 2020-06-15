@@ -1245,6 +1245,8 @@ CONTAINS
                auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
                hirshfeld_control, rs_single)
 
+
+
       CALL timeset(routineN, handle)
       CALL get_qs_env(qs_env, &
                       atomic_kind_set=atomic_kind_set, &
@@ -1459,6 +1461,18 @@ CONTAINS
            cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
          END IF
       END DO !igroup = 1, SIZE(cdft_control%group)
+
+
+
+
+
+      DO i = 1, 3
+         NULLIFY (test(i)%pw)
+         CALL pw_pool_create_pw(auxbas_pw_pool, &
+                                test(i)%pw, &
+                                use_data=REALDATA3D, &
+                                in_space=REALSPACE)
+      END DO
 
       ! Loop over CDFT groups
       DO igroup = 1, SIZE(cdft_control%group)
