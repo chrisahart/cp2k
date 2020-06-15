@@ -882,6 +882,7 @@ CONTAINS
                dE(igroup) = dE(igroup) + sign*accurate_dot_product(group(igroup)%weight%pw%cr3d, rho_r(i)%pw%cr3d, &
                                                                    becke_control%cavity_mat, eps_cavity)*dvol
 
+
             !  If new constraint, calculate int ( rho(r) w(r) dr) using summed rectangle rule
             ELSE
                dE(igroup) = dE(igroup) + sign * &
@@ -1451,23 +1452,40 @@ CONTAINS
          END IF
       END DO !igroup = 1, SIZE(cdft_control%group)
 
+      ! Loop over CDFT groups
+      DO igroup = 1, SIZE(cdft_control%group)
+
+        ! Calculate radial derivative of weight function
+         ! CALL derive_fdm_cd3(cdft_control%group(igroup)%weight%pw, &
+           ! cdft_control%group(igroup)%hirsh_weight_dr%pw, auxbas_rs_desc)
+
+        ! Loop over atoms in CDFT group
+        DO iatom = 1, cdft_control%natoms
+
+          ! Calculate radial derivative of atomic density
+           ! CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
+           !   cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw, auxbas_rs_desc)
+
+       END DO
+     END DO
+
+  ! ! Calculate gradient (atomic/promolecular)
+  ! PRINT *, "Calculate gradient"
+  ! DO igroup = 1, SIZE(cdft_control%group)
+  !     DO iatom  = 1, (cdft_control%natoms)
+  !
+  !       CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d, &
+  !         cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d, &
+  !         cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
+  !
+  !       END DO
+  !     END DO
+
       ! Print hirshfeld densitites
       PRINT *, "Print hirshfeld densitites"
       IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
         CALL cdft_print_hirshfeld_density(qs_env)
       END IF
-
-  ! Calculate gradient (atomic/promolecular)
-  PRINT *, "Calculate gradient"
-  DO igroup = 1, SIZE(cdft_control%group)
-      DO iatom  = 1, (cdft_control%natoms)
-
-        CALL hfun_scale(cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d, &
-          cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d, &
-          cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d, divide=.TRUE.)
-
-        END DO
-      END DO
 
       ! Deallocate temporaries
       DEALLOCATE (is_constraint)
@@ -1551,32 +1569,58 @@ CONTAINS
 
      CALL qs_subsys_get(subsys, particles=particles)
 
+
+
+
+
+
+   ! DO k = lb(3), ub(3)
+   !    DO j = lb(2), ub(2)
+   !       DO i = lb(1), ub(1)
+   !
+   !         hirsh_weight_dr%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = &
+            !  cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d
+            !
+            !
+            ! norm_drho_elec%cr3d(i, j, k) = SQRT(drho_elec(1)%pw%cr3d(i, j, k)* &
+            !                                     drho_elec(1)%pw%cr3d(i, j, k) + &
+            !                                     drho_elec(2)%pw%cr3d(i, j, k)* &
+            !                                     drho_elec(2)%pw%cr3d(i, j, k) + &
+            !                                     drho_elec(3)%pw%cr3d(i, j, k)* &
+            !                                     drho_elec(3)%pw%cr3d(i, j, k))
+   !       END DO
+   !    END DO
+   ! END DO
+
+
+
+
      ! Loop over number of spins, number of atoms in constraint group
-      DO i = 1, dft_control%nspins
-         DO igroup = 1, SIZE(group)
-
-           ! Determine sign of constraint
-            SELECT CASE (group(igroup)%constraint_type)
-            CASE (cdft_charge_constraint)
-               sign = 1.0_dp
-            CASE (cdft_magnetization_constraint)
-               IF (i == 1) THEN
-                  sign = 1.0_dp
-               ELSE
-                  sign = -1.0_dp
-               END IF
-            CASE (cdft_alpha_constraint)
-               sign = 1.0_dp
-               IF (i == 2) CYCLE
-            CASE (cdft_beta_constraint)
-               sign = 1.0_dp
-               IF (i == 1) CYCLE
-            CASE DEFAULT
-               CPABORT("Unknown constraint type.")
-            END SELECT
-
-        END DO ! END DO igroup = 1, SIZE(group)
-      END DO ! END DO i = 1, dft_control%nspins
+      ! DO i = 1, dft_control%nspins
+      !    DO igroup = 1, SIZE(group)
+      !
+      !      ! Determine sign of constraint
+      !       SELECT CASE (group(igroup)%constraint_type)
+      !       CASE (cdft_charge_constraint)
+      !          sign = 1.0_dp
+      !       CASE (cdft_magnetization_constraint)
+      !          IF (i == 1) THEN
+      !             sign = 1.0_dp
+      !          ELSE
+      !             sign = -1.0_dp
+      !          END IF
+      !       CASE (cdft_alpha_constraint)
+      !          sign = 1.0_dp
+      !          IF (i == 2) CYCLE
+      !       CASE (cdft_beta_constraint)
+      !          sign = 1.0_dp
+      !          IF (i == 1) CYCLE
+      !       CASE DEFAULT
+      !          CPABORT("Unknown constraint type.")
+      !       END SELECT
+      !
+      !   END DO ! END DO igroup = 1, SIZE(group)
+      ! END DO ! END DO i = 1, dft_control%nspins
 
       PRINT *, "5"
 
@@ -1609,5 +1653,60 @@ CONTAINS
 
 
     END SUBROUTINE hirshfeld_constraint_force
+
+    SUBROUTINE derive_fdm_cd3(f, df, rs_desc)
+
+       TYPE(pw_type), POINTER                             :: f
+       TYPE(pw_p_type), DIMENSION(3), INTENT(INOUT)       :: df
+       TYPE(realspace_grid_type), POINTER                 :: rs_grid
+
+       CHARACTER(LEN=*), PARAMETER :: routineN = 'derive_fdm_cd3', routineP = moduleN//':'//routineN
+
+       INTEGER                                            :: handle, i, j, k
+       INTEGER, DIMENSION(3)                              :: lb, ub
+       REAL(KIND=dp), DIMENSION(3)                        :: h
+       REAL(KIND=dp), DIMENSION(:, :, :), POINTER         :: drdx, drdy, drdz, r
+       TYPE(realspace_grid_desc_type), POINTER            :: rs_desc
+       TYPE(realspace_grid_p_type), DIMENSION(3)          :: drs_grid
+
+       CALL timeset(routineN, handle)
+
+       CPASSERT(ASSOCIATED(f))
+
+       ! Setup
+       ! rs_desc => rs_grid%desc
+       CALL rs_pw_transfer(rs_grid, f, pw2rs)
+       DO i = 1, 3
+          CALL rs_grid_create(drs_grid(i)%rs_grid, rs_desc)
+          CALL rs_grid_zero(drs_grid(i)%rs_grid)
+       END DO
+
+       lb(1:3) = rs_grid%lb_real(1:3)
+       ub(1:3) = rs_grid%ub_real(1:3)
+       r => rs_grid%r
+       drdx => drs_grid(1)%rs_grid%r
+       drdy => drs_grid(2)%rs_grid%r
+       drdz => drs_grid(3)%rs_grid%r
+
+       h(1:3) = 2.0_dp*f%pw_grid%dr(1:3)
+       DO k = lb(3), ub(3)
+          DO j = lb(2), ub(2)
+             DO i = lb(1), ub(1)
+                drdx(i, j, k) = (r(i + 1, j, k) - r(i - 1, j, k))/h(1)
+                drdy(i, j, k) = (r(i, j + 1, k) - r(i, j - 1, k))/h(2)
+                drdz(i, j, k) = (r(i, j, k + 1) - r(i, j, k - 1))/h(3)
+             END DO
+          END DO
+       END DO
+
+       ! Cleanup
+       DO i = 1, 3
+          CALL rs_pw_transfer(drs_grid(i)%rs_grid, df(i)%pw, rs2pw)
+          CALL rs_grid_release(drs_grid(i)%rs_grid)
+       END DO
+
+       CALL timestop(handle)
+
+    END SUBROUTINE derive_fdm_cd3
 
    END MODULE qs_cdft_methods
