@@ -106,17 +106,17 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      PRINT *, "density%op"
-      PRINT *, density%op ! Density on radial grid
-
-      PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
-      PRINT *, "atom%basis%grid%rad" ! Radial grid
-      PRINT *, atom%basis%grid%rad ! Radial grid
-
-
-      PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
-      PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
-      PRINT *, "atom%basis%nbas",  atom%basis%nbas
+      ! PRINT *, "density%op"
+      ! PRINT *, density%op ! Density on radial grid
+      !
+      ! PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
+      ! PRINT *, "atom%basis%grid%rad" ! Radial grid
+      ! PRINT *, atom%basis%grid%rad ! Radial grid
+      !
+      !
+      ! PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
+      ! PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
+      ! PRINT *, "atom%basis%nbas",  atom%basis%nbas
 
 
       ostate%nf = 0
@@ -147,7 +147,7 @@ CONTAINS
             CALL density_fit(density, atom, num_gto, x(1), x(2), co, ostate%f)
          END IF
 
-        PRINT *, "aerr", ostate%f
+        ! PRINT *, "aerr", ostate%f
 
          IF (ostate%state == -1) EXIT
 
@@ -175,11 +175,11 @@ CONTAINS
          WRITE (iunit, '(4F20.10)') co(1:num_gto)
       END IF
 
-      PRINT *, "Number of function evaluations", ostate%nf
-      PRINT *, "Final value of function", ostate%fopt
-      PRINT *, " Number of Gaussians:", num_gto, "Starting exponent:", x(1), "Proportionality factor:", x(2)
-      PRINT *, "Expansion coefficients"
-      PRINT *, co(1:num_gto)
+      ! PRINT *, "Number of function evaluations", ostate%nf
+      ! PRINT *, "Final value of function", ostate%fopt
+      ! PRINT *, " Number of Gaussians:", num_gto, "Starting exponent:", x(1), "Proportionality factor:", x(2)
+      ! PRINT *, "Expansion coefficients"
+      ! PRINT *, co(1:num_gto)
 
       IF (PRESENT(results)) THEN
          CPASSERT(SIZE(results) >= num_gto + 2)

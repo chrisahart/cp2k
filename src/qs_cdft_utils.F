@@ -1103,14 +1103,16 @@ CONTAINS
          cdft_control%first_iteration = .FALSE.
       END IF
 
+      PRINT *, "Allocate densities"
+
       ! Allocate densities
       ! Loop over CDFT groups
       DO igroup = 1, SIZE(cdft_control%group)
 
-        IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic_dr)) THEN
+        ! IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic_dr)) THEN
           ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
           ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic_dr(cdft_control%natoms))
-        END IF
+        ! END IF
 
         CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
           use_data=REALDATA3D, in_space=REALSPACE)
@@ -1128,6 +1130,8 @@ CONTAINS
             use_data=REALDATA3D, in_space=REALSPACE)
         END DO
       END DO
+
+      PRINT *, "Initialise densities"
 
       ! Initialise densities
       ! Loop over CDFT groups
