@@ -57,6 +57,7 @@ MODULE qs_cdft_methods
                                               pw_pool_type
    USE pw_types,                        ONLY: REALDATA3D,&
                                               REALSPACE,&
+                                              pw_type,&
                                               pw_p_type
    USE qs_cdft_types,                   ONLY: becke_constraint_type,&
                                               cdft_control_type,&
