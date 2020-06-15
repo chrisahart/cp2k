@@ -1107,7 +1107,7 @@ CONTAINS
       ! Loop over CDFT groups
       DO igroup = 1, SIZE(cdft_control%group)
 
-        IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_gradients)) THEN
+        IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic_dr)) THEN
           ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
           ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic_dr(cdft_control%natoms))
         END IF
@@ -1140,7 +1140,6 @@ CONTAINS
         DO iatom = 1, cdft_control%natoms
 
           cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-          cdft_control%group(igroup)%hirsh_gradients(iatom)%pw%cr3d = 1.0_dp
           cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
 
         END DO
