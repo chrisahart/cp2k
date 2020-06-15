@@ -1238,6 +1238,7 @@ CONTAINS
       TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
       ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
       TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
+        TYPE(pw_p_type), DIMENSION(3)                      :: test
 
       NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
@@ -1471,7 +1472,9 @@ CONTAINS
 
           ! Calculate radial derivative of atomic density
            CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
-             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom), auxbas_rs_desc)
+            test, auxbas_rs_desc)
+
+             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw = test%pw
 
        END DO
      END DO
