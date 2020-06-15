@@ -1470,7 +1470,7 @@ CONTAINS
         DO iatom = 1, cdft_control%natoms
 
           ! Calculate radial derivative of atomic density
-           CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom), &
+           CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
              cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom), auxbas_rs_desc)
 
        END DO
@@ -1663,7 +1663,7 @@ CONTAINS
 
     SUBROUTINE derive_fdm_cd3(f, df, rs_desc)
 
-       TYPE(pw_p_type), POINTER                             :: f
+       TYPE(pw_type), POINTER                             :: f
        TYPE(pw_p_type), DIMENSION(3), INTENT(INOUT)       :: df
        TYPE(realspace_grid_type), POINTER                 :: rs_grid
 
@@ -1683,7 +1683,7 @@ CONTAINS
        ! Setup
        ! rs_desc => rs_grid%desc
        ! CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-       CALL rs_pw_transfer(rs_grid, f%pw, pw2rs)
+       CALL rs_pw_transfer(rs_grid, f, pw2rs)
        DO i = 1, 3
           CALL rs_grid_create(drs_grid(i)%rs_grid, rs_desc)
           CALL rs_grid_zero(drs_grid(i)%rs_grid)
@@ -1696,7 +1696,7 @@ CONTAINS
        drdy => drs_grid(2)%rs_grid%r
        drdz => drs_grid(3)%rs_grid%r
 
-       h(1:3) = 2.0_dp*f%pw%pw_grid%dr(1:3)
+       h(1:3) = 2.0_dp*f%pw_grid%dr(1:3)
        DO k = lb(3), ub(3)
           DO j = lb(2), ub(2)
              DO i = lb(1), ub(1)
