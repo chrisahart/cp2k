@@ -1682,7 +1682,8 @@ CONTAINS
 
        ! Setup
        ! rs_desc => rs_grid%desc
-       CALL rs_pw_transfer(rs_grid, f, pw2rs)
+       ! CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
+       CALL rs_pw_transfer(rs_grid, f%pw, pw2rs)
        DO i = 1, 3
           CALL rs_grid_create(drs_grid(i)%rs_grid, rs_desc)
           CALL rs_grid_zero(drs_grid(i)%rs_grid)
@@ -1695,7 +1696,7 @@ CONTAINS
        drdy => drs_grid(2)%rs_grid%r
        drdz => drs_grid(3)%rs_grid%r
 
-       h(1:3) = 2.0_dp*f%pw_grid%dr(1:3)
+       h(1:3) = 2.0_dp*f%pw%pw_grid%dr(1:3)
        DO k = lb(3), ub(3)
           DO j = lb(2), ub(2)
              DO i = lb(1), ub(1)
