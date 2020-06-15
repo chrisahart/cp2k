@@ -1663,7 +1663,7 @@ CONTAINS
 
     SUBROUTINE derive_fdm_cd3(f, df, rs_desc)
 
-       TYPE(pw_type), POINTER                             :: f
+       TYPE(pw_p_type), POINTER                             :: f
        TYPE(pw_p_type), DIMENSION(3), INTENT(INOUT)       :: df
        TYPE(realspace_grid_type), POINTER                 :: rs_grid
 
