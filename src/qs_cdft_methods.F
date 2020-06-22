@@ -1489,7 +1489,7 @@ CONTAINS
       ! END DO
 
       ! Loop over CDFT groups
-      DO igroup = 1, SIZE(cdft_control%group)
+      ! DO igroup = 1, SIZE(cdft_control%group)
 
         ! Calculate radial derivative of weight function
          ! CALL derive_fdm_cd3(cdft_control%group(igroup)%weight%pw, &
