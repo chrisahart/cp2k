@@ -1571,6 +1571,7 @@ CONTAINS
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
+         INTEGER, DIMENSION(3)                              :: lb, ub
          ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
            TYPE(pw_p_type), DIMENSION(3)                      :: test
@@ -1663,15 +1664,15 @@ CONTAINS
                     DO k = lb(3), ub(3)
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
-
-                            rs_single(iatom)%rs_grid%r = 1
-                            ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
-                            ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
-
-
-                          END DO
-                        END DO
-                      END DO
+                    !
+                    !         rs_single(iatom)%rs_grid%r = 1
+                    !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
+                    !         ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
+                    !
+                    !
+                    !       END DO
+                    !     END DO
+                    !   END DO
 
 
                     ! PRINT *, "iatom", iatom
@@ -1695,6 +1696,7 @@ CONTAINS
                   END DO !iatom = 1, natom
                END DO !  iex = 1, numexp
             END DO !ikind = 1, SIZE(atomic_kind_set)
+          END DO
 
             ! Convert from rs to pw, store as atomic densities
            CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
