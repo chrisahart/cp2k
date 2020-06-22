@@ -1609,7 +1609,20 @@ CONTAINS
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
 
 
+         ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
+          PRINT *, "cdft_control%natoms", cdft_control%natoms
+          PRINT *, "allocating rs_single"
 
+            ALLOCATE (rs_single(cdft_control%natoms))
+            DO i = 1, cdft_control%natoms
+              PRINT *, "i", i
+               NULLIFY (rs_single(i)%rs_grid)
+               PRINT *, "NULLIFY", i
+               CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+               PRINT *, "rs_grid_create", i
+               CALL rs_grid_zero(rs_single(i)%rs_grid
+               PRINT *, "rs_grid_zero", i
+            END DO
 
 
          ! Loop over number of atom_group?
@@ -1620,18 +1633,7 @@ CONTAINS
             dvol = cdft_control%group(igroup)%weight%pw%pw_grid%dvol
             cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
 
-            ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
-             PRINT *, "cdft_control%natoms", cdft_control%natoms
 
-               ALLOCATE (rs_single(cdft_control%natoms))
-
-               DO i = 1, cdft_control%natoms
-                 PRINT *, "i", i
-                  NULLIFY (rs_single(i)%rs_grid)
-                  CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-                  CALL rs_grid_zero(rs_single(i)%rs_grid)
-                  compute_charge(cdft_control%atoms(i)) = .TRUE.
-               END DO
 
             ! Collocate Gaussians
             eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
