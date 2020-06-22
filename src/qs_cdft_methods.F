@@ -1633,7 +1633,7 @@ CONTAINS
                PRINT *, "NULLIFY", i
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                PRINT *, "rs_grid_create", i
-               CALL rs_grid_zero(rs_single(i)%rs_grid
+               CALL rs_grid_zero(rs_single(i)%rs_grid)
                PRINT *, "rs_grid_zero", i
             END DO
 
