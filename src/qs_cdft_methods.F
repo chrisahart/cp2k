@@ -1639,7 +1639,7 @@ CONTAINS
             CALL rs_grid_zero(rs_rho_constr)
 
             ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
-             PRINT *, "cdft_control%natoms)", cdft_control%natoms)
+             PRINT *, "cdft_control%natoms", cdft_control%natoms
             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                ALLOCATE (rs_single(cdft_control%natoms))
                DO i = 1, cdft_control%natoms
