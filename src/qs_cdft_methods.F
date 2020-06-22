@@ -1397,6 +1397,20 @@ CONTAINS
                                                    rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
                                                    ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                    subpatch_pattern=subpatch_pattern)
+
+                                                   ! SUBROUTINE collocate_pgf_product(la_max, zeta, la_min, &
+                                                   !                                  lb_max, zetb, lb_min, &
+                                                   !                                  ra, rab, scale, pab, o1, o2, &
+                                                   !                                  rsgrid, cell, cube_info, &
+                                                   !                                  ga_gb_function, radius, &
+                                                   !                                  use_subpatch, subpatch_pattern)
+
+
+
+
+
+
+
                         !rs_single_dr = -2 * r * coefficients(atom_a) * rs_single
                      END IF
                   END IF
@@ -1593,63 +1607,71 @@ CONTAINS
 
      CALL qs_subsys_get(subsys, particles=particles)
 
+     ! Loop over each atom
+
+     ! Get variables
+     h(1:3) = 2.0_dp*hirsh_rho_atomic(1)%pw%pw_grid%dr(1:3)
+     lb(1:3) = hirsh_rho_atomic(1)%pw%pw_grid%bounds_local(1, 1:3)
+     ub(1:3) = hirsh_rho_atomic(1)%pw%pw_grid%bounds_local(2, 1:3)
+     atom_a = atom_list(iatom)
+     ra(:) = pbc(particle_set(atom_a)%r, cell)
+
+     ! Calculate Cartesian derivatives
+     DO k = lb(3), ub(3)
+        DO j = lb(2), ub(2)
+           DO i = lb(1), ub(1)
+
+
+             ! f(r) = coeff(1) * np.exp(-r*zet(1)**2)
+             ! d/dr = -2*r*zeta*coeff(1) * np.exp(-r*zet(1))
+
+             hirsh_weight_dr(1)%pw%cr3d(i, j, k) = EXP()
 
 
 
 
 
-   ! DO k = lb(3), ub(3)
-   !    DO j = lb(2), ub(2)
-   !       DO i = lb(1), ub(1)
-   !
-   !         hirsh_weight_dr%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = &
-            !  cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d
-            !
-            !
-            ! norm_drho_elec%cr3d(i, j, k) = SQRT(drho_elec(1)%pw%cr3d(i, j, k)* &
-            !                                     drho_elec(1)%pw%cr3d(i, j, k) + &
-            !                                     drho_elec(2)%pw%cr3d(i, j, k)* &
-            !                                     drho_elec(2)%pw%cr3d(i, j, k) + &
-            !                                     drho_elec(3)%pw%cr3d(i, j, k)* &
-            !                                     drho_elec(3)%pw%cr3d(i, j, k))
-   !       END DO
-   !    END DO
-   ! END DO
+              hirsh_weight_dr(1)%pw%cr3d(i, j, k) = (cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i + 1, j, k) - &
+                                                    cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i - 1, j, k)) /h(1)
+
+              hirsh_weight_dr(2)%pw%cr3d(i, j, k) = (cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j + 1, k) - &
+                                                    cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j - 1, k)) /h(2)
+
+              hirsh_weight_dr(3)%pw%cr3d(i, j, k) = (cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k + 1) - &
+                                                    cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k - 1)) /h(3)
+
+                hirsh_weight_drR%pw%cr3d(i, j, k) = hirsh_weight_dr(1)%pw%cr3d(i, j, k) + &
+                                                    hirsh_weight_dr(2)%pw%cr3d(i, j, k) + &
+                                                    hirsh_weight_dr(3)%pw%cr3d(i, j, k) - &
+                                                    cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k)                                     
+           END DO
+        END DO
+     END DO
+
+
+     ! Calculate dw(r, R) / dR
+     DO k = lb(3), ub(3)
+        DO j = lb(2), ub(2)
+           DO i = lb(1), ub(1)
+              hirsh_weight_drR%pw%cr3d(i, j, k) = hirsh_weight_dr(1)%pw%cr3d(i, j, k) + &
+                                                  hirsh_weight_dr(2)%pw%cr3d(i, j, k) + &
+                                                  hirsh_weight_dr(3)%pw%cr3d(i, j, k)
+
+           END DO
+        END DO
+     END DO
 
 
 
 
-     ! Loop over number of spins, number of atoms in constraint group
-      ! DO i = 1, dft_control%nspins
-      !    DO igroup = 1, SIZE(group)
-      !
-      !      ! Determine sign of constraint
-      !       SELECT CASE (group(igroup)%constraint_type)
-      !       CASE (cdft_charge_constraint)
-      !          sign = 1.0_dp
-      !       CASE (cdft_magnetization_constraint)
-      !          IF (i == 1) THEN
-      !             sign = 1.0_dp
-      !          ELSE
-      !             sign = -1.0_dp
-      !          END IF
-      !       CASE (cdft_alpha_constraint)
-      !          sign = 1.0_dp
-      !          IF (i == 2) CYCLE
-      !       CASE (cdft_beta_constraint)
-      !          sign = 1.0_dp
-      !          IF (i == 1) CYCLE
-      !       CASE DEFAULT
-      !          CPABORT("Unknown constraint type.")
-      !       END SELECT
-      !
-      !   END DO ! END DO igroup = 1, SIZE(group)
-      ! END DO ! END DO i = 1, dft_control%nspins
 
       PRINT *, "5"
 
       PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
       PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
+
+
+
 
       ! group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign* &
       !                                  group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)* &
@@ -1663,75 +1685,20 @@ CONTAINS
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
       ! by the number of processes when the final force%rho_elec is constructed in qs_force
       ! by mp_summing [the final integrated(:,:) is distributed on all processors]
-      IF (para_env%ionode) THEN
-         DO igroup = 1, SIZE(cdft_control%group)
-            DO iatom = 1, natom
-               ikind = kind_of(iatom)
-               i = atom_of_kind(iatom)
-               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) !+ group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
-            END DO
-         END DO
-      END IF
+      ! IF (para_env%ionode) THEN
+      !    DO igroup = 1, SIZE(cdft_control%group)
+      !       DO iatom = 1, natom
+      !          ikind = kind_of(iatom)
+      !          i = atom_of_kind(iatom)
+      !          force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) !+ group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
+      !       END DO
+      !    END DO
+      ! END IF
 
       ! Call ABORT
 
 
     END SUBROUTINE hirshfeld_constraint_force
 
-    SUBROUTINE derive_fdm_cd3(f, df, rs_desc)
-
-       TYPE(pw_type), POINTER                             :: f
-       TYPE(pw_p_type), DIMENSION(3), INTENT(INOUT)       :: df
-       TYPE(realspace_grid_type), POINTER                 :: rs_grid
-
-       CHARACTER(LEN=*), PARAMETER :: routineN = 'derive_fdm_cd3', routineP = moduleN//':'//routineN
-
-       INTEGER                                            :: handle, i, j, k
-       INTEGER, DIMENSION(3)                              :: lb, ub
-       REAL(KIND=dp), DIMENSION(3)                        :: h
-       REAL(KIND=dp), DIMENSION(:, :, :), POINTER         :: drdx, drdy, drdz, r
-       TYPE(realspace_grid_desc_type), POINTER            :: rs_desc
-       TYPE(realspace_grid_p_type), DIMENSION(3)          :: drs_grid
-
-       CALL timeset(routineN, handle)
-
-       CPASSERT(ASSOCIATED(f))
-
-       ! Setup
-       ! rs_desc => rs_grid%desc
-       ! CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-       CALL rs_pw_transfer(rs_grid, f, pw2rs)
-       DO i = 1, 3
-          CALL rs_grid_create(drs_grid(i)%rs_grid, rs_desc)
-          CALL rs_grid_zero(drs_grid(i)%rs_grid)
-       END DO
-
-       lb(1:3) = rs_grid%lb_real(1:3)
-       ub(1:3) = rs_grid%ub_real(1:3)
-       r => rs_grid%r
-       drdx => drs_grid(1)%rs_grid%r
-       drdy => drs_grid(2)%rs_grid%r
-       drdz => drs_grid(3)%rs_grid%r
-
-       h(1:3) = 2.0_dp*f%pw_grid%dr(1:3)
-       DO k = lb(3), ub(3)
-          DO j = lb(2), ub(2)
-             DO i = lb(1), ub(1)
-                drdx(i, j, k) = (r(i + 1, j, k) - r(i - 1, j, k))/h(1)
-                drdy(i, j, k) = (r(i, j + 1, k) - r(i, j - 1, k))/h(2)
-                drdz(i, j, k) = (r(i, j, k + 1) - r(i, j, k - 1))/h(3)
-             END DO
-          END DO
-       END DO
-
-       ! Cleanup
-       DO i = 1, 3
-          CALL rs_pw_transfer(drs_grid(i)%rs_grid, df(i)%pw, rs2pw)
-          CALL rs_grid_release(drs_grid(i)%rs_grid)
-       END DO
-
-       CALL timestop(handle)
-
-    END SUBROUTINE derive_fdm_cd3
 
    END MODULE qs_cdft_methods
