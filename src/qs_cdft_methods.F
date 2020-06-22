@@ -1642,19 +1642,16 @@ CONTAINS
          PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
          DO igroup = 1, SIZE(cdft_control%group)
 
+           PRINT *, "looping over each igroup", igroup
+
             ! Set values
             dvol = cdft_control%group(igroup)%weight%pw%pw_grid%dvol
             cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
 
-
-
-            ! Collocate Gaussians
-            eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
-            ALLOCATE (pab(1, 1))
-
-
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
+
+              PRINT *, "looping over each atomic_kind_set", ikind
 
               ! We have now setup rs_single(i), rs_rho_all and rs_rho_constr and are ready to calculate densities
               PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
@@ -1685,14 +1682,14 @@ CONTAINS
 
                     DO k = lb(3), ub(3)
 
-                      PRINT *, "calculation, k", k
+                      ! PRINT *, "calculation, k", k
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
                             rs_single(iatom)%rs_grid%r(i, j, k) = 1
                     !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
-                    !         ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
+                             cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
                     !
                     !
                           END DO
