@@ -1580,7 +1580,7 @@ CONTAINS
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
                   hirshfeld_control, rs_single)
 
-
+          PRINT *, "start hirshfeld_constraint_low"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1608,6 +1608,7 @@ CONTAINS
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
 
          ! Loop over number of atom_group?
+         PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
          DO igroup = 1, SIZE(cdft_control%group)
 
             ! Set values
@@ -1618,6 +1619,7 @@ CONTAINS
             coefficients(:) = 0.0_dp
             is_constraint = .FALSE.
 
+            PRINT *, "SIZE(cdft_control%group(igroup)%atoms)", SIZE(cdft_control%group(igroup)%atoms)
             DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
                coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
                is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
@@ -1637,6 +1639,7 @@ CONTAINS
             CALL rs_grid_zero(rs_rho_constr)
 
             ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
+             PRINT *, "cdft_control%natoms)", cdft_control%natoms)
             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                ALLOCATE (rs_single(cdft_control%natoms))
                DO i = 1, cdft_control%natoms
@@ -1647,12 +1650,6 @@ CONTAINS
                END DO
             END IF
 
-            ! We have now setup rs_single(i), rs_rho_all and rs_rho_constr and are ready to calculate densities
-            PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
-            PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
-            PRINT *, "numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
-            PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
-
             ! Collocate Gaussians
             eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
             ALLOCATE (pab(1, 1))
@@ -1661,6 +1658,12 @@ CONTAINS
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
+
+              ! We have now setup rs_single(i), rs_rho_all and rs_rho_constr and are ready to calculate densities
+              PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+              PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
+              PRINT *, "numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
+              PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
 
                numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
                IF (numexp <= 0) CYCLE
