@@ -1546,7 +1546,7 @@ CONTAINS
             routineP = moduleN//':'//routineN
 
          LOGICAL                                            :: plot_hirshfeld_density
-         INTEGER                                            :: atom_a, handle, i, iatom, iex, igroup, &
+         INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp
          INTEGER(KIND=int_8)                                :: subpatch_pattern
@@ -1719,8 +1719,8 @@ CONTAINS
 
                      IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                         IF (compute_charge(atom_a)) THEN
-                           DO iatom = 1, cdft_control%natoms
-                              IF (atom_a == cdft_control%atoms(iatom)) EXIT
+                           DO iatom2 = 1, cdft_control%natoms
+                              IF (atom_a == cdft_control%atoms(iatom2)) EXIT
                            END DO
                            CPASSERT(iatom <= cdft_control%natoms)
                            CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
