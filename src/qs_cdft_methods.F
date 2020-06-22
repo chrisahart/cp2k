@@ -1684,10 +1684,12 @@ CONTAINS
                     PRINT *, "ub", ub
 
                     DO k = lb(3), ub(3)
+
+                      PRINT *, "calculation, k", k
+
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            PRINT *, "calculation, k", k
                             rs_single(iatom)%rs_grid%r(i, j, k) = 1
                     !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
                     !         ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
