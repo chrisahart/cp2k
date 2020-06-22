@@ -1615,29 +1615,6 @@ CONTAINS
             dvol = cdft_control%group(igroup)%weight%pw%pw_grid%dvol
             cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
 
-            ! Keep track of those atoms that are active in this constraint group
-            coefficients(:) = 0.0_dp
-            is_constraint = .FALSE.
-
-            PRINT *, "SIZE(cdft_control%group(igroup)%atoms)", SIZE(cdft_control%group(igroup)%atoms)
-            DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
-               coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
-               is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
-            END DO
-
-            ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
-            IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
-               CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
-                               auxbas_pw_pool=auxbas_pw_pool)
-               cube_info = pw_env%cube_info(1)
-               CALL rs_grid_retain(rs_rho_all)
-               CALL rs_grid_zero(rs_rho_all)
-            END IF
-
-            ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
-            CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
-            CALL rs_grid_zero(rs_rho_constr)
-
             ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
              PRINT *, "cdft_control%natoms", cdft_control%natoms
             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
@@ -1653,8 +1630,6 @@ CONTAINS
             ! Collocate Gaussians
             eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
             ALLOCATE (pab(1, 1))
-            nthread = 1
-            ithread = 0
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
@@ -1672,140 +1647,57 @@ CONTAINS
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
+
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-                  npme = 0
-                  cores = 0
 
                   DO iatom = 1, natom
 
-                    PRINT *, "iatom", iatom
-                    PRINT *, "natom", natom
-                    PRINT *, "atom_a", atom_list(iatom)
-                    PRINT *, "ra(:)", ra(:)
+                    DO k = lb(3), ub(3)
+                       DO j = lb(2), ub(2)
+                          DO i = lb(1), ub(1)
 
-                     atom_a = atom_list(iatom)
-                     ra(:) = pbc(particle_set(atom_a)%r, cell)
+                            rs_single(iatom)%rs_grid%r = 1
+                            ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
+                            ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
 
-                     pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-                     ra(:) = pbc(particle_set(atom_a)%r, cell)
-                     subpatch_pattern = 0
-                     radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                       ra=ra, rb=ra, rp=ra, &
-                                                       zetp=alpha, eps=eps_rho_rspace, &
-                                                       pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                       prefactor=1.0_dp, cutoff=0.0_dp)
 
-                     CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                                rs_rho_all, cell, cube_info, radius=radius, &
-                                                ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                subpatch_pattern=subpatch_pattern)
+                          END DO
+                        END DO
+                      END DO
 
-                     IF (is_constraint(atom_a)) THEN
-                        radius_constr = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                                 ra=ra, rb=ra, rp=ra, &
-                                                                 zetp=alpha, eps=eps_rho_rspace, &
-                                                                 pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                                 prefactor=coefficients(atom_a), cutoff=0.0_dp)
 
-                        CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                   (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
-                                                   pab, 0, 0, rs_rho_constr, cell, cube_info, &
-                                                   radius=radius_constr, &
-                                                   ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                   subpatch_pattern=subpatch_pattern)
-                     END IF
+                    ! PRINT *, "iatom", iatom
+                    ! PRINT *, "natom", natom
+                    ! PRINT *, "atom_a", atom_list(iatom)
+                    ! PRINT *, "ra(:)", ra(:)
+                    !
+                    !  atom_a = atom_list(iatom)
+                    !  ra(:) = pbc(particle_set(atom_a)%r, cell)
+                    !
+                    !  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+                    !  ra(:) = pbc(particle_set(atom_a)%r, cell)
+                    !  subpatch_pattern = 0
+                    !        CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                    !                                   (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                    !                                   rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                    !                                   ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                    !                                   subpatch_pattern=subpatch_pattern)
 
-                     PRINT *, "radius", radius
-                     PRINT *, "radius_constr", radius_constr
-
-                     IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-                        IF (compute_charge(atom_a)) THEN
-                           DO iatom2 = 1, cdft_control%natoms
-                              IF (atom_a == cdft_control%atoms(iatom2)) EXIT
-                           END DO
-                           CPASSERT(iatom <= cdft_control%natoms)
-                           CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                      (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                                      rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
-                                                      ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                      subpatch_pattern=subpatch_pattern)
-
-                        END IF
-                     END IF
 
                   END DO !iatom = 1, natom
                END DO !  iex = 1, numexp
-               DEALLOCATE (cores)
             END DO !ikind = 1, SIZE(atomic_kind_set)
-            DEALLOCATE (pab)
 
-            ! Transfer rs_rho_all to the correct grid and save it
-            CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-            IF (igroup == 1) THEN
-               IF (ASSOCIATED(fnorm)) THEN
-                  CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
-               END IF
-               ALLOCATE (fnorm)
-               CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
-                                      in_space=REALSPACE)
-               CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-               CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-               CALL rs_grid_release(rs_rho_all)
-            END IF
-            ! Compute CDFT weight function
-            CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                   in_space=REALSPACE)
-            CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-            CALL rs_grid_release(rs_rho_constr)
-            CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
-                            tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+            ! Convert from rs to pw, store as atomic densities
+           CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                  in_space=REALSPACE)
+                                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
-            ! Compute atomic weight functions if charges are needed
-            IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                      in_space=REALSPACE)
+            ! Print atomic densities
+                  CALL cdft_print_hirshfeld_density(qs_env)
 
-           PRINT *, "start hirshfeld_constraint_low"
-           plot_hirshfeld_density = .TRUE.
-
-               DO i = 1, cdft_control%natoms
-                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                  CALL rs_grid_release(rs_single(i)%rs_grid)
-
-                  CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
-                  tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-
-                  ! Save hirshfeld atomic density
-                  PRINT *, "Save hirshfeld atomic density"
-                  IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-                     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-                  END IF
-
-               END DO
-               CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-               DEALLOCATE (rs_single)
-               DEALLOCATE (compute_charge)
-            END IF
-
-            ! Save hirshfeld promolecular density
-            PRINT *, "Save hirshfeld promolecular density"
-            IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-              cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
-            END IF
-         END DO !igroup = 1, SIZE(cdft_control%group)
-
-         ! Print hirshfeld densitites
-         PRINT *, "Print hirshfeld densitites"
-         IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
-           CALL cdft_print_hirshfeld_density(qs_env)
-         END IF
-
-         ! Deallocate temporaries
-         DEALLOCATE (is_constraint)
-         DEALLOCATE (coefficients)
          CALL timestop(handle)
 
           PRINT *, "end hirshfeld_constraint_low"
