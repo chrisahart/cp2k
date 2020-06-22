@@ -1480,13 +1480,13 @@ CONTAINS
 
 
 
-      DO i = 1, 3
-         NULLIFY (test(i)%pw)
-         CALL pw_pool_create_pw(auxbas_pw_pool, &
-                                test(i)%pw, &
-                                use_data=REALDATA3D, &
-                                in_space=REALSPACE)
-      END DO
+      ! DO i = 1, 3
+      !    NULLIFY (test(i)%pw)
+      !    CALL pw_pool_create_pw(auxbas_pw_pool, &
+      !                           test(i)%pw, &
+      !                           use_data=REALDATA3D, &
+      !                           in_space=REALSPACE)
+      ! END DO
 
       ! Loop over CDFT groups
       DO igroup = 1, SIZE(cdft_control%group)
@@ -1496,16 +1496,16 @@ CONTAINS
            ! cdft_control%group(igroup)%hirsh_weight_dr%pw, auxbas_rs_desc)
 
         ! Loop over atoms in CDFT group
-        DO iatom = 1, cdft_control%natoms
-
-          ! Calculate radial derivative of atomic density
-           CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
-            test, auxbas_rs_desc)
-
-             cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw%cr3d = test%pw%cr3d
-
-       END DO
-     END DO
+     !    DO iatom = 1, cdft_control%natoms
+     !
+     !      ! Calculate radial derivative of atomic density
+     !       CALL derive_fdm_cd3(cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
+     !        test, auxbas_rs_desc)
+     !
+     !         cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw%cr3d = test%pw%cr3d
+     !
+     !   END DO
+     ! END DO
 
   ! ! Calculate gradient (atomic/promolecular)
   ! PRINT *, "Calculate gradient"
@@ -1675,25 +1675,15 @@ CONTAINS
                   cores = 0
 
                   DO iatom = 1, natom
+
+                    PRINT *, "iatom", iatom
+                    PRINT *, "natom", natom
+                    PRINT *, "atom_a", atom_list(iatom)
+                    PRINT *, "ra(:)", ra(:)
+
                      atom_a = atom_list(iatom)
                      ra(:) = pbc(particle_set(atom_a)%r, cell)
-                     IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
-                        ! replicated realspace grid, split the atoms up between procs
-                        IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
-                           npme = npme + 1
-                           cores(npme) = iatom
-                        ENDIF
-                     ELSE
-                        npme = npme + 1
-                        cores(npme) = iatom
-                     ENDIF
-                  END DO
 
-                  PRINT *, "npme", npme
-
-                  DO j = 1, npme
-                     iatom = cores(j)
-                     atom_a = atom_list(iatom)
                      pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                      ra(:) = pbc(particle_set(atom_a)%r, cell)
                      subpatch_pattern = 0
@@ -1742,7 +1732,7 @@ CONTAINS
                         END IF
                      END IF
 
-                  END DO !j = 1, npme
+                  END DO !iatom = 1, natom
                END DO !  iex = 1, numexp
                DEALLOCATE (cores)
             END DO !ikind = 1, SIZE(atomic_kind_set)
@@ -1803,14 +1793,6 @@ CONTAINS
               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
             END IF
          END DO !igroup = 1, SIZE(cdft_control%group)
-
-         DO i = 1, 3
-            NULLIFY (test(i)%pw)
-            CALL pw_pool_create_pw(auxbas_pw_pool, &
-                                   test(i)%pw, &
-                                   use_data=REALDATA3D, &
-                                   in_space=REALSPACE)
-         END DO
 
          ! Print hirshfeld densitites
          PRINT *, "Print hirshfeld densitites"
