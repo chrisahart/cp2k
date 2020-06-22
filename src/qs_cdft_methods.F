@@ -1622,15 +1622,16 @@ CONTAINS
 
             ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
              PRINT *, "cdft_control%natoms", cdft_control%natoms
-            IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+
                ALLOCATE (rs_single(cdft_control%natoms))
+
                DO i = 1, cdft_control%natoms
+                 PRINT *, "i", i
                   NULLIFY (rs_single(i)%rs_grid)
                   CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                   CALL rs_grid_zero(rs_single(i)%rs_grid)
                   compute_charge(cdft_control%atoms(i)) = .TRUE.
                END DO
-            END IF
 
             ! Collocate Gaussians
             eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
@@ -1638,6 +1639,8 @@ CONTAINS
 
             lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
             ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
+            PRINT *, "lb", lb
+            PRINT *, "ub", ub
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
@@ -1656,10 +1659,14 @@ CONTAINS
                ! Loop over each Gaussian
                DO iex = 1, numexp
 
+                 PRINT *, "looping over each exponential", iex
+
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                   DO iatom = 1, natom
+
+                    PRINT *, "looping over each atom of atom type", iatom
 
                     DO k = lb(3), ub(3)
                        DO j = lb(2), ub(2)
@@ -1698,7 +1705,9 @@ CONTAINS
             END DO !ikind = 1, SIZE(atomic_kind_set)
 
 
-            DO i = 1, cdft_control%natoms
+              PRINT *, "transferring to pw"
+
+              DO i = 1, cdft_control%natoms
 
                CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                   in_space=REALSPACE)
@@ -1706,7 +1715,7 @@ CONTAINS
                   cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
 
-              END DO
+              END DO ! i = 1, cdft_control%natoms
 
 
           END DO !  1, SIZE(cdft_control%group)
