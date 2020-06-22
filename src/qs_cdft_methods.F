@@ -1548,7 +1548,7 @@ CONTAINS
          LOGICAL                                            :: plot_hirshfeld_density
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, &
-                                                               nthread, numexp
+                                                               nthread, numexp, j, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -1664,7 +1664,7 @@ CONTAINS
                     DO k = lb(3), ub(3)
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
-                    
+
                             rs_single(iatom)%rs_grid%r = 1
                     !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
                     !         ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
