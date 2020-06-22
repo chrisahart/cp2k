@@ -1652,10 +1652,6 @@ CONTAINS
             eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
             ALLOCATE (pab(1, 1))
 
-            lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
-            ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
-            PRINT *, "lb", lb
-            PRINT *, "ub", ub
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
@@ -1682,6 +1678,10 @@ CONTAINS
                   DO iatom = 1, natom
 
                     PRINT *, "looping over each atom of atom type", iatom
+                    lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
+                    ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
+                    PRINT *, "lb", lb
+                    PRINT *, "ub", ub
 
                     DO k = lb(3), ub(3)
                        DO j = lb(2), ub(2)
