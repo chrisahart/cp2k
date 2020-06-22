@@ -1548,7 +1548,7 @@ CONTAINS
          LOGICAL                                            :: plot_hirshfeld_density
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, &
-                                                               nthread, numexp, j, k
+                                                               nthread, numexp, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -1696,13 +1696,23 @@ CONTAINS
                   END DO !iatom = 1, natom
                END DO !  iex = 1, numexp
             END DO !ikind = 1, SIZE(atomic_kind_set)
-          END DO
+
+
+            DO i = 1, cdft_control%natoms
+
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                  in_space=REALSPACE)
+              CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+
+
+              END DO
+
+
+          END DO !  1, SIZE(cdft_control%group)
 
             ! Convert from rs to pw, store as atomic densities
-           CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                  in_space=REALSPACE)
-                                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+
 
             ! Print atomic densities
                   CALL cdft_print_hirshfeld_density(qs_env)
