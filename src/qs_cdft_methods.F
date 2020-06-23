@@ -1356,7 +1356,7 @@ CONTAINS
   !                 pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
   !                 ra(:) = pbc(particle_set(atom_a)%r, cell)
   !                 subpatch_pattern = 0
-  !                 radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                  ! radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
   !                                                   ra=ra, rb=ra, rp=ra, &
   !                                                   zetp=alpha, eps=eps_rho_rspace, &
   !                                                   pab=pab, o1=0, o2=0, &  ! without map_consistent
@@ -1683,11 +1683,14 @@ CONTAINS
                     DO k = lb(3), ub(3)
 
                       ! PRINT *, "calculation, k", k
+                      PRINT *, "rs_single, k", rs_single(iatom)%rs_grid%r(0, 0, k)
+
+
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            rs_single(iatom)%rs_grid%r(i, j, k) = 1
+                            ! rs_single(iatom)%rs_grid%r(i, j, k) = 1
                     !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
                              ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
                     !
