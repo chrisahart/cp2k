@@ -1686,6 +1686,7 @@ CONTAINS
                     dr(2) =  rs_single(iatom)%rs_grid%desc%dh(2, 2)
                     dr(3) =  rs_single(iatom)%rs_grid%desc%dh(3, 3)
                     PRINT *, "dr(1)", dr(1), "dr(2)", dr(2), "dr(3)", dr(3)
+                    PRINT *, "dh(1, 1)", dh(1, 1)
 
                     ra(:) = pbc(particle_set(atom_a)%r, cell)
                     PRINT *, "ra(:)", ra(:)
@@ -1697,6 +1698,9 @@ CONTAINS
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
+
+                            ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + &
+                            !                                 (i * dr(1))
 
                             rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + &
                                                             EXP(-((i * dr(1)) ** 2 + (j * dr(2)) ** 2 + (k * dr(3)) ** 2))
@@ -1800,6 +1804,7 @@ CONTAINS
      TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
 
       PRINT *, "start hirshfeld_constraint_force"
+      CPABORT("Hirshfeld force not yet implemented.")
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
@@ -1908,7 +1913,7 @@ CONTAINS
 
 
 
-        CPABORT("Hirshfeld force not yet implemented.")
+
 
 
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
