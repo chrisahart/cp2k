@@ -1689,7 +1689,7 @@ CONTAINS
 
                             rs_single(iatom)%rs_grid%r(i, j, k) = 1
                     !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
-                             cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
+                             ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
                     !
                     !
                           END DO
@@ -1720,17 +1720,17 @@ CONTAINS
             END DO !ikind = 1, SIZE(atomic_kind_set)
 
 
-              ! PRINT *, "transferring to pw"
-              !
-              ! DO i = 1, cdft_control%natoms
-              !
-              !  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-              !                     in_space=REALSPACE)
-              ! CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-              !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-              !
-              !
-              ! END DO ! i = 1, cdft_control%natoms
+              PRINT *, "transferring to pw"
+
+              DO i = 1, cdft_control%natoms
+
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                  in_space=REALSPACE)
+              CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+
+
+              END DO ! i = 1, cdft_control%natoms
 
 
           END DO !  1, SIZE(cdft_control%group)
