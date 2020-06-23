@@ -881,7 +881,8 @@ CONTAINS
 
               ! Check if number of constraint atom groups larger than 1
               IF (igroup /= 1) THEN
-                CALL cp_abort(__LOCATION__,   "Multiple constraints not supported by parallel mixed calculations.")
+                CALL cp_abort(__LOCATION__,   &
+                "Multiple constraints not supported by parallel mixed calculations.")
               END IF
 
                ! With external control, we use cavity_mat as a mask to kahan sum
@@ -1575,6 +1576,7 @@ CONTAINS
          ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
            TYPE(pw_p_type), DIMENSION(3)                      :: test
+           REAL(KIND=dp), DIMENSION(3)              :: dr
 
          NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                   hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
@@ -1680,21 +1682,30 @@ CONTAINS
                     PRINT *, "lb", lb
                     PRINT *, "ub", ub
 
+                    dr(1) =  rs_single(iatom)%rsgrid%desc%dh(1, 1)
+                    dr(2) =  rs_single(iatom)%rsgrid%desc%dh(2, 2)
+                    dr(3) =  rs_single(iatom)%rsgrid%desc%dh(3, 3)
+                    PRINT *, "dr(1)", dr(1), "dr(2)", dr(2), "dr(3)", dr(3)
+
+                    ra(:) = pbc(particle_set(atom_a)%r, cell)
+                    PRINT *, "ra(:)", ra(:)
+
                     DO k = lb(3), ub(3)
 
-                      ! PRINT *, "calculation, k", k
+                      PRINT *, "calculation, k", k
                       PRINT *, "rs_single, k", rs_single(iatom)%rs_grid%r(0, 0, k)
-
-
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            ! rs_single(iatom)%rs_grid%r(i, j, k) = 1
-                    !         ! rs_single(iatom)%rs_grid = rs_single(iatom)%rs_grid + EXP(rs_single(iatom)%rs_grid(i, j, k))
-                             ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k)
-                    !
-                    !
+                            rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) +
+                                                            EXP(-((i * dr(1)) ** 2 + (j * dr(2)) ** 2 + (k * dr(3)) ** 2))
+
+                            ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + coef *
+                            !                                       EXP(-alpha * (((i * dr(1)) - ra(1)) ** 2 + &
+                            !                                                     ((j * dr(2)) - ra(2)) ** 2 + &
+                            !                                                     ((k * dr(3)) - ra(3)) ** 2))
+
                           END DO
                         END DO
                       END DO
