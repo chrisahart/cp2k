@@ -1805,8 +1805,7 @@ CONTAINS
               logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
               rho0_mpole, group, charge, force, hirshfeld_env)
 
-              hirshfeld_control => cdft_control%hirshfeld_control
-              hirshfeld_env => hirshfeld_control%hirshfeld_env
+
 
      CALL timeset(routineN, handle)
      logger_test => cp_get_default_logger()
@@ -1824,6 +1823,9 @@ CONTAINS
      cdft_control => dft_control%qs_control%cdft_control
      group => cdft_control%group
      dvol = group(1)%weight%pw%pw_grid%dvol
+
+     hirshfeld_control => cdft_control%hirshfeld_control
+     hirshfeld_env => hirshfeld_control%hirshfeld_env
 
      ALLOCATE (atom_of_kind(natom))
      ALLOCATE (kind_of(natom))
