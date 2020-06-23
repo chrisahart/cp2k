@@ -1667,7 +1667,7 @@ CONTAINS
                ALLOCATE (cores(natom))
 
                ! Loop over each Gaussian
-               DO iex = 1, numexp
+               DO iex = 1, 1 !numexp
 
                  PRINT *, "looping over each exponential", iex
 
