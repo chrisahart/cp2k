@@ -1682,9 +1682,9 @@ CONTAINS
                     PRINT *, "lb", lb
                     PRINT *, "ub", ub
 
-                    dr(1) =  rs_single(iatom)%rs_desc%dh(1, 1)
-                    dr(2) =  rs_single(iatom)%rs_desc%dh(2, 2)
-                    dr(3) =  rs_single(iatom)%rs_desc%dh(3, 3)
+                    dr(1) =  rs_single(iatom)%rs_grid%desc%dh(1, 1)
+                    dr(2) =  rs_single(iatom)%rs_grid%desc%dh(2, 2)
+                    dr(3) =  rs_single(iatom)%rs_grid%desc%dh(3, 3)
                     PRINT *, "dr(1)", dr(1), "dr(2)", dr(2), "dr(3)", dr(3)
 
                     ra(:) = pbc(particle_set(atom_a)%r, cell)
