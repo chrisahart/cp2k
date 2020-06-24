@@ -1714,10 +1714,9 @@ CONTAINS
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            rs_rho_temp%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + 1 * &
-                                                                  EXP(-1 * (((i * dr(1)) - ra(1)) ** 2 + &
-                                                                               ((j * dr(2)) - ra(2)) ** 2 + &
-                                                                               ((k * dr(3)) - ra(3)) ** 2))
+                            rs_rho_temp%r(i, j, k) =  1 * EXP(-1 * (((i * dr(1)) - ra(1)) ** 2 + &
+                                                                    ((j * dr(2)) - ra(2)) ** 2 + &
+                                                                    ((k * dr(3)) - ra(3)) ** 2))
 
                             ! rs_rho_temp%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
                             !                                       EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
@@ -1734,10 +1733,10 @@ CONTAINS
                       END DO
 
                       ! Save atomic density
-                      rs_single(iatom)%rs_grid%r = rs_rho_temp%rs_grid%r
+                      rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
 
                       ! Save sum over constraint atoms
-                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%rs_grid%r
+                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
 
                       ! Save sum over all atoms
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
