@@ -1691,8 +1691,8 @@ CONTAINS
                     atom_a = atom_list(iatom)
                     ra(:) = pbc(particle_set(atom_a)%r, cell)
                     PRINT *, "ra(:)", ra(:)
-                    ! ra(:) = particle_set(atom_a)%r
-                    ! PRINT *, "ra(:)", ra(:)
+                    ra(:) = particle_set(atom_a)%r
+                    PRINT *, "ra(:)", ra(:)
                     ! ra(1) = 0
                     ! ra(2) = 0
                     ! ra(3) = 0.74
@@ -1700,8 +1700,8 @@ CONTAINS
 
                     DO k = lb(3), ub(3)
 
-                      PRINT *, "calculation, k", k
-                      PRINT *, "rs_single, k", rs_single(iatom)%rs_grid%r(0, 0, k)
+                      ! PRINT *, "calculation, k", k
+                      ! PRINT *, "rs_single, k", rs_single(iatom)%rs_grid%r(0, 0, k)
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
