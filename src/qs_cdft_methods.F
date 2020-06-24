@@ -1841,6 +1841,7 @@ CONTAINS
      TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
 
       PRINT *, "start hirshfeld_constraint_force"
+      
       CPABORT("Hirshfeld force not yet implemented.")
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
