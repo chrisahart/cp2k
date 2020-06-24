@@ -1688,7 +1688,10 @@ CONTAINS
                     PRINT *, "dr(1)", dr(1), "dr(2)", dr(2), "dr(3)", dr(3)
                     PRINT *, "dr", dr
 
+                    atom_a = atom_list(iatom)
                     ra(:) = pbc(particle_set(atom_a)%r, cell)
+                    PRINT *, "ra(:)", ra(:)
+                    ra(:) = particle_set(atom_a)%r
                     PRINT *, "ra(:)", ra(:)
                     ra(1) = 0
                     ra(2) = 0
