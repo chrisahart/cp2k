@@ -1726,7 +1726,7 @@ CONTAINS
 
                             rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(-1.0_dp * r_squared)
 
-                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * EXP(-1.0_dp * r_squared)
+                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
                           END DO
                         END DO
