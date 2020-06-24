@@ -1574,13 +1574,13 @@ CONTAINS
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
+         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(3)                      :: test
            REAL(KIND=dp), DIMENSION(3)              :: dr
 
          NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                   hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, cdft_control, &
+                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
                   hirshfeld_control, rs_single, rs_single_dr)
 
           PRINT *, "start hirshfeld_constraint_low"
@@ -1624,6 +1624,9 @@ CONTAINS
 
            CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_temp)
+
+           CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
+           CALL rs_grid_zero(rs_rho_dr_temp)
 
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
           PRINT *, "cdft_control%natoms", cdft_control%natoms
