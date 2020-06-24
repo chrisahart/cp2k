@@ -1555,7 +1555,7 @@ CONTAINS
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
-                                                               radius, radius_constr
+                                                               radius, radius_constr, r_squared
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
@@ -1743,7 +1743,6 @@ CONTAINS
 
                       ! Save sum over all atoms
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
-
 
                   END DO !iatom = 1, natom
                END DO !  iex = 1, numexp
