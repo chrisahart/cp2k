@@ -1736,8 +1736,8 @@ CONTAINS
                       rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
 
                       ! Save sum over constraint atoms
-                      ! rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
-                      rs_rho_constr%r = rs_rho_constr%r + rs_rho_temp%r
+                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
+                      ! rs_rho_constr%r = rs_rho_constr%r + rs_rho_temp%r
 
                       ! Save sum over all atoms
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
@@ -1795,6 +1795,7 @@ CONTAINS
 
             ! Print atomic densities
                   CALL cdft_print_hirshfeld_density(qs_env)
+                  CALL cdft_print_weight_function(qs_env)
 
          CALL timestop(handle)
 
@@ -1841,7 +1842,7 @@ CONTAINS
      TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
 
       PRINT *, "start hirshfeld_constraint_force"
-      
+
       CPABORT("Hirshfeld force not yet implemented.")
 
      NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &

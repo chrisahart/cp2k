@@ -1360,6 +1360,8 @@ CONTAINS
       cdft_control => dft_control%qs_control%cdft_control
       cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
+      PRINT *, "start cdft_print_weight_function"
+
       DO igroup = 1, SIZE(cdft_control%group)
          mpi_io = .TRUE.
          middle_name = "cdft_weight_"//TRIM(ADJUSTL(cp_to_string(igroup)))
@@ -1380,6 +1382,9 @@ CONTAINS
                             mpi_io=mpi_io)
          CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
       END DO
+
+      PRINT *, "finished cdft_print_weight_function"
+      CPABORT("Hirshfeld force not yet implemented.")
 
    END SUBROUTINE cdft_print_weight_function
 
@@ -1421,6 +1426,8 @@ CONTAINS
          cdft_control => dft_control%qs_control%cdft_control
          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
+         PRINT *, "printing hirsh_rho_total"
+
          ! Loop over CDFT control groups printing hirsh_rho_total
              DO igroup = 1, SIZE(cdft_control%group)
 
@@ -1438,6 +1445,8 @@ CONTAINS
 
           END DO ! igroup = 1, SIZE(cdft_control%group)
 
+          PRINT *, "printing promolecular density"
+
           ! Loop over CDFT control groups printing promolecular density
               DO igroup = 1, SIZE(cdft_control%group)
 
@@ -1454,6 +1463,8 @@ CONTAINS
                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
            END DO ! igroup = 1, SIZE(cdft_control%group)
+
+          PRINT *, "printing atomic density"
 
           ! Loop over CDFT control groups printing atomic density
           DO igroup = 1, SIZE(cdft_control%group)
