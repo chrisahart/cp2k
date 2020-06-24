@@ -1690,6 +1690,10 @@ CONTAINS
 
                     ra(:) = pbc(particle_set(atom_a)%r, cell)
                     PRINT *, "ra(:)", ra(:)
+                    ra(1) = 5
+                    ra(2) = 0
+                    ra(3) = 0
+                    PRINT *, "ra(:)", ra(:)
 
                     DO k = lb(3), ub(3)
 
