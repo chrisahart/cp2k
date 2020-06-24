@@ -1691,12 +1691,12 @@ CONTAINS
                     atom_a = atom_list(iatom)
                     ra(:) = pbc(particle_set(atom_a)%r, cell)
                     PRINT *, "ra(:)", ra(:)
-                    ra(:) = particle_set(atom_a)%r
-                    PRINT *, "ra(:)", ra(:)
-                    ra(1) = 0
-                    ra(2) = 0
-                    ra(3) = 0.74
-                    PRINT *, "ra(:)", ra(:)
+                    ! ra(:) = particle_set(atom_a)%r
+                    ! PRINT *, "ra(:)", ra(:)
+                    ! ra(1) = 0
+                    ! ra(2) = 0
+                    ! ra(3) = 0.74
+                    ! PRINT *, "ra(:)", ra(:)
 
                     DO k = lb(3), ub(3)
 
