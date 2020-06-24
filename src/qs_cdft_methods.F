@@ -1723,12 +1723,7 @@ CONTAINS
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            r_squared = (i * dr(1))
-
-                            r_squared = (i * dr(1)) - ra(1))
-
-  r_squared = ((i * dr(1)) - ra(1)) ** 2 
-  r_squared = ((i * dr(1)) - ra(1)) ** 2 + ((j * dr(2)) - ra(2)) ** 2 + ((k * dr(3)) - ra(3)) ** 2)
+                            r_squared = ((i * dr(1)) - ra(1)) ** 2 + ((j * dr(2)) - ra(2)) ** 2 + ((k * dr(3)) - ra(3)) ** 2
 
                             rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(-1.0_dp * r_squared)
 
