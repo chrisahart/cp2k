@@ -1633,6 +1633,7 @@ CONTAINS
           PRINT *, "allocating rs_single"
 
             ALLOCATE (rs_single(cdft_control%natoms))
+            ALLOCATE (rs_single_dr(cdft_control%natoms))
             DO i = 1, cdft_control%natoms
               PRINT *, "i", i
                NULLIFY (rs_single(i)%rs_grid)
