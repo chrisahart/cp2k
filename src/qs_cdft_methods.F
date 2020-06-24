@@ -1647,110 +1647,79 @@ CONTAINS
                PRINT *, "rs_grid_zero", i
             END DO
 
+            ! Get coefficients
             coefficients(1) = 1
             coefficients(2) = -1
 
-
-         ! Loop over number of atom_group?
-         PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
+         ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-
            PRINT *, "looping over each igroup", igroup
-
-            ! Set values
-            dvol = cdft_control%group(igroup)%weight%pw%pw_grid%dvol
-            cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
+               PRINT *, "looping over each atomic_kind_set", ikind
 
-              PRINT *, "looping over each atomic_kind_set", ikind
+               ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+               ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
 
-              ! We have now setup rs_single(i), rs_rho_all and rs_rho_constr and are ready to calculate densities
-              PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
-              PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
-              PRINT *, "numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
-              PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
-
-               numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
-               IF (numexp <= 0) CYCLE
+               ! Get list of atom kind, number of exponentials
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-               ! PRINT *, "pbc(particle_set(atom_list(1))%r, cell)", pbc(particle_set(atom_list(1))%r, cell)
-               ! PRINT *, "pbc(particle_set(atom_list(2))%r, cell)", pbc(particle_set(atom_list(2))%r, cell)
-               ! PRINT *, "(particle_set(atom_list(1))%r, cell)", (particle_set(atom_list(1))%r, cell)
-               ! PRINT *, "(particle_set(atom_list(2))%r, cell)", (particle_set(atom_list(2))%r, cell)
-               ALLOCATE (cores(natom))
+               numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
 
                ! Loop over each Gaussian
                DO iex = 1, 2 !numexp
+                 PRINT *, "looping over each Gaussian", iex
 
-                 PRINT *, "looping over each exponential", iex
-
+                  ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
+                  ! Loop over each atom of atom type
                   DO iatom = 1, natom
-
                     PRINT *, "looping over each atom of atom type", iatom
+
+                    ! Get lower bound, upper bound
                     lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
                     ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
-                    PRINT *, "lb", lb
-                    PRINT *, "ub", ub
 
+                    ! Get dr
                     dr(1) =  rs_single(iatom)%rs_grid%desc%dh(1, 1)
                     dr(2) =  rs_single(iatom)%rs_grid%desc%dh(2, 2)
                     dr(3) =  rs_single(iatom)%rs_grid%desc%dh(3, 3)
-                    PRINT *, "dr(1)", dr(1), "dr(2)", dr(2), "dr(3)", dr(3)
-                    PRINT *, "dr", dr
 
+                    ! Get atomic position
                     atom_a = atom_list(iatom)
-                    ! ra(:) = pbc(particle_set(atom_a)%r, cell) - 7.5589
-                    PRINT *, "rs_single(iatom)%rs_grid%desc%npts", rs_single(iatom)%rs_grid%desc%npts(1)
                     origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
-                    ! origin(:) = (dr(:) * (ub(:) - lb(:))) * 0.5_dp
-                    PRINT *, "origin", origin
                     ra(:) = particle_set(atom_a)%r - origin(1)
-                    PRINT *, "ra(:)", ra(:)
-                    PRINT *, "7.5589", origin
-                    ! ra(1) = 0
-                    ! ra(2) = 0
-                    ! ra(3) = 0.74
-                    ! PRINT *, "ra(:)", ra(:)
 
+                    ! Loop over grid
                     DO k = lb(3), ub(3)
-
-                      ! PRINT *, "rs_single, k", k, rs_single(iatom)%rs_grid%r(0, 0, k)
-
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            r_squared = ((i * dr(1)) - ra(1)) ** 2 + ((j * dr(2)) - ra(2)) ** 2 + ((k * dr(3)) - ra(3)) ** 2
+                            r_squared = ((i * dr(1)) - ra(1)) ** 2 + &
+                                        ((j * dr(2)) - ra(2)) ** 2 + &
+                                        ((k * dr(3)) - ra(3)) ** 2
 
+                            ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(-1.0_dp * r_squared)
-
                             rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
                           END DO
                         END DO
                       END DO
 
-                      ! Save atomic density
+                      ! Save atomic density and analytic derivative
                       rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
-
-                      ! Save atomic density derivative
                       rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
-                      ! Save sum over constraint atoms
+                      ! Save sum over constraint atoms, all atoms
                       rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
-
-                      ! Save sum over all atoms
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
-                  END DO !iatom = 1, natom
-               END DO !  iex = 1, numexp
-            END DO !ikind = 1, SIZE(atomic_kind_set)
-
-            ! Calculate sum for all atoms (we don't want to store )
+                  END DO ! iatom = 1, natom
+               END DO ! iex = 1, numexp
+            END DO ! ikind = 1, SIZE(atomic_kind_set)
 
             ! Transfer rs_rho_all to the correct grid and save it
              CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
@@ -1768,6 +1737,7 @@ CONTAINS
              ! Compute CDFT weight function
 
              PRINT *, "transferring weight to pw"
+            ! Calculate sum for all atoms (we don't want to store )
              CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                     in_space=REALSPACE)
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
@@ -1793,20 +1763,15 @@ CONTAINS
                      cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
               END DO ! i = 1, cdft_control%natoms
-
-
           END DO !  1, SIZE(cdft_control%group)
 
-            ! Convert from rs to pw, store as atomic densities
-
-
-            ! Print atomic densities
-                  CALL cdft_print_hirshfeld_density(qs_env)
-                  CALL cdft_print_weight_function(qs_env)
+         ! Print atomic densities
+         CALL cdft_print_hirshfeld_density(qs_env)
+         CALL cdft_print_weight_function(qs_env)
 
          CALL timestop(handle)
 
-          PRINT *, "end hirshfeld_constraint_low"
+         PRINT *, "end hirshfeld_constraint_low"
 
       END SUBROUTINE hirshfeld_constraint_low
 
