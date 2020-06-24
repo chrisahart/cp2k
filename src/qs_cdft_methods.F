@@ -1580,7 +1580,7 @@ CONTAINS
 
          NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                   hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, , rs_rho_temp, cdft_control, &
+                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, cdft_control, &
                   hirshfeld_control, rs_single)
 
           PRINT *, "start hirshfeld_constraint_low"
@@ -1714,10 +1714,15 @@ CONTAINS
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            rs_rho_temp%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
-                                                                  EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
+                            rs_rho_temp%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + 1 * &
+                                                                  EXP(-1 * (((i * dr(1)) - ra(1)) ** 2 + &
                                                                                ((j * dr(2)) - ra(2)) ** 2 + &
                                                                                ((k * dr(3)) - ra(3)) ** 2))
+
+                            ! rs_rho_temp%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
+                            !                                       EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
+                            !                                                    ((j * dr(2)) - ra(2)) ** 2 + &
+                                                                               ! ((k * dr(3)) - ra(3)) ** 2))
 
                             ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
                             !                                       EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
@@ -1732,28 +1737,10 @@ CONTAINS
                       rs_single(iatom)%rs_grid%r = rs_rho_temp%rs_grid%r
 
                       ! Save sum over constraint atoms
-                      rs_rho_constr%rs_grid%r = rs_rho_constr%rs_grid%r + coefficients(atom_a) * rs_rho_temp%rs_grid%r
+                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%rs_grid%r
 
                       ! Save sum over all atoms
-                      rs_rho_all%rs_grid%r = rs_rho_all%rs_grid%r + rs_rho_temp%rs_grid%r
-
-
-                    ! PRINT *, "iatom", iatom
-                    ! PRINT *, "natom", natom
-                    ! PRINT *, "atom_a", atom_list(iatom)
-                    ! PRINT *, "ra(:)", ra(:)
-                    !
-                    !  atom_a = atom_list(iatom)
-                    !  ra(:) = pbc(particle_set(atom_a)%r, cell)
-                    !
-                    !  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-                    !  ra(:) = pbc(particle_set(atom_a)%r, cell)
-                    !  subpatch_pattern = 0
-                    !        CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                    !                                   (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                    !                                   rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
-                    !                                   ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                    !                                   subpatch_pattern=subpatch_pattern)
+                      rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
 
                   END DO !iatom = 1, natom
