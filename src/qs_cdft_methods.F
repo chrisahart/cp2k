@@ -1705,7 +1705,7 @@ CONTAINS
                             ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + &
                             !                                 EXP(-((i * dr(1)) ** 2 + (j * dr(2)) ** 2 + (k * dr(3)) ** 2))
 
-                            rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + 1 *
+                            rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + 1 * &
                                                                   EXP(-1 * (((i * dr(1)) - ra(1)) ** 2 + &
                                                                                 ((j * dr(2)) - ra(2)) ** 2 + &
                                                                                 ((k * dr(3)) - ra(3)) ** 2))
