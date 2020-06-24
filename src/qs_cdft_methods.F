@@ -1572,9 +1572,8 @@ CONTAINS
          TYPE(pw_p_type), POINTER                           :: fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
-         TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
+         TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub
-         ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
            TYPE(pw_p_type), DIMENSION(3)                      :: test
            REAL(KIND=dp), DIMENSION(3)              :: dr
@@ -1582,7 +1581,7 @@ CONTAINS
          NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                   hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, cdft_control, &
-                  hirshfeld_control, rs_single)
+                  hirshfeld_control, rs_single, rs_single_dr)
 
           PRINT *, "start hirshfeld_constraint_low"
 
@@ -1634,10 +1633,13 @@ CONTAINS
             DO i = 1, cdft_control%natoms
               PRINT *, "i", i
                NULLIFY (rs_single(i)%rs_grid)
+               NULLIFY (rs_single_dr(i)%rs_grid)
                PRINT *, "NULLIFY", i
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+               CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                PRINT *, "rs_grid_create", i
                CALL rs_grid_zero(rs_single(i)%rs_grid)
+               CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                PRINT *, "rs_grid_zero", i
             END DO
 
@@ -1718,19 +1720,13 @@ CONTAINS
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            rs_rho_temp%r(i, j, k) =  1 * EXP(-1 * (((i * dr(1)) - ra(1)) ** 2 + &
-                                                                    ((j * dr(2)) - ra(2)) ** 2 + &
-                                                                    ((k * dr(3)) - ra(3)) ** 2))
+                            r_squared = ((i * dr(1)) - ra(1)) ** 2 + &
+                                        ((j * dr(2)) - ra(2)) ** 2 + &
+                                        ((k * dr(3)) - ra(3)) ** 2)
 
-                            ! rs_rho_temp%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
-                            !                                       EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
-                            !                                                    ((j * dr(2)) - ra(2)) ** 2 + &
-                                                                               ! ((k * dr(3)) - ra(3)) ** 2))
+                            rs_rho_temp%r(i, j, k) =  1 * EXP(-1 * r_squared)
 
-                            ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
-                            !                                       EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
-                            !                                                    ((j * dr(2)) - ra(2)) ** 2 + &
-                            !                                                    ((k * dr(3)) - ra(3)) ** 2))
+                            rs_rho_dr_temp%r(i, j, k) = -1 * 2.0_dp * SQRT(r_squared) * EXP(-1 * r_squared)
 
                           END DO
                         END DO
@@ -1738,6 +1734,9 @@ CONTAINS
 
                       ! Save atomic density
                       rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+
+                      ! Save atomic density derivative
+                      rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                       ! Save sum over constraint atoms
                       rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
@@ -1788,6 +1787,10 @@ CONTAINS
               CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                   cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
+                  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                     in_space=REALSPACE)
+                 CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
+                     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
               END DO ! i = 1, cdft_control%natoms
 
