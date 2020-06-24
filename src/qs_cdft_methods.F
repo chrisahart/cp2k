@@ -1664,6 +1664,10 @@ CONTAINS
                numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
                IF (numexp <= 0) CYCLE
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+               PRINT *, "pbc(particle_set(atom_list(1))%r, cell)", pbc(particle_set(atom_list(1))%r, cell)
+               PRINT *, "pbc(particle_set(atom_list(2))%r, cell)", pbc(particle_set(atom_list(2))%r, cell)
+               PRINT *, "(particle_set(atom_list(1))%r, cell)", (particle_set(atom_list(1))%r, cell)
+               PRINT *, "(particle_set(atom_list(2))%r, cell)", (particle_set(atom_list(2))%r, cell)
                ALLOCATE (cores(natom))
 
                ! Loop over each Gaussian
@@ -1743,6 +1747,7 @@ CONTAINS
                   END DO !iatom = 1, natom
                END DO !  iex = 1, numexp
             END DO !ikind = 1, SIZE(atomic_kind_set)
+
 
 
               PRINT *, "transferring to pw"
