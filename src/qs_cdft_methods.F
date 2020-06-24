@@ -1552,11 +1552,11 @@ CONTAINS
                                                                nthread, numexp, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
-         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint, origin
+         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint,
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
                                                                radius, radius_constr
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
-         REAL(kind=dp), DIMENSION(3)                        :: ra
+         REAL(kind=dp), DIMENSION(3)                        :: ra, origin
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
@@ -1695,9 +1695,9 @@ CONTAINS
                     atom_a = atom_list(iatom)
                     ! ra(:) = pbc(particle_set(atom_a)%r, cell) - 7.5589
                     PRINT *, "rs_single(iatom)%rs_grid%desc%npts", rs_single(iatom)%rs_grid%desc%npts(1)
-                    origin = (dr(1) * rs_single(iatom)%rs_grid%desc%npts(1)) * 0.5_dp
+                    origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
                     PRINT *, "origin", origin
-                    ra(:) = particle_set(atom_a)%r - origin
+                    ra(:) = particle_set(atom_a)%r - origin(1)
                     PRINT *, "ra(:)", ra(:)
                     PRINT *, "7.5589", origin
                     ! ra(1) = 0
