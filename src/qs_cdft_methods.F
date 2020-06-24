@@ -1736,7 +1736,8 @@ CONTAINS
                       rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
 
                       ! Save sum over constraint atoms
-                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
+                      ! rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
+                      rs_rho_constr%r = rs_rho_constr%r + rs_rho_temp%r
 
                       ! Save sum over all atoms
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
@@ -1770,9 +1771,9 @@ CONTAINS
              CALL rs_grid_release(rs_rho_constr)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+             cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+             cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-
-
 
               PRINT *, "transferring hirsh_rho_atomic to pw"
 
