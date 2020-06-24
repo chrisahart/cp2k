@@ -1693,9 +1693,9 @@ CONTAINS
                     PRINT *, "dr", dr
 
                     atom_a = atom_list(iatom)
-                    ra(:) = pbc(particle_set(atom_a)%r, cell) - 7.5589
-                    PRINT *, "ra(:)", ra(:)
-                    ra(:) = particle_set(atom_a)%r
+                    ! ra(:) = pbc(particle_set(atom_a)%r, cell) - 7.5589
+                    ! PRINT *, "ra(:)", ra(:)
+                    ra(:) = particle_set(atom_a)%r - 7.5589
                     PRINT *, "ra(:)", ra(:)
                     ! ra(1) = 0
                     ! ra(2) = 0
