@@ -1574,13 +1574,13 @@ CONTAINS
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
          INTEGER, DIMENSION(3)                              :: lb, ub
          ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single_dr
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
+         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
            TYPE(pw_p_type), DIMENSION(3)                      :: test
            REAL(KIND=dp), DIMENSION(3)              :: dr
 
          NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                   hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
+                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, , rs_rho_temp, cdft_control, &
                   hirshfeld_control, rs_single)
 
           PRINT *, "start hirshfeld_constraint_low"
@@ -1622,7 +1622,8 @@ CONTAINS
            CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_constr)
 
-
+           CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+           CALL rs_grid_zero(rs_rho_temp)
 
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
           PRINT *, "cdft_control%natoms", cdft_control%natoms
@@ -1708,26 +1709,33 @@ CONTAINS
 
                     DO k = lb(3), ub(3)
 
-                      ! PRINT *, "calculation, k", k
-                      ! PRINT *, "rs_single, k", rs_single(iatom)%rs_grid%r(0, 0, k)
+                      ! PRINT *, "rs_single, k", k, rs_single(iatom)%rs_grid%r(0, 0, k)
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + &
-                            !                                 (i * dr(1))
+                            rs_rho_temp%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
+                                                                  EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
+                                                                               ((j * dr(2)) - ra(2)) ** 2 + &
+                                                                               ((k * dr(3)) - ra(3)) ** 2))
 
-                            ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + &
-                            !                                 EXP(-((i * dr(1)) ** 2 + (j * dr(2)) ** 2 + (k * dr(3)) ** 2))
-
-                            rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + 1 * &
-                                                                  EXP(-1 * (((i * dr(1)) - ra(1)) ** 2 + &
-                                                                                ((j * dr(2)) - ra(2)) ** 2 + &
-                                                                                ((k * dr(3)) - ra(3)) ** 2))
+                            ! rs_single(iatom)%rs_grid%r(i, j, k) = rs_single(iatom)%rs_grid%r(i, j, k) + alpha * &
+                            !                                       EXP(-coef * (((i * dr(1)) - ra(1)) ** 2 + &
+                            !                                                    ((j * dr(2)) - ra(2)) ** 2 + &
+                            !                                                    ((k * dr(3)) - ra(3)) ** 2))
 
                           END DO
                         END DO
                       END DO
+
+                      ! Save atomic density
+                      rs_single(iatom)%rs_grid%r = rs_rho_temp%rs_grid%r
+
+                      ! Save sum over constraint atoms
+                      rs_rho_constr%rs_grid%r = rs_rho_constr%rs_grid%r + coefficients(atom_a) * rs_rho_temp%rs_grid%r
+
+                      ! Save sum over all atoms
+                      rs_rho_all%rs_grid%r = rs_rho_all%rs_grid%r + rs_rho_temp%rs_grid%r
 
 
                     ! PRINT *, "iatom", iatom
@@ -1752,9 +1760,35 @@ CONTAINS
                END DO !  iex = 1, numexp
             END DO !ikind = 1, SIZE(atomic_kind_set)
 
+            ! Calculate sum for all atoms (we don't want to store )
+
+            ! Transfer rs_rho_all to the correct grid and save it
+             CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+             IF (igroup == 1) THEN
+                IF (ASSOCIATED(fnorm)) THEN
+                   CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+                END IF
+                ALLOCATE (fnorm)
+                CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
+                                       in_space=REALSPACE)
+                CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+                CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
+                CALL rs_grid_release(rs_rho_all)
+             END IF
+             ! Compute CDFT weight function
+
+             PRINT *, "transferring weight to pw"
+             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                    in_space=REALSPACE)
+             CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
+             CALL rs_grid_release(rs_rho_constr)
+             CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+                             tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
 
-              PRINT *, "transferring to pw"
+
+              PRINT *, "transferring hirsh_rho_atomic to pw"
 
               DO i = 1, cdft_control%natoms
 
