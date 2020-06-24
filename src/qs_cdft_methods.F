@@ -1724,9 +1724,9 @@ CONTAINS
                                         ((j * dr(2)) - ra(2)) ** 2 + &
                                         ((k * dr(3)) - ra(3)) ** 2)
 
-                            rs_rho_temp%r(i, j, k) =  1 * EXP(-1 * r_squared)
+                            rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(-1.0_dp * r_squared)
 
-                            rs_rho_dr_temp%r(i, j, k) = -1 * 2.0_dp * SQRT(r_squared) * EXP(-1 * r_squared)
+                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * EXP(-1.0_dp * r_squared)
 
                           END DO
                         END DO
@@ -1740,7 +1740,6 @@ CONTAINS
 
                       ! Save sum over constraint atoms
                       rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
-                      ! rs_rho_constr%r = rs_rho_constr%r + rs_rho_temp%r
 
                       ! Save sum over all atoms
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
