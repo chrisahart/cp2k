@@ -1641,6 +1641,9 @@ CONTAINS
                PRINT *, "rs_grid_zero", i
             END DO
 
+            coefficients(1) = 1
+            coefficients(2) = -1
+
 
          ! Loop over number of atom_group?
          PRINT *, "SIZE(cdft_control%group)", SIZE(cdft_control%group)
