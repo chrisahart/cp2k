@@ -1694,8 +1694,8 @@ CONTAINS
 
                     atom_a = atom_list(iatom)
                     ! ra(:) = pbc(particle_set(atom_a)%r, cell) - 7.5589
-                    ! PRINT *, "ra(:)", ra(:)
-                    origin = (dr(1) * rs_single(iatom)%rs_grid%desc%npts_local(1)) * 0.5_dp
+                    PRINT *, "rs_single(iatom)%rs_grid%desc%npts", rs_single(iatom)%rs_grid%desc%npts(1)
+                    origin = (dr(1) * rs_single(iatom)%rs_grid%desc%npts(1)) * 0.5_dp
                     PRINT *, "origin", origin
                     ra(:) = particle_set(atom_a)%r - origin
                     PRINT *, "ra(:)", ra(:)
