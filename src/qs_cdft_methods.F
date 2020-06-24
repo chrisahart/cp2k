@@ -1552,7 +1552,7 @@ CONTAINS
                                                                nthread, numexp, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
-         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint,
+         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
                                                                radius, radius_constr
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
@@ -1696,6 +1696,7 @@ CONTAINS
                     ! ra(:) = pbc(particle_set(atom_a)%r, cell) - 7.5589
                     PRINT *, "rs_single(iatom)%rs_grid%desc%npts", rs_single(iatom)%rs_grid%desc%npts(1)
                     origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
+                    origin(:) = (dr(:) * (ub(:) - ul(:))) * 0.5_dp
                     PRINT *, "origin", origin
                     ra(:) = particle_set(atom_a)%r - origin(1)
                     PRINT *, "ra(:)", ra(:)
