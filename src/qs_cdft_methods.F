@@ -1659,8 +1659,8 @@ CONTAINS
             DO ikind = 1, SIZE(atomic_kind_set)
                PRINT *, "looping over each atomic_kind_set", ikind
 
-               ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
-               ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
+               PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+               PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
 
                ! Get list of atom kind, number of exponentials
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
@@ -1694,6 +1694,8 @@ CONTAINS
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
+                      PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
+
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
@@ -1702,8 +1704,8 @@ CONTAINS
                                         ((k * dr(3)) - ra(3)) ** 2
 
                             ! Calculate atomic density and analytic derivative
-                            rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(alpha * r_squared)
-                            ! rs_rho_temp%r(i, j, k) =  coef * EXP(-1.0_dp * r_squared)
+                            rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
+                            ! rs_rho_temp%r(i, j, k) = coef * EXP(alpha * r_squared)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
                           END DO
