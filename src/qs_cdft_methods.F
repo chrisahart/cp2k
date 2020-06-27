@@ -1674,6 +1674,9 @@ CONTAINS
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
+                  PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                  PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+
                   ! Loop over each atom of atom type
                   DO iatom = 1, natom
                     PRINT *, "looping over each atom of atom type", iatom
@@ -1690,7 +1693,9 @@ CONTAINS
                     ! Get atomic position
                     atom_a = atom_list(iatom)
                     origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
-                    ra(:) = particle_set(atom_a)%r - origin(1)
+                    ra(1) = particle_set(atom_a)%r - origin(1)
+                    ra(2) = particle_set(atom_a)%r - origin(2)
+                    ra(3) = particle_set(atom_a)%r - origin(3)
 
                     PRINT *, "iatom", iatom
                     PRINT *, "atom_a", atom_a
@@ -1718,7 +1723,7 @@ CONTAINS
                       END DO
 
                       ! Save atomic density and analytic derivative
-                      rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+                      rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + coefficients(atom_a) * rs_rho_temp%r
                       ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                       ! Save sum over constraint atoms, all atoms
