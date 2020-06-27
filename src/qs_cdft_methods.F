@@ -1708,7 +1708,8 @@ CONTAINS
                                         ((k * dr(3)) - ra(3)) ** 2
 
                             ! Calculate atomic density and analytic derivative
-                            rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
+                            ! rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
+                            rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-alpha * r_squared)
                             ! rs_rho_temp%r(i, j, k) = coef * EXP(-alpha * r_squared)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
