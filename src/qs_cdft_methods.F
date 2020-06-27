@@ -1692,9 +1692,12 @@ CONTAINS
                     origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
                     ra(:) = particle_set(atom_a)%r - origin(1)
 
+                    PRINT *, "iatom", iatom
+                    PRINT *, "atom_a", atom_a
+
                     ! Loop over grid
                     DO k = lb(3), ub(3)
-                      PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
+                      ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
@@ -1717,7 +1720,7 @@ CONTAINS
                       ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                       ! Save sum over constraint atoms, all atoms
-                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
+                      rs_rho_constr%r = rs_rho_constr%r + coefficients(iatom) * rs_rho_temp%r
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
                   END DO ! iatom = 1, natom
