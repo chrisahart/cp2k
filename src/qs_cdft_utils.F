@@ -1487,7 +1487,7 @@ CONTAINS
          END DO
 
            PRINT *, "end cdft_print_hirshfeld_density"
-           CPABORT("Hirshfeld force not yet implemented.")
+           ! CPABORT("Hirshfeld force not yet implemented.")
 
       END SUBROUTINE cdft_print_hirshfeld_density
 
