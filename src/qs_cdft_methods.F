@@ -1667,7 +1667,7 @@ CONTAINS
                numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
 
                ! Loop over each Gaussian
-               DO iex = 1, 2 !numexp
+               DO iex = 1, numexp
                  PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
@@ -1702,8 +1702,9 @@ CONTAINS
                                         ((k * dr(3)) - ra(3)) ** 2
 
                             ! Calculate atomic density and analytic derivative
-                            rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(-1.0_dp * r_squared)
-                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
+                            rs_rho_temp%r(i, j, k) =  1.0_dp * EXP(alpha * r_squared)
+                            ! rs_rho_temp%r(i, j, k) =  coef * EXP(-1.0_dp * r_squared)
+                            ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
                           END DO
                         END DO
@@ -1711,7 +1712,7 @@ CONTAINS
 
                       ! Save atomic density and analytic derivative
                       rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
-                      rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+                      ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                       ! Save sum over constraint atoms, all atoms
                       rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
@@ -1759,8 +1760,8 @@ CONTAINS
 
                   CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                      in_space=REALSPACE)
-                 CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
-                     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+                 ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
+                 !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
 
               END DO ! i = 1, cdft_control%natoms
           END DO !  1, SIZE(cdft_control%group)

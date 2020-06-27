@@ -1464,13 +1464,13 @@ CONTAINS
 
            END DO ! igroup = 1, SIZE(cdft_control%group)
 
-          PRINT *, "printing atomic density"
+          ! PRINT *, "printing atomic density"
 
           ! Loop over CDFT control groups printing atomic density
           DO igroup = 1, SIZE(cdft_control%group)
               DO iatom  = 1, (cdft_control%natoms)
 
-                PRINT *, "iatom", iatom
+                ! PRINT *, "iatom", iatom
 
                 middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
                 unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
@@ -1481,12 +1481,12 @@ CONTAINS
 
                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-               PRINT *, "iatom", iatom
+               ! PRINT *, "iatom", iatom
 
            END DO ! igroup = 1, SIZE(cdft_control%group)
          END DO
 
-           PRINT *, "end cdft_print_hirshfeld_density"
+           ! PRINT *, "end cdft_print_hirshfeld_density"
            ! CPABORT("Hirshfeld force not yet implemented.")
 
       END SUBROUTINE cdft_print_hirshfeld_density
