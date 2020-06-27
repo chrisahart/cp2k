@@ -1694,6 +1694,7 @@ CONTAINS
 
                     PRINT *, "iatom", iatom
                     PRINT *, "atom_a", atom_a
+                    PRINT *, "coefficients(atom_a)", coefficients(atom_a)
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
@@ -1707,8 +1708,8 @@ CONTAINS
                                         ((k * dr(3)) - ra(3)) ** 2
 
                             ! Calculate atomic density and analytic derivative
-                            ! rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
-                            rs_rho_temp%r(i, j, k) = coef * EXP(-alpha * r_squared)
+                            rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
+                            ! rs_rho_temp%r(i, j, k) = coef * EXP(-alpha * r_squared)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
                           END DO
@@ -1720,7 +1721,7 @@ CONTAINS
                       ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                       ! Save sum over constraint atoms, all atoms
-                      rs_rho_constr%r = rs_rho_constr%r + coefficients(iatom) * rs_rho_temp%r
+                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
                       rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
                   END DO ! iatom = 1, natom
