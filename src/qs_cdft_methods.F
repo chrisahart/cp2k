@@ -1735,7 +1735,7 @@ CONTAINS
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
 
-             PRINT *, "transferring weight to pw"
+             ! PRINT *, "transferring weight to pw"
 
             ! Transfer rs_rho_all to the correct grid and save it
              ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
@@ -1771,10 +1771,10 @@ CONTAINS
 
 
              ! Deallocate
-             CALL rs_grid_release(rs_rho_constr)
-             CALL rs_grid_release(rs_rho_constr)
-             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-             CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+             ! CALL rs_grid_release(rs_rho_constr)
+             ! CALL rs_grid_release(rs_rho_all)
+             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
 
 
               ! PRINT *, "transferring hirsh_rho_atomic to pw"
