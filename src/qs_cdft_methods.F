@@ -1643,16 +1643,16 @@ CONTAINS
             ! END DO
 
             ! Get lower bound, upper bound
-            lb(1:3) = rs_rho_constr%rs_grid%lb_real(1:3)
-            ub(1:3) = rs_rho_constr%rs_grid%ub_real(1:3)
+            lb(1:3) = rs_rho_constr%lb_real(1:3)
+            ub(1:3) = rs_rho_constr%ub_real(1:3)
 
             ! PRINT *, "Get dr"
 
             ! Get dr
-            dr(1) =  rs_rho_constr%rs_grid%desc%dh(1, 1)
-            dr(2) =  rs_rho_constr%rs_grid%desc%dh(2, 2)
-            dr(3) =  rs_rho_constr%rs_grid%desc%dh(3, 3)
-            origin(:) = (dr(:) * rs_rho_constr%rs_grid%desc%npts(:)) * 0.5_dp
+            dr(1) =  rs_rho_constr%desc%dh(1, 1)
+            dr(2) =  rs_rho_constr%desc%dh(2, 2)
+            dr(3) =  rs_rho_constr%desc%dh(3, 3)
+            origin(:) = (dr(:) * rs_rho_constr%desc%npts(:)) * 0.5_dp
 
             ! Get coefficients
             ! coefficients(1) = 1
