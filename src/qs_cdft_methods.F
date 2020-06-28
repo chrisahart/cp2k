@@ -1562,7 +1562,6 @@ CONTAINS
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
          TYPE(cell_type), POINTER                           :: cell
-         TYPE(cube_info_type)                               :: cube_info
          TYPE(dft_control_type), POINTER                    :: dft_control
          TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
          TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
@@ -1599,12 +1598,9 @@ CONTAINS
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
          ! Allcoate as needed
-         ALLOCATE (is_constraint(natom))
          ALLOCATE (coefficients(natom))
-         IF (cdft_control%atomic_charges) THEN
-            ALLOCATE (compute_charge(natom))
-            compute_charge = .FALSE.
-         END IF
+         ALLOCATE (rs_single(cdft_control%natoms))
+         ! ALLOCATE (rs_single_dr(cdft_control%natoms))
 
          ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
          ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
@@ -1613,7 +1609,6 @@ CONTAINS
            IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
               CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                               auxbas_pw_pool=auxbas_pw_pool)
-              cube_info = pw_env%cube_info(1)
               CALL rs_grid_retain(rs_rho_all)
               CALL rs_grid_zero(rs_rho_all)
            END IF
@@ -1625,31 +1620,32 @@ CONTAINS
            CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_temp)
 
-           CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
-           CALL rs_grid_zero(rs_rho_dr_temp)
+           ! CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
+           ! CALL rs_grid_zero(rs_rho_dr_temp)
 
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
           ! PRINT *, "cdft_control%natoms", cdft_control%natoms
           ! PRINT *, "allocating rs_single"
 
-            ALLOCATE (rs_single(cdft_control%natoms))
-            ALLOCATE (rs_single_dr(cdft_control%natoms))
+          coefficients(1) = 1
+          coefficients(2) = -1
+
             DO i = 1, cdft_control%natoms
               ! PRINT *, "i", i
                NULLIFY (rs_single(i)%rs_grid)
-               NULLIFY (rs_single_dr(i)%rs_grid)
+               ! NULLIFY (rs_single_dr(i)%rs_grid)
                ! PRINT *, "NULLIFY", i
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-               CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+               ! CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                ! PRINT *, "rs_grid_create", i
                CALL rs_grid_zero(rs_single(i)%rs_grid)
-               CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+               ! CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                ! PRINT *, "rs_grid_zero", i
             END DO
 
             ! Get coefficients
-            coefficients(1) = 1
-            coefficients(2) = -1
+            ! coefficients(1) = 1
+            ! coefficients(2) = -1
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
@@ -1756,26 +1752,26 @@ CONTAINS
              CALL rs_grid_release(rs_rho_constr)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-             cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-             cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+             ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+             ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
               ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
-              DO i = 1, cdft_control%natoms
-
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                  in_space=REALSPACE)
-              CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-
-                  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                     in_space=REALSPACE)
-                 ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
-                 !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-
-              END DO ! i = 1, cdft_control%natoms
-          END DO !  1, SIZE(cdft_control%group)
+          !     DO i = 1, cdft_control%natoms
+          !
+          !      CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+          !                         in_space=REALSPACE)
+          !     CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+          !         cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+          !
+          !         CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+          !                            in_space=REALSPACE)
+          !        ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
+          !        !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+          !
+          !     END DO ! i = 1, cdft_control%natoms
+          ! END DO !  1, SIZE(cdft_control%group)
 
          ! Print atomic densities
          ! CALL cdft_print_hirshfeld_density(qs_env)
@@ -1846,6 +1842,7 @@ CONTAINS
      CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
                               atom_of_kind=atom_of_kind, &
                               kind_of=kind_of)
+
      DO igroup = 1, SIZE(group)
         ALLOCATE (group(igroup)%integrated(3, natom))
         group(igroup)%integrated = 0.0_dp
@@ -1867,10 +1864,12 @@ CONTAINS
             DO iatom = 1, natom
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
-               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) !+ group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
+               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + 0*group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
             END DO
          END DO
       ! END IF
+
+      CALL timestop(handle)
 
 
     END SUBROUTINE hirshfeld_constraint_force
