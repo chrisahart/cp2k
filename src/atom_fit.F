@@ -177,9 +177,9 @@ CONTAINS
 
       ! PRINT *, "Number of function evaluations", ostate%nf
       ! PRINT *, "Final value of function", ostate%fopt
-      PRINT *, " Number of Gaussians:", num_gto, "Starting exponent:", x(1), "Proportionality factor:", x(2)
-      PRINT *, "Expansion coefficients"
-      PRINT *, co(1:num_gto)
+      ! PRINT *, " Number of Gaussians:", num_gto, "Starting exponent:", x(1), "Proportionality factor:", x(2)
+      ! PRINT *, "Expansion coefficients"
+      ! PRINT *, co(1:num_gto)
 
       IF (PRESENT(results)) THEN
          CPASSERT(SIZE(results) >= num_gto + 2)

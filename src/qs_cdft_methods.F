@@ -1583,7 +1583,7 @@ CONTAINS
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
                   hirshfeld_control, rs_single, rs_single_dr)
 
-          PRINT *, "start hirshfeld_constraint_low"
+          ! PRINT *, "start hirshfeld_constraint_low"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1629,22 +1629,22 @@ CONTAINS
            CALL rs_grid_zero(rs_rho_dr_temp)
 
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
-          PRINT *, "cdft_control%natoms", cdft_control%natoms
-          PRINT *, "allocating rs_single"
+          ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+          ! PRINT *, "allocating rs_single"
 
             ALLOCATE (rs_single(cdft_control%natoms))
             ALLOCATE (rs_single_dr(cdft_control%natoms))
             DO i = 1, cdft_control%natoms
-              PRINT *, "i", i
+              ! PRINT *, "i", i
                NULLIFY (rs_single(i)%rs_grid)
                NULLIFY (rs_single_dr(i)%rs_grid)
-               PRINT *, "NULLIFY", i
+               ! PRINT *, "NULLIFY", i
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-               PRINT *, "rs_grid_create", i
+               ! PRINT *, "rs_grid_create", i
                CALL rs_grid_zero(rs_single(i)%rs_grid)
                CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-               PRINT *, "rs_grid_zero", i
+               ! PRINT *, "rs_grid_zero", i
             END DO
 
             ! Get coefficients
@@ -1653,14 +1653,14 @@ CONTAINS
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "looping over each igroup", igroup
+           ! PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
-               PRINT *, "looping over each atomic_kind_set", ikind
+               ! PRINT *, "looping over each atomic_kind_set", ikind
 
-               PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
-               PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
+               ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+               ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
 
                ! Get list of atom kind, number of exponentials
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
@@ -1668,7 +1668,7 @@ CONTAINS
 
                ! Loop over each atom of atom type
                DO iatom = 1, natom
-                 PRINT *, "looping over each atom of atom type", iatom
+                 ! PRINT *, "looping over each atom of atom type", iatom
 
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0
@@ -1687,20 +1687,20 @@ CONTAINS
                  origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
                  ra(:) = particle_set(atom_a)%r - origin(1)
 
-                 PRINT *, "iatom", iatom
-                 PRINT *, "atom_a", atom_a
-                 PRINT *, "coefficients(atom_a)", coefficients(atom_a)
+                 ! PRINT *, "iatom", iatom
+                 ! PRINT *, "atom_a", atom_a
+                 ! PRINT *, "coefficients(atom_a)", coefficients(atom_a)
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
-                 PRINT *, "looping over each Gaussian", iex
+                 ! PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
-                  PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                  PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                  ! PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                  ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
@@ -1714,8 +1714,6 @@ CONTAINS
                                         ((k * dr(3)) - ra(3)) ** 2
 
                             ! Calculate atomic density and analytic derivative
-                            ! rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
-                            ! rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-alpha * r_squared)
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + coef * EXP(-alpha * r_squared)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
@@ -1750,7 +1748,7 @@ CONTAINS
              END IF
              ! Compute CDFT weight function
 
-             PRINT *, "transferring weight to pw"
+             ! PRINT *, "transferring weight to pw"
             ! Calculate sum for all atoms (we don't want to store )
              CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                     in_space=REALSPACE)
@@ -1762,7 +1760,7 @@ CONTAINS
              cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
-              PRINT *, "transferring hirsh_rho_atomic to pw"
+              ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
               DO i = 1, cdft_control%natoms
 
@@ -1780,12 +1778,12 @@ CONTAINS
           END DO !  1, SIZE(cdft_control%group)
 
          ! Print atomic densities
-         CALL cdft_print_hirshfeld_density(qs_env)
-         CALL cdft_print_weight_function(qs_env)
+         ! CALL cdft_print_hirshfeld_density(qs_env)
+         ! CALL cdft_print_weight_function(qs_env)
 
          CALL timestop(handle)
 
-         PRINT *, "end hirshfeld_constraint_low"
+         ! PRINT *, "end hirshfeld_constraint_low"
 
       END SUBROUTINE hirshfeld_constraint_low
 
@@ -1800,136 +1798,60 @@ CONTAINS
      CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_force', &
         routineP = moduleN//':'//routineN
 
-     INTEGER                                            :: handle, i, iatom, igroup, ikind, ivar, &
-                                                           iw_test1, iw_test2, iw_cube, jatom, natom, nvar
-     REAL(kind=dp)                                      :: dvol, eps_cavity, sign
-     INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
-     REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: dE, strength, target_val
-     TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
-     TYPE(cdft_control_type), POINTER                   :: cdft_control
-     TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
-     TYPE(cp_logger_type), POINTER                      :: logger_test
-     TYPE(cp_para_env_type), POINTER                    :: para_env
-     TYPE(dft_control_type), POINTER                    :: dft_control
-     TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
-     TYPE(pw_p_type), DIMENSION(:), POINTER             :: charge, rho_r
-     TYPE(mpole_rho_atom), DIMENSION(:), POINTER        :: mp_rho
-     TYPE(qs_energy_type), POINTER                      :: energy
-     TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
-     TYPE(qs_rho_type), POINTER                         :: rho
-     TYPE(rho0_mpole_type), POINTER                     :: rho0_mpole
-     TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
-     TYPE(section_vals_type), POINTER                   :: print_section
-     CHARACTER(LEN=default_path_length)                 :: middle_name
-     TYPE(particle_list_type), POINTER                  :: particles
-     TYPE(qs_subsys_type), POINTER                      :: subsys
-     TYPE(qs_force_type), DIMENSION(:), POINTER         :: force
-     TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
-     TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
-
-      PRINT *, "start hirshfeld_constraint_force"
-
-      CPABORT("Hirshfeld force not yet implemented.")
-
-     NULLIFY (para_env, dft_control, particle_set, rho_r, energy, rho, &
-              logger_test, cdft_constraint_section, qs_kind_set, mp_rho, &
-              rho0_mpole, group, charge, force, hirshfeld_env)
-
-
+        INTEGER                                            :: handle, i, iatom, igroup, ikind, ind(3), &
+                                                              ispin, j, k, natom, nvar
+        INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
+        INTEGER, DIMENSION(2, 3)                           :: bo
+        REAL(kind=dp)                                      :: dvol, eps_cavity, sign, th
+        REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: strength
+        REAL(KIND=dp), DIMENSION(:), POINTER               :: cutoffs
+        TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
+        TYPE(becke_constraint_type), POINTER               :: becke_control
+        TYPE(cdft_control_type), POINTER                   :: cdft_control
+        TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
+        TYPE(cell_type), POINTER                           :: cell
+        TYPE(cp_para_env_type), POINTER                    :: para_env
+        TYPE(dft_control_type), POINTER                    :: dft_control
+        TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
+        TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
+        TYPE(qs_force_type), DIMENSION(:), POINTER         :: force
+        TYPE(qs_rho_type), POINTER                         :: rho
 
      CALL timeset(routineN, handle)
-     logger_test => cp_get_default_logger()
+     NULLIFY (atomic_kind_set, cell, para_env, dft_control, particle_set, &
+              rho, rho_r, force, cutoffs, becke_control, group)
+
      CALL get_qs_env(qs_env, &
-                     subsys=subsys, &
+                     atomic_kind_set=atomic_kind_set, &
+                     natom=natom, &
                      particle_set=particle_set, &
+                     cell=cell, &
                      rho=rho, &
                      force=force, &
-                     natom=natom, &
                      dft_control=dft_control, &
-                     para_env=para_env, &
-                     qs_kind_set=qs_kind_set)
+                     para_env=para_env)
+     CALL qs_rho_get(rho, rho_r=rho_r)
 
-     ! Assign variables
      cdft_control => dft_control%qs_control%cdft_control
+     becke_control => cdft_control%becke_control
      group => cdft_control%group
-     dvol = group(1)%weight%pw%pw_grid%dvol
-
-     hirshfeld_control => cdft_control%hirshfeld_control
-     hirshfeld_env => hirshfeld_control%hirshfeld_env
-
+     nvar = SIZE(cdft_control%target)
+     ALLOCATE (strength(nvar))
+     strength(:) = cdft_control%strength(:)
+     cutoffs => becke_control%cutoffs
+     eps_cavity = becke_control%eps_cavity
      ALLOCATE (atom_of_kind(natom))
      ALLOCATE (kind_of(natom))
 
      CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
                               atom_of_kind=atom_of_kind, &
                               kind_of=kind_of)
-
-     CALL qs_subsys_get(subsys, particles=particles)
-
-     ! Loop over each atom
-
-     ! ! Get variables
-     ! h(1:3) = 2.0_dp*hirsh_rho_atomic(1)%pw%pw_grid%dr(1:3)
-     ! lb(1:3) = hirsh_rho_atomic(1)%pw%pw_grid%bounds_local(1, 1:3)
-     ! ub(1:3) = hirsh_rho_atomic(1)%pw%pw_grid%bounds_local(2, 1:3)
-     ! atom_a = atom_list(iatom)
-     ! ra(:) = pbc(particle_set(atom_a)%r, cell)
-     !
-     ! ! Calculate Cartesian derivatives
-     ! DO k = lb(3), ub(3)
-     !    DO j = lb(2), ub(2)
-     !       DO i = lb(1), ub(1)
-     !
-     !
-     !         ! f(r) = coeff(1) * np.exp(-r*zet(1)**2)
-     !         ! d/dr = -2*r*zeta*coeff(1) * np.exp(-r*zet(1))
-     !
-     !         hirsh_weight_dr(1)%pw%cr3d(i, j, k) = EXP()
-     !
-     !
-     !
-     !
-     !
-     !          hirsh_weight_dr(1)%pw%cr3d(i, j, k) = (cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i + 1, j, k) - &
-     !                                                cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i - 1, j, k)) /h(1)
-     !
-     !          hirsh_weight_dr(2)%pw%cr3d(i, j, k) = (cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j + 1, k) - &
-     !                                                cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j - 1, k)) /h(2)
-     !
-     !          hirsh_weight_dr(3)%pw%cr3d(i, j, k) = (cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k + 1) - &
-     !                                                cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k - 1)) /h(3)
-     !
-     !            hirsh_weight_drR%pw%cr3d(i, j, k) = hirsh_weight_dr(1)%pw%cr3d(i, j, k) + &
-     !                                                hirsh_weight_dr(2)%pw%cr3d(i, j, k) + &
-     !                                                hirsh_weight_dr(3)%pw%cr3d(i, j, k) - &
-     !                                                cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d(i, j, k)
-     !       END DO
-     !    END DO
-     ! END DO
-     !
-     !
-     ! ! Calculate dw(r, R) / dR
-     ! DO k = lb(3), ub(3)
-     !    DO j = lb(2), ub(2)
-     !       DO i = lb(1), ub(1)
-     !          hirsh_weight_drR%pw%cr3d(i, j, k) = hirsh_weight_dr(1)%pw%cr3d(i, j, k) + &
-     !                                              hirsh_weight_dr(2)%pw%cr3d(i, j, k) + &
-     !                                              hirsh_weight_dr(3)%pw%cr3d(i, j, k)
-     !
-     !       END DO
-     !    END DO
-     ! END DO
-
-
-
-
-
-      PRINT *, "5"
-
-      PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
-      PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
-
-
+     DO igroup = 1, SIZE(group)
+        ALLOCATE (group(igroup)%integrated(3, natom))
+        group(igroup)%integrated = 0.0_dp
+     END DO
+     bo = group(1)%weight%pw%pw_grid%bounds_local
+     dvol = group(1)%weight%pw%pw_grid%dvol
 
 
       ! group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign* &
@@ -1937,24 +1859,18 @@ CONTAINS
       !                                      rho_r(ispin)%pw%cr3d(k, j, i)*dvol
 
 
-
-
-
-
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
       ! by the number of processes when the final force%rho_elec is constructed in qs_force
       ! by mp_summing [the final integrated(:,:) is distributed on all processors]
       ! IF (para_env%ionode) THEN
-      !    DO igroup = 1, SIZE(cdft_control%group)
-      !       DO iatom = 1, natom
-      !          ikind = kind_of(iatom)
-      !          i = atom_of_kind(iatom)
-      !          force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) !+ group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
-      !       END DO
-      !    END DO
+         DO igroup = 1, SIZE(cdft_control%group)
+            DO iatom = 1, natom
+               ikind = kind_of(iatom)
+               i = atom_of_kind(iatom)
+               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) !+ group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
+            END DO
+         END DO
       ! END IF
-
-      ! Call ABORT
 
 
     END SUBROUTINE hirshfeld_constraint_force
