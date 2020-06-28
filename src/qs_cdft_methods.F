@@ -1670,6 +1670,9 @@ CONTAINS
                DO iatom = 1, natom
                  PRINT *, "looping over each atom of atom type", iatom
 
+                 ! Set temproary array equal zero
+                 rs_rho_temp%r = 0
+
                  ! Get lower bound, upper bound
                  lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
                  ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
@@ -1698,8 +1701,6 @@ CONTAINS
 
                   PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-
-
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
