@@ -1649,11 +1649,11 @@ CONTAINS
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           ! PRINT *, "looping over each igroup", igroup
+           PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
-               ! PRINT *, "looping over each atomic_kind_set", ikind
+               PRINT *, "looping over each atomic_kind_set", ikind
 
                ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
                ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
@@ -1689,7 +1689,7 @@ CONTAINS
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
-                 ! PRINT *, "looping over each Gaussian", iex
+                 PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -1700,7 +1700,7 @@ CONTAINS
 
                     ! Loop over grid
                     DO k = lb(3), 0 !ub(3)
-                      ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
+                      PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
 
                        DO j = lb(2), 0 !ub(2)
                           DO i = lb(1), 0 !ub(1)
