@@ -1699,11 +1699,11 @@ CONTAINS
                   ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                     ! Loop over grid
-                    DO k = lb(3), ub(3)
+                    DO k = lb(3), 0 !ub(3)
                       ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
 
-                       DO j = lb(2), ub(2)
-                          DO i = lb(1), ub(1)
+                       DO j = lb(2), 0 !ub(2)
+                          DO i = lb(1), 0 !ub(1)
 
                             r_squared = ((i * dr(1)) - ra(1)) ** 2 + &
                                         ((j * dr(2)) - ra(2)) ** 2 + &
@@ -1711,6 +1711,8 @@ CONTAINS
 
                             ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + coef * EXP(-alpha * r_squared)
+                            rs_rho_temp%r(i + ub(1), j + ub(2), k + ub(3)) = &
+                                                    rs_rho_temp%r(ub(1) - i, ub(2) - j, ub(3) - k) + rs_rho_temp%r(i, j, k)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
                           END DO ! i = lb(1), ub(1)
@@ -1864,7 +1866,8 @@ CONTAINS
             DO iatom = 1, natom
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
-               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + 0*group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
+               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + &
+                        0*group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
             END DO
          END DO
       ! END IF
