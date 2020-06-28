@@ -1771,7 +1771,7 @@ CONTAINS
           !        !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
           !
           !     END DO ! i = 1, cdft_control%natoms
-          ! END DO !  1, SIZE(cdft_control%group)
+          END DO !  1, SIZE(cdft_control%group)
 
          ! Print atomic densities
          ! CALL cdft_print_hirshfeld_density(qs_env)
