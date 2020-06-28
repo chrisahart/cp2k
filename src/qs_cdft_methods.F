@@ -1629,19 +1629,8 @@ CONTAINS
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
-
-          ! Get lower bound, upper bound
-          lb(1:3) = rs_single(1)%rs_grid%lb_real(1:3)
-          ub(1:3) = rs_single(1)%rs_grid%ub_real(1:3)
-
-          ! Get dr
-          dr(1) =  rs_single(1)%rs_grid%desc%dh(1, 1)
-          dr(2) =  rs_single(1)%rs_grid%desc%dh(2, 2)
-          dr(3) =  rs_single(1)%rs_grid%desc%dh(3, 3)
-          origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
-
             DO i = 1, cdft_control%natoms
-              ! PRINT *, "i", i
+              PRINT *, "i", i
                NULLIFY (rs_single(i)%rs_grid)
                ! NULLIFY (rs_single_dr(i)%rs_grid)
                ! PRINT *, "NULLIFY", i
@@ -1652,6 +1641,18 @@ CONTAINS
                ! CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                ! PRINT *, "rs_grid_zero", i
             END DO
+
+            ! Get lower bound, upper bound
+            lb(1:3) = rs_single(1)%rs_grid%lb_real(1:3)
+            ub(1:3) = rs_single(1)%rs_grid%ub_real(1:3)
+
+            PRINT *, "Get dr"
+
+            ! Get dr
+            dr(1) =  rs_single(1)%rs_grid%desc%dh(1, 1)
+            dr(2) =  rs_single(1)%rs_grid%desc%dh(2, 2)
+            dr(3) =  rs_single(1)%rs_grid%desc%dh(3, 3)
+            origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
 
             ! Get coefficients
             ! coefficients(1) = 1
