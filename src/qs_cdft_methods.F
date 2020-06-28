@@ -1561,14 +1561,13 @@ CONTAINS
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
-         TYPE(cell_type), POINTER                           :: cell
          TYPE(dft_control_type), POINTER                    :: dft_control
          TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
          TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
          TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
          TYPE(pw_env_type), POINTER                         :: pw_env
-         TYPE(pw_p_type)                                    :: tmp
-         TYPE(pw_p_type), POINTER                           :: fnorm
+         TYPE(pw_p_type)                                    :: tmp, fnorm
+         ! TYPE(pw_p_type), POINTER                           :: fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
@@ -1577,7 +1576,7 @@ CONTAINS
            TYPE(pw_p_type), DIMENSION(3)                      :: test
            REAL(KIND=dp), DIMENSION(3)              :: dr
 
-         NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
+         NULLIFY (atom_list, cores, pab, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
                   hirshfeld_control, rs_single, rs_single_dr)
@@ -1587,7 +1586,6 @@ CONTAINS
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
                          atomic_kind_set=atomic_kind_set, &
-                         cell=cell, &
                          particle_set=particle_set, &
                          natom=natom, &
                          dft_control=dft_control, &
@@ -1629,6 +1627,17 @@ CONTAINS
 
           coefficients(1) = 1
           coefficients(2) = -1
+          numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
+          origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
+
+          ! Get lower bound, upper bound
+          lb(1:3) = rs_single(1)%rs_grid%lb_real(1:3)
+          ub(1:3) = rs_single(1)%rs_grid%ub_real(1:3)
+
+          ! Get dr
+          dr(1) =  rs_single(1)%rs_grid%desc%dh(1, 1)
+          dr(2) =  rs_single(1)%rs_grid%desc%dh(2, 2)
+          dr(3) =  rs_single(1)%rs_grid%desc%dh(3, 3)
 
             DO i = 1, cdft_control%natoms
               ! PRINT *, "i", i
@@ -1649,18 +1658,17 @@ CONTAINS
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "looping over each igroup", igroup
+           ! PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
-               PRINT *, "looping over each atomic_kind_set", ikind
+               ! PRINT *, "looping over each atomic_kind_set", ikind
 
                ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
                ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
 
                ! Get list of atom kind, number of exponentials
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-               numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
 
                ! Loop over each atom of atom type
                DO iatom = 1, natom
@@ -1669,18 +1677,8 @@ CONTAINS
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0
 
-                 ! Get lower bound, upper bound
-                 lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
-                 ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
-
-                 ! Get dr
-                 dr(1) =  rs_single(iatom)%rs_grid%desc%dh(1, 1)
-                 dr(2) =  rs_single(iatom)%rs_grid%desc%dh(2, 2)
-                 dr(3) =  rs_single(iatom)%rs_grid%desc%dh(3, 3)
-
                  ! Get atomic position
                  atom_a = atom_list(iatom)
-                 origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
                  ra(:) = particle_set(atom_a)%r - origin(1)
 
                  ! PRINT *, "iatom", iatom
@@ -1689,7 +1687,7 @@ CONTAINS
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
-                 PRINT *, "looping over each Gaussian", iex
+                 ! PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -1699,21 +1697,21 @@ CONTAINS
                   ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                     ! Loop over grid
-                    DO k = lb(3), 0 !ub(3)
-                      PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
+                    DO k = lb(3), ub(3)
+                      ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
 
-                       DO j = lb(2), 0 !ub(2)
-                          DO i = lb(1), 0 !ub(1)
+                       DO j = lb(2), ub(2)
+                          DO i = lb(1), ub(1)
 
-                            r_squared = ((i * dr(1)) - ra(1)) ** 2 + &
-                                        ((j * dr(2)) - ra(2)) ** 2 + &
-                                        ((k * dr(3)) - ra(3)) ** 2
+                            r_squared = ((i * dr(1)) - ra(1)) ** 2.0_dp + &
+                                        ((j * dr(2)) - ra(2)) ** 2.0_dp + &
+                                        ((k * dr(3)) - ra(3)) ** 2.0_dp
 
                             exp_eval = coef * EXP(-alpha * r_squared)
 
                             ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
-                            rs_rho_temp%r(-i, -j, -k) = rs_rho_temp%r(-i, -j, -k) + exp_eval
+                            ! rs_rho_temp%r(-i, -j, -k) = rs_rho_temp%r(-i, -j, -k) + exp_eval
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
 
                           END DO ! i = lb(1), ub(1)
@@ -1733,19 +1731,24 @@ CONTAINS
             END DO ! ikind = 1, SIZE(atomic_kind_set)
 
             ! Transfer rs_rho_all to the correct grid and save it
-             CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-             IF (igroup == 1) THEN
-                IF (ASSOCIATED(fnorm)) THEN
-                   CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
-                END IF
-                ALLOCATE (fnorm)
-                CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
-                                       in_space=REALSPACE)
-                CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-                CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-                CALL rs_grid_release(rs_rho_all)
-             END IF
-             ! Compute CDFT weight function
+             ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+             ! IF (igroup == 1) THEN
+             !    IF (ASSOCIATED(fnorm)) THEN
+             !       CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+             !    END IF
+             !    ALLOCATE (fnorm)
+             !    CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
+             !                           in_space=REALSPACE)
+             !    CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+             !    CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
+             !    CALL rs_grid_release(rs_rho_all)
+             ! END IF
+             ! ! Compute CDFT weight function
+
+             CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
+                                    in_space=REALSPACE)
+             CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
+             CALL rs_grid_release(rs_rho_constr)
 
              ! PRINT *, "transferring weight to pw"
             ! Calculate sum for all atoms (we don't want to store )
@@ -1753,32 +1756,34 @@ CONTAINS
                                     in_space=REALSPACE)
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
              CALL rs_grid_release(rs_rho_constr)
+
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-             cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-             cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+             ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+             ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
 
               ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
-              DO i = 1, cdft_control%natoms
-
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                  in_space=REALSPACE)
-              CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-
-                  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                     in_space=REALSPACE)
-                 ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
-                 !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-
-              END DO ! i = 1, cdft_control%natoms
+              ! DO i = 1, cdft_control%natoms
+              !
+              !  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+              !                     in_space=REALSPACE)
+              ! CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+              !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+              !
+              !     CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+              !                        in_space=REALSPACE)
+              !    ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
+              !    !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+              !
+              ! END DO ! i = 1, cdft_control%natoms
           END DO !  1, SIZE(cdft_control%group)
 
          ! Print atomic densities
-         CALL cdft_print_hirshfeld_density(qs_env)
-         CALL cdft_print_weight_function(qs_env)
+         ! CALL cdft_print_hirshfeld_density(qs_env)
+         ! CALL cdft_print_weight_function(qs_env)
 
          CALL timestop(handle)
 
@@ -1823,8 +1828,6 @@ CONTAINS
      CALL get_qs_env(qs_env, &
                      atomic_kind_set=atomic_kind_set, &
                      natom=natom, &
-                     particle_set=particle_set, &
-                     cell=cell, &
                      rho=rho, &
                      force=force, &
                      dft_control=dft_control, &
