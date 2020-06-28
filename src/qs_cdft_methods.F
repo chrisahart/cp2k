@@ -1581,7 +1581,7 @@ CONTAINS
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
                   hirshfeld_control, rs_single, rs_single_dr) ! fnorm
 
-          PRINT *, "start hirshfeld_constraint_low content"
+          ! PRINT *, "start hirshfeld_constraint_low content"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1629,30 +1629,30 @@ CONTAINS
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
-            DO i = 1, cdft_control%natoms
-              PRINT *, "i", i
-               NULLIFY (rs_single(i)%rs_grid)
-               ! NULLIFY (rs_single_dr(i)%rs_grid)
-               ! PRINT *, "NULLIFY", i
-               CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-               ! CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-               ! PRINT *, "rs_grid_create", i
-               CALL rs_grid_zero(rs_single(i)%rs_grid)
-               ! CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-               ! PRINT *, "rs_grid_zero", i
-            END DO
+            ! DO i = 1, cdft_control%natoms
+            !   ! PRINT *, "i", i
+            !    NULLIFY (rs_single(i)%rs_grid)
+            !    ! NULLIFY (rs_single_dr(i)%rs_grid)
+            !    ! PRINT *, "NULLIFY", i
+            !    CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+            !    ! CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+            !    ! PRINT *, "rs_grid_create", i
+            !    CALL rs_grid_zero(rs_single(i)%rs_grid)
+            !    ! CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+            !    ! PRINT *, "rs_grid_zero", i
+            ! END DO
 
             ! Get lower bound, upper bound
-            lb(1:3) = rs_single(1)%rs_grid%lb_real(1:3)
-            ub(1:3) = rs_single(1)%rs_grid%ub_real(1:3)
+            lb(1:3) = rs_rho_constr%rs_grid%lb_real(1:3)
+            ub(1:3) = rs_rho_constr%rs_grid%ub_real(1:3)
 
-            PRINT *, "Get dr"
+            ! PRINT *, "Get dr"
 
             ! Get dr
-            dr(1) =  rs_single(1)%rs_grid%desc%dh(1, 1)
-            dr(2) =  rs_single(1)%rs_grid%desc%dh(2, 2)
-            dr(3) =  rs_single(1)%rs_grid%desc%dh(3, 3)
-            origin(:) = (dr(:) * rs_single(1)%rs_grid%desc%npts(:)) * 0.5_dp
+            dr(1) =  rs_rho_constr%rs_grid%desc%dh(1, 1)
+            dr(2) =  rs_rho_constr%rs_grid%desc%dh(2, 2)
+            dr(3) =  rs_rho_constr%rs_grid%desc%dh(3, 3)
+            origin(:) = (dr(:) * rs_rho_constr%rs_grid%desc%npts(:)) * 0.5_dp
 
             ! Get coefficients
             ! coefficients(1) = 1
@@ -1660,7 +1660,7 @@ CONTAINS
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "looping over each igroup", igroup
+           ! PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
@@ -1689,7 +1689,7 @@ CONTAINS
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
-                 PRINT *, "looping over each Gaussian", iex
+                 ! PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -1725,7 +1725,7 @@ CONTAINS
                   END DO ! iex = 1, numexp
 
                   ! Save atomic density and analytic derivative
-                  rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+                  ! rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
                   ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                   ! Save sum over constraint atoms, all atoms
