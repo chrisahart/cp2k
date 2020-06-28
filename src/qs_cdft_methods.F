@@ -1652,7 +1652,7 @@ CONTAINS
             dr(1) =  rs_single(1)%rs_grid%desc%dh(1, 1)
             dr(2) =  rs_single(1)%rs_grid%desc%dh(2, 2)
             dr(3) =  rs_single(1)%rs_grid%desc%dh(3, 3)
-            origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
+            origin(:) = (dr(:) * rs_single(1)%rs_grid%desc%npts(:)) * 0.5_dp
 
             ! Get coefficients
             ! coefficients(1) = 1
