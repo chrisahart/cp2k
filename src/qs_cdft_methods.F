@@ -1666,6 +1666,28 @@ CONTAINS
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
                numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
 
+               ! Loop over each atom of atom type
+               DO iatom = 1, natom
+                 PRINT *, "looping over each atom of atom type", iatom
+
+                 ! Get lower bound, upper bound
+                 lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
+                 ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
+
+                 ! Get dr
+                 dr(1) =  rs_single(iatom)%rs_grid%desc%dh(1, 1)
+                 dr(2) =  rs_single(iatom)%rs_grid%desc%dh(2, 2)
+                 dr(3) =  rs_single(iatom)%rs_grid%desc%dh(3, 3)
+
+                 ! Get atomic position
+                 atom_a = atom_list(iatom)
+                 origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
+                 ra(:) = particle_set(atom_a)%r - origin(1)
+
+                 PRINT *, "iatom", iatom
+                 PRINT *, "atom_a", atom_a
+                 PRINT *, "coefficients(atom_a)", coefficients(atom_a)
+
                ! Loop over each Gaussian
                DO iex = 1, numexp
                  PRINT *, "looping over each Gaussian", iex
@@ -1677,27 +1699,7 @@ CONTAINS
                   PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
-                  ! Loop over each atom of atom type
-                  DO iatom = 1, natom
-                    PRINT *, "looping over each atom of atom type", iatom
 
-                    ! Get lower bound, upper bound
-                    lb(1:3) = rs_single(iatom)%rs_grid%lb_real(1:3)
-                    ub(1:3) = rs_single(iatom)%rs_grid%ub_real(1:3)
-
-                    ! Get dr
-                    dr(1) =  rs_single(iatom)%rs_grid%desc%dh(1, 1)
-                    dr(2) =  rs_single(iatom)%rs_grid%desc%dh(2, 2)
-                    dr(3) =  rs_single(iatom)%rs_grid%desc%dh(3, 3)
-
-                    ! Get atomic position
-                    atom_a = atom_list(iatom)
-                    origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
-                    ra(:) = particle_set(atom_a)%r - origin(1)
-
-                    PRINT *, "iatom", iatom
-                    PRINT *, "atom_a", atom_a
-                    PRINT *, "coefficients(atom_a)", coefficients(atom_a)
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
