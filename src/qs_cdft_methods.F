@@ -1577,9 +1577,9 @@ CONTAINS
            REAL(KIND=dp), DIMENSION(3)              :: dr
 
          NULLIFY (atom_list, cores, pab, atomic_kind_set, dft_control, &
-                  hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
+                  hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr)
+                  hirshfeld_control, rs_single, rs_single_dr) ! fnorm
 
           ! PRINT *, "start hirshfeld_constraint_low"
 
@@ -1748,21 +1748,27 @@ CONTAINS
              CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
                                     in_space=REALSPACE)
              CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-             CALL rs_grid_release(rs_rho_constr)
+
 
              ! PRINT *, "transferring weight to pw"
             ! Calculate sum for all atoms (we don't want to store )
              CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                     in_space=REALSPACE)
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-             CALL rs_grid_release(rs_rho_constr)
+
 
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
              ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
              ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+
+
+             ! Deallocate
+             CALL rs_grid_release(rs_rho_constr)
+             CALL rs_grid_release(rs_rho_constr)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+
 
               ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
