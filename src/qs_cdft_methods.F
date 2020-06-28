@@ -1555,7 +1555,7 @@ CONTAINS
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
-                                                               radius, radius_constr, r_squared
+                                                               radius, radius_constr, r_squared, exp_eval
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
@@ -1709,12 +1709,12 @@ CONTAINS
                                         ((j * dr(2)) - ra(2)) ** 2 + &
                                         ((k * dr(3)) - ra(3)) ** 2
 
+                            exp_eval = coef * EXP(-alpha * r_squared)
+
                             ! Calculate atomic density and analytic derivative
-                            rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + coef * EXP(-alpha * r_squared)
-                            ! rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + coef * EXP(-alpha * r_squared)
-                            ! rs_rho_temp%r(ub(1) - i, ub(2) - j, ub(3) - k)  = &
-                                                    ! rs_rho_temp%r(ub(1) - i, ub(2) - j, ub(3) - k) + rs_rho_temp%r(i, j, k)
-                            ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
+                            rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
+                            rs_rho_temp%r(-i, -j, -k) = rs_rho_temp%r(-i, -j, -k) + exp_eval
+                            ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
 
                           END DO ! i = lb(1), ub(1)
                         END DO ! j = lb(2), ub(2)
