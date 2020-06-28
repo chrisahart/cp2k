@@ -1598,7 +1598,7 @@ CONTAINS
          ! Allcoate as needed
          ALLOCATE (coefficients(natom))
          ALLOCATE (rs_single(cdft_control%natoms))
-         ! ALLOCATE (rs_single_dr(cdft_control%natoms))
+         ALLOCATE (rs_single_dr(cdft_control%natoms))
 
          ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
          ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
@@ -1627,7 +1627,7 @@ CONTAINS
 
           coefficients(1) = 1
           coefficients(2) = -1
-          numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
+          numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
 
           ! Get lower bound, upper bound
