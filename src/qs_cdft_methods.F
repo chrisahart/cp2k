@@ -1581,7 +1581,7 @@ CONTAINS
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
                   hirshfeld_control, rs_single, rs_single_dr) ! fnorm
 
-          ! PRINT *, "start hirshfeld_constraint_low"
+          PRINT *, "start hirshfeld_constraint_low content"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1628,7 +1628,7 @@ CONTAINS
           coefficients(1) = 1
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
-          origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
+
 
           ! Get lower bound, upper bound
           lb(1:3) = rs_single(1)%rs_grid%lb_real(1:3)
@@ -1638,6 +1638,7 @@ CONTAINS
           dr(1) =  rs_single(1)%rs_grid%desc%dh(1, 1)
           dr(2) =  rs_single(1)%rs_grid%desc%dh(2, 2)
           dr(3) =  rs_single(1)%rs_grid%desc%dh(3, 3)
+          origin(:) = (dr(:) * rs_single(iatom)%rs_grid%desc%npts(:)) * 0.5_dp
 
             DO i = 1, cdft_control%natoms
               ! PRINT *, "i", i
@@ -1658,7 +1659,7 @@ CONTAINS
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           ! PRINT *, "looping over each igroup", igroup
+           PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
