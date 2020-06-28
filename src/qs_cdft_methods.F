@@ -1711,7 +1711,7 @@ CONTAINS
 
                             ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + coef * EXP(-alpha * r_squared)
-                            rs_rho_temp%r(i + ub(1), j + ub(2), k + ub(3)) = &
+                            rs_rho_temp%r(ub(1) - i, ub(2) - j, ub(3) - k)  = &
                                                     rs_rho_temp%r(ub(1) - i, ub(2) - j, ub(3) - k) + rs_rho_temp%r(i, j, k)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
@@ -1754,30 +1754,30 @@ CONTAINS
              CALL rs_grid_release(rs_rho_constr)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-             ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-             ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+             cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+             cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
               ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
-          !     DO i = 1, cdft_control%natoms
-          !
-          !      CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-          !                         in_space=REALSPACE)
-          !     CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-          !         cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-          !
-          !         CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-          !                            in_space=REALSPACE)
-          !        ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
-          !        !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-          !
-          !     END DO ! i = 1, cdft_control%natoms
+              DO i = 1, cdft_control%natoms
+
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                  in_space=REALSPACE)
+              CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+
+                  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                     in_space=REALSPACE)
+                 ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
+                 !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+
+              END DO ! i = 1, cdft_control%natoms
           END DO !  1, SIZE(cdft_control%group)
 
          ! Print atomic densities
-         ! CALL cdft_print_hirshfeld_density(qs_env)
-         ! CALL cdft_print_weight_function(qs_env)
+         CALL cdft_print_hirshfeld_density(qs_env)
+         CALL cdft_print_weight_function(qs_env)
 
          CALL timestop(handle)
 
