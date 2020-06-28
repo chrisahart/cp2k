@@ -1700,7 +1700,7 @@ CONTAINS
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
-                      PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
+                      ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
