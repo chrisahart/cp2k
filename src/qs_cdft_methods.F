@@ -1687,7 +1687,7 @@ CONTAINS
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
-                 ! PRINT *, "looping over each Gaussian", iex
+                 PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -1698,7 +1698,7 @@ CONTAINS
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
-                      ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
+                      PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
 
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
@@ -1707,12 +1707,15 @@ CONTAINS
                                         ((j * dr(2)) - ra(2)) ** 2.0_dp + &
                                         ((k * dr(3)) - ra(3)) ** 2.0_dp
 
-                            exp_eval = coef * EXP(-alpha * r_squared)
+                            ! IF (r_squared .GE. 5) THEN
+                              exp_eval = coef * EXP(-alpha * r_squared)
 
                             ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
                             ! rs_rho_temp%r(-i, -j, -k) = rs_rho_temp%r(-i, -j, -k) + exp_eval
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
+
+                            ! END IF
 
                           END DO ! i = lb(1), ub(1)
                         END DO ! j = lb(2), ub(2)
@@ -1730,11 +1733,13 @@ CONTAINS
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
 
+             PRINT *, "transferring weight to pw"
+
             ! Transfer rs_rho_all to the correct grid and save it
              ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
              ! IF (igroup == 1) THEN
              !    IF (ASSOCIATED(fnorm)) THEN
-             !       CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+                   ! CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
              !    END IF
              !    ALLOCATE (fnorm)
              !    CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
@@ -1750,7 +1755,7 @@ CONTAINS
              CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
 
 
-             ! PRINT *, "transferring weight to pw"
+
             ! Calculate sum for all atoms (we don't want to store )
              CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                     in_space=REALSPACE)
