@@ -1715,23 +1715,23 @@ CONTAINS
                             ! Calculate atomic density and analytic derivative
                             ! rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-1.0_dp * r_squared)
                             ! rs_rho_temp%r(i, j, k) = 1.0_dp/8.0_dp * EXP(-alpha * r_squared)
-                            rs_rho_temp%r(i, j, k) = coef * EXP(-alpha * r_squared)
+                            rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + coef * EXP(-alpha * r_squared)
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * rs_rho_temp%r(i, j, k)
 
-                          END DO
-                        END DO
-                      END DO
+                          END DO ! i = lb(1), ub(1)
+                        END DO ! j = lb(2), ub(2)
+                      END DO ! k = lb(3), ub(3)
+                  END DO ! iex = 1, numexp
 
-                      ! Save atomic density and analytic derivative
-                      rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
-                      ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+                  ! Save atomic density and analytic derivative
+                  rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+                  ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
-                      ! Save sum over constraint atoms, all atoms
-                      rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
-                      rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
+                  ! Save sum over constraint atoms, all atoms
+                  rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
+                  rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
-                  END DO ! iatom = 1, natom
-               END DO ! iex = 1, numexp
+               END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
 
             ! Transfer rs_rho_all to the correct grid and save it
