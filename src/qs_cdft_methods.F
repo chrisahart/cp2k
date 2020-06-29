@@ -1790,6 +1790,11 @@ CONTAINS
                             cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
                                 rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
 
+                                cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
+                                    ((rs_single_dr(1*iatom)%rs_grid%r(i, j, k)) * sign &
+                                    / rs_rho_all%r(i, j, k)) &
+                                    * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
+
                             ! cdft_control%group(1)%gradients(6, k, j, i) = &
                             !     rs_single_dr(2)%rs_grid%r(i, j, k) * sign
 
