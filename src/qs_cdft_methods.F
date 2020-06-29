@@ -1566,6 +1566,7 @@ CONTAINS
          TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
          TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
          TYPE(pw_env_type), POINTER                         :: pw_env
+         INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf
          TYPE(pw_p_type)                                    :: tmp, fnorm
          ! TYPE(pw_p_type), POINTER                           :: fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
@@ -1598,7 +1599,7 @@ CONTAINS
 
          ! Allcoate as needed
          bo_conf = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-         DO igroup = 1, SIZE(group)
+         DO igroup = 1, SIZE(cdft_control%group)
             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
                         bo_conf(1, 1):bo_conf(2, 1), &
                         bo_conf(1, 2):bo_conf(2, 2), &
