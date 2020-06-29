@@ -1730,6 +1730,10 @@ CONTAINS
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
                             rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
 
+                            ! rs_rho_dxyz_temp%r(1, i, j, k) = -1.0_dp * 2.0_dp * (i * dr(1)) - ra(1) * exp_eval
+                            ! rs_rho_dxyz_temp%r(2, i, j, k) = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
+                            ! rs_rho_dxyz_temp%r(3, i, j, k) = -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
+
                             ! END IF
 
                           END DO ! i = lb(1), ub(1)
@@ -1739,7 +1743,9 @@ CONTAINS
 
                   ! Save atomic density and analytic derivative
                   rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+
                   rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+                  ! rs_single_dxyz(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                   ! Save sum over constraint atoms, all atoms
                   rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
@@ -1752,7 +1758,8 @@ CONTAINS
             END DO ! ikind = 1, SIZE(atomic_kind_set)
 
 
-            ! Calculate forces
+            ! Calculate gradient
+            PRINT *, "Calculate gradient", iex
 
             ! DO ikind = 1, SIZE(atomic_kind_set)
               ! DO iatom = 1, natom
@@ -1764,21 +1771,31 @@ CONTAINS
                         !     cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) &
                         !     -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
 
-                            cdft_control%group(1)%gradients(1, k, j, i) = 0.0_dp ! x of atom 1
-                            cdft_control%group(1)%gradients(2, k, j, i) = 1.0_dp ! y of atom 1
-                            cdft_control%group(1)%gradients(3, k, j, i) = 2.0_dp ! z of atom 1
-                            cdft_control%group(1)%gradients(4, k, j, i) = 3.0_dp ! x of atom 2
-                            cdft_control%group(1)%gradients(5, k, j, i) = 4.0_dp ! y of atom 2
-                            cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
+                            ! cdft_control%group(1)%gradients(1, k, j, i) = 0.0_dp ! x of atom 1
+                            ! cdft_control%group(1)%gradients(2, k, j, i) = 1.0_dp ! y of atom 1
+                            ! cdft_control%group(1)%gradients(3, k, j, i) = 2.0_dp ! z of atom 1
+                            ! cdft_control%group(1)%gradients(4, k, j, i) = 3.0_dp ! x of atom 2
+                            ! cdft_control%group(1)%gradients(5, k, j, i) = 4.0_dp ! y of atom 2
+                            ! cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
 
-                            ! cdft_control%group(1)%gradients(1, k, j, i) = rs_single_dr(1)%rs_grid%r(i, j, k)
-                            ! cdft_control%group(1)%gradients(6, k, j, i) = rs_single_dr(2)%rs_grid%r(i, j, k)
+                            cdft_control%group(1)%gradients(1, k, j, i) = &
+                                rs_single_dr(1)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k) * &
+                                1
+
+                            cdft_control%group(1)%gradients(6, k, j, i) = &
+                                rs_single_dr(2)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k) * &
+                                1
 
                         END DO
                       END DO
                     END DO
                   ! END DO
                 ! END DO
+
+
+                ! group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
+                !    group(igroup)%d_sum_const_dR(1:3, iatom)/sum_cell_f_all - sum_cell_f_group(igroup)* &
+                !    d_sum_Pm_dR(1:3, iatom)/(sum_cell_f_all**2)
 
                 ! * (coef * EXP(-alpha * r_squared) + coefficients(iatom)) / rs_rho_constr%r
 
