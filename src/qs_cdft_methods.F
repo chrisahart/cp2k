@@ -1728,7 +1728,9 @@ CONTAINS
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
 
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
-                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
+                            rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
+                                    -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
+                            ! rs_rho_dr_temp%r(i, j, k)  = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
 
                             ! rs_rho_dxyz_temp%r(1, i, j, k) = -1.0_dp * 2.0_dp * (i * dr(1)) - ra(1) * exp_eval
                             ! rs_rho_dxyz_temp%r(2, i, j, k) = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
@@ -1797,11 +1799,11 @@ CONTAINS
                                     !     ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(2))
 
                             cdft_control%group(1)%gradients(3, k, j, i) = &
-                                (rs_single_dr(1)%rs_grid%r(i, j, k) / rs_rho_constr%r(i, j, k)) * &
+                                (rs_single_dr(1)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k)) * &
                                  ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(1))
 
                             cdft_control%group(1)%gradients(6, k, j, i) = &
-                                rs_single_dr(2)%rs_grid%r(i, j, k) / rs_rho_constr%r(i, j, k) * &
+                                rs_single_dr(2)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k) * &
                                 ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(2))
 
                         END DO
