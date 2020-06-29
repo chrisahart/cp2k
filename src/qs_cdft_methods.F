@@ -1883,16 +1883,20 @@ CONTAINS
      bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
      dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
+     PRINT *, "calculating integrated"
+
      DO k = bo(1, 1), bo(2, 1)
         DO j = bo(1, 2), bo(2, 2)
            DO i = bo(1, 3), bo(2, 3)
               DO igroup = 1, SIZE(group)
                  DO iatom = 1, natom
+                   DO ispin = 1, dft_control%nspins
                        cdft_control%group(igroup)%integrated(:, iatom) = &
                                       cdft_control%group(igroup)%integrated(:, iatom) + &
                                       cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
                                       1:3*(iatom - 1) + 3, k, j, i)* rho_r(ispin)%pw%cr3d(k, j, i)*dvol
                     END DO
+                  END DO
                  END DO
               END DO
            END DO
@@ -1909,6 +1913,8 @@ CONTAINS
 
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
+
+               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
 
                force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + &
                         0*group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
