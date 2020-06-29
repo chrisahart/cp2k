@@ -1730,7 +1730,7 @@ CONTAINS
 
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
                             rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
-                                    -1.0_dp * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
+                                    -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
                             ! rs_rho_dr_temp%r(i, j, k)  = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
 
                             ! rs_rho_dxyz_temp%r(1, i, j, k) = -1.0_dp * 2.0_dp * (i * dr(1)) - ra(1) * exp_eval
@@ -1783,7 +1783,7 @@ CONTAINS
 
                             cdft_control%group(1)%gradients(3, k, j, i) = &
                                 rs_single_dr(1)%rs_grid%r(i, j, k)
-                            
+
                             cdft_control%group(1)%gradients(6, k, j, i) = &
                                 rs_single_dr(2)%rs_grid%r(i, j, k)
 
