@@ -1759,7 +1759,7 @@ CONTAINS
 
 
             ! Calculate gradient
-            PRINT *, "Calculate gradient", iex
+            PRINT *, "Calculate gradient"
 
             ! DO ikind = 1, SIZE(atomic_kind_set)
               ! DO iatom = 1, natom
@@ -1778,13 +1778,19 @@ CONTAINS
                             ! cdft_control%group(1)%gradients(5, k, j, i) = 4.0_dp ! y of atom 2
                             ! cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
 
-                            cdft_control%group(1)%gradients(1, k, j, i) = &
-                                rs_single_dr(1)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k) * &
-                                1
+                            cdft_control%group(1)%gradients(3, k, j, i) = &
+                                rs_single_dr(1)%rs_grid%r(i, j, k)
 
                             cdft_control%group(1)%gradients(6, k, j, i) = &
-                                rs_single_dr(2)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k) * &
-                                1
+                                rs_single_dr(2)%rs_grid%r(i, j, k)
+
+                            ! cdft_control%group(1)%gradients(3, k, j, i) = &
+                            !     (rs_single_dr(1)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k)) * &
+                            !      (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k) + coefficients(1))
+                            !
+                            ! cdft_control%group(1)%gradients(6, k, j, i) = &
+                            !     rs_single_dr(2)%rs_grid%r(i, j, k) / rs_rho_all%r(i, j, k) * &
+                            !     (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k) + coefficients(2))
 
                         END DO
                       END DO
