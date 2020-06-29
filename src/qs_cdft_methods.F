@@ -1813,21 +1813,22 @@ CONTAINS
                                 !     * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
 
-                                    cdft_control%group(1)%gradients(1*iatom, k, j, i) = &
+                                    cdft_control%group(1)%gradients(1+(iatom-1)*3, k, j, i) = &
                                         ((rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k)) * sign_val(1) &
                                         / rs_rho_all%r(i, j, k)) &
                                         * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
-                                        cdft_control%group(1)%gradients(2*iatom, k, j, i) = &
+                                        cdft_control%group(1)%gradients(2+(iatom-1)*3, k, j, i) = &
                                             ((rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k)) * sign_val(2) &
                                             / rs_rho_all%r(i, j, k)) &
                                             * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
 
-                                            cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
+                                            cdft_control%group(1)%gradients(3+(iatom-1)*3, k, j, i) = &
                                                 ((rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k)) * sign_val(3) &
                                                 / rs_rho_all%r(i, j, k)) &
                                                 * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
+
                             ! cdft_control%group(1)%gradients(6, k, j, i) = &
                             !     rs_single_dr(2)%rs_grid%r(i, j, k) * sign
 
