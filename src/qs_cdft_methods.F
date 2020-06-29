@@ -1731,7 +1731,7 @@ CONTAINS
                             rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
 
                             cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
-                                cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) + &
+                                cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) &
                                 -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
 
                                 ! * (coef * EXP(-alpha * r_squared) + coefficients(iatom)) / rs_rho_constr%r
