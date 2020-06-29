@@ -1555,7 +1555,7 @@ CONTAINS
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
-                                                               radius, radius_constr, r_squared, exp_eval
+                                                               radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
@@ -1770,6 +1770,8 @@ CONTAINS
                  DO j = lb(2), ub(2)
                     DO i = lb(1), ub(1)
 
+                      sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
+
                         ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
                         !     cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) &
                         !     -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
@@ -1782,10 +1784,10 @@ CONTAINS
                             ! cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
 
                             cdft_control%group(1)%gradients(3, k, j, i) = &
-                                rs_single_dr(1)%rs_grid%r(i, j, k)
+                                rs_single_dr(1)%rs_grid%r(i, j, k) * sign
 
                             cdft_control%group(1)%gradients(6, k, j, i) = &
-                                rs_single_dr(2)%rs_grid%r(i, j, k)
+                                rs_single_dr(2)%rs_grid%r(i, j, k) * sign
 
                                 ! cdft_control%group(1)%gradients(3, k, j, i) = &
                                 !     ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(1))
