@@ -1394,11 +1394,11 @@ CONTAINS
   !                          IF (atom_a == cdft_control%atoms(iatom)) EXIT
   !                       END DO
   !                       CPASSERT(iatom <= cdft_control%natoms)
-  !                       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-  !                                                  (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-  !                                                  rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
-  !                                                  ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-  !                                                  subpatch_pattern=subpatch_pattern)
+                        ! CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                        !                            (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                        !                            rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                        !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                        !                            subpatch_pattern=subpatch_pattern)
   !
   !                                                  ! SUBROUTINE collocate_pgf_product(la_max, zeta, la_min, &
   !                                                  !                                  lb_max, zetb, lb_min, &
@@ -1765,11 +1765,15 @@ CONTAINS
             PRINT *, "Calculate gradient"
 
             ! DO ikind = 1, SIZE(atomic_kind_set)
-              ! DO iatom = 1, natom
+              DO iatom = 1, natom
+                PRINT *, "iatom", iatom
+
                 DO k = lb(3), ub(3)
                  DO j = lb(2), ub(2)
                     DO i = lb(1), ub(1)
 
+                      atom_a = atom_list(iatom)
+                      ra(:) = particle_set(atom_a)%r - origin(1)
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
                         ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
@@ -1783,11 +1787,11 @@ CONTAINS
                             ! cdft_control%group(1)%gradients(5, k, j, i) = 4.0_dp ! y of atom 2
                             ! cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
 
-                            cdft_control%group(1)%gradients(3, k, j, i) = &
-                                rs_single_dr(1)%rs_grid%r(i, j, k) * sign
+                            cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
+                                rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
 
-                            cdft_control%group(1)%gradients(6, k, j, i) = &
-                                rs_single_dr(2)%rs_grid%r(i, j, k) * sign
+                            ! cdft_control%group(1)%gradients(6, k, j, i) = &
+                            !     rs_single_dr(2)%rs_grid%r(i, j, k) * sign
 
                                 ! cdft_control%group(1)%gradients(3, k, j, i) = &
                                 !     ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(1))
