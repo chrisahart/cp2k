@@ -1730,12 +1730,6 @@ CONTAINS
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
                             rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
 
-                            cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
-                                cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) &
-                                -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
-
-                                ! * (coef * EXP(-alpha * r_squared) + coefficients(iatom)) / rs_rho_constr%r
-
                             ! END IF
 
                           END DO ! i = lb(1), ub(1)
@@ -1756,6 +1750,37 @@ CONTAINS
 
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
+
+
+            ! Calculate forces
+
+            ! DO ikind = 1, SIZE(atomic_kind_set)
+              ! DO iatom = 1, natom
+                DO k = lb(3), ub(3)
+                 DO j = lb(2), ub(2)
+                    DO i = lb(1), ub(1)
+
+                        ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
+                        !     cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) &
+                        !     -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
+
+                            cdft_control%group(1)%gradients(1, k, j, i) = 0.0_dp ! x of atom 1
+                            cdft_control%group(1)%gradients(2, k, j, i) = 1.0_dp ! y of atom 1
+                            cdft_control%group(1)%gradients(3, k, j, i) = 2.0_dp ! z of atom 1
+                            cdft_control%group(1)%gradients(4, k, j, i) = 3.0_dp ! x of atom 2
+                            cdft_control%group(1)%gradients(5, k, j, i) = 4.0_dp ! y of atom 2
+                            cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
+
+                            ! cdft_control%group(1)%gradients(1, k, j, i) = rs_single_dr(1)%rs_grid%r(i, j, k)
+                            ! cdft_control%group(1)%gradients(6, k, j, i) = rs_single_dr(2)%rs_grid%r(i, j, k)
+
+                        END DO
+                      END DO
+                    END DO
+                  ! END DO
+                ! END DO
+
+                ! * (coef * EXP(-alpha * r_squared) + coefficients(iatom)) / rs_rho_constr%r
 
              PRINT *, "transferring weight to pw"
 
