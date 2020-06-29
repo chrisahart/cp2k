@@ -1787,8 +1787,8 @@ CONTAINS
                             ! cdft_control%group(1)%gradients(5, k, j, i) = 4.0_dp ! y of atom 2
                             ! cdft_control%group(1)%gradients(6, k, j, i) = 5.0_dp ! z of atom 2
 
-                            cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
-                                rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
+                            ! cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
+                            !     rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
 
                                 cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
                                     ((rs_single_dr(1*iatom)%rs_grid%r(i, j, k)) * sign &
