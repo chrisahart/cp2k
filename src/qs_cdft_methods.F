@@ -1595,7 +1595,18 @@ CONTAINS
          hirshfeld_control => cdft_control%hirshfeld_control
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
+
          ! Allcoate as needed
+         bo_conf = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+         DO igroup = 1, SIZE(group)
+            ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
+                        bo_conf(1, 1):bo_conf(2, 1), &
+                        bo_conf(1, 2):bo_conf(2, 2), &
+                        bo_conf(1, 3):bo_conf(2, 3)))
+            cdft_control%group(igroup)%gradients = 0.0_dp
+            END DO
+
+        ! Allcoate as needed
          ALLOCATE (coefficients(natom))
          ALLOCATE (rs_single(cdft_control%natoms))
          ALLOCATE (rs_single_dr(cdft_control%natoms))
@@ -1731,10 +1742,13 @@ CONTAINS
                   rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
                   rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
+                  ! Calculate forces
+                  ! group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = 1
+
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
 
-             ! PRINT *, "transferring weight to pw"
+             PRINT *, "transferring weight to pw"
 
             ! Transfer rs_rho_all to the correct grid and save it
              ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
@@ -1863,17 +1877,26 @@ CONTAINS
                               kind_of=kind_of)
 
      DO igroup = 1, SIZE(group)
-        ALLOCATE (group(igroup)%integrated(3, natom))
+        ALLOCATE (cdft_control%group(igroup)%integrated(3, natom))
         group(igroup)%integrated = 0.0_dp
      END DO
-     bo = group(1)%weight%pw%pw_grid%bounds_local
-     dvol = group(1)%weight%pw%pw_grid%dvol
+     bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+     dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
-
-      ! group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign* &
-      !                                  group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)* &
-      !                                      rho_r(ispin)%pw%cr3d(k, j, i)*dvol
-
+     DO k = bo(1, 1), bo(2, 1)
+        DO j = bo(1, 2), bo(2, 2)
+           DO i = bo(1, 3), bo(2, 3)
+              DO igroup = 1, SIZE(group)
+                 DO iatom = 1, natom
+                       cdft_control%group(igroup)%integrated(:, iatom) = &
+                                      cdft_control%group(igroup)%integrated(:, iatom) + &
+                                      cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
+                                      1:3*(iatom - 1) + 3, k, j, i)* rho_r(ispin)%pw%cr3d(k, j, i)*dvol
+                    END DO
+                 END DO
+              END DO
+           END DO
+        END DO
 
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
       ! by the number of processes when the final force%rho_elec is constructed in qs_force
@@ -1886,6 +1909,7 @@ CONTAINS
 
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
+
                force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + &
                         0*group(igroup)%integrated(:, iatom)*cdft_control%strength(igroup)
             END DO
