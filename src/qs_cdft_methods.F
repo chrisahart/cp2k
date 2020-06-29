@@ -1726,7 +1726,15 @@ CONTAINS
 
                             ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
-                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
+
+                            ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
+                            rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
+
+                            cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
+                                cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) + &
+                                -1.0_dp * 2.0_dp * (k * dr(3)) - ra(3) * exp_eval
+
+                                ! * (coef * EXP(-alpha * r_squared) + coefficients(iatom)) / rs_rho_constr%r
 
                             ! END IF
 
@@ -1744,7 +1752,7 @@ CONTAINS
                   rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
                   ! Calculate forces
-                  ! group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = 1
+                  !
 
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
@@ -1903,6 +1911,10 @@ CONTAINS
            END DO
         END DO
 
+        PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+        PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 2)
+
+
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
       ! by the number of processes when the final force%rho_elec is constructed in qs_force
       ! by mp_summing [the final integrated(:,:) is distributed on all processors]
@@ -1924,6 +1936,9 @@ CONTAINS
             END DO
          END DO
       ! END IF
+
+      PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
+      PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
 
       CALL timestop(handle)
 
