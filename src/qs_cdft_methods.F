@@ -1788,8 +1788,8 @@ CONTAINS
 
                       atom_a = atom_list(iatom)
                       ra(:) = particle_set(atom_a)%r - origin(1)
-                      sign_val(1) = (i * dr(2)) - ra(1) / ABS((i * dr(1)) - ra(1))
-                      sign_val(2) = (j * dr(1)) - ra(2) / ABS((j * dr(2)) - ra(2))
+                      sign_val(1) = (i * dr(1)) - ra(1) / ABS((i * dr(1)) - ra(1))
+                      sign_val(2) = (j * dr(2)) - ra(2) / ABS((j * dr(2)) - ra(2))
                       sign_val(3) = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
