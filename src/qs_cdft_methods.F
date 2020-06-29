@@ -1557,7 +1557,7 @@ CONTAINS
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
-         REAL(kind=dp), DIMENSION(3)                        :: ra, origin
+         REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
@@ -1582,7 +1582,7 @@ CONTAINS
          NULLIFY (atom_list, cores, pab, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr) ! fnorm
+                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp) ! fnorm
 
           PRINT *, "start hirshfeld_constraint_low"
 
@@ -1739,12 +1739,13 @@ CONTAINS
                                     -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
                             ! rs_rho_dr_temp%r(i, j, k)  = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
 
-                            rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) = rs_rho_dxyz_temp(1+(iatom-1)*, i, j, k) &
-                                    -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
+                            rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) = &
+                            rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) &
+                                    -alpha * 2.0_dp * ABS((i * dr(1)) - ra(1)) * exp_eval
 
                                     rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) = &
                                     rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) &
-                                            -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
+                                            -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
 
                                             rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) = &
                                             rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) &
@@ -1787,6 +1788,9 @@ CONTAINS
 
                       atom_a = atom_list(iatom)
                       ra(:) = particle_set(atom_a)%r - origin(1)
+                      sign_val(1) = (i * dr(2)) - ra(1) / ABS((i * dr(1)) - ra(1))
+                      sign_val(2) = (j * dr(1)) - ra(2) / ABS((j * dr(2)) - ra(2))
+                      sign_val(3) = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
                         ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
@@ -1810,18 +1814,18 @@ CONTAINS
 
 
                                     cdft_control%group(1)%gradients(1*iatom, k, j, i) = &
-                                        ((rs_rho_dxyz_temp(1+(iatom-1)*3)%rs_grid%r(i, j, k)) * sign &
+                                        ((rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) * sign_val(1) &
                                         / rs_rho_all%r(i, j, k)) &
                                         * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
                                         cdft_control%group(1)%gradients(2*iatom, k, j, i) = &
-                                            ((rs_rho_dxyz_temp(2+(iatom-1)*3)%rs_grid%r(i, j, k)) * sign &
+                                            ((rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) * sign_val(2) &
                                             / rs_rho_all%r(i, j, k)) &
                                             * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
 
                                             cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
-                                                ((rs_rho_dxyz_temp(3+(iatom-1)*3)%rs_grid%r(i, j, k)) * sign &
+                                                ((rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) * sign_val(3) &
                                                 / rs_rho_all%r(i, j, k)) &
                                                 * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
                             ! cdft_control%group(1)%gradients(6, k, j, i) = &
