@@ -1749,7 +1749,7 @@ CONTAINS
                             !         -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
 
                             rs_rho_dxyz_temp(1:3+(iatom-1)*3, i, j, k) = &
-                            rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) &
+                            rs_rho_dxyz_temp(1:3+(iatom-1)*3, i, j, k) &
                                     -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
 
                             ! END IF
@@ -1818,7 +1818,7 @@ CONTAINS
                                     !     ((rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k)) * sign_val(1) &
                                     !     / rs_rho_all%r(i, j, k)) &
                                     !     * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
-                                    ! 
+                                    !
                                     !     cdft_control%group(1)%gradients(2+(iatom-1)*3, k, j, i) = &
                                     !         ((rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k)) * sign_val(2) &
                                     !         / rs_rho_all%r(i, j, k)) &
