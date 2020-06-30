@@ -1554,10 +1554,10 @@ CONTAINS
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
-         REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, temp_val, &
+         REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
-         REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val
+         REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val
          REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
