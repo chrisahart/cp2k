@@ -1554,7 +1554,7 @@ CONTAINS
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
-         REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
+         REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, temp_val, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val
@@ -1699,8 +1699,11 @@ CONTAINS
                  rs_rho_dxyz_temp(1:3+(iatom-1)*3, :, :, :) = 0.0_dp
                  ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
-                 PRINT *, "1:3+(iatom-1)*3", 1:3+(iatom-1)*3
-                 PRINT *, "3*(iatom - 1) + 1:3*(iatom - 1) + 3", 3*(iatom - 1) + 1:3*(iatom - 1) + 3
+                 temp_val = 1:3+(iatom-1)*3
+                 PRINT *, "1:3+(iatom-1)*3", temp_val
+
+                 temp_val = 3*(iatom - 1) + 1:3*(iatom - 1) + 3
+                 PRINT *, "3*(iatom - 1) + 1:3*(iatom - 1) + 3", temp_val
 
                  ! Get atomic position
                  atom_a = atom_list(iatom)
