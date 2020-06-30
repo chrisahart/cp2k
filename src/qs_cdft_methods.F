@@ -1699,6 +1699,9 @@ CONTAINS
                  rs_rho_dxyz_temp(1:3+(iatom-1)*3, :, :, :) = 0.0_dp
                  ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
+                 PRINT *, "1:3+(iatom-1)*3", 1:3+(iatom-1)*3
+                 PRINT *, "3*(iatom - 1) + 1:3*(iatom - 1) + 3", 3*(iatom - 1) + 1:3*(iatom - 1) + 3
+
                  ! Get atomic position
                  atom_a = atom_list(iatom)
                  ra(:) = particle_set(atom_a)%r - origin(1)
