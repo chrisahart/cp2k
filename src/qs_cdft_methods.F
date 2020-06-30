@@ -1699,11 +1699,12 @@ CONTAINS
                  rs_rho_dxyz_temp(1:3+(iatom-1)*3, :, :, :) = 0.0_dp
                  ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
-                 temp_val = 1:3+(iatom-1)*3
-                 PRINT *, "1:3+(iatom-1)*3", temp_val
+                 temp_val(1:3) = 0
+                 temp_val(1:3) = 1:3+(iatom-1)*3
+                 PRINT *, "1:3+(iatom-1)*3", temp_val(:)
 
-                 temp_val = 3*(iatom - 1) + 1:3*(iatom - 1) + 3
-                 PRINT *, "3*(iatom - 1) + 1:3*(iatom - 1) + 3", temp_val
+                 temp_val(1:3) = 3*(iatom - 1) + 1:3*(iatom - 1) + 3
+                 PRINT *, "3*(iatom - 1) + 1:3*(iatom - 1) + 3", temp_val(:)
 
                  ! Get atomic position
                  atom_a = atom_list(iatom)
