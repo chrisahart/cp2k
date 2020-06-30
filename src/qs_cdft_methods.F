@@ -1696,7 +1696,7 @@ CONTAINS
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0.0_dp
                  rs_rho_dr_temp%r = 0.0_dp
-                 rs_rho_dxyz_temp=0.0_dp
+                 rs_rho_dxyz_temp(1:3+(iatom-1)*3, :, :, :) = 0.0_dp
 
                  ! Get atomic position
                  atom_a = atom_list(iatom)
@@ -1743,13 +1743,13 @@ CONTAINS
                             rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) &
                                     -alpha * 2.0_dp * ABS((i * dr(1)) - ra(1)) * exp_eval
 
-                                    rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) = &
-                                    rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) &
-                                            -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
+                            rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) = &
+                            rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) &
+                                    -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
 
-                                            rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) = &
-                                            rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) &
-                                                    -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
+                            rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) = &
+                            rs_rho_dxyz_temp(3+(iatom-1)*3, i, j, k) &
+                                    -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
 
                             ! END IF
 
