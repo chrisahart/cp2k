@@ -1696,15 +1696,17 @@ CONTAINS
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0.0_dp
                  rs_rho_dr_temp%r = 0.0_dp
-                 rs_rho_dxyz_temp(1:3+(iatom-1)*3, :, :, :) = 0.0_dp
+                 rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, :, :, :) = 0.0_dp
                  ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
-                 temp_val(1:3) = 0
-                 temp_val(1:3) = 1:3+(iatom-1)*3
-                 PRINT *, "1:3+(iatom-1)*3", temp_val(:)
-
-                 temp_val(1:3) = 3*(iatom - 1) + 1:3*(iatom - 1) + 3
-                 PRINT *, "3*(iatom - 1) + 1:3*(iatom - 1) + 3", temp_val(:)
+                 ! temp_val(1:3) = 1:3
+                 ! PRINT *, "0", temp_val(:)
+                 !
+                 ! temp_val(1:3) = 1:3+(iatom-1)*3
+                 ! PRINT *, "1", temp_val(:)
+                 !
+                 ! temp_val(1:3) = 3*(iatom - 1) + 1:3*(iatom - 1) + 3
+                 ! PRINT *, "2", temp_val(:)
 
                  ! Get atomic position
                  atom_a = atom_list(iatom)
@@ -1755,8 +1757,8 @@ CONTAINS
                             ! rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) &
                             !         -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
 
-                            rs_rho_dxyz_temp(1:3+(iatom-1)*3, i, j, k) = &
-                            rs_rho_dxyz_temp(1:3+(iatom-1)*3, i, j, k) &
+                            rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) = &
+                            rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) &
                                     -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
 
                             ! END IF
@@ -1832,10 +1834,10 @@ CONTAINS
                                     !         * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
 
-                                            cdft_control%group(1)%gradients(1:3+(iatom-1)*3, k, j, i) = &
-                                                ((rs_rho_dxyz_temp(1:3+(iatom-1)*3, i, j, k)) * sign_val(3) &
-                                                / rs_rho_all%r(i, j, k)) &
-                                                * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
+                          cdft_control%group(1)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
+                          ((rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k)) * sign_val(3) &
+                          / rs_rho_all%r(i, j, k)) &
+                          * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
                             ! cdft_control%group(1)%gradients(6, k, j, i) = &
                             !     rs_single_dr(2)%rs_grid%r(i, j, k) * sign
