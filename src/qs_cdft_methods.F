@@ -1842,23 +1842,25 @@ CONTAINS
                     !               ABS((k * dr(3)) - ra(3))! z of atom 2
 
               cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((i * dr(1)) - ra(1))) !* sign &
+                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((i * dr(1)) - ra(1))) * sign &
                           !  /  rs_rho_all%r(i, j, k) &
                           !  * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
                 cdft_control%group(1)%gradients(2, k, j, i) =  cdft_control%group(1)%gradients(2, k, j, i) + &
-                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((j * dr(2)) - ra(2))) !* sign &
+                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((j * dr(2)) - ra(2))) * sign &
                           !  /  rs_rho_all%r(i, j, k)&
                           !  * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
               cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                          (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((k * dr(3)) - ra(3))) !* sign &
+                          (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((k * dr(3)) - ra(3))) * sign &
                         !  /  rs_rho_all%r(i, j, k)&
                         !  * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
 
                           atom_a = atom_list(2)
                           ra(:) = particle_set(atom_a)%r - origin(1)
-                          r = (i * dr(1)) ** 2.0_dp + (j * dr(2)) ** 2.0_dp + (k * dr(3)) ** 2.0_dp
-                          r0 = ra(1) ** 2.0_dp + ra(2) ** 2.0_dp + ra(3) ** 2.0_dp
+                          
+                          ! Transform so that r, R are always positive
+                    r = ((i + ub(1)) * dr(1)) ** 2.0_dp + ((j + ub(2) * dr(2)) ** 2.0_dp + ((k + ub(3) * dr(3)) ** 2.0_dp
+                    r0 = (ra(1) + ub(1) ** 2.0_dp +(ra(2) + ub(2) ** 2.0_dp + (ra(3) + ub(3) ** 2.0_dp
                           r_squared = r - r0
                           sign = (SQRT(r) - SQRT(r0)) / ABS(SQRT(r) - SQRT(r0))
                           PRINT *, "sign", sign
