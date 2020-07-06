@@ -2069,7 +2069,7 @@ CONTAINS
                        cdft_control%group(igroup)%integrated(:, iatom) = &
                                       cdft_control%group(igroup)%integrated(:, iatom) + &
                                       cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
-                                      1:3*(iatom - 1) + 3, k, j, i) !* rho_r(ispin)%pw%cr3d(k, j, i)*dvol
+                                      1:3*(iatom - 1) + 3, k, j, i) rho_r(ispin)%pw%cr3d(k, j, i)*dvol
                     END DO
                   END DO
                  END DO
@@ -2078,9 +2078,9 @@ CONTAINS
         END DO
 
         PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-        PRINT *, "cdft_control%group(1)%integrated(:, 1) *dvol", cdft_control%group(1)%integrated(:, 1)*dvol
+        ! PRINT *, "cdft_control%group(1)%integrated(:, 1) *dvol", cdft_control%group(1)%integrated(:, 1)*dvol
         PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
-        PRINT *, "cdft_control%group(1)%integrated(:, 2)*dvol", cdft_control%group(1)%integrated(:, 2)*dvol
+        ! PRINT *, "cdft_control%group(1)%integrated(:, 2)*dvol", cdft_control%group(1)%integrated(:, 2)*dvol
 
 
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
