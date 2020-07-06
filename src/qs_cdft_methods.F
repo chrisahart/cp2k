@@ -1649,9 +1649,12 @@ CONTAINS
 
           PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
             cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+            PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
+              cdft_control%group(1)%weight%pw%pw_grid%npts_local
 
           PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
           PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
+          PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:))
 
 
             DO i = 1, cdft_control%natoms
