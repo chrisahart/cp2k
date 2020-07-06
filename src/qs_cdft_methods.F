@@ -1841,18 +1841,18 @@ CONTAINS
 
 
                             cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                                          (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) !+ coefficients(iatom) ! x of atom 1
+                                          (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom) ! x of atom 1
                               cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
-                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k))! + coefficients(iatom) ! y of atom 1
+                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom) ! y of atom 1
                             cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                                          (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) !+ coefficients(iatom) ! z of atom 1
+                                          (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom) ! z of atom 1
 
                             cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
-                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) !+ coefficients(iatom) ! x of atom 2
+                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom) ! x of atom 2
                             cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
-                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) !+ coefficients(iatom)! y of atom 2
+                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom)! y of atom 2
                             cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
-                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) !+ coefficients(iatom) ! z of atom 2
+                                        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom) ! z of atom 2
 
 
                           ! cdft_control%group(1)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
