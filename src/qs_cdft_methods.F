@@ -1654,7 +1654,7 @@ CONTAINS
 
           PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
           PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
-          PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:))
+          PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
 
 
             DO i = 1, cdft_control%natoms
@@ -1811,18 +1811,18 @@ CONTAINS
                       ra(:) = particle_set(atom_a)%r - origin(1)
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
-                            cdft_control%group(1)%gradients(1, k, j, i) = &
+              cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
                             rs_single_dr(iatom)%rs_grid%r(i, j, k) * i * dr(1) ! x of atom 1
-                            cdft_control%group(1)%gradients(2, k, j, i) = &
+                cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
                             rs_single_dr(iatom)%rs_grid%r(i, j, k) * j * dr(2) ! y of atom 1
-                            cdft_control%group(1)%gradients(3, k, j, i) = &
+              cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
                             rs_single_dr(iatom)%rs_grid%r(i, j, k) * k * dr(3) ! z of atom 1
 
-                            cdft_control%group(1)%gradients(4, k, j, i) = &
+              cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
                             rs_single_dr(iatom)%rs_grid%r(i, j, k) * i * dr(1) ! x of atom 2
-                            cdft_control%group(1)%gradients(5, k, j, i) = &
+            cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
                             rs_single_dr(iatom)%rs_grid%r(i, j, k) * j * dr(2) ! y of atom 2
-                            cdft_control%group(1)%gradients(6, k, j, i) = &
+              cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
                             rs_single_dr(iatom)%rs_grid%r(i, j, k) * k * dr(3) ! z of atom 2
 
                             ! cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
