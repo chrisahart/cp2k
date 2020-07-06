@@ -1807,18 +1807,18 @@ CONTAINS
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
                             cdft_control%group(1)%gradients(1, k, j, i) = &
-                            rs_single_dr(iatom)%rs_grid%r * i * dr(1) ! x of atom 1
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * i * dr(1) ! x of atom 1
                             cdft_control%group(1)%gradients(2, k, j, i) = &
-                            rs_single_dr(iatom)%rs_grid%r * j * dr(2) ! y of atom 1
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * j * dr(2) ! y of atom 1
                             cdft_control%group(1)%gradients(3, k, j, i) = &
-                            rs_single_dr(iatom)%rs_grid%r * k * dr(3) ! z of atom 1
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * k * dr(3) ! z of atom 1
 
                             cdft_control%group(1)%gradients(4, k, j, i) = &
-                            rs_single_dr(iatom)%rs_grid%r * i * dr(1) ! x of atom 2
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * i * dr(1) ! x of atom 2
                             cdft_control%group(1)%gradients(5, k, j, i) = &
-                            rs_single_dr(iatom)%rs_grid%r * j * dr(2) ! y of atom 2
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * j * dr(2) ! y of atom 2
                             cdft_control%group(1)%gradients(6, k, j, i) = &
-                            rs_single_dr(iatom)%rs_grid%r * k * dr(3) ! z of atom 2
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * k * dr(3) ! z of atom 2
 
                             ! cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
                             !     rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
