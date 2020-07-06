@@ -1816,8 +1816,8 @@ CONTAINS
                       ra(:) = particle_set(atom_a)%r - origin(1)
 
                       ! Transform so that r, R are always positive
-                r = ((i + ub(1)) * dr(1)) ** 2.0_dp + ((j + ub(2) * dr(2)) ** 2.0_dp + ((k + ub(3) * dr(3)) ** 2.0_dp
-                r0 = (ra(1) + ub(1) ** 2.0_dp +(ra(2) + ub(2) ** 2.0_dp + (ra(3) + ub(3) ** 2.0_dp
+                r = ((i + ub(1)) * dr(1)) ** 2.0_dp + ((j + ub(2)) * dr(2)) ** 2.0_dp + ((k + ub(3)) * dr(3)) ** 2.0_dp
+                r0 = (ra(1) + ub(1)) ** 2.0_dp + (ra(2) + ub(2)) ** 2.0_dp + (ra(3) + ub(3)) ** 2.0_dp
                       r_squared = r - r0
                       sign = (SQRT(r) - SQRT(r0)) / ABS(SQRT(r) - SQRT(r0))
                       PRINT *, "sign", sign
@@ -1859,8 +1859,8 @@ CONTAINS
                           ra(:) = particle_set(atom_a)%r - origin(1)
 
                           ! Transform so that r, R are always positive
-                    r = ((i + ub(1)) * dr(1)) ** 2.0_dp + ((j + ub(2) * dr(2)) ** 2.0_dp + ((k + ub(3) * dr(3)) ** 2.0_dp
-                    r0 = (ra(1) + ub(1) ** 2.0_dp +(ra(2) + ub(2) ** 2.0_dp + (ra(3) + ub(3) ** 2.0_dp
+                  r = ((i + ub(1)) * dr(1)) ** 2.0_dp + ((j + ub(2)) * dr(2)) ** 2.0_dp + ((k + ub(3)) * dr(3)) ** 2.0_dp
+                  r0 = (ra(1) + ub(1)) ** 2.0_dp + (ra(2) + ub(2)) ** 2.0_dp + (ra(3) + ub(3)) ** 2.0_dp
                           r_squared = r - r0
                           sign = (SQRT(r) - SQRT(r0)) / ABS(SQRT(r) - SQRT(r0))
                           PRINT *, "sign", sign
