@@ -2069,7 +2069,7 @@ CONTAINS
                        cdft_control%group(igroup)%integrated(:, iatom) = &
                                       cdft_control%group(igroup)%integrated(:, iatom) + &
                                       cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
-                                      1:3*(iatom - 1) + 3, k, j, i) rho_r(ispin)%pw%cr3d(k, j, i)*dvol
+                                      1:3*(iatom - 1) + 3, k, j, i) * rho_r(ispin)%pw%cr3d(k, j, i)*dvol
                     END DO
                   END DO
                  END DO
