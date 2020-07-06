@@ -1810,14 +1810,14 @@ CONTAINS
 
                 DO k = lb(3), ub(3)
 
-                  PRINT *, "sign"
+                  PRINT *, "sign", sign
 
                  DO j = lb(2), ub(2)
                     DO i = lb(1), ub(1)
 
                       atom_a = atom_list(iatom)
                       ra(:) = particle_set(atom_a)%r - origin(1)
-                      sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
+                      ! sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
                       ! r_squared = ((i * dr(1)) - ra(1)) ** 2.0_dp + &
                       !             ((j * dr(2)) - ra(2)) ** 2.0_dp + &
