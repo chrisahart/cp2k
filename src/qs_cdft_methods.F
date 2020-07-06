@@ -1609,11 +1609,6 @@ CONTAINS
             cdft_control%group(igroup)%gradients = 0.0_dp
             END DO
 
-        PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
-          cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-
-        PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
-        PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
 
         ! Allcoate as needed
          ALLOCATE (coefficients(natom))
@@ -1651,6 +1646,13 @@ CONTAINS
           coefficients(1) = 1
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
+
+          PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
+            cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+
+          PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
+          PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
+
 
             DO i = 1, cdft_control%natoms
               ! PRINT *, "i", i
