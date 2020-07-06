@@ -2098,7 +2098,7 @@ CONTAINS
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
 
                force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + &
-                        0.0_dp * group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
+                         * group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
 
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
