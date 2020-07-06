@@ -1806,13 +1806,19 @@ CONTAINS
                       ra(:) = particle_set(atom_a)%r - origin(1)
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
-                            cdft_control%group(1)%gradients(1, k, j, i) = rs_rho_dr_temp * i * dr(1) ! x of atom 1
-                            cdft_control%group(1)%gradients(2, k, j, i) = rs_rho_dr_temp * j * dr(2) ! y of atom 1
-                            cdft_control%group(1)%gradients(3, k, j, i) = rs_rho_dr_temp * k * dr(3) ! z of atom 1
+                            cdft_control%group(1)%gradients(1, k, j, i) = &
+                            rs_single_dr(iatom)%rs_grid%r * i * dr(1) ! x of atom 1
+                            cdft_control%group(1)%gradients(2, k, j, i) = &
+                            rs_single_dr(iatom)%rs_grid%r * j * dr(2) ! y of atom 1
+                            cdft_control%group(1)%gradients(3, k, j, i) = &
+                            rs_single_dr(iatom)%rs_grid%r * k * dr(3) ! z of atom 1
 
-                            cdft_control%group(1)%gradients(4, k, j, i) = rs_rho_dr_temp * i * dr(1) ! x of atom 2
-                            cdft_control%group(1)%gradients(5, k, j, i) = rs_rho_dr_temp * j * dr(2) ! y of atom 2
-                            cdft_control%group(1)%gradients(6, k, j, i) = rs_rho_dr_temp * k * dr(3) ! z of atom 2
+                            cdft_control%group(1)%gradients(4, k, j, i) = &
+                            rs_single_dr(iatom)%rs_grid%r * i * dr(1) ! x of atom 2
+                            cdft_control%group(1)%gradients(5, k, j, i) = &
+                            rs_single_dr(iatom)%rs_grid%r * j * dr(2) ! y of atom 2
+                            cdft_control%group(1)%gradients(6, k, j, i) = &
+                            rs_single_dr(iatom)%rs_grid%r * k * dr(3) ! z of atom 2
 
                             ! cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
                             !     rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
