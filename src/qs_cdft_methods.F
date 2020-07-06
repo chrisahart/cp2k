@@ -1812,18 +1812,18 @@ CONTAINS
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
               cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                            0 !rs_single_dr(iatom)%rs_grid%r(i, j, k) * ABS(i * dr(1)) ! x of atom 1
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(i * dr(1)) ! x of atom 1
                 cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
-                            0 !rs_single_dr(iatom)%rs_grid%r(i, j, k) * ABS(j * dr(2)) ! y of atom 1
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(j * dr(2)) ! y of atom 1
               cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                            0 !rs_single_dr(iatom)%rs_grid%r(i, j, k) * ABS(k * dr(3)) ! z of atom 1
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(k * dr(3)) ! z of atom 1
 
               cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
-                            0 !rs_single_dr(iatom)%rs_grid%r(i, j, k) * ABS(i * dr(1)) ! x of atom 2
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(i * dr(1)) ! x of atom 2
             cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
-                            0 !rs_single_dr(iatom)%rs_grid%r(i, j, k) * ABS(j * dr(2)) ! y of atom 2
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(j * dr(2)) ! y of atom 2
               cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
-                            0 !rs_single_dr(iatom)%rs_grid%r(i, j, k) * ABS(k * dr(3)) ! z of atom 2
+                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(k * dr(3)) ! z of atom 2
 
                             ! cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
                             !     rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
