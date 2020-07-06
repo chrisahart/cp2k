@@ -2016,10 +2016,15 @@ CONTAINS
               DO igroup = 1, SIZE(group)
                  DO iatom = 1, natom
                    DO ispin = 1, dft_control%nspins
-                       cdft_control%group(igroup)%integrated(:, iatom) = &
-                                      cdft_control%group(igroup)%integrated(:, iatom) + &
-                                      cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
-                                      1:3*(iatom - 1) + 3, k, j, i) !* rho_r(ispin)%pw%cr3d(k, j, i)*dvol
+
+                     cdft_control%group(igroup)%integrated(:, iatom) = &
+                                    cdft_control%group(igroup)%integrated(:, iatom) + &
+                                      rho_r(ispin)%pw%cr3d(k, j, i)
+
+                       ! cdft_control%group(igroup)%integrated(:, iatom) = &
+                       !                cdft_control%group(igroup)%integrated(:, iatom) + &
+                       !                cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
+                       !                1:3*(iatom - 1) + 3, k, j, i) !* rho_r(ispin)%pw%cr3d(k, j, i)*dvol
                     END DO
                   END DO
                  END DO
