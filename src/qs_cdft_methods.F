@@ -1811,19 +1811,33 @@ CONTAINS
                       ra(:) = particle_set(atom_a)%r - origin(1)
                       sign = (k * dr(3)) - ra(3) / ABS((k * dr(3)) - ra(3))
 
-              cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(i * dr(1)) ! x of atom 1
-                cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
-                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(j * dr(2)) ! y of atom 1
-              cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(k * dr(3)) ! z of atom 1
+                      cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
+                                    i * dr(1) ! x of atom 1
+                        cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
+                                    j * dr(2) ! y of atom 1
+                      cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
+                                    k * dr(3) ! z of atom 1
 
-              cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
-                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(i * dr(1)) ! x of atom 2
-            cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
-                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(j * dr(2)) ! y of atom 2
-              cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
-                            rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(k * dr(3)) ! z of atom 2
+                      cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
+                                  i * dr(1) ! x of atom 2
+                    cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
+                                    j * dr(2) ! y of atom 2
+                      cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
+                                    k * dr(3) ! z of atom 2            
+
+            !   cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
+            !                 rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(i * dr(1)) ! x of atom 1
+            !     cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
+            !                 rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(j * dr(2)) ! y of atom 1
+            !   cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
+            !                 rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(k * dr(3)) ! z of atom 1
+            !
+            !   cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
+            !                 rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(i * dr(1)) ! x of atom 2
+            ! cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
+            !                 rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(j * dr(2)) ! y of atom 2
+            !   cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
+            !                 rs_single_dr(iatom)%rs_grid%r(i, j, k) * 1 !ABS(k * dr(3)) ! z of atom 2
 
                             ! cdft_control%group(1)%gradients(3*iatom, k, j, i) = &
                             !     rs_single_dr(1*iatom)%rs_grid%r(i, j, k) * sign
@@ -2002,7 +2016,9 @@ CONTAINS
         END DO
 
         PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+        PRINT *, "cdft_control%group(1)%integrated(:, 1) *dvol", cdft_control%group(1)%integrated(:, 1)*dvol
         PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+        PRINT *, "cdft_control%group(1)%integrated(:, 2)*dvol", cdft_control%group(1)%integrated(:, 2)*dvol
 
 
       ! Update force only on master process. Otherwise force due to constraint becomes multiplied
