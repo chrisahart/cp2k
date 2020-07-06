@@ -1845,12 +1845,12 @@ CONTAINS
                             (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((i * dr(1)) - ra(1))) * sign !&
                           !  /  rs_rho_all%r(i, j, k) &
                           !  * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
-                cdft_control%group(1)%gradients(2, k, j, i) =  cdft_control%group(1)%gradients(2, k, j, i) + !&
-                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((j * dr(2)) - ra(2))) * sign &
+                cdft_control%group(1)%gradients(2, k, j, i) =  cdft_control%group(1)%gradients(2, k, j, i) + &
+                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((j * dr(2)) - ra(2))) * sign !&
                           !  /  rs_rho_all%r(i, j, k)&
                           !  * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
-              cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + !&
-                          (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((k * dr(3)) - ra(3))) * sign &
+              cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
+                          (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((k * dr(3)) - ra(3))) * sign !&
                         !  /  rs_rho_all%r(i, j, k)&
                         !  * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
