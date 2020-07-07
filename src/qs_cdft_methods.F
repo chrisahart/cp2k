@@ -1823,9 +1823,9 @@ CONTAINS
                       sign_val(1) = (((i * dr(1)) - ra(1)) / ABS(((i * dr(1)) - ra(1))))
                       sign_val(2) = (((j * dr(2)) - ra(2)) / ABS(((j * dr(2)) - ra(2))))
                       sign_val(3) = (((k * dr(3)) - ra(3)) / ABS(((k * dr(3)) - ra(3))))
-                      PRINT *, "sign_val", sign_val
-                      PRINT *, "(i * dr(1)), (j * dr(2)), (k * dr(3)) ", (i * dr(1)), (j * dr(2)), (k * dr(3))
-                      PRINT *, "ra(1), ra(2), ra(3)", ra(1), ra(2), ra(3)
+                      ! PRINT *, "sign_val", sign_val
+                      ! PRINT *, "(i * dr(1)), (j * dr(2)), (k * dr(3)) ", (i * dr(1)), (j * dr(2)), (k * dr(3))
+                      ! PRINT *, "ra(1), ra(2), ra(3)", ra(1), ra(2), ra(3)
 
                     !   cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
                     !                 ABS((i * dr(1)) - ra(1)) ! x of atom 1
@@ -1867,9 +1867,9 @@ CONTAINS
                           sign_val(1) = (((i * dr(1)) - ra(1)) / ABS(((i * dr(1)) - ra(1))))
                           sign_val(2) = (((j * dr(2)) - ra(2)) / ABS(((j * dr(2)) - ra(2))))
                           sign_val(3) = (((k * dr(3)) - ra(3)) / ABS(((k * dr(3)) - ra(3))))
-                          PRINT *, "sign_val", sign_val
-                          PRINT *, "(i * dr(1)), (j * dr(2)), (k * dr(3)) ", (i * dr(1)), (j * dr(2)), (k * dr(3))
-                          PRINT *, "ra(1), ra(2), ra(3)", ra(1), ra(2), ra(3)
+                          ! PRINT *, "sign_val", sign_val
+                          ! PRINT *, "(i * dr(1)), (j * dr(2)), (k * dr(3)) ", (i * dr(1)), (j * dr(2)), (k * dr(3))
+                          ! PRINT *, "ra(1), ra(2), ra(3)", ra(1), ra(2), ra(3)
 
 
               cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
