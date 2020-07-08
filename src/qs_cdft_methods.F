@@ -1761,7 +1761,7 @@ CONTAINS
 
                             ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
                             rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
-                                    -alpha * 2.0_dp * SQRT(r_squared) * exp_eval
+                                                        + 2.0_dp * alpha * exp_eval
                             ! rs_rho_dr_temp%r(i, j, k)  = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
 
                             ! rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) = &
@@ -1815,80 +1815,45 @@ CONTAINS
                       atom_a = atom_list(1)
                       ra(:) = particle_set(atom_a)%r - origin(1)
 
-                      ! Transform so that r, R are always positive
-                ! r = ((i + ub(1)) * dr(1)) ** 2.0_dp + ((j + ub(2)) * dr(2)) ** 2.0_dp + ((k + ub(3)) * dr(3)) ** 2.0_dp
-                ! r0 = (ra(1) + ub(1)) ** 2.0_dp + (ra(2) + ub(2)) ** 2.0_dp + (ra(3) + ub(3)) ** 2.0_dp
-                !       r_squared = r - r0
-                !       sign = (SQRT(r) - SQRT(r0)) / ABS(SQRT(r) - SQRT(r0))
-                      sign_val(1) = (((i * dr(1)) - ra(1)) / ABS(((i * dr(1)) - ra(1))))
-                      sign_val(2) = (((j * dr(2)) - ra(2)) / ABS(((j * dr(2)) - ra(2))))
-                      sign_val(3) = (((k * dr(3)) - ra(3)) / ABS(((k * dr(3)) - ra(3))))
-                      ! PRINT *, "sign_val", sign_val
-                      ! PRINT *, "(i * dr(1)), (j * dr(2)), (k * dr(3)) ", (i * dr(1)), (j * dr(2)), (k * dr(3))
-                      ! PRINT *, "ra(1), ra(2), ra(3)", ra(1), ra(2), ra(3)
-
-                    !   cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                    !                 ABS((i * dr(1)) - ra(1)) ! x of atom 1
-                    !     cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
-                    !                 ABS((j * dr(2)) - ra(2)) ! y of atom 1
-                    !   cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                    !                 ABS((k * dr(3)) - ra(3)) ! z of atom 1
-                    !
-                    !   cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
-                    !               ABS((i * dr(1)) - ra(1)) ! x of atom 2
-                    ! cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
-                    !                 ABS((j * dr(2)) - ra(2)) ! y of atom 2
-                    !   cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
-                    !               ABS((k * dr(3)) - ra(3))! z of atom 2
-
               cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((i * dr(1)) - ra(1))) &
-                            * sign_val(1) &
-                           /  rs_rho_all%r(i, j, k) &
-                           * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+                            ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
+                           !  * sign_val(1) &
+                           ! /  rs_rho_all%r(i, j, k) &
+                           ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
                 cdft_control%group(1)%gradients(2, k, j, i) =  cdft_control%group(1)%gradients(2, k, j, i) + &
-                            (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((j * dr(2)) - ra(2))) &
-                            * sign_val(2) &
-                           /  rs_rho_all%r(i, j, k)&
-                           * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+                ((j * dr(2)) - ra(2)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
+               !  * sign_val(1) &
+               ! /  rs_rho_all%r(i, j, k) &
+               ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
               cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                          (rs_single_dr(1)%rs_grid%r(i, j, k) * 2 * ABS((k * dr(3)) - ra(3))) &
-                          * sign_val(3) &
-                         /  rs_rho_all%r(i, j, k)&
-                         * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+              ((k * dr(3)) - ra(3)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
+             !  * sign_val(1) &
+             ! /  rs_rho_all%r(i, j, k) &
+             ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
 
                           atom_a = atom_list(2)
                           ra(:) = particle_set(atom_a)%r - origin(1)
 
-                          ! Transform so that r, R are always positive
-                          sign_val(1) = (((i * dr(1)) - ra(1)) / ABS(((i * dr(1)) - ra(1))))
-                          sign_val(2) = (((j * dr(2)) - ra(2)) / ABS(((j * dr(2)) - ra(2))))
-                          sign_val(3) = (((k * dr(3)) - ra(3)) / ABS(((k * dr(3)) - ra(3))))
-                          ! PRINT *, "sign_val", sign_val
-                          ! PRINT *, "(i * dr(1)), (j * dr(2)), (k * dr(3)) ", (i * dr(1)), (j * dr(2)), (k * dr(3))
-                          ! PRINT *, "ra(1), ra(2), ra(3)", ra(1), ra(2), ra(3)
-
-
               cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
-                          (rs_single_dr(2)%rs_grid%r(i, j, k) * 2 * ABS((i * dr(1)) - ra(1))) &
-                          * sign_val(1) &
-                         /  rs_rho_all%r(i, j, k)&
-                         * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) - 1)
+              ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
+             !  * sign_val(1) &
+             ! /  rs_rho_all%r(i, j, k) &
+             ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
             cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
-                          (rs_single_dr(2)%rs_grid%r(i, j, k) * 2 * ABS((j * dr(2)) - ra(2)))  &
-                          * sign_val(2) &
-                         /  rs_rho_all%r(i, j, k)&
-                         * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) - 1)
+            ((j * dr(2)) - ra(2)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
+           !  * sign_val(1) &
+           ! /  rs_rho_all%r(i, j, k) &
+           ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
               cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
-                        (rs_single_dr(2)%rs_grid%r(i, j, k) * 2 * ABS((k * dr(3)) - ra(3)))  &
-                        * sign_val(3) &
-                       /  rs_rho_all%r(i, j, k)&
-                       * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) - 1)
+              ((k * dr(3)) - ra(3)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
+             !  * sign_val(1) &
+             ! /  rs_rho_all%r(i, j, k) &
+             ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
 
                             ! cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
