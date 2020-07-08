@@ -2002,8 +2002,8 @@ CONTAINS
      bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
      dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
-     lb(1:3) = rs_rho_constr%lb_real(1:3)
-     ub(1:3) = rs_rho_constr%ub_real(1:3)
+     lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+     ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
 
      PRINT *, "calculating integrated"
 
@@ -2014,14 +2014,11 @@ CONTAINS
                  DO iatom = 1, natom
                    DO ispin = 1, dft_control%nspins
 
-                     ! cdft_control%group(igroup)%integrated(:, iatom) = &
-                     !                cdft_control%group(igroup)%integrated(:, iatom) + &
-                     !                  rho_r(ispin)%pw%cr3d(k, j, i)
-
                        cdft_control%group(igroup)%integrated(:, iatom) = &
-                                      cdft_control%group(igroup)%integrated(:, iatom) + &
-                                      cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
-                                      1:3*(iatom - 1) + 3, i, j, k) * rho_r(ispin)%pw%cr3d(i, j, k)*dvol
+                        cdft_control%group(igroup)%integrated(:, iatom) + &
+                        cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                        * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+
                     END DO
                   END DO
                  END DO
@@ -2050,8 +2047,9 @@ CONTAINS
 
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
 
-               force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + &
-                          group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
+               force(ikind)%rho_elec(:, i) = &
+                 force(ikind)%rho_elec(:, i) + &
+                 group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
 
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
