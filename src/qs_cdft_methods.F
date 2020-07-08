@@ -1733,7 +1733,7 @@ CONTAINS
                  ! PRINT *, "coefficients(atom_a)", coefficients(atom_a)
 
                ! Loop over each Gaussian
-               DO iex = 1, 2 !numexp
+               DO iex = 1, numexp
                  PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
@@ -1813,7 +1813,7 @@ CONTAINS
               ! DO iatom = 1, natom
                 ! PRINT *, "iatom", iatom
 
-                DO iex = 1, 2 !numexp
+                ! DO iex = 1, 2 !numexp
                   DO k = lb(3), ub(3)
                  DO j = lb(2), ub(2)
                     DO i = lb(1), ub(1)
@@ -1855,7 +1855,7 @@ CONTAINS
              /  rs_rho_all%r(i, j, k) &
              * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
-                        END DO
+                        ! END DO
                       END DO
                       ! END DO
                     END DO
