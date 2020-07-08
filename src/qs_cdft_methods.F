@@ -1670,9 +1670,14 @@ CONTAINS
                ! PRINT *, "rs_grid_zero", i
             END DO
 
-            ! Get lower bound, upper bound
+            ! Get lower bound, upper bound of rs grid
             lb(1:3) = rs_rho_constr%lb_real(1:3)
             ub(1:3) = rs_rho_constr%ub_real(1:3)
+
+
+      !       abc(1:3) = REAL(rho_elec%pw_grid%npts(1:3), KIND=dp)*rho_elec%pw_grid%dr(1:3)
+      ! lb(1:3) = rho_elec%pw_grid%bounds_local(1, 1:3)
+      ! ub(1:3) = rho_elec%pw_grid%bounds_local(2, 1:3)
 
             ! PRINT *, "Get dr"
 
@@ -1815,19 +1820,19 @@ CONTAINS
                       atom_a = atom_list(1)
                       ra(:) = particle_set(atom_a)%r - origin(1)
 
-              cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
+              cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
                             ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
                            !  * sign_val(1) &
                            ! /  rs_rho_all%r(i, j, k) &
                            ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
-                cdft_control%group(1)%gradients(2, k, j, i) =  cdft_control%group(1)%gradients(2, k, j, i) + &
+                cdft_control%group(1)%gradients(2, i, j, k) =  cdft_control%group(1)%gradients(2, i, j, k) + &
                 ((j * dr(2)) - ra(2)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
                !  * sign_val(1) &
                ! /  rs_rho_all%r(i, j, k) &
                ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
-              cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
+              cdft_control%group(1)%gradients(3, i, j, k) = cdft_control%group(1)%gradients(3, i, j, k) + &
               ((k * dr(3)) - ra(3)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
              !  * sign_val(1) &
              ! /  rs_rho_all%r(i, j, k) &
@@ -1837,57 +1842,29 @@ CONTAINS
                           atom_a = atom_list(2)
                           ra(:) = particle_set(atom_a)%r - origin(1)
 
-              cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
+              cdft_control%group(1)%gradients(4, i, j, k) = cdft_control%group(1)%gradients(4, i, j, k) + &
               ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
              !  * sign_val(1) &
              ! /  rs_rho_all%r(i, j, k) &
              ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
-            cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
+            cdft_control%group(1)%gradients(5, i, j, k) = cdft_control%group(1)%gradients(5, i, j, k) + &
             ((j * dr(2)) - ra(2)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
            !  * sign_val(1) &
            ! /  rs_rho_all%r(i, j, k) &
            ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
 
-              cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
+              cdft_control%group(1)%gradients(6, i, j, k) = cdft_control%group(1)%gradients(6, i, j, k) + &
               ((k * dr(3)) - ra(3)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
              !  * sign_val(1) &
              ! /  rs_rho_all%r(i, j, k) &
              ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
-
-
-                            ! cdft_control%group(1)%gradients(1, k, j, i) = cdft_control%group(1)%gradients(1, k, j, i) + &
-                            !               (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(1) ! x of atom 1
-                            !   cdft_control%group(1)%gradients(2, k, j, i) =   cdft_control%group(1)%gradients(2, k, j, i) + &
-                            !             (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(1) ! y of atom 1
-                            ! cdft_control%group(1)%gradients(3, k, j, i) = cdft_control%group(1)%gradients(3, k, j, i) + &
-                            !               (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(1) ! z of atom 1
-                            !
-                            ! cdft_control%group(1)%gradients(4, k, j, i) = cdft_control%group(1)%gradients(4, k, j, i) + &
-                            !             (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(2) ! x of atom 2
-                            ! cdft_control%group(1)%gradients(5, k, j, i) = cdft_control%group(1)%gradients(5, k, j, i) + &
-                            !             (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(2)! y of atom 2
-                            ! cdft_control%group(1)%gradients(6, k, j, i) = cdft_control%group(1)%gradients(6, k, j, i) + &
-                            !             (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(2) ! z of atom 2
-
-
-                          ! cdft_control%group(1)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
-                          ! ((rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k)) * sign_val(3) &
-                          ! / rs_rho_all%r(i, j, k)) &
-                          ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + coefficients(iatom))
 
                         END DO
                       ! END DO
                     END DO
                   END DO
                 ! END DO
-
-
-                ! group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) = &
-                !    group(igroup)%d_sum_const_dR(1:3, iatom)/sum_cell_f_all - sum_cell_f_group(igroup)* &
-                !    d_sum_Pm_dR(1:3, iatom)/(sum_cell_f_all**2)
-
-                ! * (coef * EXP(-alpha * r_squared) + coefficients(iatom)) / rs_rho_constr%r
 
              PRINT *, "transferring weight to pw"
 
@@ -1986,6 +1963,7 @@ CONTAINS
         TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
         TYPE(qs_force_type), DIMENSION(:), POINTER         :: force
         TYPE(qs_rho_type), POINTER                         :: rho
+        INTEGER, DIMENSION(3)                              :: lb, ub
 
      CALL timeset(routineN, handle)
      NULLIFY (atomic_kind_set, cell, para_env, dft_control, particle_set, &
@@ -2024,11 +2002,14 @@ CONTAINS
      bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
      dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
+     lb(1:3) = rs_rho_constr%lb_real(1:3)
+     ub(1:3) = rs_rho_constr%ub_real(1:3)
+
      PRINT *, "calculating integrated"
 
-     DO k = bo(1, 1), bo(2, 1)
-        DO j = bo(1, 2), bo(2, 2)
-           DO i = bo(1, 3), bo(2, 3)
+     DO k = lb(3), ub(3)
+        DO j = lb(2), ub(2)
+           DO i = lb(1), ub(1)
               DO igroup = 1, SIZE(group)
                  DO iatom = 1, natom
                    DO ispin = 1, dft_control%nspins
@@ -2040,7 +2021,7 @@ CONTAINS
                        cdft_control%group(igroup)%integrated(:, iatom) = &
                                       cdft_control%group(igroup)%integrated(:, iatom) + &
                                       cdft_control%group(igroup)%gradients(3*(iatom - 1) + &
-                                      1:3*(iatom - 1) + 3, k, j, i) * rho_r(ispin)%pw%cr3d(k, j, i)*dvol
+                                      1:3*(iatom - 1) + 3, i, j, k) * rho_r(ispin)%pw%cr3d(i, j, k)*dvol
                     END DO
                   END DO
                  END DO
