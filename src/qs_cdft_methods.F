@@ -1733,7 +1733,7 @@ CONTAINS
                  ! PRINT *, "coefficients(atom_a)", coefficients(atom_a)
 
                ! Loop over each Gaussian
-               DO iex = 1, numexp
+               DO iex = 1, 2 !numexp
                  PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
@@ -1813,7 +1813,8 @@ CONTAINS
               ! DO iatom = 1, natom
                 ! PRINT *, "iatom", iatom
 
-                DO k = lb(3), ub(3)
+                DO iex = 1, 2 !numexp
+                  DO k = lb(3), ub(3)
                  DO j = lb(2), ub(2)
                     DO i = lb(1), ub(1)
 
@@ -1821,46 +1822,41 @@ CONTAINS
                       ra(:) = particle_set(atom_a)%r - origin(1)
 
               cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
-                            ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
-                           !  * sign_val(1) &
-                           ! /  rs_rho_all%r(i, j, k) &
-                           ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+                            ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+                           /  rs_rho_all%r(i, j, k) &
+                           * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
                 cdft_control%group(1)%gradients(2, i, j, k) =  cdft_control%group(1)%gradients(2, i, j, k) + &
-                ((j * dr(2)) - ra(2)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
-               !  * sign_val(1) &
-               ! /  rs_rho_all%r(i, j, k) &
-               ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+                ((j * dr(2)) - ra(2)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+               /  rs_rho_all%r(i, j, k) &
+               * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
               cdft_control%group(1)%gradients(3, i, j, k) = cdft_control%group(1)%gradients(3, i, j, k) + &
-              ((k * dr(3)) - ra(3)) *  rs_single_dr(1)%rs_grid%r(i, j, k)
-             !  * sign_val(1) &
-             ! /  rs_rho_all%r(i, j, k) &
-             ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+              ((k * dr(3)) - ra(3)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+             /  rs_rho_all%r(i, j, k) &
+             * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
 
                           atom_a = atom_list(2)
                           ra(:) = particle_set(atom_a)%r - origin(1)
 
               cdft_control%group(1)%gradients(4, i, j, k) = cdft_control%group(1)%gradients(4, i, j, k) + &
-              ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
-             !  * sign_val(1) &
-             ! /  rs_rho_all%r(i, j, k) &
-             ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+              ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
+             /  rs_rho_all%r(i, j, k) &
+             * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
             cdft_control%group(1)%gradients(5, i, j, k) = cdft_control%group(1)%gradients(5, i, j, k) + &
-            ((j * dr(2)) - ra(2)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
-           !  * sign_val(1) &
-           ! /  rs_rho_all%r(i, j, k) &
-           ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+            ((j * dr(2)) - ra(2)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
+           /  rs_rho_all%r(i, j, k) &
+           * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
               cdft_control%group(1)%gradients(6, i, j, k) = cdft_control%group(1)%gradients(6, i, j, k) + &
-              ((k * dr(3)) - ra(3)) *  rs_single_dr(2)%rs_grid%r(i, j, k)
-             !  * sign_val(1) &
-             ! /  rs_rho_all%r(i, j, k) &
-             ! * ((rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)) + 1)
+              ((k * dr(3)) - ra(3)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
+             /  rs_rho_all%r(i, j, k) &
+             * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
                         END DO
+                      END DO
                       ! END DO
                     END DO
                   END DO
