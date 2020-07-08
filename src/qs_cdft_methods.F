@@ -2097,6 +2097,7 @@ CONTAINS
             DO iatom = 1, natom
 
               PRINT *, "calculating force for iatom", iatom
+              PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
 
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
@@ -2113,7 +2114,7 @@ CONTAINS
 
       PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
       PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
-      PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
+
 
 
       CALL timestop(handle)
