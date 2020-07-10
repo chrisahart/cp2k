@@ -139,7 +139,7 @@ CONTAINS
          ! Integrate the Becke constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
+         IF (calculate_forces) CALL becke_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
@@ -843,6 +843,8 @@ CONTAINS
          END DO
 
          bo = group(1)%weight%pw%pw_grid%bounds_local
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          dvol = group(1)%weight%pw%pw_grid%dvol
 
          ! If gradients were not precomputed, calculate them now
@@ -850,19 +852,20 @@ CONTAINS
            IF (.NOT. cdft_control%becke_control%in_memory) THEN
               CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
             END IF
+
          ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
            ! IF (.NOT. cdft_control%becke_control%in_memory) THEN
            !    CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
            !  END IF
          END IF
 
-         PRINT *, "calculating integrated"
+         ! PRINT *, "calculating integrated"
 
          ! If no Becke Gaussian confinement
          IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
-            DO k = bo(1, 1), bo(2, 1)
-               DO j = bo(1, 2), bo(2, 2)
-                  DO i = bo(1, 3), bo(2, 3)
+           DO k = lb(3), ub(3)
+              DO j = lb(2), ub(2)
+                 DO i = lb(1), ub(1)
 
                      ! First check if this grid point should be skipped
                      IF (cdft_control%becke_control%cavity_confine) THEN
@@ -894,8 +897,8 @@ CONTAINS
 
                               ! Integrate gradient of weight function
                               group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign * &
-                                            group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) * &
-                                            rho_r(ispin)%pw%cr3d(k, j, i) * dvol
+                                            group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) * &
+                                            rho_r(ispin)%pw%cr3d(i, j, k) * dvol
                            END DO
                         END DO
                      END DO
@@ -946,32 +949,8 @@ CONTAINS
             END DO
          END IF
 
-         ! lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         !
-         !
-
-         ! DO k = lb(3), ub(3)
-         !    DO j = lb(2), ub(2)
-         !       DO i = lb(1), ub(1)
-         !          DO igroup = 1, SIZE(group)
-         !             DO iatom = 1, natom
-         !               DO ispin = 1, dft_control%nspins
-         !
-         !                   cdft_control%group(igroup)%integrated(:, iatom) = &
-         !                    cdft_control%group(igroup)%integrated(:, iatom) + &
-         !                    cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
-         !                    * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
-         !
-         !                END DO
-         !              END DO
-         !             END DO
-         !          END DO
-         !       END DO
-         !    END DO
-
-            PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-            PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+            ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+            ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
 
          IF (.NOT. cdft_control%transfer_pot) THEN
@@ -980,7 +959,7 @@ CONTAINS
             END DO
          END IF
 
-         PRINT *, "calculating force"
+         ! PRINT *, "calculating force"
 
          DO igroup = 1, SIZE(group)
             CALL mp_sum(group(igroup)%integrated, para_env%group)
@@ -1820,7 +1799,7 @@ CONTAINS
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
                   hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp) ! fnorm
 
-          PRINT *, "start hirshfeld_constraint_low"
+          ! PRINT *, "start hirshfeld_constraint_low"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1883,14 +1862,14 @@ CONTAINS
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
-          PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
+          ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
             cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-            PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
+            ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
               cdft_control%group(1)%weight%pw%pw_grid%npts_local
 
-          PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
-          PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
-          PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
+          ! PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
+          ! PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
+          ! PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
 
 
             DO i = 1, cdft_control%natoms
@@ -1970,7 +1949,7 @@ CONTAINS
 
                ! Loop over each Gaussian
                DO iex = 1, numexp
-                 PRINT *, "looping over each Gaussian", iex
+                 ! PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -2042,7 +2021,7 @@ CONTAINS
 
 
             ! Calculate gradient
-            PRINT *, "Calculate gradient"
+            ! PRINT *, "Calculate gradient"
             sign = 0
 
             ! DO ikind = 1, SIZE(atomic_kind_set)
@@ -2098,7 +2077,7 @@ CONTAINS
                   END DO
                 ! END DO
 
-             PRINT *, "transferring weight to pw"
+             ! PRINT *, "transferring weight to pw"
 
             ! Transfer rs_rho_all to the correct grid and save it
              ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
@@ -2136,7 +2115,7 @@ CONTAINS
              CALL rs_grid_release(rs_rho_constr)
              CALL rs_grid_release(rs_rho_all)
 
-              PRINT *, "transferring hirsh_rho_atomic to pw"
+              ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
               DO i = 1, cdft_control%natoms
 
@@ -2162,7 +2141,7 @@ CONTAINS
 
          CALL timestop(handle)
 
-         PRINT *, "end hirshfeld_constraint_low"
+         ! PRINT *, "end hirshfeld_constraint_low"
 
       END SUBROUTINE hirshfeld_constraint_low
 
@@ -2210,7 +2189,7 @@ CONTAINS
                      para_env=para_env)
      CALL qs_rho_get(rho, rho_r=rho_r)
 
-     PRINT *, "start hirshfeld_constraint_force"
+     ! PRINT *, "start hirshfeld_constraint_force"
 
      cdft_control => dft_control%qs_control%cdft_control
      becke_control => cdft_control%becke_control
@@ -2237,7 +2216,7 @@ CONTAINS
      lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
      ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
 
-     PRINT *, "calculating integrated"
+     ! PRINT *, "calculating integrated"
 
      DO k = lb(3), ub(3)
         DO j = lb(2), ub(2)
@@ -2258,9 +2237,9 @@ CONTAINS
            END DO
         END DO
 
-        PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+        ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
         ! PRINT *, "cdft_control%group(1)%integrated(:, 1) *dvol", cdft_control%group(1)%integrated(:, 1)*dvol
-        PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+        ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
         ! PRINT *, "cdft_control%group(1)%integrated(:, 2)*dvol", cdft_control%group(1)%integrated(:, 2)*dvol
 
 
@@ -2271,31 +2250,31 @@ CONTAINS
          DO igroup = 1, SIZE(cdft_control%group)
             DO iatom = 1, natom
 
-              PRINT *, "calculating force for iatom", iatom
-              PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
+              ! PRINT *, "calculating force for iatom", iatom
+              ! PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
 
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
 
-               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
 
                force(ikind)%rho_elec(:, i) = &
                  force(ikind)%rho_elec(:, i) + &
                  group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
 
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+              ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
          END DO
       ! END IF
 
-      PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
-      PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
+      ! PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
+      ! PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
 
 
 
       CALL timestop(handle)
 
-      PRINT *, "end hirshfeld_constraint_force"
+      ! PRINT *, "end hirshfeld_constraint_force"
 
     END SUBROUTINE hirshfeld_constraint_force
 
