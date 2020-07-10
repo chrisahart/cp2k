@@ -1864,9 +1864,9 @@ CONTAINS
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
           ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
-            cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+            ! cdft_control%group(1)%weight%pw%pw_grid%bounds_local
             ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
-              cdft_control%group(1)%weight%pw%pw_grid%npts_local
+              ! cdft_control%group(1)%weight%pw%pw_grid%npts_local
 
           ! PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
           ! PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
