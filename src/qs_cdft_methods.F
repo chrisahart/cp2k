@@ -1792,6 +1792,7 @@ CONTAINS
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(3)                      :: test
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
+           TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
            REAL(KIND=dp), POINTER, &
               DIMENSION(:, :, :, :)             :: rs_rho_dxyz_temp
@@ -1799,7 +1800,7 @@ CONTAINS
          NULLIFY (atom_list, cores, pab, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp, rho_r) ! fnorm
+                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp, rho_r, rho) ! fnorm
 
           ! PRINT *, "start hirshfeld_constraint_low"
 
@@ -1808,6 +1809,7 @@ CONTAINS
                          atomic_kind_set=atomic_kind_set, &
                          particle_set=particle_set, &
                          natom=natom, &
+                         rho=rho, &
                          dft_control=dft_control, &
                          pw_env=pw_env)
         CALL qs_rho_get(rho, rho_r=rho_r)
