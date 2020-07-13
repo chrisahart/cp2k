@@ -1863,14 +1863,14 @@ CONTAINS
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
-          ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
-            ! cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-            ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
-              ! cdft_control%group(1)%weight%pw%pw_grid%npts_local
+          PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
+            cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+            PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
+              cdft_control%group(1)%weight%pw%pw_grid%npts_local
 
-          ! PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
-          ! PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
-          ! PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
+          PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
+          PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
+          PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
 
 
             DO i = 1, cdft_control%natoms
@@ -1928,7 +1928,7 @@ CONTAINS
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0.0_dp
                  rs_rho_dr_temp%r = 0.0_dp
-                 rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, :, :, :) = 0.0_dp
+                 ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, :, :, :) = 0.0_dp
                  ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
                  ! temp_val(1:3) = 1:3
@@ -1993,9 +1993,9 @@ CONTAINS
                             ! rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) &
                             !         -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
 
-                            rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) = &
-                            rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) &
-                                    -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
+                            ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) = &
+                            ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) &
+                            !         -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
 
                             ! END IF
 
