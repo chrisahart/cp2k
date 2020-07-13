@@ -1791,6 +1791,7 @@ CONTAINS
          INTEGER, DIMENSION(3)                              :: lb, ub
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(3)                      :: test
+           TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            REAL(KIND=dp), DIMENSION(3)              :: dr
            REAL(KIND=dp), POINTER, &
               DIMENSION(:, :, :, :)             :: rs_rho_dxyz_temp
@@ -1798,7 +1799,7 @@ CONTAINS
          NULLIFY (atom_list, cores, pab, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp) ! fnorm
+                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp, rho_r) ! fnorm
 
           ! PRINT *, "start hirshfeld_constraint_low"
 
@@ -1809,6 +1810,7 @@ CONTAINS
                          natom=natom, &
                          dft_control=dft_control, &
                          pw_env=pw_env)
+        CALL qs_rho_get(rho, rho_r=rho_r)
 
          cdft_control => dft_control%qs_control%cdft_control
          hirshfeld_control => cdft_control%hirshfeld_control
@@ -1868,9 +1870,19 @@ CONTAINS
             PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
               cdft_control%group(1)%weight%pw%pw_grid%npts_local
 
+              lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+              ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
+              PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+              PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
           PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
           PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
           PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
+
+          ! Get lower bound, upper bound of rs grid
+          ! lb(1:3) = rs_rho_constr%lb_real(1:3)
+          ! ub(1:3) = rs_rho_constr%ub_real(1:3)
 
 
             DO i = 1, cdft_control%natoms
@@ -1886,9 +1898,7 @@ CONTAINS
                ! PRINT *, "rs_grid_zero", i
             END DO
 
-            ! Get lower bound, upper bound of rs grid
-            lb(1:3) = rs_rho_constr%lb_real(1:3)
-            ub(1:3) = rs_rho_constr%ub_real(1:3)
+
 
 
       !       abc(1:3) = REAL(rho_elec%pw_grid%npts(1:3), KIND=dp)*rho_elec%pw_grid%dr(1:3)
