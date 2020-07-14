@@ -204,8 +204,8 @@ MODULE qs_cdft_types
       TYPE(pw_p_type), POINTER, &
          DIMENSION(:)                      :: hirsh_rho_atomic
       ! Radial derivative of Hirshfeld atomic density
-      TYPE(pw_p_type), POINTER, &
-         DIMENSION(:)                      :: hirsh_rho_atomic_dr
+      ! TYPE(pw_p_type), POINTER, &
+      !    DIMENSION(:)                      :: hirsh_rho_atomic_dr
 
     END TYPE cdft_group_type
 
@@ -474,8 +474,8 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%coeff)
                   IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
                      DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-                     IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic_dr)) &
-                        DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic_dr)
+                     ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic_dr)) &
+                        ! DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic_dr)
                   !       IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_promolecular)) &
                   !          DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
                IF (ALLOCATED(cdft_control%group(i)%d_sum_const_dR)) &
