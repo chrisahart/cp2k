@@ -195,7 +195,7 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
       ! Radial derivative of weight function
-      TYPE(pw_p_type)                      :: weight_dr
+      ! TYPE(pw_p_type)                      :: weight_dr
       ! Hirshfeld promolecular density
       TYPE(pw_p_type)             :: hirsh_rho_promolecular
       ! Hirshfeld promolecular density

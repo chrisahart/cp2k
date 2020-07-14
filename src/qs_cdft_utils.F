@@ -1122,8 +1122,8 @@ CONTAINS
             use_data=REALDATA3D, in_space=REALSPACE)
 
 
-          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight_dr%pw, &
-            use_data=REALDATA3D, in_space=REALSPACE)
+          ! CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%weight_dr%pw, &
+          !   use_data=REALDATA3D, in_space=REALSPACE)
 
         ! Loop over atoms in CDFT group
         DO iatom = 1, cdft_control%natoms
@@ -1144,7 +1144,7 @@ CONTAINS
 
         cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = 1.0_dp
         cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = 1.0_dp
-        cdft_control%group(igroup)%weight_dr%pw%cr3d = 1.0_dp
+        ! cdft_control%group(igroup)%weight_dr%pw%cr3d = 1.0_dp
 
         ! Loop over atoms in CDFT group
         DO iatom = 1, cdft_control%natoms
