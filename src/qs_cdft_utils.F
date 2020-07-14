@@ -1112,7 +1112,7 @@ CONTAINS
 
         ! IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic_dr)) THEN
           ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
-          ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic_dr(cdft_control%natoms))
+          ! ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic_dr(cdft_control%natoms))
         ! END IF
 
         CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
@@ -1131,8 +1131,8 @@ CONTAINS
           CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
             use_data=REALDATA3D, in_space=REALSPACE)
 
-          CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw, &
-            use_data=REALDATA3D, in_space=REALSPACE)
+          ! CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw, &
+          !   use_data=REALDATA3D, in_space=REALSPACE)
         END DO
       END DO
 
@@ -1150,7 +1150,7 @@ CONTAINS
         DO iatom = 1, cdft_control%natoms
 
           cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-          cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
+          ! cdft_control%group(igroup)%hirsh_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
 
         END DO
       END DO
