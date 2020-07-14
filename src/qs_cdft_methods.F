@@ -1831,7 +1831,7 @@ CONTAINS
          dr = rho_r(1)%pw%pw_grid%dr
 
          PRINT *, "natom", natom
-         PRINT *, "ncdft_control%natomsatom", cdft_control%natoms
+         PRINT *, "cdft_control%natomsatom", cdft_control%natoms
          PRINT *, "lb, ub", lb, ub
          PRINT *, "rho_r(1)%pw%pw_grid%npts", rho_r(1)%pw%pw_grid%npts
          PRINT *, "rho_r(1)%pw%pw_grid%dr", rho_r(1)%pw%pw_grid%dr
