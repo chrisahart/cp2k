@@ -1772,13 +1772,12 @@ CONTAINS
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
-         INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
+         INTEGER, DIMENSION(:), POINTER                     :: atom_list
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val
-         REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
          TYPE(dft_control_type), POINTER                    :: dft_control
@@ -1788,23 +1787,19 @@ CONTAINS
          TYPE(pw_env_type), POINTER                         :: pw_env
          INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf
          TYPE(pw_p_type)                                    :: tmp, fnorm
-         ! TYPE(pw_p_type), POINTER                           :: fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
-           TYPE(pw_p_type), DIMENSION(3)                      :: test
+         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
-           REAL(KIND=dp), POINTER, &
-              DIMENSION(:, :, :, :)             :: rs_rho_dxyz_temp
 
-         NULLIFY (atom_list, cores, pab, atomic_kind_set, dft_control, &
+         NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_dxyz_temp, rho_r, rho) ! fnorm
+                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, cdft_control, &
+                  hirshfeld_control, rs_single, rs_single_dr, rho_r, rho) ! fnorm
 
           ! PRINT *, "start hirshfeld_constraint_low"
 
@@ -1836,8 +1831,8 @@ CONTAINS
 
         ! Allcoate as needed
          ALLOCATE (coefficients(natom))
-         ! ALLOCATE (rs_single(cdft_control%natoms))
-         ! ALLOCATE (rs_single_dr(cdft_control%natoms))
+         ALLOCATE (rs_single(cdft_control%natoms))
+         ALLOCATE (rs_single_dr(cdft_control%natoms))
          ! ALLOCATE(rs_rho_dxyz_temp(3*natom, bo_conf(1, 1):bo_conf(2, 1), &
          !                               bo_conf(1, 2):bo_conf(2, 2), &
          !                               bo_conf(1, 3):bo_conf(2, 3)))
@@ -1891,18 +1886,18 @@ CONTAINS
           ! ub(1:3) = rs_rho_constr%ub_real(1:3)
 
 
-            ! DO i = 1, cdft_control%natoms
-            !   ! PRINT *, "i", i
-            !    NULLIFY (rs_single(i)%rs_grid)
-            !    NULLIFY (rs_single_dr(i)%rs_grid)
-            !    ! PRINT *, "NULLIFY", i
-            !    CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-            !    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-            !    ! PRINT *, "rs_grid_create", i
-            !    CALL rs_grid_zero(rs_single(i)%rs_grid)
-            !    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-            !    ! PRINT *, "rs_grid_zero", i
-            ! END DO
+            DO i = 1, cdft_control%natoms
+              ! PRINT *, "i", i
+               NULLIFY (rs_single(i)%rs_grid)
+               NULLIFY (rs_single_dr(i)%rs_grid)
+               ! PRINT *, "NULLIFY", i
+               CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+               CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+               ! PRINT *, "rs_grid_create", i
+               CALL rs_grid_zero(rs_single(i)%rs_grid)
+               CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+               ! PRINT *, "rs_grid_zero", i
+            END DO
 
 
 
@@ -1990,30 +1985,10 @@ CONTAINS
                                         ((j * dr(2)) - ra(2)) ** 2.0_dp + &
                                         ((k * dr(3)) - ra(3)) ** 2.0_dp
 
-                            ! IF (r_squared .GE. 5) THEN
                               exp_eval = coef * EXP(-alpha * r_squared)
 
                             ! Calculate atomic density and analytic derivative
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
-
-                            ! rs_rho_dr_temp%r(i, j, k) = -1.0_dp * 2.0_dp * SQRT(r_squared) * exp_eval
-                            ! rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
-                            !                             + 2.0_dp * alpha * exp_eval
-                            ! rs_rho_dr_temp%r(i, j, k)  = -1.0_dp * 2.0_dp * (j * dr(2)) - ra(2) * exp_eval
-
-                            ! rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) = &
-                            ! rs_rho_dxyz_temp(1+(iatom-1)*3, i, j, k) &
-                            !         -alpha * 2.0_dp * ABS((i * dr(1)) - ra(1)) * exp_eval
-                            !
-                            ! rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) = &
-                            ! rs_rho_dxyz_temp(2+(iatom-1)*3, i, j, k) &
-                            !         -alpha * 2.0_dp * ABS((j * dr(2)) - ra(2)) * exp_eval
-
-                            ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) = &
-                            ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) &
-                            !         -alpha * 2.0_dp * ABS((k * dr(3)) - ra(3)) * exp_eval
-
-                            ! END IF
 
                           END DO ! i = lb(1), ub(1)
                         END DO ! j = lb(2), ub(2)
@@ -2022,16 +1997,11 @@ CONTAINS
 
                   ! Save atomic density and analytic derivative
                   ! rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
-
                   ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
-                  ! rs_single_dxyz(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                   ! Save sum over constraint atoms, all atoms
                   rs_rho_constr%r = rs_rho_constr%r + coefficients(atom_a) * rs_rho_temp%r
                   rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
-
-                  ! Calculate forces
-                  !
 
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
@@ -2128,8 +2098,8 @@ CONTAINS
 
               ! PRINT *, "transferring hirsh_rho_atomic to pw"
 
-              ! DO i = 1, cdft_control%natoms
-              !
+              DO i = 1, cdft_control%natoms
+
               !  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
               !                     in_space=REALSPACE)
               ! CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
@@ -2139,10 +2109,11 @@ CONTAINS
               !                        in_space=REALSPACE)
               !    CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
               !        cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-              !
-              !     CALL rs_grid_release(rs_single(i)%rs_grid)
-              !
-              ! END DO ! i = 1, cdft_control%natoms
+
+                  CALL rs_grid_release(rs_single(i)%rs_grid)
+                  CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+
+              END DO ! i = 1, cdft_control%natoms
 
           END DO !  1, SIZE(cdft_control%group)
 
@@ -2150,10 +2121,21 @@ CONTAINS
          ! CALL cdft_print_hirshfeld_density(qs_env)
          ! CALL cdft_print_weight_function(qs_env)
 
-         ! Deallocate
+         ! Release grids
          CALL rs_grid_release(rs_rho_constr)
          CALL rs_grid_release(rs_rho_all)
          CALL rs_grid_release(rs_rho_temp)
+
+         ! Deallocate
+         DEALLOCATE (atom_list)
+         DEALLOCATE (rs_single)
+         DEALLOCATE (rs_single_dr)
+         DEALLOCATE (compute_charge)
+         DEALLOCATE (coefficients)
+
+         ! Deallocate if allocated
+         IF (ALLOCATED(is_constraint)) &
+            DEALLOCATE (is_constraint)
 
          CALL timestop(handle)
 
