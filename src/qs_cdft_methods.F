@@ -1644,7 +1644,7 @@ CONTAINS
   !        DEALLOCATE (pab)
   !
   !        ! Transfer rs_rho_all to the correct grid and save it
-  !        CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+         ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
   !        IF (igroup == 1) THEN
   !           IF (ASSOCIATED(fnorm)) THEN
   !              CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
@@ -1761,16 +1761,17 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-      SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
+      SUBROUTINE hirshfeld_constraint_low(qs_env)
+        ! SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
          TYPE(qs_environment_type), POINTER                 :: qs_env
-         LOGICAL, OPTIONAL                                  :: just_gradients
+         ! LOGICAL, OPTIONAL                                  :: just_gradients
 
          CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
             routineP = moduleN//':'//routineN
 
          LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
-                                                               ikind, ithread, j, natom, npme, &
+                                                               ikind, ithread, j, natom, npme, npts, &
                                                                nthread, numexp, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
@@ -1818,33 +1819,40 @@ CONTAINS
          hirshfeld_control => cdft_control%hirshfeld_control
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
-         ! Decide if only gradients need to be calculated or precomputed
-         ! in_memory = becke_control%in_memory
-         ! IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
-         ! IF (my_just_gradients) THEN
-         !    in_memory = .TRUE.
-         !  END IF
+         ! Allcoate as needed
+          ALLOCATE (coefficients(natom))
+          ALLOCATE (rs_single(cdft_control%natoms))
+          ALLOCATE (rs_single_dr(cdft_control%natoms))
 
-            ! IF (in_memory) THEN
-              ! DO igroup = 1, SIZE(cdft_control%group)
-                ! bo_conf = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-              !    ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
-              !                bo_conf(1, 1):bo_conf(2, 1), &
-              !                bo_conf(1, 2):bo_conf(2, 2), &
-              !                bo_conf(1, 3):bo_conf(2, 3)))
-              !    cdft_control%group(igroup)%gradients = 0.0_dp
-              !    END DO
-            ! END IF
+         ! Get size of pw grid
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         npts = rho_r(1)%pw%pw_grid%npts
+         dr = rho_r(1)%pw%pw_grid%dr
 
-        ! Allcoate as needed
-         ALLOCATE (coefficients(natom))
-         ALLOCATE (rs_single(cdft_control%natoms))
-         ALLOCATE (rs_single_dr(cdft_control%natoms))
+         PRINT *, "lb, ub", lb, ub
+         PRINT *, "rho_r(1)%pw%pw_grid%npts", rho_r(1)%pw%pw_grid%npts
+         PRINT *, "rho_r(1)%pw%pw_grid%dr", rho_r(1)%pw%pw_grid%dr
+         PRINT *, "rho_r(1)%pw%pw_grid%dh", rho_r(1)%pw%pw_grid%dh
 
-         ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
-         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
-         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
-         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
+         ! Check if only gradient should be calculated, if gradients should be precomputed
+         in_memory = .FALSE.
+         my_just_gradients = .FALSE.
+         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
+         IF (my_just_gradients) THEN
+            in_memory = .TRUE.
+          END IF
+
+        ! Allocate gradient
+            IF (in_memory) THEN
+              DO igroup = 1, SIZE(cdft_control%group)
+                 ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
+                            lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+                 cdft_control%group(igroup)%gradients = 0.0_dp
+                 END DO
+            END IF
+
+         ! Setup grids
            IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
               CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                               auxbas_pw_pool=auxbas_pw_pool)
@@ -1870,20 +1878,19 @@ CONTAINS
           coefficients(2) = -1
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
-          PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
-            cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-            PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
-              cdft_control%group(1)%weight%pw%pw_grid%npts_local
+          ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
+          !   cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+          !   PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
+          !     cdft_control%group(1)%weight%pw%pw_grid%npts_local
 
-              lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-              ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
 
-              PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-              PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
 
-          PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
-          PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
-          PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
+          !     PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+          !     PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+          !
+          ! PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
+          ! PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
+          ! PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
 
           ! Get lower bound, upper bound of rs grid
           ! lb(1:3) = rs_rho_constr%lb_real(1:3)
@@ -1913,9 +1920,9 @@ CONTAINS
             ! PRINT *, "Get dr"
 
             ! Get dr
-            dr(1) =  rs_rho_constr%desc%dh(1, 1)
-            dr(2) =  rs_rho_constr%desc%dh(2, 2)
-            dr(3) =  rs_rho_constr%desc%dh(3, 3)
+            ! dr(1) =  rs_rho_constr%desc%dh(1, 1)
+            ! dr(2) =  rs_rho_constr%desc%dh(2, 2)
+            ! dr(3) =  rs_rho_constr%desc%dh(3, 3)
             origin(:) = (dr(:) * rs_rho_constr%desc%npts(:)) * 0.5_dp
 
             ! Get coefficients
