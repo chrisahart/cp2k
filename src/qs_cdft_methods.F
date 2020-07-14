@@ -1761,13 +1761,14 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-      SUBROUTINE hirshfeld_constraint_low(qs_env)
+      SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
          TYPE(qs_environment_type), POINTER                 :: qs_env
+         LOGICAL, OPTIONAL                                  :: just_gradients
 
          CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
             routineP = moduleN//':'//routineN
 
-         LOGICAL                                            :: plot_hirshfeld_density
+         LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
@@ -1799,7 +1800,7 @@ CONTAINS
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho) 
+                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho)
 
           PRINT *, "start hirshfeld_constraint_low"
 
@@ -1817,17 +1818,23 @@ CONTAINS
          hirshfeld_control => cdft_control%hirshfeld_control
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
+         ! Decide if only gradients need to be calculated or precomputed
+         ! in_memory = becke_control%in_memory
+         ! IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
+         ! IF (my_just_gradients) THEN
+         !    in_memory = .TRUE.
+         !  END IF
 
-         ! Allcoate as needed
-         ! bo_conf = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-         ! DO igroup = 1, SIZE(cdft_control%group)
-         !    ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
-         !                bo_conf(1, 1):bo_conf(2, 1), &
-         !                bo_conf(1, 2):bo_conf(2, 2), &
-         !                bo_conf(1, 3):bo_conf(2, 3)))
-         !    cdft_control%group(igroup)%gradients = 0.0_dp
-         !    END DO
-
+            ! IF (in_memory) THEN
+              ! DO igroup = 1, SIZE(cdft_control%group)
+                ! bo_conf = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+              !    ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
+              !                bo_conf(1, 1):bo_conf(2, 1), &
+              !                bo_conf(1, 2):bo_conf(2, 2), &
+              !                bo_conf(1, 3):bo_conf(2, 3)))
+              !    cdft_control%group(igroup)%gradients = 0.0_dp
+              !    END DO
+            ! END IF
 
         ! Allcoate as needed
          ALLOCATE (coefficients(natom))
@@ -2127,7 +2134,7 @@ CONTAINS
          DEALLOCATE (atom_list)
          DEALLOCATE (rs_single)
          DEALLOCATE (rs_single_dr)
-         DEALLOCATE (compute_charge)
+         ! DEALLOCATE (compute_charge)
          DEALLOCATE (coefficients)
 
          ! Deallocate if allocated
