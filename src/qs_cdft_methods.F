@@ -1791,17 +1791,17 @@ CONTAINS
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
+         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, rs_rho_temp, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr, rho_r, rho) ! fnorm
+                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
+                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho) 
 
-          ! PRINT *, "start hirshfeld_constraint_low"
+          PRINT *, "start hirshfeld_constraint_low"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1833,9 +1833,6 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ALLOCATE (rs_single(cdft_control%natoms))
          ALLOCATE (rs_single_dr(cdft_control%natoms))
-         ! ALLOCATE(rs_rho_dxyz_temp(3*natom, bo_conf(1, 1):bo_conf(2, 1), &
-         !                               bo_conf(1, 2):bo_conf(2, 2), &
-         !                               bo_conf(1, 3):bo_conf(2, 3)))
 
          ! Calculate atomic Hirshfeld weight functions:  rs_rho_constr / rs_rho_all
          ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
