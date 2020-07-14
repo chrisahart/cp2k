@@ -1761,17 +1761,17 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-      SUBROUTINE hirshfeld_constraint_low(qs_env)
-        ! SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
+      ! SUBROUTINE hirshfeld_constraint_low(qs_env)
+        SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
          TYPE(qs_environment_type), POINTER                 :: qs_env
-         ! LOGICAL, OPTIONAL                                  :: just_gradients
+         LOGICAL, OPTIONAL                                  :: just_gradients
 
          CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
             routineP = moduleN//':'//routineN
 
          LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
-                                                               ikind, ithread, j, natom, npme, npts, &
+                                                               ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
          INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
@@ -1792,7 +1792,7 @@ CONTAINS
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
-         INTEGER, DIMENSION(3)                              :: lb, ub
+         INTEGER, DIMENSION(3)                              :: lb, ub, npts
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
