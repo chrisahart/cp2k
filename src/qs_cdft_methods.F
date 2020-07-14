@@ -1835,7 +1835,6 @@ CONTAINS
          PRINT *, "lb, ub", lb, ub
          PRINT *, "rho_r(1)%pw%pw_grid%npts", rho_r(1)%pw%pw_grid%npts
          PRINT *, "rho_r(1)%pw%pw_grid%dr", rho_r(1)%pw%pw_grid%dr
-         PRINT *, "rho_r(1)%pw%pw_grid%dh", rho_r(1)%pw%pw_grid%dh
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          in_memory = .FALSE.
@@ -1855,17 +1854,12 @@ CONTAINS
             END IF
 
          ! Setup grids
-           IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
               CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                               auxbas_pw_pool=auxbas_pw_pool)
               CALL rs_grid_retain(rs_rho_all)
               CALL rs_grid_zero(rs_rho_all)
-           END IF
-
-           ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
            CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_constr)
-
            CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_temp)
 
@@ -2140,7 +2134,7 @@ CONTAINS
          CALL rs_grid_release(rs_rho_temp)
 
          ! Deallocate
-         DEALLOCATE (atom_list)
+         ! DEALLOCATE (atom_list)
          DEALLOCATE (rs_single)
          DEALLOCATE (rs_single_dr)
          ! DEALLOCATE (compute_charge)
@@ -2150,9 +2144,11 @@ CONTAINS
          IF (ALLOCATED(is_constraint)) &
             DEALLOCATE (is_constraint)
 
-         CALL timestop(handle)
+            PRINT *, "natom", natom
+            PRINT *, "cdft_control%natomsatom", cdft_control%natoms
+            PRINT *, "end hirshfeld_constraint_low"
 
-         ! PRINT *, "end hirshfeld_constraint_low"
+         CALL timestop(handle)
 
       END SUBROUTINE hirshfeld_constraint_low
 
