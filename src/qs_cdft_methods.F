@@ -1761,7 +1761,6 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-      ! SUBROUTINE hirshfeld_constraint_low(qs_env)
         SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
          TYPE(qs_environment_type), POINTER                 :: qs_env
          LOGICAL, OPTIONAL                                  :: just_gradients
@@ -1773,9 +1772,8 @@ CONTAINS
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
-         INTEGER(KIND=int_8)                                :: subpatch_pattern
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
-         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
+         ! LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
@@ -2141,8 +2139,8 @@ CONTAINS
          DEALLOCATE (coefficients)
 
          ! Deallocate if allocated
-         IF (ALLOCATED(is_constraint)) &
-            DEALLOCATE (is_constraint)
+         ! IF (ALLOCATED(is_constraint)) &
+         !    DEALLOCATE (is_constraint)
 
             PRINT *, "natom", natom
             PRINT *, "cdft_control%natomsatom", cdft_control%natoms
