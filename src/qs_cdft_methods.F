@@ -2075,8 +2075,9 @@ CONTAINS
        END DO ! k = lb(3), ub(3)
      END DO ! iatom = 1, natom
    END DO ! ikind = 1, SIZE(atomic_kind_set)
+   END DO ! igroup = 1, SIZE(cdft_control%group)
  END IF ! (in_memory) THEN
-END DO ! igroup = 1, SIZE(cdft_control%group)
+
 
 
 ! Loop over each CDFT group
