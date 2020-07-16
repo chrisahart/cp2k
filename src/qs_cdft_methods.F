@@ -1791,7 +1791,7 @@ CONTAINS
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub, npts
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
+         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
@@ -1799,7 +1799,7 @@ CONTAINS
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
+                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, rs_rho_dr_temp, &
                   hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho, fnorm)
 
           ! PRINT *, "start hirshfeld_constraint_low"
@@ -1943,7 +1943,7 @@ CONTAINS
 
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0.0_dp
-                 ! rs_rho_dr_temp%r = 0.0_dp
+                 rs_rho_dr_temp%r = 0.0_dp
                  ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, :, :, :) = 0.0_dp
                  ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
