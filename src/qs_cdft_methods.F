@@ -1834,6 +1834,7 @@ CONTAINS
          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          npts = rho_r(1)%pw%pw_grid%npts
          dr = rho_r(1)%pw%pw_grid%dr
+         origin(:) = (dr(:) * rs_rho_constr%desc%npts(:)) * 0.5_dp
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          in_memory = .FALSE.
@@ -1845,10 +1846,8 @@ CONTAINS
 
         ! Allocate gradient
             IF (in_memory) THEN
-
               CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
               CALL rs_grid_zero(rs_rho_dr_temp)
-
               DO igroup = 1, SIZE(cdft_control%group)
                  ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, &
                             lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
@@ -1866,30 +1865,6 @@ CONTAINS
            CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_temp)
 
-          coefficients(1) = 1
-          coefficients(2) = -1
-          ! coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
-          numexp = hirshfeld_env%kind_shape_fn(1)%numexp
-
-          ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
-          !   cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-          !   PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%npts_local", &
-          !     cdft_control%group(1)%weight%pw%pw_grid%npts_local
-
-
-
-          !     PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-          !     PRINT *, "rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-          !
-          ! PRINT *, "rs_rho_constr%lb_real(1:3)    ", rs_rho_constr%lb_real(1:3)
-          ! PRINT *, "rs_rho_constr%ub_real(1:3)    ", rs_rho_constr%ub_real(1:3)
-          ! PRINT *, "rs_rho_constr%desc%npts(:))    ", rs_rho_constr%desc%npts(:)
-
-          ! Get lower bound, upper bound of rs grid
-          ! lb(1:3) = rs_rho_constr%lb_real(1:3)
-          ! ub(1:3) = rs_rho_constr%ub_real(1:3)
-
-
             DO i = 1, cdft_control%natoms
               ! PRINT *, "i", i
                NULLIFY (rs_single(i)%rs_grid)
@@ -1904,38 +1879,19 @@ CONTAINS
                 compute_charge(cdft_control%atoms(i)) = .TRUE.
             END DO
 
-
-
-
-      !       abc(1:3) = REAL(rho_elec%pw_grid%npts(1:3), KIND=dp)*rho_elec%pw_grid%dr(1:3)
-      ! lb(1:3) = rho_elec%pw_grid%bounds_local(1, 1:3)
-      ! ub(1:3) = rho_elec%pw_grid%bounds_local(2, 1:3)
-
-            ! PRINT *, "Get dr"
-
-            ! Get dr
-            ! dr(1) =  rs_rho_constr%desc%dh(1, 1)
-            ! dr(2) =  rs_rho_constr%desc%dh(2, 2)
-            ! dr(3) =  rs_rho_constr%desc%dh(3, 3)
-            origin(:) = (dr(:) * rs_rho_constr%desc%npts(:)) * 0.5_dp
-
-            ! Get coefficients
-            ! coefficients(1) = 1
-            ! coefficients(2) = -1
-
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "looping over each igroup", igroup
+           ! PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
                ! PRINT *, "looping over each atomic_kind_set", ikind
 
-               ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
-               ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
-
                ! Get list of atom kind, number of exponentials
                CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+
+               ! PRINT *, "zet", hirshfeld_env%kind_shape_fn(ikind)%zet(:)
+               ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(:)
 
                ! Loop over each atom of atom type
                DO iatom = 1, natom
@@ -1943,58 +1899,42 @@ CONTAINS
 
                  ! Set temproary array equal zero
                  rs_rho_temp%r = 0.0_dp
-                 rs_rho_dr_temp%r = 0.0_dp
-                 ! rs_rho_dxyz_temp(3*(iatom - 1) + 1:3*(iatom - 1) + 3, :, :, :) = 0.0_dp
-                 ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i)
 
-                 ! temp_val(1:3) = 1:3
-                 ! PRINT *, "0", temp_val(:)
-                 !
-                 ! temp_val(1:3) = 1:3+(iatom-1)*3
-                 ! PRINT *, "1", temp_val(:)
-                 !
-                 ! temp_val(1:3) = 3*(iatom - 1) + 1:3*(iatom - 1) + 3
-                 ! PRINT *, "2", temp_val(:)
+                 IF (in_memory) THEN
+                 rs_rho_dr_temp%r = 0.0_dp
+                 THEN
 
                  ! Get atomic position
                  atom_a = atom_list(iatom)
                  ra(:) = particle_set(atom_a)%r - origin(1)
 
-                 ! PRINT *, "iatom", iatom
-                 ! PRINT *, "atom_a", atom_a
-                 ! PRINT *, "coefficients(atom_a)", coefficients(atom_a)
-
                ! Loop over each Gaussian
-               DO iex = 1, numexp
+               DO iex = 1, hirshfeld_env%kind_shape_fn(1)%numexp
                  ! PRINT *, "looping over each Gaussian", iex
 
                   ! Get Gaussian exponent and coefficient
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-
                   ! PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                     ! Loop over grid
                     DO k = lb(3), ub(3)
-                      ! PRINT *, "k", k, "rs_rho_temp%r(0, 0, k)", rs_rho_temp%r(0, 0, k)
-
                        DO j = lb(2), ub(2)
                           DO i = lb(1), ub(1)
 
-                            ! r = (i * dr(1)) ** 2.0_dp + (j * dr(2)) ** 2.0_dp + (k * dr(3)) ** 2.0_dp
-                            ! r0 = ra(1) ** 2.0_dp + ra(2) ** 2.0_dp + ra(3) ** 2.0_dp
-                            ! r_squared = r - r0
-
+                            ! r - R
                             r_squared = ((i * dr(1)) - ra(1)) ** 2.0_dp + &
                                         ((j * dr(2)) - ra(2)) ** 2.0_dp + &
                                         ((k * dr(3)) - ra(3)) ** 2.0_dp
 
-                              exp_eval = coef * EXP(-alpha * r_squared)
+                            ! Calculate atomic Gaussian
+                            exp_eval = coef * EXP(-alpha * r_squared)
 
-                            ! Calculate atomic density and analytic derivative
+                            ! Store atomic density
                             rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
 
+                            ! Store analytic derivative
                             IF (in_memory) THEN
                               rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
                                                         + 2.0_dp * alpha * exp_eval
@@ -2012,6 +1952,7 @@ CONTAINS
                   rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
                   rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
+                  ! Save analytic derivative
                   IF (in_memory) THEN
                     rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
                   END IF
@@ -2020,18 +1961,16 @@ CONTAINS
             END DO ! ikind = 1, SIZE(atomic_kind_set)
           END DO ! igroup = 1, SIZE(cdft_control%group)
 
-            ! Calculate gradient
-            PRINT *, "Calculate gradient"
-
+            ! If calculating gradient
             IF (in_memory) THEN
-              ! Loop over each CDFT group
-              DO igroup = 1, SIZE(cdft_control%group)
-            DO ikind = 1, SIZE(atomic_kind_set)
-              DO iatom = 1, natom
+                PRINT *, "Calculate gradient"
 
+              DO igroup = 1, SIZE(cdft_control%group)
+                DO ikind = 1, SIZE(atomic_kind_set)
+                  DO iatom = 1, natom
                   DO k = lb(3), ub(3)
-                 DO j = lb(2), ub(2)
-                    DO i = lb(1), ub(1)
+                   DO j = lb(2), ub(2)
+                      DO i = lb(1), ub(1)
 
                       atom_a = atom_list(1)
                       ra(:) = particle_set(atom_a)%r - origin(1)
@@ -2070,18 +2009,16 @@ CONTAINS
              /  rs_rho_all%r(i, j, k) &
              * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
-           END DO ! i = lb(1), ub(1)
-         END DO ! j = lb(2), ub(2)
-       END DO ! k = lb(3), ub(3)
-     END DO ! iatom = 1, natom
-   END DO ! ikind = 1, SIZE(atomic_kind_set)
-   END DO ! igroup = 1, SIZE(cdft_control%group)
- END IF ! (in_memory) THEN
+               END DO ! i = lb(1), ub(1)
+             END DO ! j = lb(2), ub(2)
+           END DO ! k = lb(3), ub(3)
+         END DO ! iatom = 1, natom
+       END DO ! ikind = 1, SIZE(atomic_kind_set)
+       END DO ! igroup = 1, SIZE(cdft_control%group)
+     END IF ! (in_memory) THEN
 
-
-
-! Loop over each CDFT group
-DO igroup = 1, SIZE(cdft_control%group)
+      ! Loop over each CDFT group
+      DO igroup = 1, SIZE(cdft_control%group)
 
              ! Only set up sum over all atoms for first igroup
              CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
@@ -2097,14 +2034,8 @@ DO igroup = 1, SIZE(cdft_control%group)
            CALL rs_grid_release(rs_rho_all)
         END IF
 
-
-            ! CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
-            !                         in_space=REALSPACE)
             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                   in_space=REALSPACE)
-
-             ! Transfer densities to pw
-             ! CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
 
              ! Calculate weight function
