@@ -893,24 +893,6 @@ CONTAINS
          dr = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
 
-         ! Check if only gradient should be calculated, if gradients should be precomputed
-         in_memory = .TRUE.
-         my_just_gradients = .FALSE.
-         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
-         IF (my_just_gradients) THEN
-           in_memory = .TRUE.
-         END IF
-
-         ! Allocate gradient
-         IF (in_memory) THEN
-           CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
-           CALL rs_grid_zero(rs_rho_dr_temp)
-           DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             cdft_control%group(igroup)%gradients = 0.0_dp
-           END DO
-         END IF
-
          ! Setup grids
          CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                          auxbas_pw_pool=auxbas_pw_pool)
@@ -931,6 +913,25 @@ CONTAINS
            CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
            compute_charge(cdft_control%atoms(i)) = .TRUE.
          END DO
+
+         ! Check if only gradient should be calculated, if gradients should be precomputed
+         ! in_memory = cdft_control%in_memory
+         in_memory = .TRUE.
+         my_just_gradients = .FALSE.
+         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
+         IF (my_just_gradients) THEN
+           in_memory = .TRUE.
+         END IF
+
+         ! Allocate gradient
+         IF (in_memory) THEN
+           CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
+           CALL rs_grid_zero(rs_rho_dr_temp)
+           DO igroup = 1, SIZE(cdft_control%group)
+             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             cdft_control%group(igroup)%gradients = 0.0_dp
+           END DO
+         END IF
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)

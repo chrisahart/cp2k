@@ -153,6 +153,7 @@ MODULE qs_cdft_types
 !>                              in a mixed_env that holds multiple CDFT states
 !> \param first_iteration       a flag to mark the first iteration for printing of additional data
 !> \param print_weight          logical which determines if CDFT weight functions should be saved to a file
+!> \param in_memory       logical which determines if the gradients of the Becke potential should be
 !> \param is_constraint         list of logicals which determines if an atom is included in a constraint group
 !> \param strength              Lagrangian multipliers of the constraints
 !> \param target                target values of the constraints
@@ -220,7 +221,7 @@ MODULE qs_cdft_types
                                               atomic_charges, fragment_density, &
                                               fragments_integrated, flip_fragment(2), &
                                               transfer_pot, external_control, &
-                                              first_iteration, print_weight
+                                              first_iteration, print_weight, in_memory
       LOGICAL, POINTER, DIMENSION(:)       :: is_constraint
       REAL(KIND=dp), DIMENSION(:), POINTER :: strength, TARGET, value
       REAL(KIND=dp), POINTER, &
@@ -386,6 +387,7 @@ CONTAINS
       cdft_control%should_purge = .FALSE.
       cdft_control%purge_history = .FALSE.
       cdft_control%calculate_metric = .FALSE.
+      cdft_control%in_memory = .FALSE.
       cdft_control%purge_freq = 0
       cdft_control%nbad_conv = 0
       cdft_control%purge_offset = 0
