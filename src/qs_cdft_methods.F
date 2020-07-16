@@ -1081,6 +1081,7 @@ CONTAINS
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
              ! ! hirshfeld_control%print_density = .FALSE.
@@ -1103,13 +1104,11 @@ CONTAINS
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                PRINT *, "Calculate charges"
-               IF (ASSOCIATED(tmp)) THEN
-                 CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-               END IF
                CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                DO i = 1, cdft_control%natoms
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                  CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+                 CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
                END DO
              END IF
 
@@ -1119,7 +1118,6 @@ CONTAINS
            CALL rs_grid_release(rs_rho_constr)
            CALL rs_grid_release(rs_rho_all)
            CALL rs_grid_release(rs_rho_temp)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
            ! Release grids that require looping over atoms
            DO i = 1, cdft_control%natoms
