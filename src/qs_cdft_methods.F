@@ -2018,17 +2018,17 @@ CONTAINS
 
                END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
+          END DO ! igroup = 1, SIZE(cdft_control%group)
 
             ! Calculate gradient
             PRINT *, "Calculate gradient"
 
             IF (in_memory) THEN
-
+              ! Loop over each CDFT group
+              DO igroup = 1, SIZE(cdft_control%group)
             DO ikind = 1, SIZE(atomic_kind_set)
               DO iatom = 1, natom
-                PRINT *, "iatom", iatom
 
-                DO iex = 1, 2 !numexp
                   DO k = lb(3), ub(3)
                  DO j = lb(2), ub(2)
                     DO i = lb(1), ub(1)
@@ -2070,10 +2070,17 @@ CONTAINS
              /  rs_rho_all%r(i, j, k) &
              * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
-                      END DO
-                    END DO
-                  END DO
-                END IF
+           END DO ! i = lb(1), ub(1)
+         END DO ! j = lb(2), ub(2)
+       END DO ! k = lb(3), ub(3)
+     END DO ! iatom = 1, natom
+   END DO ! ikind = 1, SIZE(atomic_kind_set)
+ END IF ! (in_memory) THEN
+END DO ! igroup = 1, SIZE(cdft_control%group)
+
+
+! Loop over each CDFT group
+DO igroup = 1, SIZE(cdft_control%group)
 
              ! Only set up sum over all atoms for first igroup
              CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
