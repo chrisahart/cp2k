@@ -1105,7 +1105,7 @@ CONTAINS
       END IF
 
       ! Setup atomic densities if requested
-      hirshfeld_control%print_density = .TRUE.
+      ! hirshfeld_control%print_density = .TRUE.
       IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
         DO igroup = 1, SIZE(cdft_control%group)
           IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) THEN

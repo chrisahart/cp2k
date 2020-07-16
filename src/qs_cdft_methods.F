@@ -1015,14 +1015,13 @@ CONTAINS
                    DO j = lb(2), ub(2)
                      DO i = lb(1), ub(1)
 
+                       ! atom_a = atom_list(iatom)
+                       ! ra(:) = particle_set(atom_a)%r - origin(1)
+
                        atom_a = atom_list(1)
                        ra(:) = particle_set(atom_a)%r - origin(:)
 
-                       ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) = &
-                       ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) + &
-                       ! ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
-                       ! /  rs_rho_all%r(i, j, k) &
-                       ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                       ! cdft_control%group(1)%gradients(1+(iatom*3-1), i, j, k) = cdft_control%group(1)%gradients(1, i, j, k)
 
                        cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
                        ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
@@ -1090,21 +1089,22 @@ CONTAINS
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
-             ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-             !   cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-             !   cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
-             !   DO i = 1, cdft_control%natoms
-             !     IF (ASSOCIATED(fnorm)) THEN
-             !       CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
-             !     END IF
-             !     CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-             !     CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-             !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-             !   END DO
-             !   CALL cdft_print_hirshfeld_density(qs_env)
-             !   CALL cdft_print_weight_function(qs_env)
-             !   DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-             ! END IF
+             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+               PRINT *, "atomic densities"
+               cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+               DO i = 1, cdft_control%natoms
+                 IF (ASSOCIATED(fnorm)) THEN
+                   CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+                 END IF
+                 CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+               END DO
+               CALL cdft_print_hirshfeld_density(qs_env)
+               CALL cdft_print_weight_function(qs_env)
+               DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+             END IF
 
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
