@@ -1099,6 +1099,7 @@ CONTAINS
                END DO
                CALL cdft_print_hirshfeld_density(qs_env)
                CALL cdft_print_weight_function(qs_env)
+               DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
              END IF
 
              ! Compute charges if requested
@@ -1127,9 +1128,6 @@ CONTAINS
            DO i = 1, cdft_control%natoms
              CALL rs_grid_release(rs_single(i)%rs_grid)
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-
-             IF (ALLOCATED(cdft_control%group(i)%hirsh_rho_atomic)) &
-                DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
            END DO
 
            ! Deallocate

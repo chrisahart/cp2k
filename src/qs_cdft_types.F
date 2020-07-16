@@ -96,7 +96,7 @@ MODULE qs_cdft_types
 !> \param radius          Gaussian radius parameter
 !> \param shape_function  the constraint type: atomic density or single Gaussian
 !> \param use_bohr        determines whether to use angstrom or bohr units for the radii of Gaussians
-!> \param print_density        
+!> \param print_density
 !> \param hirshfeld_env   auxiliary type storing information about the Gaussians
 ! **************************************************************************************************
    TYPE hirshfeld_constraint_type
@@ -475,6 +475,8 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
+               ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic_dr)) &
+               !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic_dr)
             END DO
             DEALLOCATE (cdft_control%group)
          END IF
