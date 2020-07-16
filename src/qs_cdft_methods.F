@@ -808,7 +808,7 @@ CONTAINS
          ! Integrate the Hirshfeld constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL hirshfeld_constraint_force(qs_env)
+         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
@@ -1248,14 +1248,14 @@ CONTAINS
                  DO iatom = 1, natom
                    DO ispin = 1, dft_control%nspins
 
-                     PRINT *, "igroup", igroup
-                    PRINT *, "SIZE(cdft_control%group)", igroup
-                    PRINT *, "SIZE(group)", igroup
+                    !  PRINT *, "igroup", igroup
+                    ! PRINT *, "SIZE(cdft_control%group)", igroup
+                    ! PRINT *, "SIZE(group)", igroup
 
-                       cdft_control%group(igroup)%integrated(:, iatom) = &
-                        cdft_control%group(igroup)%integrated(:, iatom) + &
-                        cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
-                        * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+                    cdft_control%group(igroup)%integrated(:, iatom) = &
+                      cdft_control%group(igroup)%integrated(:, iatom) + &
+                      cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                      * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
 
                     END DO
                   END DO
@@ -1505,15 +1505,15 @@ CONTAINS
           CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
                                    atom_of_kind=atom_of_kind, &
                                    kind_of=kind_of)
-          DO igroup = 1, SIZE(group)
-             ALLOCATE (group(igroup)%integrated(3, natom))
-             group(igroup)%integrated = 0.0_dp
+          DO igroup = 1, SIZE(cdft_control%group)
+             ALLOCATE (cdft_control%group(igroup)%integrated(3, natom))
+             cdft_control%group(igroup)%integrated = 0.0_dp
           END DO
 
-          bo = group(1)%weight%pw%pw_grid%bounds_local
+          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
           lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
           ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-          dvol = group(1)%weight%pw%pw_grid%dvol
+          dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
           ! IF (.NOT. becke_control%in_memory) &
              ! Gradients were not precomputed => calculate them now
@@ -1544,11 +1544,11 @@ CONTAINS
                          IF (cdft_control%becke_control%cavity%pw%cr3d(k, j, i) < eps_cavity) CYCLE
                       END IF
 
-                      DO igroup = 1, SIZE(group)
+                      DO igroup = 1, SIZE(cdft_control%group)
                          DO iatom = 1, natom
                             DO ispin = 1, dft_control%nspins
 
-                               SELECT CASE (group(igroup)%constraint_type)
+                               SELECT CASE (cdft_control%group(igroup)%constraint_type)
                                CASE (cdft_charge_constraint)
                                   sign = 1.0_dp
                                CASE (cdft_magnetization_constraint)
@@ -1568,9 +1568,10 @@ CONTAINS
                                END SELECT
 
                                ! Integrate gradient of weight function
-                               group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign * &
-                                             group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) * &
-                                             rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+                               cdft_control%group(igroup)%integrated(:, iatom) = &
+                                 cdft_control%group(igroup)%integrated(:, iatom) + &
+                                 cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                                 * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
                             END DO
                          END DO
                       END DO
@@ -1610,9 +1611,10 @@ CONTAINS
                                END SELECT
 
                                ! Integrate gradient of weight function
-                               group(igroup)%integrated(:, iatom) = group(igroup)%integrated(:, iatom) + sign * &
-                                             group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, k, j, i) * &
-                                             rho_r(ispin)%pw%cr3d(k, j, i) * dvol
+                               cdft_control%group(igroup)%integrated(:, iatom) = &
+                                 cdft_control%group(igroup)%integrated(:, iatom) + &
+                                 cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                                 * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
                             END DO
                          END DO
                       END DO
