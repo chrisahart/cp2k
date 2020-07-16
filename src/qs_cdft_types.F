@@ -195,17 +195,13 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
       ! Radial derivative of weight function
-      ! TYPE(pw_p_type)                      :: weight_dr
+      TYPE(pw_p_type)                      :: weight_dr
       ! Hirshfeld promolecular density
-      ! TYPE(pw_p_type)             :: hirsh_rho_promolecular
+      TYPE(pw_p_type)             :: hirsh_rho_promolecular
       ! Hirshfeld promolecular density
-      ! TYPE(pw_p_type)             :: hirsh_rho_total
+      TYPE(pw_p_type)             :: hirsh_rho_total
       ! Hirshfeld atomic density
-      ! TYPE(pw_p_type), POINTER, &
-         ! DIMENSION(:)                      :: hirsh_rho_atomic
-      ! Radial derivative of Hirshfeld atomic density
-      ! TYPE(pw_p_type), POINTER, &
-      !    DIMENSION(:)                      :: hirsh_rho_atomic_dr
+      TYPE(pw_p_type), POINTER, DIMENSION(:)  :: hirsh_rho_atomic
 
     END TYPE cdft_group_type
 
@@ -472,8 +468,6 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
                   DEALLOCATE (cdft_control%group(i)%coeff)
-                  ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
-                  !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
                IF (ALLOCATED(cdft_control%group(i)%d_sum_const_dR)) &
                   DEALLOCATE (cdft_control%group(i)%d_sum_const_dR)
                IF (ASSOCIATED(cdft_control%group(i)%gradients)) &
