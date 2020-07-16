@@ -197,9 +197,9 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
       ! Hirshfeld promolecular density
-      TYPE(pw_p_type)             :: hirsh_rho_promolecular
-      ! Hirshfeld promolecular density
-      TYPE(pw_p_type)             :: hirsh_rho_total
+      ! TYPE(pw_p_type)             :: hirsh_rho_promolecular
+      ! ! Hirshfeld promolecular density
+      ! TYPE(pw_p_type)             :: hirsh_rho_total
       ! Hirshfeld atomic density
       ! TYPE(pw_p_type), POINTER, DIMENSION(:)  :: hirsh_rho_atomic
 
