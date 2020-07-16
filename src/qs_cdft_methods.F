@@ -1116,9 +1116,9 @@ CONTAINS
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END DO
-               CALL cdft_print_hirshfeld_density(qs_env)
-               CALL cdft_print_weight_function(qs_env)
-               DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+               ! CALL cdft_print_hirshfeld_density(qs_env)
+               ! CALL cdft_print_weight_function(qs_env)
+               ! DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
              END IF
 
              ! Compute charges if requested
@@ -1143,7 +1143,17 @@ CONTAINS
            DO i = 1, cdft_control%natoms
              CALL rs_grid_release(rs_single(i)%rs_grid)
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+             CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(iatom)%pw)
            END DO
+
+           ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
+           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(iatom)%pw)
+           ! END IF
 
            ! Deallocate
            DEALLOCATE (rs_single)
