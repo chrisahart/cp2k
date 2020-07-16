@@ -1961,7 +1961,7 @@ CONTAINS
                      DO i = lb(1), ub(1)
 
                        atom_a = atom_list(1)
-                       ra(:) = particle_set(atom_a)%r - origin(1)
+                       ra(:) = particle_set(atom_a)%r - origin(:)
 
                        cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
                        ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
@@ -1980,7 +1980,7 @@ CONTAINS
 
 
                        atom_a = atom_list(2)
-                       ra(:) = particle_set(atom_a)%r - origin(1)
+                       ra(:) = particle_set(atom_a)%r - origin(:)
 
                        cdft_control%group(1)%gradients(4, i, j, k) = cdft_control%group(1)%gradients(4, i, j, k) + &
                        ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
@@ -2005,101 +2005,91 @@ CONTAINS
            END DO ! igroup = 1, SIZE(cdft_control%group)
          END IF ! (in_memory) THEN
 
-      ! Loop over each CDFT group
-      DO igroup = 1, SIZE(cdft_control%group)
+         ! Loop over each CDFT group
+         DO igroup = 1, SIZE(cdft_control%group)
 
-             ! Only set up sum over all atoms for first igroup
-             CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-             IF (igroup == 1) THEN
-           IF (ASSOCIATED(fnorm)) THEN
-              CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+           ! Only set up sum over all atoms for first igroup
+           CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+           IF (igroup == 1) THEN
+
+             IF (ASSOCIATED(fnorm)) THEN
+               CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+             END IF
+
+             ALLOCATE (fnorm)
+             CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
+             in_space=REALSPACE)
+             CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+             CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
            END IF
-           ALLOCATE (fnorm)
-           CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
-                                  in_space=REALSPACE)
-           CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-           CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-           CALL rs_grid_release(rs_rho_all)
-        END IF
 
+            ! Calculate weight function
             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                   in_space=REALSPACE)
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-
-             ! Calculate weight function
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Save densitites
              ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
              ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
 
+             ! Compute charges if requested
+             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                      in_space=REALSPACE)
 
+               DO i = 1, cdft_control%natoms
+                 PRINT *, "printing charges", i
+                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                 CALL rs_grid_release(rs_single(i)%rs_grid)
+                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
+                                fnorm%pw%cr3d, divide=.TRUE.)
+               END DO
+             END IF
 
-              ! PRINT *, "transferring hirsh_rho_atomic to pw"
+             ! Print atomic densities if requested
+             plot_hirshfeld_density = FALSE
+             IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
+               DO i = 1, cdft_control%natoms
+                 CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+               END DO
+               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
+               CALL cdft_print_hirshfeld_density(qs_env)
+               CALL cdft_print_weight_function(qs_env)
+             END IF
+           END DO !  1, SIZE(cdft_control%group)
 
-              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+           ! Release grids
+           CALL rs_grid_release(rs_rho_constr)
+           CALL rs_grid_release(rs_rho_all)
+           CALL rs_grid_release(rs_rho_temp)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
-         ! Compute atomic weight functions if charges are needed
-         IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-            CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                   in_space=REALSPACE)
-            DO i = 1, cdft_control%natoms
-              PRINT *, "printing charges", i
-               CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-               CALL rs_grid_release(rs_single(i)%rs_grid)
-               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
-                               fnorm%pw%cr3d, divide=.TRUE.)
-            END DO
-          END IF
+           ! Release grids that require looping over atoms
+           DO i = 1, cdft_control%natoms
+             CALL rs_grid_release(rs_single(i)%rs_grid)
+             CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+           END DO
 
-              DO i = 1, cdft_control%natoms
+           ! Deallocate
+           DEALLOCATE (rs_single)
+           DEALLOCATE (rs_single_dr)
+           DEALLOCATE (compute_charge)
+           DEALLOCATE (coefficients)
 
-              !  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-              !                     in_space=REALSPACE)
-              ! CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-              !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-              !
-              !     CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-              !                        in_space=REALSPACE)
-              !    CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, tmp%pw, rs2pw)
-              !        cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+           ! Deallocate if allocated
+           IF (ALLOCATED(is_constraint)) &
+           DEALLOCATE (is_constraint)
 
-                  ! CALL rs_grid_release(rs_single(i)%rs_grid)
-                  CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+           PRINT *, "end hirshfeld_constraint_low"
 
-              END DO ! i = 1, cdft_control%natoms
+           CALL timestop(handle)
 
-          END DO !  1, SIZE(cdft_control%group)
-
-         ! Print atomic densities
-         ! CALL cdft_print_hirshfeld_density(qs_env)
-         ! CALL cdft_print_weight_function(qs_env)
-
-         ! Release grids
-         CALL rs_grid_release(rs_rho_constr)
-         ! CALL rs_grid_release(rs_rho_all)
-         CALL rs_grid_release(rs_rho_temp)
-         CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-
-         ! Deallocate
-         ! DEALLOCATE (atom_list)
-         DEALLOCATE (rs_single)
-         DEALLOCATE (rs_single_dr)
-         DEALLOCATE (compute_charge)
-         DEALLOCATE (coefficients)
-
-         ! Deallocate if allocated
-         ! IF (ALLOCATED(is_constraint)) &
-         !    DEALLOCATE (is_constraint)
-
-            PRINT *, "natom", natom
-            PRINT *, "cdft_control%natomsatom", cdft_control%natoms
-            PRINT *, "end hirshfeld_constraint_low"
-
-         CALL timestop(handle)
-
-      END SUBROUTINE hirshfeld_constraint_low
+         END SUBROUTINE hirshfeld_constraint_low
 
    ! **************************************************************************************************
    !> \brief Calculates atomic forces due to a Hirshfeld constraint
