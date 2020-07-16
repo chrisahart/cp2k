@@ -1105,7 +1105,6 @@ CONTAINS
       END IF
 
       ! Setup atomic densities if requested
-      ! hirshfeld_control%print_density = .FALSE.
       IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
         DO igroup = 1, SIZE(cdft_control%group)
           IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) THEN
@@ -1405,8 +1404,6 @@ CONTAINS
          CALL qs_subsys_get(subsys, particles=particles)
          cdft_control => dft_control%qs_control%cdft_control
          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-
-         ! PRINT *, "printing hirsh_rho_total"
 
          ! Loop over CDFT control groups printing hirsh_rho_total
              DO igroup = 1, SIZE(cdft_control%group)

@@ -1008,7 +1008,6 @@ CONTAINS
          ! If calculating gradient
          IF (in_memory) THEN
            PRINT *, "Calculate gradient"
-
            DO igroup = 1, SIZE(cdft_control%group)
              DO ikind = 1, SIZE(atomic_kind_set)
                DO iatom = 1, natom
@@ -1061,10 +1060,10 @@ CONTAINS
            END DO ! igroup = 1, SIZE(cdft_control%group)
          END IF ! (in_memory) THEN
 
-         ! Loop over each CDFT group
+         ! Loop to calculate weight function and atomic charges, if requested
          DO igroup = 1, SIZE(cdft_control%group)
 
-           ! Only calculate sum over all atoms for first igroup
+           ! Only calculate sum over all atoms for first loop
            CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
            IF (igroup == 1) THEN
              IF (ASSOCIATED(fnorm)) THEN
@@ -1103,14 +1102,14 @@ CONTAINS
 
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-               IF (ASSOCIATED(fnorm)) THEN
-                 CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+               PRINT *, "Calculate charges"
+               IF (ASSOCIATED(tmp)) THEN
+                 CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
                END IF
                CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                DO i = 1, cdft_control%natoms
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
-                                fnorm%pw%cr3d, divide=.TRUE.)
+                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
                END DO
              END IF
 
