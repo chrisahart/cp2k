@@ -96,11 +96,12 @@ MODULE qs_cdft_types
 !> \param radius          Gaussian radius parameter
 !> \param shape_function  the constraint type: atomic density or single Gaussian
 !> \param use_bohr        determines whether to use angstrom or bohr units for the radii of Gaussians
+!> \param print_density        
 !> \param hirshfeld_env   auxiliary type storing information about the Gaussians
 ! **************************************************************************************************
    TYPE hirshfeld_constraint_type
       INTEGER                              :: gaussian_shape, shape_function
-      LOGICAL                              :: use_bohr
+      LOGICAL                              :: use_bohr, print_density
       REAL(KIND=dp)                        :: radius
       REAL(KIND=dp), DIMENSION(:), POINTER :: radii
       TYPE(hirshfeld_type), POINTER        :: hirshfeld_env
@@ -543,6 +544,7 @@ CONTAINS
       ALLOCATE (hirshfeld_control)
 
       hirshfeld_control%use_bohr = .FALSE.
+      hirshfeld_control%print_density = .FALSE.
       hirshfeld_control%radius = 3.0_dp
       hirshfeld_control%shape_function = shape_function_gaussian
       hirshfeld_control%gaussian_shape = radius_single

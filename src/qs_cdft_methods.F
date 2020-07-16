@@ -1085,8 +1085,8 @@ CONTAINS
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 
              ! Print atomic densities if requested
-             plot_hirshfeld_density = .FALSE.
-             IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
+             ! hirshfeld_control%print_density = .FALSE.
+             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
                cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
                DO i = 1, cdft_control%natoms
