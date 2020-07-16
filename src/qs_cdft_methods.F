@@ -1008,6 +1008,8 @@ CONTAINS
          ! If calculating gradient
          IF (in_memory) THEN
            PRINT *, "Calculate gradient"
+
+           ! Calculate sum of Gaussian exponents to simplify derivative
            DO igroup = 1, SIZE(cdft_control%group)
              DO ikind = 1, SIZE(atomic_kind_set)
                DO iatom = 1, natom
@@ -1018,10 +1020,23 @@ CONTAINS
                        ! atom_a = atom_list(iatom)
                        ! ra(:) = particle_set(atom_a)%r - origin(1)
 
+                       ! exp_eval = rs_single_dr(iatomiatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
+                       !            * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                       !
+                       ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) = &
+                       ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) + &
+                       ! ((i * dr(1)) - ra(1)) * exp_eval
+                       !
+                       ! cdft_control%group(igroup)%gradients(2+(iatom*3-1), i, j, k) = &
+                       ! cdft_control%group(igroup)%gradients(2+(iatom*3-1), i, j, k) + &
+                       ! ((j * dr(2)) - ra(2)) * exp_eval
+                       !
+                       ! cdft_control%group(igroup)%gradients(3+(iatom*3-1), i, j, k) = &
+                       ! cdft_control%group(igroup)%gradients(3+(iatom*3-1), i, j, k) + &
+                       ! ((k * dr(3)) - ra(3)) * exp_eval
+
                        atom_a = atom_list(1)
                        ra(:) = particle_set(atom_a)%r - origin(:)
-
-                       ! cdft_control%group(1)%gradients(1+(iatom*3-1), i, j, k) = cdft_control%group(1)%gradients(1, i, j, k)
 
                        cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
                        ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
@@ -1089,8 +1104,9 @@ CONTAINS
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
+             hirshfeld_control%print_density = .FALSE.
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               PRINT *, "atomic densities"
+               PRINT *, "Calculate atomic densities"
                cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
                cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
                DO i = 1, cdft_control%natoms

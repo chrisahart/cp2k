@@ -1105,13 +1105,14 @@ CONTAINS
       END IF
 
       ! Setup atomic densities if requested
-      ! hirshfeld_control%print_density = .TRUE.
+      hirshfeld_control%print_density = .TRUE.
       IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+        PRINT *, "Setting up atomic densities"
         DO igroup = 1, SIZE(cdft_control%group)
+          PRINT *, "cdft_control%natoms", cdft_control%natoms
           IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) THEN
             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
           END IF
-
           CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
           use_data=REALDATA3D, in_space=REALSPACE)
           CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_total%pw, &
@@ -1119,6 +1120,7 @@ CONTAINS
 
           ! Loop over atoms in CDFT group
           DO iatom = 1, cdft_control%natoms
+            PRINT *, "iatom", iatom
             CALL pw_pool_create_pw(auxbas_pw_pool,cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
             use_data=REALDATA3D, in_space=REALSPACE)
           END DO
@@ -1139,7 +1141,7 @@ CONTAINS
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
       CALL timestop(handle)
 
-      ! PRINT *, "end hirshfeld_constraint_init"
+      PRINT *, "end hirshfeld_constraint_init"
 
    END SUBROUTINE hirshfeld_constraint_init
 
