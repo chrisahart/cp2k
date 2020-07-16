@@ -1786,7 +1786,7 @@ CONTAINS
          TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
          TYPE(pw_env_type), POINTER                         :: pw_env
          INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf
-         TYPE(pw_p_type)                                    :: tmp, fnorm
+         TYPE(pw_p_type)                                    :: tmp !, fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
@@ -1795,11 +1795,12 @@ CONTAINS
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
+           TYPE(pw_p_type), POINTER                           :: fnorm
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
-                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho)
+                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho, fnorm)
 
           PRINT *, "start hirshfeld_constraint_low"
 
@@ -2085,6 +2086,7 @@ CONTAINS
 
              ! Only set up sum over all atoms for first igroup
              IF (igroup == 1) THEN
+               CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
            IF (ASSOCIATED(fnorm)) THEN
               CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
            END IF
@@ -2130,6 +2132,7 @@ CONTAINS
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
                                fnorm%pw%cr3d, divide=.TRUE.)
             END DO
+          END IF
 
               DO i = 1, cdft_control%natoms
 
