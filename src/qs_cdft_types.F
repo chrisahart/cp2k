@@ -475,8 +475,8 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
-               IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic_dr)) &
-                  DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic_dr)
+               IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
+                  DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
             END DO
             DEALLOCATE (cdft_control%group)
          END IF
