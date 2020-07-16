@@ -808,7 +808,7 @@ CONTAINS
          ! Integrate the Hirshfeld constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
+         IF (calculate_forces) CALL hirshfeld_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
