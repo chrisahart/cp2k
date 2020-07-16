@@ -1018,6 +1018,12 @@ CONTAINS
                        atom_a = atom_list(1)
                        ra(:) = particle_set(atom_a)%r - origin(:)
 
+                       ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) = &
+                       ! cdft_control%group(igroup)%gradients(3*(iatom - 1) + 1:3*(iatom - 1) + 3, i, j, k) + &
+                       ! ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+                       ! /  rs_rho_all%r(i, j, k) &
+                       ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+
                        cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
                        ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
                        /  rs_rho_all%r(i, j, k) &
@@ -1084,7 +1090,6 @@ CONTAINS
              CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
-             ! ! hirshfeld_control%print_density = .FALSE.
              ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              !   cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
              !   cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
@@ -1108,8 +1113,8 @@ CONTAINS
                DO i = 1, cdft_control%natoms
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                  CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-                 CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
                END DO
+               CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
              END IF
 
            END DO !  1, SIZE(cdft_control%group)
