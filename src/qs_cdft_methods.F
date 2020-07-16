@@ -1773,7 +1773,7 @@ CONTAINS
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
-         ! LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
+         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge !, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
