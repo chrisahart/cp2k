@@ -894,7 +894,7 @@ CONTAINS
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         in_memory = .FALSE.
+         in_memory = .TRUE.
          my_just_gradients = .FALSE.
          IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          IF (my_just_gradients) THEN
@@ -1033,11 +1033,11 @@ CONTAINS
                PRINT *, "Calculate atomic densities"
                cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
                cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
-               DO i = 1, cdft_control%natoms
-                 CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-               END DO
+               ! DO i = 1, cdft_control%natoms
+               !   CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+               !   CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+               !   cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+               ! END DO
                CALL cdft_print_hirshfeld_density(qs_env)
              END IF
 
