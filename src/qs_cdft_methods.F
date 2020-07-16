@@ -1019,7 +1019,7 @@ CONTAINS
                        ! atom_a = atom_list(iatom)
                        ! ra(:) = particle_set(atom_a)%r - origin(1)
 
-                       ! exp_eval = rs_single_dr(iatomiatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
+                       ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
                        !            * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
                        !
                        ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) = &

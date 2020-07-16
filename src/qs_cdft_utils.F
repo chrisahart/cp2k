@@ -1110,9 +1110,7 @@ CONTAINS
         PRINT *, "Setting up atomic densities"
         DO igroup = 1, SIZE(cdft_control%group)
           PRINT *, "cdft_control%natoms", cdft_control%natoms
-          IF (.NOT. ASSOCIATED(cdft_control%group(igroup)%hirsh_rho_atomic)) THEN
-            ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
-          END IF
+          ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
           CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
           use_data=REALDATA3D, in_space=REALSPACE)
           CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_total%pw, &
