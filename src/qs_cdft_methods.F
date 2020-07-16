@@ -1129,7 +1129,6 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
-
            ! Release grids
            CALL rs_grid_release(rs_rho_constr)
            CALL rs_grid_release(rs_rho_all)
@@ -1169,12 +1168,7 @@ CONTAINS
 
          END SUBROUTINE hirshfeld_constraint_low
 
-         ! **************************************************************************************************
-   !> \brief Calculates atomic forces due to a Hirshfeld constraint
-   !> \param qs_env the qs_env where to build the gradients
-   !> \author  Christian Ahart (04.2020)
-   ! **************************************************************************************************
-   SUBROUTINE hirshfeld_constraint_force(qs_env)
+         SUBROUTINE hirshfeld_constraint_force(qs_env)
      TYPE(qs_environment_type), POINTER                 :: qs_env
 
      CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_force', &
@@ -1213,7 +1207,7 @@ CONTAINS
                      para_env=para_env)
      CALL qs_rho_get(rho, rho_r=rho_r)
 
-     ! PRINT *, "start hirshfeld_constraint_force"
+     PRINT *, "start hirshfeld_constraint_force"
 
      cdft_control => dft_control%qs_control%cdft_control
      becke_control => cdft_control%becke_control
@@ -1240,7 +1234,7 @@ CONTAINS
      lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
      ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
 
-     ! PRINT *, "calculating integrated"
+     PRINT *, "calculating integrated"
 
      DO k = lb(3), ub(3)
         DO j = lb(2), ub(2)
@@ -1261,9 +1255,9 @@ CONTAINS
            END DO
         END DO
 
-        ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+        PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
         ! PRINT *, "cdft_control%group(1)%integrated(:, 1) *dvol", cdft_control%group(1)%integrated(:, 1)*dvol
-        ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+        PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
         ! PRINT *, "cdft_control%group(1)%integrated(:, 2)*dvol", cdft_control%group(1)%integrated(:, 2)*dvol
 
 
@@ -1274,33 +1268,171 @@ CONTAINS
          DO igroup = 1, SIZE(cdft_control%group)
             DO iatom = 1, natom
 
-              ! PRINT *, "calculating force for iatom", iatom
-              ! PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
+              PRINT *, "calculating force for iatom", iatom
+              PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
 
                ikind = kind_of(iatom)
                i = atom_of_kind(iatom)
 
-               ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
 
                force(ikind)%rho_elec(:, i) = &
                  force(ikind)%rho_elec(:, i) + &
                  group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
 
-              ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
          END DO
       ! END IF
 
-      ! PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
-      ! PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
+      PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
+      PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
 
 
 
       CALL timestop(handle)
 
-      ! PRINT *, "end hirshfeld_constraint_force"
+      PRINT *, "end hirshfeld_constraint_force"
 
-    END SUBROUTINE hirshfeld_constraint_force
+      END SUBROUTINE hirshfeld_constraint_force
+
+   !       ! **************************************************************************************************
+   ! !> \brief Calculates atomic forces due to a Hirshfeld constraint
+   ! !> \param qs_env the qs_env where to build the gradients
+   ! !> \author  Christian Ahart (04.2020)
+   ! ! **************************************************************************************************
+   ! SUBROUTINE hirshfeld_constraint_force(qs_env)
+   !   TYPE(qs_environment_type), POINTER                 :: qs_env
+   !
+   !   CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_force', &
+   !      routineP = moduleN//':'//routineN
+   !
+   !      INTEGER                                            :: handle, i, iatom, igroup, ikind, ind(3), &
+   !                                                            ispin, j, k, natom, nvar
+   !      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
+   !      INTEGER, DIMENSION(2, 3)                           :: bo
+   !      REAL(kind=dp)                                      :: dvol, eps_cavity, sign, th
+   !      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: strength
+   !      REAL(KIND=dp), DIMENSION(:), POINTER               :: cutoffs
+   !      TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
+   !      TYPE(becke_constraint_type), POINTER               :: becke_control
+   !      TYPE(cdft_control_type), POINTER                   :: cdft_control
+   !      TYPE(cdft_group_type), DIMENSION(:), POINTER       :: group
+   !      TYPE(cell_type), POINTER                           :: cell
+   !      TYPE(cp_para_env_type), POINTER                    :: para_env
+   !      TYPE(dft_control_type), POINTER                    :: dft_control
+   !      TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
+   !      TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
+   !      TYPE(qs_force_type), DIMENSION(:), POINTER         :: force
+   !      TYPE(qs_rho_type), POINTER                         :: rho
+   !      INTEGER, DIMENSION(3)                              :: lb, ub
+   !
+   !   CALL timeset(routineN, handle)
+   !   NULLIFY (atomic_kind_set, cell, para_env, dft_control, particle_set, &
+   !            rho, rho_r, force, cutoffs, becke_control, group)
+   !
+   !   CALL get_qs_env(qs_env, &
+   !                   atomic_kind_set=atomic_kind_set, &
+   !                   natom=natom, &
+   !                   rho=rho, &
+   !                   force=force, &
+   !                   dft_control=dft_control, &
+   !                   para_env=para_env)
+   !   CALL qs_rho_get(rho, rho_r=rho_r)
+   !
+   !   PRINT *, "start hirshfeld_constraint_force"
+   !
+   !   cdft_control => dft_control%qs_control%cdft_control
+   !   becke_control => cdft_control%becke_control
+   !   group => cdft_control%group
+   !   nvar = SIZE(cdft_control%target)
+   !   ALLOCATE (strength(nvar))
+   !   strength(:) = cdft_control%strength(:)
+   !   cutoffs => becke_control%cutoffs
+   !   eps_cavity = becke_control%eps_cavity
+   !   ALLOCATE (atom_of_kind(natom))
+   !   ALLOCATE (kind_of(natom))
+   !
+   !   CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
+   !                            atom_of_kind=atom_of_kind, &
+   !                            kind_of=kind_of)
+   !
+   !   DO igroup = 1, SIZE(cdft_control%group)
+   !      ALLOCATE (cdft_control%group(igroup)%integrated(3, natom))
+   !      group(igroup)%integrated = 0.0_dp
+   !   END DO
+   !   bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+   !   dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
+   !
+   !   lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+   !   ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+   !    PRINT *, "dvol", dvol
+   !
+   !
+   !   PRINT *, "calculating integrated"
+   !
+   !   DO k = lb(3), ub(3)
+   !      DO j = lb(2), ub(2)
+   !         DO i = lb(1), ub(1)
+   !            DO igroup = 1, SIZE(group)
+   !               DO iatom = 1, natom
+   !                 DO ispin = 1, dft_control%nspins
+   !
+   !                   PRINT *, "igroup", igroup
+   !                   PRINT *, "SIZE(cdft_control%group)", igroup
+   !
+   !                     cdft_control%group(igroup)%integrated(:, iatom) = &
+   !                      cdft_control%group(igroup)%integrated(:, iatom) + &
+   !                      cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+   !                      * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+   !
+   !                  END DO
+   !                END DO
+   !               END DO
+   !            END DO
+   !         END DO
+   !      END DO
+   !
+   !      ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+   !      ! PRINT *, "cdft_control%group(1)%integrated(:, 1) *dvol", cdft_control%group(1)%integrated(:, 1)*dvol
+   !      ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+   !      ! PRINT *, "cdft_control%group(1)%integrated(:, 2)*dvol", cdft_control%group(1)%integrated(:, 2)*dvol
+   !
+   !
+   !    ! Update force only on master process. Otherwise force due to constraint becomes multiplied
+   !    ! by the number of processes when the final force%rho_elec is constructed in qs_force
+   !    ! by mp_summing [the final integrated(:,:) is distributed on all processors]
+   !    ! IF (para_env%ionode) THEN
+   !       DO igroup = 1, SIZE(cdft_control%group)
+   !          DO iatom = 1, natom
+   !
+   !            ! PRINT *, "calculating force for iatom", iatom
+   !            ! PRINT *, "   cdft_control%strength(igroup)",    cdft_control%strength(igroup)
+   !
+   !             ikind = kind_of(iatom)
+   !             i = atom_of_kind(iatom)
+   !
+   !             ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+   !
+   !             force(ikind)%rho_elec(:, i) = &
+   !               force(ikind)%rho_elec(:, i) + &
+   !               group(igroup)%integrated(:, iatom) * cdft_control%strength(igroup)
+   !
+   !            ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+   !          END DO
+   !       END DO
+   !    ! END IF
+   !
+   !    ! PRINT *, "force(1)%rho_elec(:, 1)", force(1)%rho_elec(:, 1)
+   !    ! PRINT *, "force(1)%rho_elec(:, 2)", force(1)%rho_elec(:, 2)
+   !
+   !
+   !
+   !    CALL timestop(handle)
+   !
+   !    ! PRINT *, "end hirshfeld_constraint_force"
+   !
+   !  END SUBROUTINE hirshfeld_constraint_force
 
     ! **************************************************************************************************
     !> \brief Calculates atomic forces due to a CDFT constraint (Becke of Hirshfeld)
