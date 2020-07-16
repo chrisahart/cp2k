@@ -1067,10 +1067,14 @@ CONTAINS
                        DO i = lb(1), ub(1)
 
                          ! atom_a = atom_list(iatom)
-                         ! ra(:) = particle_set(atom_a)%r - origin(1)
+                         ! ra(:) = particle_set(atom_a)%r - origin(:)
                          !
                          ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
-                         !            * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                         !        * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                         !
+                         ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
+                         !          * (1 - cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
+                         !
                          !
                          ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) = &
                          ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) + &
@@ -1239,9 +1243,13 @@ CONTAINS
      DO k = lb(3), ub(3)
         DO j = lb(2), ub(2)
            DO i = lb(1), ub(1)
-              DO igroup = 1, SIZE(group)
+              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
                    DO ispin = 1, dft_control%nspins
+
+                     PRINT *, "igroup", igroup
+                    PRINT *, "SIZE(cdft_control%group)", igroup
+                    PRINT *, "SIZE(group)", igroup
 
                        cdft_control%group(igroup)%integrated(:, iatom) = &
                         cdft_control%group(igroup)%integrated(:, iatom) + &
