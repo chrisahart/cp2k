@@ -1877,6 +1877,7 @@ CONTAINS
 
           coefficients(1) = 1
           coefficients(2) = -1
+          ! coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
           numexp = hirshfeld_env%kind_shape_fn(1)%numexp
 
           ! PRINT *, "  cdft_control%group(1)%weight%pw%pw_grid%bounds_local", &
@@ -1933,7 +1934,7 @@ CONTAINS
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
-           ! PRINT *, "looping over each igroup", igroup
+           PRINT *, "looping over each igroup", igroup
 
             ! Loop over each atomic kind
             DO ikind = 1, SIZE(atomic_kind_set)
@@ -2009,7 +2010,7 @@ CONTAINS
                   END DO ! iex = 1, numexp
 
                   ! Save atomic density and analytic derivative
-                  ! rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+                  rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
                   ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
 
                   ! Save sum over constraint atoms, all atoms
@@ -2092,8 +2093,8 @@ CONTAINS
              ! Set up pw
 
              ! Only set up sum over all atoms for first igroup
+             CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
              IF (igroup == 1) THEN
-               CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
            IF (ASSOCIATED(fnorm)) THEN
               CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
            END IF
@@ -2134,6 +2135,7 @@ CONTAINS
             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                    in_space=REALSPACE)
             DO i = 1, cdft_control%natoms
+              PRINT *, "printing charges", i
                CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                CALL rs_grid_release(rs_single(i)%rs_grid)
                CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
