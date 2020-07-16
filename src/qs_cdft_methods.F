@@ -1902,7 +1902,7 @@ CONTAINS
 
                  IF (in_memory) THEN
                  rs_rho_dr_temp%r = 0.0_dp
-                 THEN
+               END IF
 
                  ! Get atomic position
                  atom_a = atom_list(iatom)
