@@ -1103,7 +1103,7 @@ CONTAINS
              ! CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
-             hirshfeld_control%print_density = .FALSE.
+             hirshfeld_control%print_density = .TRUE.
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                PRINT *, "Calculate atomic densities"
                cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
@@ -1116,7 +1116,7 @@ CONTAINS
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END DO
-               ! CALL cdft_print_hirshfeld_density(qs_env)
+               CALL cdft_print_hirshfeld_density(qs_env)
                ! CALL cdft_print_weight_function(qs_env)
                ! DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
              END IF
