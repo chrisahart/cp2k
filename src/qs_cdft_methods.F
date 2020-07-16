@@ -961,8 +961,6 @@ CONTAINS
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-                 ! PRINT *, "alpha", hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                 ! PRINT *, "coef", hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                  ! Loop over grid
                  DO k = lb(3), ub(3)
@@ -1069,11 +1067,9 @@ CONTAINS
            ! Only set up sum over all atoms for first igroup
            CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
            IF (igroup == 1) THEN
-
              IF (ASSOCIATED(fnorm)) THEN
                CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
              END IF
-
              ALLOCATE (fnorm)
              CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
              in_space=REALSPACE)
@@ -1087,37 +1083,36 @@ CONTAINS
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-
-             ! Save densitites
-             ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-             ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
-
-             ! Compute charges if requested
-             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                      in_space=REALSPACE)
-
-               DO i = 1, cdft_control%natoms
-                 PRINT *, "printing charges", i
-                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                 CALL rs_grid_release(rs_single(i)%rs_grid)
-                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
-                                fnorm%pw%cr3d, divide=.TRUE.)
-               END DO
-             END IF
 
              ! Print atomic densities if requested
-             plot_hirshfeld_density = FALSE
+             plot_hirshfeld_density = .FALSE.
              IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
+               cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
                DO i = 1, cdft_control%natoms
+                 IF (ASSOCIATED(fnorm)) THEN
+                   CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+                 END IF
                  CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                  cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                END DO
-               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = fnorm%pw%cr3d
                CALL cdft_print_hirshfeld_density(qs_env)
                CALL cdft_print_weight_function(qs_env)
+             END IF
+
+             ! Compute charges if requested
+             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+               IF (ASSOCIATED(fnorm)) THEN
+                 CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+               END IF
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
+                                      in_space=REALSPACE)
+               DO i = 1, cdft_control%natoms
+                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
+                                fnorm%pw%cr3d, divide=.TRUE.)
+               END DO
              END IF
 
            END DO !  1, SIZE(cdft_control%group)
