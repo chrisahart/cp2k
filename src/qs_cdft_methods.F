@@ -890,7 +890,6 @@ CONTAINS
                          exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
                                   * (1 - cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
 
-
                          cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) = &
                          cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) + &
                          ((i * dr(1)) - ra(1)) * exp_eval

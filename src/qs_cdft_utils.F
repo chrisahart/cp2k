@@ -1434,7 +1434,7 @@ CONTAINS
               !
               !  CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-           END DO ! igroup = 1, SIZE(cdft_control%group)
+           ! END DO ! igroup = 1, SIZE(cdft_control%group)
 
           ! PRINT *, "printing atomic density"
 
