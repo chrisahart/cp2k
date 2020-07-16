@@ -860,7 +860,7 @@ CONTAINS
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, rs_rho_dr_temp, &
                   hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho, fnorm)
 
-          ! PRINT *, "start hirshfeld_constraint_low"
+          PRINT *, "start hirshfeld_constraint_low"
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1064,51 +1064,49 @@ CONTAINS
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
 
-           ! Only set up sum over all atoms for first igroup
+           ! Only calculate sum over all atoms for first igroup
            CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
            IF (igroup == 1) THEN
              IF (ASSOCIATED(fnorm)) THEN
                CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
              END IF
              ALLOCATE (fnorm)
-             CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
-             in_space=REALSPACE)
+             CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, in_space=REALSPACE)
              CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
              CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
            END IF
 
             ! Calculate weight function
-            CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                  in_space=REALSPACE)
+            PRINT *, "Calculate weight function"
+            CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 
              ! Print atomic densities if requested
-             ! hirshfeld_control%print_density = .FALSE.
-             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
-               DO i = 1, cdft_control%natoms
-                 IF (ASSOCIATED(fnorm)) THEN
-                   CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
-                 END IF
-                 CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                 cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
-               END DO
-               CALL cdft_print_hirshfeld_density(qs_env)
-               CALL cdft_print_weight_function(qs_env)
-               DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-             END IF
+             ! ! hirshfeld_control%print_density = .FALSE.
+             ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             !   cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+             !   cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+             !   DO i = 1, cdft_control%natoms
+             !     IF (ASSOCIATED(fnorm)) THEN
+             !       CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+             !     END IF
+             !     CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+             !     CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+             !     cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
+             !   END DO
+             !   CALL cdft_print_hirshfeld_density(qs_env)
+             !   CALL cdft_print_weight_function(qs_env)
+             !   DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+             ! END IF
 
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                IF (ASSOCIATED(fnorm)) THEN
                  CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
                END IF
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-                                      in_space=REALSPACE)
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                DO i = 1, cdft_control%natoms
                  CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                  CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
