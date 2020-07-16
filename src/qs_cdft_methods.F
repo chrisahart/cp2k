@@ -139,7 +139,7 @@ CONTAINS
          ! Integrate the Becke constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL becke_constraint_force(qs_env)
+         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
@@ -808,7 +808,7 @@ CONTAINS
          ! Integrate the Hirshfeld constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL hirshfeld_constraint_force(qs_env)
+         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
@@ -915,8 +915,8 @@ CONTAINS
          END DO
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         ! in_memory = cdft_control%in_memory
-         in_memory = .TRUE.
+         cdft_control%in_memory = .TRUE.
+         in_memory = cdft_control%in_memory
          my_just_gradients = .FALSE.
          IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          IF (my_just_gradients) THEN
@@ -1515,23 +1515,19 @@ CONTAINS
           ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
           dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
-          ! IF (.NOT. becke_control%in_memory) &
-             ! Gradients were not precomputed => calculate them now
-             ! CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
-
           ! If gradients were not precomputed, calculate them now
-          ! IF (cdft_control%type == outer_scf_becke_constraint) THEN
-          !   IF (.NOT. cdft_control%becke_control%in_memory) THEN
-          !      CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
-          !    END IF
+          IF (cdft_control%type == outer_scf_becke_constraint) THEN
+            IF (.NOT. cdft_control%becke_control%in_memory) THEN
+               CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
+             END IF
 
-          ! ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-            ! IF (.NOT. cdft_control%becke_control%in_memory) THEN
-            !    CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
-            !  END IF
-          ! END IF
+          ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+            IF (.NOT. cdft_control%in_memory) THEN
+               CALL hirshfeld_constraint_low(qs_env, just_gradients=.TRUE.)
+             END IF
+          END IF
 
-          ! PRINT *, "calculating integrated"
+          PRINT *, "calculating integrated"
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
