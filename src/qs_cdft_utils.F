@@ -1106,7 +1106,7 @@ CONTAINS
 
       ! PRINT *, "Allocate densities"
 
-      plot_hirshfeld_density = FALSE
+      plot_hirshfeld_density = .FALSE.
       IF (plot_hirshfeld_density .eqv. .TRUE.) THEN
 
       ! Allocate densities
@@ -1157,7 +1157,7 @@ CONTAINS
       !
       !   END DO
       ! END DO
-            END IF 
+            END IF
 
       ! Radii no longer needed
       IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
