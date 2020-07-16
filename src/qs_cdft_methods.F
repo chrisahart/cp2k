@@ -1922,7 +1922,7 @@ CONTAINS
                        ! Store atomic density
                        rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
 
-                       ! Store analytic derivative
+                       ! Store analytic derivative of atomic density
                        IF (in_memory) THEN
                          rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
                                                      + 2.0_dp * alpha * exp_eval
@@ -1933,10 +1933,10 @@ CONTAINS
                  END DO ! k = lb(3), ub(3)
                END DO ! iex = 1, numexp
 
-               ! Save atomic density and analytic derivative
+               ! Save atomic density
                rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
 
-               ! Save sum over constraint atoms, all atoms
+               ! Save sum over constraint atoms, sum over all atoms
                rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
                rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
 
