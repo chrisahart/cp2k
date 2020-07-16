@@ -2174,7 +2174,7 @@ CONTAINS
          ! DEALLOCATE (atom_list)
          DEALLOCATE (rs_single)
          DEALLOCATE (rs_single_dr)
-         ! DEALLOCATE (compute_charge)
+         DEALLOCATE (compute_charge)
          DEALLOCATE (coefficients)
 
          ! Deallocate if allocated
