@@ -1823,6 +1823,12 @@ CONTAINS
           ALLOCATE (rs_single(cdft_control%natoms))
           ALLOCATE (rs_single_dr(cdft_control%natoms))
 
+          IF (cdft_control%atomic_charges) THEN
+         ALLOCATE (compute_charge(natom))
+         compute_charge = .FALSE.
+        END IF
+
+
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
@@ -1903,6 +1909,7 @@ CONTAINS
                CALL rs_grid_zero(rs_single(i)%rs_grid)
                CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                ! PRINT *, "rs_grid_zero", i
+                compute_charge(cdft_control%atoms(i)) = .TRUE.
             END DO
 
 
