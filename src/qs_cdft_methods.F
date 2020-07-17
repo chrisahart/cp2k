@@ -850,8 +850,8 @@ CONTAINS
              hirshfeld_control%print_density = .TRUE.
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                PRINT *, "Calculate atomic densities"
-               cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+               ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+               ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
                ! DO i = 1, cdft_control%natoms
                !   CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                !   CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
