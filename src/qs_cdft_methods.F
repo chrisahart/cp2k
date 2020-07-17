@@ -139,7 +139,7 @@ CONTAINS
          ! Integrate the Becke constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
+         IF (calculate_forces) CALL becke_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
@@ -808,7 +808,7 @@ CONTAINS
          ! Integrate the Hirshfeld constraint
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
-         IF (calculate_forces) CALL cdft_constraint_force(qs_env)
+         IF (calculate_forces) CALL hirshfeld_constraint_force(qs_env)
       END IF
       CALL timestop(handle)
 
@@ -915,8 +915,8 @@ CONTAINS
          END DO
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         cdft_control%in_memory = .TRUE.
-         in_memory = cdft_control%in_memory
+         ! in_memory = cdft_control%in_memory
+         in_memory = .TRUE.
          my_just_gradients = .FALSE.
          IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          IF (my_just_gradients) THEN
@@ -1032,14 +1032,14 @@ CONTAINS
              hirshfeld_control%print_density = .TRUE.
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                PRINT *, "Calculate atomic densities"
-               ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-               ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+               cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+               cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
                ! DO i = 1, cdft_control%natoms
                !   CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                !   CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                !   cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                ! END DO
-               ! CALL cdft_print_hirshfeld_density(qs_env)
+               CALL cdft_print_hirshfeld_density(qs_env)
              END IF
 
              ! Compute charges if requested
@@ -1060,78 +1060,78 @@ CONTAINS
              PRINT *, "Calculate gradient"
 
              ! Calculate sum of Gaussian exponents to simplify derivative
-             DO igroup = 1, SIZE(cdft_control%group)
-               DO ikind = 1, SIZE(atomic_kind_set)
-                 DO iatom = 1, natom
+             ! DO igroup = 1, SIZE(cdft_control%group)
+               ! DO ikind = 1, SIZE(atomic_kind_set)
+                 ! DO iatom = 1, natom
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
 
-                         atom_a = atom_list(iatom)
-                         ra(:) = particle_set(atom_a)%r - origin(:)
-
+                         ! atom_a = atom_list(iatom)
+                         ! ra(:) = particle_set(atom_a)%r - origin(:)
+                         !
                          ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
                          !        * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                         !
+                         ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
+                         !          * (1 - cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
+                         !
+                         !
+                         ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) + &
+                         ! ((i * dr(1)) - ra(1)) * exp_eval
+                         !
+                         ! cdft_control%group(igroup)%gradients(2+(iatom*3-1), i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(2+(iatom*3-1), i, j, k) + &
+                         ! ((j * dr(2)) - ra(2)) * exp_eval
+                         !
+                         ! cdft_control%group(igroup)%gradients(3+(iatom*3-1), i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(3+(iatom*3-1), i, j, k) + &
+                         ! ((k * dr(3)) - ra(3)) * exp_eval
 
-                         exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
-                                  * (1 - cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
+                         atom_a = atom_list(1)
+                         ra(:) = particle_set(atom_a)%r - origin(:)
+
+                         cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
+                         ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+                         /  rs_rho_all%r(i, j, k) &
+                         * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+
+                         cdft_control%group(1)%gradients(2, i, j, k) =  cdft_control%group(1)%gradients(2, i, j, k) + &
+                         ((j * dr(2)) - ra(2)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+                         /  rs_rho_all%r(i, j, k) &
+                         * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+
+                         cdft_control%group(1)%gradients(3, i, j, k) = cdft_control%group(1)%gradients(3, i, j, k) + &
+                         ((k * dr(3)) - ra(3)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+                         /  rs_rho_all%r(i, j, k) &
+                         * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
 
-                         cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) = &
-                         cdft_control%group(igroup)%gradients(1+(iatom*3-1), i, j, k) + &
-                         ((i * dr(1)) - ra(1)) * exp_eval
+                         atom_a = atom_list(2)
+                         ra(:) = particle_set(atom_a)%r - origin(:)
 
-                         cdft_control%group(igroup)%gradients(2+(iatom*3-1), i, j, k) = &
-                         cdft_control%group(igroup)%gradients(2+(iatom*3-1), i, j, k) + &
-                         ((j * dr(2)) - ra(2)) * exp_eval
+                         cdft_control%group(1)%gradients(4, i, j, k) = cdft_control%group(1)%gradients(4, i, j, k) + &
+                         ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
+                         /  rs_rho_all%r(i, j, k) &
+                         * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
-                         cdft_control%group(igroup)%gradients(3+(iatom*3-1), i, j, k) = &
-                         cdft_control%group(igroup)%gradients(3+(iatom*3-1), i, j, k) + &
-                         ((k * dr(3)) - ra(3)) * exp_eval
+                         cdft_control%group(1)%gradients(5, i, j, k) = cdft_control%group(1)%gradients(5, i, j, k) + &
+                         ((j * dr(2)) - ra(2)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
+                         /  rs_rho_all%r(i, j, k) &
+                         * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
-                         ! atom_a = atom_list(1)
-                         ! ra(:) = particle_set(atom_a)%r - origin(:)
-                         !
-                         ! cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
-                         ! ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
-                         ! /  rs_rho_all%r(i, j, k) &
-                         ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
-                         !
-                         ! cdft_control%group(1)%gradients(2, i, j, k) =  cdft_control%group(1)%gradients(2, i, j, k) + &
-                         ! ((j * dr(2)) - ra(2)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
-                         ! /  rs_rho_all%r(i, j, k) &
-                         ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
-                         !
-                         ! cdft_control%group(1)%gradients(3, i, j, k) = cdft_control%group(1)%gradients(3, i, j, k) + &
-                         ! ((k * dr(3)) - ra(3)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
-                         ! /  rs_rho_all%r(i, j, k) &
-                         ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
-                         !
-                         !
-                         ! atom_a = atom_list(2)
-                         ! ra(:) = particle_set(atom_a)%r - origin(:)
-                         !
-                         ! cdft_control%group(1)%gradients(4, i, j, k) = cdft_control%group(1)%gradients(4, i, j, k) + &
-                         ! ((i * dr(1)) - ra(1)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
-                         ! /  rs_rho_all%r(i, j, k) &
-                         ! * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
-                         !
-                         ! cdft_control%group(1)%gradients(5, i, j, k) = cdft_control%group(1)%gradients(5, i, j, k) + &
-                         ! ((j * dr(2)) - ra(2)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
-                         ! /  rs_rho_all%r(i, j, k) &
-                         ! * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
-                         !
-                         ! cdft_control%group(1)%gradients(6, i, j, k) = cdft_control%group(1)%gradients(6, i, j, k) + &
-                         ! ((k * dr(3)) - ra(3)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
-                         ! /  rs_rho_all%r(i, j, k) &
-                         ! * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                         cdft_control%group(1)%gradients(6, i, j, k) = cdft_control%group(1)%gradients(6, i, j, k) + &
+                         ((k * dr(3)) - ra(3)) *  rs_single_dr(2)%rs_grid%r(i, j, k) &
+                         /  rs_rho_all%r(i, j, k) &
+                         * (-1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
                        END DO ! i = lb(1), ub(1)
                      END DO ! j = lb(2), ub(2)
                    END DO ! k = lb(3), ub(3)
-                 END DO ! iatom = 1, natom
-               END DO ! ikind = 1, SIZE(atomic_kind_set)
-             END DO ! igroup = 1, SIZE(cdft_control%group)
+                 ! END DO ! iatom = 1, natom
+               ! END DO ! ikind = 1, SIZE(atomic_kind_set)
+             ! END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
            ! Release grids
@@ -1515,19 +1515,23 @@ CONTAINS
           ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
           dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
+          ! IF (.NOT. becke_control%in_memory) &
+             ! Gradients were not precomputed => calculate them now
+             ! CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
+
           ! If gradients were not precomputed, calculate them now
-          IF (cdft_control%type == outer_scf_becke_constraint) THEN
-            IF (.NOT. cdft_control%becke_control%in_memory) THEN
-               CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
-             END IF
+          ! IF (cdft_control%type == outer_scf_becke_constraint) THEN
+          !   IF (.NOT. cdft_control%becke_control%in_memory) THEN
+          !      CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
+          !    END IF
 
-          ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-            IF (.NOT. cdft_control%in_memory) THEN
-               CALL hirshfeld_constraint_low(qs_env, just_gradients=.TRUE.)
-             END IF
-          END IF
+          ! ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+            ! IF (.NOT. cdft_control%becke_control%in_memory) THEN
+            !    CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
+            !  END IF
+          ! END IF
 
-          PRINT *, "calculating integrated"
+          ! PRINT *, "calculating integrated"
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
