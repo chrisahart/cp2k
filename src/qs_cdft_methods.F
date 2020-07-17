@@ -881,6 +881,16 @@ CONTAINS
              DO igroup = 1, SIZE(cdft_control%group)
                DO ikind = 1, SIZE(atomic_kind_set)
                  DO iatom = 1, natom
+
+                   PRINT *, "ikind", ikind
+                   PRINT *, "iatom", iatom
+
+
+                                            PRINT *, "1+((iatom-1)*3)", 1+((iatom-1)*3)
+                                            PRINT *, "2+((iatom-1)*3)", 2+((iatom-1)*3)
+                                            PRINT *, "3+((iatom-1)*3)", 3+((iatom-1)*3)
+
+
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
