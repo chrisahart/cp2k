@@ -649,7 +649,7 @@ CONTAINS
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
-         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
+         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge!, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
@@ -699,10 +699,6 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ALLOCATE (rs_single(cdft_control%natoms))
          ALLOCATE (rs_single_dr(cdft_control%natoms))
-         IF (cdft_control%atomic_charges) THEN
-           ALLOCATE (compute_charge(natom))
-           compute_charge = .FALSE.
-         END IF
 
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
@@ -729,8 +725,14 @@ CONTAINS
            CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
            CALL rs_grid_zero(rs_single(i)%rs_grid)
            CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-           compute_charge(cdft_control%atoms(i)) = .TRUE.
          END DO
+
+         ! IF (cdft_control%atomic_charges) THEN
+         !  ALLOCATE (compute_charge(natom))
+         !  DO i = 1, cdft_control%natoms
+         !    compute_charge(cdft_control%atoms(i)) = .TRUE.
+         !  END DO
+         ! END IF
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          ! in_memory = cdft_control%in_memory
@@ -842,10 +844,10 @@ CONTAINS
             ! Calculate weight function
             PRINT *, "Calculate weight function"
             CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-             CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-             CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
-                             tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+            CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
+            CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+                            tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
              ! hirshfeld_control%print_density = .TRUE.
@@ -870,6 +872,7 @@ CONTAINS
              !     CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
              !   END DO
              !   CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+             !   DEALLOCATE (compute_charge)
              ! END IF
 
            END DO !  1, SIZE(cdft_control%group)
@@ -923,6 +926,7 @@ CONTAINS
            CALL rs_grid_release(rs_rho_constr)
            CALL rs_grid_release(rs_rho_all)
            CALL rs_grid_release(rs_rho_temp)
+           CALL rs_grid_release(rs_rho_dr_temp)
 
            ! Release grids that require looping over atoms
            DO i = 1, cdft_control%natoms
@@ -945,12 +949,12 @@ CONTAINS
            ! Deallocate
            DEALLOCATE (rs_single)
            DEALLOCATE (rs_single_dr)
-           DEALLOCATE (compute_charge)
            DEALLOCATE (coefficients)
 
+
            ! Deallocate if allocated
-           IF (ALLOCATED(is_constraint)) &
-           DEALLOCATE (is_constraint)
+           ! IF (ALLOCATED(is_constraint)) &
+           ! DEALLOCATE (is_constraint)
 
            PRINT *, "end hirshfeld_constraint_low"
 
