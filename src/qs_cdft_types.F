@@ -477,8 +477,8 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
-               IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
                PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
+               IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
                   DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
                   PRINT *, "DEALLOCATE hirsh_rho_atomic"
             END DO

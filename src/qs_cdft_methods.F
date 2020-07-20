@@ -944,7 +944,7 @@ CONTAINS
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(iatom)%pw)
-           !   DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+           !   DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic)
            ! END IF
 
            ! Deallocate
