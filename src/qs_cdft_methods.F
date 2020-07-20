@@ -929,15 +929,21 @@ CONTAINS
            CALL rs_grid_release(rs_rho_temp)
            CALL rs_grid_release(rs_rho_dr_temp)
 
+
+
            ! Release grids that require looping over atoms
            DO i = 1, cdft_control%natoms
              CALL rs_grid_release(rs_single(i)%rs_grid)
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(i)%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(i)%pw)
              ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
              !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+           END DO
+
+           DO igroup = 1, SIZE(group)
+              DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
            END DO
 
            ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
