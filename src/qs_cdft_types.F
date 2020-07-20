@@ -479,11 +479,11 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%integrated)
 
 
-                  PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
-                  IF (ALLOCATED(cdft_control%group(i)%hirsh_rho_atomic)) THEN
-                     DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-                  END IF
-                  PRINT *, "DEALLOCATE hirsh_rho_atomic"
+                  ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
+                  ! IF (ALLOCATED(cdft_control%group(i)%hirsh_rho_atomic)) THEN
+                  !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+                  ! END IF
+                  ! PRINT *, "DEALLOCATE hirsh_rho_atomic"
 
                ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
                ! PRINT *, "ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic", &
