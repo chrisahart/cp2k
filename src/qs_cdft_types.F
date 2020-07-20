@@ -197,11 +197,11 @@ MODULE qs_cdft_types
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
       ! Hirshfeld promolecular density
-      ! TYPE(pw_p_type)             :: hirsh_rho_promolecular
+      TYPE(pw_p_type)             :: hirsh_rho_promolecular
       ! Hirshfeld promolecular density
-      ! TYPE(pw_p_type)             :: hirsh_rho_total
+      TYPE(pw_p_type)             :: hirsh_rho_total
       ! Hirshfeld atomic density
-      ! TYPE(pw_p_type), POINTER, DIMENSION(:)  :: hirsh_rho_atomic
+      TYPE(pw_p_type), POINTER, DIMENSION(:)  :: hirsh_rho_atomic
 
     END TYPE cdft_group_type
 
@@ -477,10 +477,10 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
-               ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
-               ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
-               !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-               !    PRINT *, "DEALLOCATE hirsh_rho_atomic"
+               IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
+               PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
+                  DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+                  PRINT *, "DEALLOCATE hirsh_rho_atomic"
             END DO
             DEALLOCATE (cdft_control%group)
          END IF

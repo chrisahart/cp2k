@@ -668,6 +668,7 @@ CONTAINS
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub, npts
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
+         ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
@@ -950,7 +951,6 @@ CONTAINS
            DEALLOCATE (rs_single)
            DEALLOCATE (rs_single_dr)
            DEALLOCATE (coefficients)
-
 
            ! Deallocate if allocated
            ! IF (ALLOCATED(is_constraint)) &
