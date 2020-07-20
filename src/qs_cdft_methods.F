@@ -942,7 +942,7 @@ CONTAINS
              !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
            END DO
 
-           DO igroup = 1, SIZE(group)
+           DO igroup = 1, SIZE(cdft_control%group)
               DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
            END DO
 
