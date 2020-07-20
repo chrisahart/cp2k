@@ -898,9 +898,9 @@ CONTAINS
                          atom_a = atom_list(iatom)
                          ra(:) = particle_set(atom_a)%r - origin(:)
 
-                         exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
-                                * (cdft_control%group(igroup)%coeff(atom_a)  - &
-                                (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                         ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
+                         !        * (cdft_control%group(igroup)%coeff(atom_a)  - &
+                         !        (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
 
                                 ! cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
@@ -909,22 +909,26 @@ CONTAINS
                                 ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
 
 
-                         ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
-                         !          * (cdft_control%group(igroup)%coeff(atom_a)  - &
-                                    ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
+                         ! d/dR w = (delta - w / sum(rho_all) * d/dR rho
+                         exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
+                                     cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                     rs_rho_all%r(i, j, k)) * &
+                                     rs_single_dr(iatom)%rs_grid%r(i, j, k)
 
-
+                         ! d/R_x rho = 2 * zeta * (r_x - R_x) rho
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                         cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                         ((i * dr(1)) - ra(1)) * exp_eval
+                             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                             ((i * dr(1)) - ra(1)) * exp_eval
 
+                         ! d/R_y rho = 2 * zeta * (r_y - R_y) rho
                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                         cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                         ((j * dr(2)) - ra(2)) * exp_eval
+                             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                             ((j * dr(2)) - ra(2)) * exp_eval
 
+                         ! d/R_z rho = 2 * zeta * (r_z - R_z) rho
                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                         cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                         ((k * dr(3)) - ra(3)) * exp_eval
+                             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                             ((k * dr(3)) - ra(3)) * exp_eval
                          !
                          ! atom_a = atom_list(1)
                          ! ra(:) = particle_set(atom_a)%r - origin(:)
