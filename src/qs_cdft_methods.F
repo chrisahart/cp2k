@@ -727,12 +727,12 @@ CONTAINS
            CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
          END DO
 
-         ! IF (cdft_control%atomic_charges) THEN
-         !  ALLOCATE (compute_charge(natom))
-         !  DO i = 1, cdft_control%natoms
-         !    compute_charge(cdft_control%atoms(i)) = .TRUE.
-         !  END DO
-         ! END IF
+         IF (cdft_control%atomic_charges) THEN
+          ALLOCATE (compute_charge(natom))
+          DO i = 1, cdft_control%natoms
+            compute_charge(cdft_control%atoms(i)) = .TRUE.
+          END DO
+         END IF
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          ! in_memory = cdft_control%in_memory
@@ -864,16 +864,16 @@ CONTAINS
              ! END IF
 
              ! Compute charges if requested
-             ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-             !   PRINT *, "Calculate charges"
-             !   CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-             !   DO i = 1, cdft_control%natoms
-             !     CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-             !     CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-             !   END DO
-             !   CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-             !   DEALLOCATE (compute_charge)
-             ! END IF
+             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+               PRINT *, "Calculate charges"
+               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+               DO i = 1, cdft_control%natoms
+                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+               END DO
+               CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+               DEALLOCATE (compute_charge)
+             END IF
 
            END DO !  1, SIZE(cdft_control%group)
 
