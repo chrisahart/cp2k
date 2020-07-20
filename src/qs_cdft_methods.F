@@ -845,6 +845,7 @@ CONTAINS
              CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
              CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Print atomic densities if requested
              ! hirshfeld_control%print_density = .TRUE.
