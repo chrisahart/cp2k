@@ -847,9 +847,9 @@ CONTAINS
                              tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
 
              ! Print atomic densities if requested
-             hirshfeld_control%print_density = .TRUE.
-             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               PRINT *, "Calculate atomic densities"
+             ! hirshfeld_control%print_density = .TRUE.
+             ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+               ! PRINT *, "Calculate atomic densities"
                ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
                ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
                ! DO i = 1, cdft_control%natoms
@@ -857,8 +857,8 @@ CONTAINS
                !   CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
                !   cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
                ! END DO
-               CALL cdft_print_hirshfeld_density(qs_env)
-             END IF
+               ! CALL cdft_print_hirshfeld_density(qs_env)
+             ! END IF
 
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
@@ -878,17 +878,17 @@ CONTAINS
              PRINT *, "Calculate gradient"
 
              ! Calculate sum of Gaussian exponents to simplify derivative
-             DO igroup = 1, SIZE(cdft_control%group)
-               DO ikind = 1, SIZE(atomic_kind_set)
-                 DO iatom = 1, natom
-
-                   PRINT *, "ikind", ikind
-                   PRINT *, "iatom", iatom
-
-
-                                            PRINT *, "1+((iatom-1)*3)", 1+((iatom-1)*3)
-                                            PRINT *, "2+((iatom-1)*3)", 2+((iatom-1)*3)
-                                            PRINT *, "3+((iatom-1)*3)", 3+((iatom-1)*3)
+             ! DO igroup = 1, SIZE(cdft_control%group)
+             !   DO ikind = 1, SIZE(atomic_kind_set)
+             !     DO iatom = 1, natom
+             !
+             !       PRINT *, "ikind", ikind
+             !       PRINT *, "iatom", iatom
+             !
+             !
+             !                                PRINT *, "1+((iatom-1)*3)", 1+((iatom-1)*3)
+             !                                PRINT *, "2+((iatom-1)*3)", 2+((iatom-1)*3)
+             !                                PRINT *, "3+((iatom-1)*3)", 3+((iatom-1)*3)
 
 
                    DO k = lb(3), ub(3)
@@ -899,10 +899,19 @@ CONTAINS
                          ra(:) = particle_set(atom_a)%r - origin(:)
 
                          exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
-                                * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+                                * (cdft_control%group(igroup)%coeff(atom_a)  - &
+                                (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+
+
+                                ! cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
+                                ! ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
+                                ! /  rs_rho_all%r(i, j, k) &
+                                ! * (1 - (rs_rho_constr%r(i, j, k) / rs_rho_all%r(i, j, k)))
+
 
                          ! exp_eval = rs_single_dr(iatom)%rs_grid%r(i, j, k) /  rs_rho_all%r(i, j, k) &
-                         !          * (1 - cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
+                         !          * (cdft_control%group(igroup)%coeff(atom_a)  - &
+                                    ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k))
 
 
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
@@ -916,9 +925,42 @@ CONTAINS
                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
                          ((k * dr(3)) - ra(3)) * exp_eval
+                         !
+                         ! atom_a = atom_list(1)
+                         ! ra(:) = particle_set(atom_a)%r - origin(:)
+                         !
+                         ! cdft_control%group(igroup)%gradients(1, i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(1, i, j, k) + &
+                         ! ((i * dr(1)) - ra(1)) * exp_eval
+                         !
+                         ! cdft_control%group(igroup)%gradients(2, i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(2, i, j, k) + &
+                         ! ((j * dr(2)) - ra(2)) * exp_eval
+                         !
+                         ! cdft_control%group(igroup)%gradients(3, i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(3, i, j, k) + &
+                         ! ((k * dr(3)) - ra(3)) * exp_eval
+                         !
+                         ! atom_a = atom_list(2)
+                         ! ra(:) = particle_set(atom_a)%r - origin(:)
+                         !
+                         !
+                         ! cdft_control%group(igroup)%gradients(4, i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(4, i, j, k) + &
+                         ! ((i * dr(1)) - ra(1)) * exp_eval
+                         !
+                         ! cdft_control%group(igroup)%gradients(5, i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(5, i, j, k) + &
+                         ! ((j * dr(2)) - ra(2)) * exp_eval
+                         !
+                         ! cdft_control%group(igroup)%gradients(6, i, j, k) = &
+                         ! cdft_control%group(igroup)%gradients(6, i, j, k) + &
+                         ! ((k * dr(3)) - ra(3)) * exp_eval
 
                          ! atom_a = atom_list(1)
                          ! ra(:) = particle_set(atom_a)%r - origin(:)
+
+
                          !
                          ! cdft_control%group(1)%gradients(1, i, j, k) = cdft_control%group(1)%gradients(1, i, j, k) + &
                          ! ((i * dr(1)) - ra(1)) *  rs_single_dr(1)%rs_grid%r(i, j, k) &
@@ -957,9 +999,9 @@ CONTAINS
                        END DO ! i = lb(1), ub(1)
                      END DO ! j = lb(2), ub(2)
                    END DO ! k = lb(3), ub(3)
-                 END DO ! iatom = 1, natom
-               END DO ! ikind = 1, SIZE(atomic_kind_set)
-             END DO ! igroup = 1, SIZE(cdft_control%group)
+             !     END DO ! iatom = 1, natom
+             !   END DO ! ikind = 1, SIZE(atomic_kind_set)
+             ! END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
            ! Release grids
@@ -1177,8 +1219,8 @@ CONTAINS
              END DO
           END IF
 
-             ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-             ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+             PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+             PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
 
           IF (.NOT. cdft_control%transfer_pot) THEN
