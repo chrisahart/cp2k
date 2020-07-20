@@ -878,9 +878,9 @@ CONTAINS
              PRINT *, "Calculate gradient"
 
              ! Calculate sum of Gaussian exponents to simplify derivative
-             ! DO igroup = 1, SIZE(cdft_control%group)
-             !   DO ikind = 1, SIZE(atomic_kind_set)
-             !     DO iatom = 1, natom
+             DO igroup = 1, SIZE(cdft_control%group)
+               DO ikind = 1, SIZE(atomic_kind_set)
+                 DO iatom = 1, natom
              !
              !       PRINT *, "ikind", ikind
              !       PRINT *, "iatom", iatom
@@ -999,9 +999,9 @@ CONTAINS
                        END DO ! i = lb(1), ub(1)
                      END DO ! j = lb(2), ub(2)
                    END DO ! k = lb(3), ub(3)
-             !     END DO ! iatom = 1, natom
-             !   END DO ! ikind = 1, SIZE(atomic_kind_set)
-             ! END DO ! igroup = 1, SIZE(cdft_control%group)
+                 END DO ! iatom = 1, natom
+               END DO ! ikind = 1, SIZE(atomic_kind_set)
+             END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
            ! Release grids
