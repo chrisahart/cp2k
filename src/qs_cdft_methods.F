@@ -867,7 +867,7 @@ CONTAINS
            ! END IF
 
            ! Calculate weight function
-           PRINT *, "Calculate weight function", SIZE(cdft_control%group(igroup)%weight%pw%cr3d)
+           PRINT *, "Calculate weight function"
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
@@ -890,7 +890,7 @@ CONTAINS
 
 
            IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-             PRINT *, "Calculate charges", SIZE(cdft_control%charge(iatom)%pw%cr3d)
+             PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
              DO k = lb(3), ub(3)
                DO j = lb(2), ub(2)
@@ -941,17 +941,14 @@ CONTAINS
 
            END DO !  1, SIZE(cdft_control%group)
 
-           ! Calculate gradient if requested
+           Calculate gradient if requested
            IF (in_memory) THEN
              PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
-               DO ikind = 1, SIZE(atomic_kind_set)
-                 CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
                  DO iatom = 1, natom
 
                    ! Get atomic position
-                   atom_a = atom_list(iatom)
-                   ra(:) = particle_set(atom_a)%r - origin(:)
+                   ra(:) = particle_set(iatom)%r - origin(:)
 
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
