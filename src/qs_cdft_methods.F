@@ -839,9 +839,11 @@ CONTAINS
 
                ! Save sum over constraint atoms, sum over all atoms
                ! rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
+               ! IF (is_constraint(atom_a)) THEN
                cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                        cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
+                ! END IF
 
                ! rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
