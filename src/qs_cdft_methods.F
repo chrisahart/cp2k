@@ -873,7 +873,9 @@ CONTAINS
              DO i = 1, cdft_control%natoms
                cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
              END DO
+             IF (para_env%ionode) THEN
              CALL cdft_print_hirshfeld_density(qs_env)
+           END IF
            END IF
 
            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
