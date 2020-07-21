@@ -807,10 +807,9 @@ CONTAINS
              DO iatom = 1, natom
 
                ! Set temproary array equal zero
-               ! rho_temp = 0.0_dp
-               ! IF (in_memory) THEN
-               !   rs_rho_dr_temp%r = 0.0_dp
-               ! END IF
+               rho_temp = 0.0_dp
+               rho_dr_temp = 0.0_dp
+               rho_atom_dr_temp = 0.0_dp
 
                ! Get atomic position
                atom_a = atom_list(iatom)
@@ -841,8 +840,7 @@ CONTAINS
 
                        ! Store analytic derivative of atomic density
                        IF (in_memory) THEN
-                         rho_dr_temp(i, j, k) = rho_dr_temp(i, j, k) &
-                                                     + 2.0_dp * alpha * exp_eval
+                         rho_dr_temp(i, j, k) = rho_dr_temp(i, j, k) + 2.0_dp * alpha * exp_eval
                        END IF
 
                      END DO ! i = lb(1), ub(1)
@@ -853,30 +851,27 @@ CONTAINS
                PRINT *, "atom", iatom
 
                ! Save atomic density
-                  IF (compute_charge(iatom)) THEN
+               IF (compute_charge(iatom)) THEN
                     PRINT *, "compute_charge"
-               cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
-                       cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + &
-                       rho_temp
+                    cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
+                       cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + rho_temp(:, :, :)
               END IF
 
               PRINT *, "hw_rho_atomic"
               cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
-                      cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + &
-                      rho_temp
+                      cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + rho_temp(:, :, :)
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
                  PRINT *, "is_constraint"
                cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
-                       cdft_control%group(igroup)%coeff(atom_a) * rho_temp
+                       coefficients(atom_a) * rho_temp(:, :, :)
                 END IF
 
                PRINT *, "hw_rho_total"
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
-                       cdft_control%group(igroup)%hw_rho_total(:, :, :) + &
-                       rho_temp
+                       cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
 
                        ! Save analytic derivative
                        IF (in_memory) THEN
