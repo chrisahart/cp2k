@@ -665,9 +665,9 @@ CONTAINS
          TYPE(pw_p_type)                                    :: tmp !, fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
-         TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
+         ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub, npts
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
+         ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
@@ -675,11 +675,13 @@ CONTAINS
            TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
+           REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp, rho_dr_temp
+           REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)             :: rho_atom_dr_temp
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-                  auxbas_rs_desc, cdft_control, rs_rho_dr_temp, &
-                  hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho, fnorm)
+                  auxbas_rs_desc, cdft_control, &
+                  hirshfeld_control, rho_r, rho, fnorm)
 
           PRINT *, "start hirshfeld_constraint_low"
 
@@ -700,8 +702,8 @@ CONTAINS
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
          ! Allcoate as needed
-         ALLOCATE (rs_single(cdft_control%natoms))
-         ALLOCATE (rs_single_dr(cdft_control%natoms))
+         ! ALLOCATE (rs_single(cdft_control%natoms))
+         ! ALLOCATE (rs_single_dr(cdft_control%natoms))
          ALLOCATE (coefficients(natom))
 
          ! Get size of pw grid
@@ -712,24 +714,24 @@ CONTAINS
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
 
          ! Setup grids
-         CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
-                         auxbas_pw_pool=auxbas_pw_pool)
+         ! CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
+                         ! auxbas_pw_pool=auxbas_pw_pool)
          ! CALL rs_grid_retain(rs_rho_all)
          ! CALL rs_grid_zero(rs_rho_all)
          ! CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          ! CALL rs_grid_zero(rs_rho_constr)
-         CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
-         CALL rs_grid_zero(rs_rho_temp)
+         ! CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+         ! CALL rs_grid_zero(rs_rho_temp)
 
          ! Setup allocatable grids
-         DO i = 1, cdft_control%natoms
-           NULLIFY (rs_single(i)%rs_grid)
-           NULLIFY (rs_single_dr(i)%rs_grid)
-           CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-           CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-           CALL rs_grid_zero(rs_single(i)%rs_grid)
-           CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-         END DO
+         ! DO i = 1, cdft_control%natoms
+         !   NULLIFY (rs_single(i)%rs_grid)
+         !   NULLIFY (rs_single_dr(i)%rs_grid)
+         !   CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+         !   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+         !   CALL rs_grid_zero(rs_single(i)%rs_grid)
+         !   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+         ! END DO
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -778,10 +780,16 @@ CONTAINS
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
              cdft_control%group(igroup)%hw_rho_atomic_charge = 0.0_dp
              cdft_control%group(igroup)%hw_rho_total = 0.0_dp
              cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
+             rho_temp = 0.0_dp
+             rho_dr_temp = 0.0_dp
+             rho_atom_dr_temp = 0.0_dp
            END DO
         END IF
 
@@ -798,10 +806,10 @@ CONTAINS
              DO iatom = 1, natom
 
                ! Set temproary array equal zero
-               rs_rho_temp%r = 0.0_dp
-               IF (in_memory) THEN
-                 rs_rho_dr_temp%r = 0.0_dp
-               END IF
+               ! rho_temp = 0.0_dp
+               ! IF (in_memory) THEN
+               !   rs_rho_dr_temp%r = 0.0_dp
+               ! END IF
 
                ! Get atomic position
                atom_a = atom_list(iatom)
@@ -828,11 +836,11 @@ CONTAINS
                        exp_eval = coef * EXP(-alpha * r_squared)
 
                        ! Store atomic density
-                       rs_rho_temp%r(i, j, k) = rs_rho_temp%r(i, j, k) + exp_eval
+                       rho_temp(i, j, k) = rho_tempr(i, j, k) + exp_eval
 
                        ! Store analytic derivative of atomic density
                        IF (in_memory) THEN
-                         rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
+                         rho_dr_temp(i, j, k) = rho_dr_temp(i, j, k) &
                                                      + 2.0_dp * alpha * exp_eval
                        END IF
 
@@ -841,36 +849,38 @@ CONTAINS
                  END DO ! k = lb(3), ub(3)
                END DO ! iex = 1, numexp
 
+               PRINT *, "atom", iatom
+
                ! Save atomic density
                   IF (compute_charge(iatom)) THEN
-               ! rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+                    PRINT *, "compute_charge"
                cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
                        cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + &
-                       rs_rho_temp%r
-
+                       rho_temp
               END IF
 
+              PRINT *, "hw_rho_atomic"
               cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + &
-                      rs_rho_temp%r
-
-
-
+                      rho_temp
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
+                 PRINT *, "is_constraint"
                cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
-                       cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
+                       cdft_control%group(igroup)%coeff(atom_a) * rho_temp
                 END IF
 
+               PRINT *, "hw_rho_total"
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                        cdft_control%group(igroup)%hw_rho_total(:, :, :) + &
-                       rs_rho_temp%r
+                       rho_temp
 
                        ! Save analytic derivative
                        IF (in_memory) THEN
-                         rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+                         PRINT *, "in_memory"
+                         rho_atom_dr_temp(iatom) = rho_atom_dr_temp(iatom) + rho_dr_temp
                        END IF
 
 
@@ -884,15 +894,12 @@ CONTAINS
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
-
                  cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                      cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                       cdft_control%group(igroup)%hw_rho_total(i, j, k)
-
                END DO
              END DO
            END DO
-
 
            ! Calculate atomic charges if requested
            IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
@@ -901,11 +908,9 @@ CONTAINS
              DO k = lb(3), ub(3)
                DO j = lb(2), ub(2)
                  DO i = lb(1), ub(1)
-
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) / &
                                cdft_control%group(igroup)%hw_rho_total(i, j, k)
-
                  END DO
                END DO
              END DO
@@ -935,7 +940,7 @@ CONTAINS
                          exp_eval = ((coefficients(iatom) - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      cdft_control%group(igroup)%hw_rho_total(i, j, k)) * &
-                                     (rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                                     (rho_atom_dr_temp(iatom, i, j, k))
 
                          ! Store gradient d/dR_x w, including term: (r_x - R_x)
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
@@ -961,10 +966,8 @@ CONTAINS
            END IF ! (in_memory) THEN
 
            ! Release grids
-           ! CALL rs_grid_release(rs_rho_constr)
-           ! CALL rs_grid_release(rs_rho_all)
-           CALL rs_grid_release(rs_rho_temp)
-           CALL rs_grid_release(rs_rho_dr_temp)
+           ! CALL rs_grid_release(rs_rho_temp)
+           ! CALL rs_grid_release(rs_rho_dr_temp)
 
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -978,14 +981,17 @@ CONTAINS
            END IF
 
            ! Release grids that require looping over atoms
-           DO i = 1, cdft_control%natoms
-             CALL rs_grid_release(rs_single(i)%rs_grid)
-             CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-           END DO
+           ! DO i = 1, cdft_control%natoms
+           !   CALL rs_grid_release(rs_single(i)%rs_grid)
+           !   CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+           ! END DO
 
            ! Deallocate
-           DEALLOCATE (rs_single)
-           DEALLOCATE (rs_single_dr)
+           DEALLOCATE (rho_temp)
+           DEALLOCATE (rho_dr_temp)
+           DEALLOCATE(rho_atom_dr_temp)
+           ! DEALLOCATE (rs_single)
+           ! DEALLOCATE (rs_single_dr)
            DEALLOCATE (coefficients)
 
            ! Deallocate if allocated
