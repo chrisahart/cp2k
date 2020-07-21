@@ -755,12 +755,12 @@ CONTAINS
          END IF
 
          ! Allocate Hirshfeld densities
-        !  IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-        !    DO igroup = 1, SIZE(cdft_control%group)
-        !      ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-        !      cdft_control%group(igroup)%hirsh_rho_atomic = 0.0_dp
-        !    END DO
-        ! END IF
+         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           DO igroup = 1, SIZE(cdft_control%group)
+             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             cdft_control%group(igroup)%hirsh_rho_atomic = 0.0_dp
+           END DO
+        END IF
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
@@ -861,12 +861,12 @@ CONTAINS
            ! hirshfeld_control%print_density = .TRUE.
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              PRINT *, "Calculate atomic densities"
-             cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
-             cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
+             ! cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = fnorm%pw%cr3d
+             ! cdft_control%group(igroup)%hirsh_rho_promolecular%pw%cr3d = tmp%pw%cr3d
              DO i = 1, cdft_control%natoms
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-               CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-               ! cdft_control%group(igroup)%hirsh_rho_atomic(i) = tmp%pw%cr3d
+               ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+               ! CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+               cdft_control%group(igroup)%hirsh_rho_atomic(i) = rs_single(i)%rs_grid
                ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
              END DO
              CALL cdft_print_hirshfeld_density(qs_env)
@@ -950,9 +950,9 @@ CONTAINS
              !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
            END DO
 
-           ! DO igroup = 1, SIZE(cdft_control%group)
-           !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-           ! END DO
+           DO igroup = 1, SIZE(cdft_control%group)
+              DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+           END DO
 
            ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
