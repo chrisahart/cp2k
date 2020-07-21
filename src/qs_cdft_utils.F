@@ -1408,12 +1408,12 @@ CONTAINS
        CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
        tmp%pw%cr3d = 0.0_dp
 
-       ! Loop over CDFT control groups printing hirsh_rho_total
+       ! Loop over CDFT control groups printing hw_rho_total
            DO igroup = 1, SIZE(cdft_control%group)
 
-             tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hirsh_rho_total(:, :, :)
+             tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
 
-             middle_name = "hirsh_rho_total"//TRIM(ADJUSTL(cp_to_string(igroup)))
+             middle_name = "hw_rho_total"//TRIM(ADJUSTL(cp_to_string(igroup)))
              unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                             file_position="REWIND", middle_name=middle_name, extension=".cube")
 
@@ -1432,9 +1432,9 @@ CONTAINS
         ! Loop over CDFT control groups printing promolecular density
             DO igroup = 1, SIZE(cdft_control%group)
 
-              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :)
+              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
 
-              middle_name = "hirsh_rho_constraint"//TRIM(ADJUSTL(cp_to_string(igroup)))
+              middle_name = "hw_rho_total_constraint_"//TRIM(ADJUSTL(cp_to_string(igroup)))
               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 
@@ -1457,11 +1457,11 @@ CONTAINS
 
               PRINT *, "iatom", iatom
 
-              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hirsh_rho_atomic(iatom, :, :, :)
+              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
 
               ! PRINT *, "iatom", iatom
 
-              middle_name = "hirsh_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
+              middle_name = "hw_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 

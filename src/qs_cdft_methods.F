@@ -828,7 +828,9 @@ CONTAINS
                END DO ! iex = 1, numexp
 
                ! Save atomic density
+                  ! IF (compute_charge(atom_a)) THEN
                rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+              ! END IF
 
                ! Save analytic derivative
                IF (in_memory) THEN
