@@ -941,7 +941,7 @@ CONTAINS
 
            END DO !  1, SIZE(cdft_control%group)
 
-           Calculate gradient if requested
+           ! Calculate gradient if requested
            IF (in_memory) THEN
              PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
