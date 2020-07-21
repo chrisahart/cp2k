@@ -906,6 +906,10 @@ CONTAINS
                  sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
                  PRINT *, "sum_alpha", sum_alpha
 
+                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(50, 50, 50)
+                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(50, 50, 50)/(2.0_dp * sum_alpha)
+                 PRINT *, "rs_single", rs_single(iatom)%rs_grid%r(50, 50, 50)
+
                  DO iatom = 1, natom
 
                    ! Get atomic position
@@ -920,8 +924,8 @@ CONTAINS
                          exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
-                                     (2.0_dp * sum_alpha * rs_single(iatom)%rs_grid%r(i, j, k))
-                                     ! (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                                     (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                                     !(rs_single(iatom)%rs_grid%r(i, j, k) * 2.0_dp * sum_alpha )
 
 
                          ! Store gradient d/dR_x w, including term: (r_x - R_x)
