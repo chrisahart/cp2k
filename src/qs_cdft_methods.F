@@ -865,22 +865,21 @@ CONTAINS
            CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
            CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                            tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
            ! Print atomic densities if requested
            ! hirshfeld_control%print_density = .TRUE.
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             IF (para_env%ionode) THEN
              PRINT *, "Calculate atomic densities"
              cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
              cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = rs_rho_constr%r(:, :, :)
              DO i = 1, cdft_control%natoms
                cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
              END DO
-             IF (para_env%ionode) THEN
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
            END IF
-
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
@@ -905,7 +904,7 @@ CONTAINS
                DO ikind = 1, SIZE(atomic_kind_set)
 
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                 sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet
+                 sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
 
                 !  rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
                 !                              + 2.0_dp * alpha * exp_eval
@@ -924,7 +923,8 @@ CONTAINS
                          exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
-                                     rs_single_dr(iatom)%rs_grid%r(i, j, k)
+                                     (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                                     !(2 * sum_alpha * rs_single_dr(iatom)%rs_grid%r(i, j, k))
 
                          ! Store gradient d/dR_x w, including term: d/R_x rho = 2 * zeta * (r_x - R_x) rho
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
