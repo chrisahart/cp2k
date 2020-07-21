@@ -718,8 +718,8 @@ CONTAINS
          ! CALL rs_grid_zero(rs_rho_all)
          ! CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          ! CALL rs_grid_zero(rs_rho_constr)
-         ! CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
-         ! CALL rs_grid_zero(rs_rho_temp)
+         CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+         CALL rs_grid_zero(rs_rho_temp)
 
          ! Setup allocatable grids
          DO i = 1, cdft_control%natoms
