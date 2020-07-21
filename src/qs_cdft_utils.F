@@ -1445,11 +1445,12 @@ CONTAINS
         ! Loop over CDFT control groups printing atomic density
 
         CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+        tmp%pw%cr3d = 0.0_dp
 
         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom  = 1, (cdft_control%natoms)
 
-              tmp%pw%cr3d = cdft_control%group(igroup)%hirsh_rho_atomic(i)
+              tmp%pw%cr3d = cdft_control%group(igroup)%hirsh_rho_atomic(iatom)
 
               ! PRINT *, "iatom", iatom
 
