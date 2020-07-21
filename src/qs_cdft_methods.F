@@ -943,7 +943,7 @@ CONTAINS
            CALL rs_grid_release(rs_rho_dr_temp)
 
            IF (.NOT. cdft_control%transfer_pot) THEN
-              DO igroup = 1, SIZE(group)
+              DO igroup = 1, SIZE(cdft_control%group)
                 PRINT *, "attempting DEALLOCATE"
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic)
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
