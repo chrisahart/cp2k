@@ -667,7 +667,7 @@ CONTAINS
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub, npts
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
+         TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
@@ -678,7 +678,7 @@ CONTAINS
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-                  auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, rs_rho_dr_temp, &
+                  auxbas_rs_desc, cdft_control, rs_rho_dr_temp, &
                   hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho, fnorm)
 
           PRINT *, "start hirshfeld_constraint_low"
@@ -847,7 +847,14 @@ CONTAINS
                cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
                        cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + &
                        rs_rho_temp%r
+
               END IF
+
+              cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
+                      cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + &
+                      rs_rho_temp%r
+
+
 
 
                ! Save sum over constraint atoms, sum over all atoms
@@ -954,8 +961,8 @@ CONTAINS
            END IF ! (in_memory) THEN
 
            ! Release grids
-           CALL rs_grid_release(rs_rho_constr)
-           CALL rs_grid_release(rs_rho_all)
+           ! CALL rs_grid_release(rs_rho_constr)
+           ! CALL rs_grid_release(rs_rho_all)
            CALL rs_grid_release(rs_rho_temp)
            CALL rs_grid_release(rs_rho_dr_temp)
 
@@ -985,6 +992,7 @@ CONTAINS
            IF (ALLOCATED(is_constraint)) &
            DEALLOCATE (is_constraint)
 
+           PRINT *, "gradients", cdft_control%group(1)%gradients(1, 10, 10, 10)
            PRINT *, "end hirshfeld_constraint_low"
 
            CALL timestop(handle)
