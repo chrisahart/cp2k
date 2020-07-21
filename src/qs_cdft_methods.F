@@ -762,10 +762,10 @@ CONTAINS
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (cdft_control%group(igroup)%hirsh_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%hirsh_rho_atomic = 0.0_dp
              cdft_control%group(igroup)%hirsh_rho_total = 0.0_dp
-             cdft_control%group(igroup)%hirsh_rho_promolecular = 0.0_dp
+             cdft_control%group(igroup)%hirsh_rho_constraint = 0.0_dp
            END DO
         END IF
 
@@ -869,7 +869,7 @@ CONTAINS
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              PRINT *, "Calculate atomic densities"
              cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
-             cdft_control%group(igroup)%hirsh_rho_promolecular(:, :, :) = rs_rho_constr%r(:, :, :)
+             cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = rs_rho_constr%r(:, :, :)
              DO i = 1, cdft_control%natoms
                cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
              END DO
@@ -948,7 +948,7 @@ CONTAINS
               DO igroup = 1, SIZE(cdft_control%group)
                 PRINT *, "attempting DEALLOCATE"
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic)
-                 DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_promolecular)
+                 DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_constraint)
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_total)
                  PRINT *, "DEALLOCATE"
               END DO
@@ -959,7 +959,7 @@ CONTAINS
            DO i = 1, cdft_control%natoms
              CALL rs_grid_release(rs_single(i)%rs_grid)
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_constraint%pw)
              ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
              ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(i)%pw)
              ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
@@ -968,12 +968,12 @@ CONTAINS
 
            ! DO igroup = 1, SIZE(cdft_control%group)
            !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-           !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_promolecular)
+           !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_constraint)
            !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_total)
            ! END DO
 
            ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_constraint%pw)
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(iatom)%pw)
            !   DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic)

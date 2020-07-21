@@ -206,7 +206,7 @@ MODULE qs_cdft_types
       REAL(KIND=dp), POINTER, &
          DIMENSION(:, :, :, :)             :: hirsh_rho_atomic
          REAL(KIND=dp), POINTER, &
-            DIMENSION(:, :, :)             :: hirsh_rho_promolecular
+            DIMENSION(:, :, :)             :: hirsh_rho_constraint
 
             REAL(KIND=dp), POINTER, &
                DIMENSION(:, :, :)             :: hirsh_rho_total

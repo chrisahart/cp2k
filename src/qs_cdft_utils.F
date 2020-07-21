@@ -1474,6 +1474,8 @@ CONTAINS
          END DO ! igroup = 1, SIZE(cdft_control%group)
        END DO
 
+       CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+
          PRINT *, "end cdft_print_hirshfeld_density"
 
     END SUBROUTINE cdft_print_hirshfeld_density
