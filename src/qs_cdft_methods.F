@@ -674,6 +674,7 @@ CONTAINS
            REAL(KIND=dp), DIMENSION(3)              :: dr
            TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
+           REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
@@ -702,6 +703,7 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ALLOCATE (rs_single(cdft_control%natoms))
          ALLOCATE (rs_single_dr(cdft_control%natoms))
+         ALLOCATE (coefficients(natom))
 
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
@@ -745,6 +747,14 @@ CONTAINS
          IF (my_just_gradients) THEN
            in_memory = .TRUE.
          END IF
+
+         coefficients(:) = 0.0_dp
+         is_constraint = .FALSE.
+         DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
+            coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
+            is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
+         END DO
+         PRINT *, "coefficients", coefficients
 
          ! Allocate gradient
          IF (in_memory) THEN
@@ -830,6 +840,10 @@ CONTAINS
                ! Save atomic density
                   ! IF (compute_charge(iatom)) THEN
                rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
+               ! cdft_control%group(igroup)%hw_rho_atomic_charge(:, :, :) = &
+               !         cdft_control%group(igroup)%hw_rho_atomic_charge(:, :, :) + &
+               !         rs_rho_temp%r
+
               ! END IF
 
                ! Save analytic derivative
@@ -839,11 +853,11 @@ CONTAINS
 
                ! Save sum over constraint atoms, sum over all atoms
                ! rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
-               ! IF (is_constraint(atom_a)) THEN
+               IF (is_constraint(atom_a)) THEN
                cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                        cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
-                ! END IF
+                END IF
 
                ! rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
@@ -899,6 +913,10 @@ CONTAINS
              DO k = lb(3), ub(3)
                DO j = lb(2), ub(2)
                  DO i = lb(1), ub(1)
+
+                   ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                   !     cdft_control%group(igroup)%hw_rho_atomic_charge%(iatom, i, j, k) / &
+                   !      cdft_control%group(igroup)%hw_rho_total(i, j, k)
 
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               rs_single(iatom)%rs_grid%r(i, j, k) / &
@@ -958,18 +976,11 @@ CONTAINS
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
 
-                         ! IF (is_constraint(iatom)) THEN
-
                          ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
-                         exp_eval = ((cdft_control%group(igroup)%coeff(iatom)  - &
+                         exp_eval = ((coefficients(iatom) - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                     rs_rho_all%r(i, j, k)) * &
+                                     cdft_control%group(igroup)%hw_rho_total(i, j, k)) * &
                                      (rs_single_dr(iatom)%rs_grid%r(i, j, k))
-                        ! ELSE
-                        !
-                        !   exp_eval = (-cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                        !               rs_rho_all%r(i, j, k)) * &
-                        !               (rs_single_dr(iatom)%rs_grid%r(i, j, k))
 
                          ! Store gradient d/dR_x w, including term: (r_x - R_x)
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
@@ -1022,8 +1033,8 @@ CONTAINS
            DEALLOCATE (coefficients)
 
            ! Deallocate if allocated
-           ! IF (ALLOCATED(is_constraint)) &
-           ! DEALLOCATE (is_constraint)
+           IF (ALLOCATED(is_constraint)) &
+           DEALLOCATE (is_constraint)
 
            PRINT *, "end hirshfeld_constraint_low"
 

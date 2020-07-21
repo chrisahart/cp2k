@@ -206,7 +206,7 @@ MODULE qs_cdft_types
       REAL(KIND=dp), POINTER, &
          DIMENSION(:, :, :, :)             :: hw_rho_atomic
          REAL(KIND=dp), POINTER, &
-            DIMENSION(:, :, :, :)             :: hw_rho_atomic_constraint
+            DIMENSION(:, :, :, :)             :: hw_rho_atomic_charge
          REAL(KIND=dp), POINTER, &
             DIMENSION(:, :, :)             :: hw_rho_total_constraint
 
