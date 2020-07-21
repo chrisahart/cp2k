@@ -842,6 +842,13 @@ CONTAINS
              CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
            END IF
 
+           ! Calculate weight function
+           PRINT *, "Calculate weight function"
+           CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+           CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
+           CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+                           tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+
            ! Print atomic densities if requested
            ! hirshfeld_control%print_density = .TRUE.
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -856,13 +863,7 @@ CONTAINS
              CALL cdft_print_hirshfeld_density(qs_env)
            END IF
 
-            ! Calculate weight function
-            PRINT *, "Calculate weight function"
-            CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-            CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-            CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
-                            tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
              ! Compute charges if requested
              IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
