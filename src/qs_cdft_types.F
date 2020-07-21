@@ -203,6 +203,9 @@ MODULE qs_cdft_types
       ! Hirshfeld atomic density
       ! TYPE(pw_p_type), DIMENSION(:), POINTER  :: hirsh_rho_atomic
 
+      REAL(KIND=dp), POINTER, &
+         DIMENSION(:, :, :, :)             :: hirsh_rho_atomic
+
     END TYPE cdft_group_type
 
    TYPE cdft_control_type
