@@ -204,12 +204,14 @@ MODULE qs_cdft_types
       ! TYPE(pw_p_type), DIMENSION(:), POINTER  :: hirsh_rho_atomic
 
       REAL(KIND=dp), POINTER, &
-         DIMENSION(:, :, :, :)             :: hirsh_rho_atomic
+         DIMENSION(:, :, :, :)             :: hw_rho_atomic
          REAL(KIND=dp), POINTER, &
-            DIMENSION(:, :, :)             :: hirsh_rho_constraint
+            DIMENSION(:, :, :, :)             :: hw_rho_atomic_constraint
+         REAL(KIND=dp), POINTER, &
+            DIMENSION(:, :, :)             :: hw_rho_total_constraint
 
             REAL(KIND=dp), POINTER, &
-               DIMENSION(:, :, :)             :: hirsh_rho_total
+               DIMENSION(:, :, :)             :: hw_rho_total
 
     END TYPE cdft_group_type
 

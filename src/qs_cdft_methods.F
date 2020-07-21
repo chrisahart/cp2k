@@ -762,12 +762,12 @@ CONTAINS
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            PRINT *, "Allocate Hirshfeld densities"
            DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (cdft_control%group(igroup)%hirsh_rho_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             cdft_control%group(igroup)%hirsh_rho_atomic = 0.0_dp
-             cdft_control%group(igroup)%hirsh_rho_total = 0.0_dp
-             cdft_control%group(igroup)%hirsh_rho_constraint = 0.0_dp
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
+             cdft_control%group(igroup)%hw_rho_total = 0.0_dp
+             cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
            END DO
         END IF
 
@@ -837,13 +837,13 @@ CONTAINS
 
                ! Save sum over constraint atoms, sum over all atoms
                ! rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
-               cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = &
-                       cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) + &
+               cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
+                       cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                        cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
 
                ! rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
-               cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = &
-                       cdft_control%group(igroup)%hirsh_rho_total(:, :, :) + &
+               cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
+                       cdft_control%group(igroup)%hw_rho_total(:, :, :) + &
                        rs_rho_temp%r
 
              END DO ! iatom = 1, natom
@@ -873,15 +873,15 @@ CONTAINS
                DO i = lb(1), ub(1)
 
                  cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                     cdft_control%group(igroup)%hirsh_rho_constraint(i, j, k) / &
-                      cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+                     cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
+                      cdft_control%group(igroup)%hw_rho_total(i, j, k)
 
                       !
                       ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
                       !
                       !   cdft_control%charge(i)%pw%cr3d(i, j, k) = &
                       !       rs_single(i)%rs_grid%r(i, j, k) / &
-                      !        cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+                      !        cdft_control%group(igroup)%hw_rho_total(i, j, k)
                       ! END IF
 
                END DO
@@ -898,7 +898,7 @@ CONTAINS
 
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               rs_single(iatom)%rs_grid%r(i, j, k) / &
-                               cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+                               cdft_control%group(igroup)%hw_rho_total(i, j, k)
 
                  END DO
                END DO
@@ -907,7 +907,7 @@ CONTAINS
          END IF
 
            ! PRINT *, "Calculate weight function"
-           ! cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :)
+           ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
            ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
            ! CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
            ! CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
@@ -918,10 +918,10 @@ CONTAINS
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              IF (para_env%ionode) THEN
              ! PRINT *, "Calculate atomic densities"
-             ! cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
-             ! cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = rs_rho_constr%r(:, :, :)
+             ! cdft_control%group(igroup)%hw_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
+             ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = rs_rho_constr%r(:, :, :)
              ! DO i = 1, cdft_control%natoms
-               ! cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
+               ! cdft_control%group(igroup)%hw_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
              ! END DO
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
@@ -979,7 +979,7 @@ CONTAINS
                      END DO ! j = lb(2), ub(2)
                    END DO ! k = lb(3), ub(3)
                  END DO ! iatom = 1, natom
-               END DO ! ikind = 1, SIZE(atomic_kind_set)
+               ! END DO ! ikind = 1, SIZE(atomic_kind_set)
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
@@ -992,9 +992,9 @@ CONTAINS
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
               DO igroup = 1, SIZE(cdft_control%group)
-                 DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic)
-                 DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_constraint)
-                 DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_total)
+                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
+                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint)
+                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_total)
               END DO
             END IF
            END IF
