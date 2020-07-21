@@ -756,7 +756,7 @@ CONTAINS
          END IF
 
          ! Allocate Hirshfeld densities
-         hirshfeld_control%print_density = .TRUE
+         hirshfeld_control%print_density = .TRUE.
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            PRINT *, "Allocate Hirshfeld densities", iatom
            DO igroup = 1, SIZE(cdft_control%group)
