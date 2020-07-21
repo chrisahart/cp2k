@@ -673,9 +673,10 @@ CONTAINS
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
            TYPE(pw_p_type), POINTER                           :: fnorm
+           TYPE(cp_para_env_type), POINTER                    :: para_env
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
-                  hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, &
+                  hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
                   auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, rs_rho_dr_temp, &
                   hirshfeld_control, rs_single, rs_single_dr, rs_rho_temp, rho_r, rho, fnorm)
 
@@ -688,6 +689,7 @@ CONTAINS
                          natom=natom, &
                          rho=rho, &
                          dft_control=dft_control, &
+                         para_env=para_env, &
                          pw_env=pw_env)
         CALL qs_rho_get(rho, rho_r=rho_r)
 
@@ -875,7 +877,7 @@ CONTAINS
              END DO
              IF (para_env%ionode) THEN
              CALL cdft_print_hirshfeld_density(qs_env)
-           END IF
+            END IF
            END IF
 
            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
