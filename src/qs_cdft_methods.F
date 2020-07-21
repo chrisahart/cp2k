@@ -868,7 +868,6 @@ CONTAINS
            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
            ! Print atomic densities if requested
-           hirshfeld_control%print_density = .TRUE.
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              IF (para_env%ionode) THEN
              PRINT *, "Calculate atomic densities"
@@ -921,8 +920,9 @@ CONTAINS
                          exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
-                                     (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
-                                     !(2 * sum_alpha * rs_single(iatom)%rs_grid%r(i, j, k))
+                                     (2.0_dp * sum_alpha * rs_single(iatom)%rs_grid%r(i, j, k))
+                                     ! (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
+
 
                          ! Store gradient d/dR_x w, including term: (r_x - R_x)
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
