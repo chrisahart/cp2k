@@ -1109,9 +1109,9 @@ CONTAINS
     hirshfeld_control%print_density = .TRUE.
     IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
       PRINT *, "Setting up atomic densities"
-      DO igroup = 1, SIZE(cdft_control%group)
-        ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
-      END DO
+      ! DO igroup = 1, SIZE(cdft_control%group)
+      !   ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(cdft_control%natoms))
+      ! END DO
 
       DO igroup = 1, SIZE(cdft_control%group)
         CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_promolecular%pw, &
@@ -1122,11 +1122,11 @@ CONTAINS
         use_data=REALDATA3D, in_space=REALSPACE)
         cdft_control%group(igroup)%hirsh_rho_total%pw%cr3d = 1.0_dp
 
-        DO iatom = 1, cdft_control%natoms
-          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
-          use_data=REALDATA3D, in_space=REALSPACE)
-          cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-        END DO
+        ! DO iatom = 1, cdft_control%natoms
+        !   CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw, &
+        !   use_data=REALDATA3D, in_space=REALSPACE)
+        !   cdft_control%group(igroup)%hirsh_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+        ! END DO
       END DO
     END IF
 

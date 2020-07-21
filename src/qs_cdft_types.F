@@ -201,7 +201,7 @@ MODULE qs_cdft_types
       ! Hirshfeld promolecular density
       TYPE(pw_p_type)             :: hirsh_rho_total
       ! Hirshfeld atomic density
-      TYPE(pw_p_type), POINTER, DIMENSION(:)  :: hirsh_rho_atomic
+      ! TYPE(pw_p_type), DIMENSION(:), POINTER  :: hirsh_rho_atomic
 
     END TYPE cdft_group_type
 
