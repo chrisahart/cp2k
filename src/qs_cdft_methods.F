@@ -943,6 +943,7 @@ CONTAINS
            CALL rs_grid_release(rs_rho_dr_temp)
 
            IF (.NOT. cdft_control%transfer_pot) THEN
+             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
               DO igroup = 1, SIZE(cdft_control%group)
                 PRINT *, "attempting DEALLOCATE"
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic)
@@ -950,6 +951,7 @@ CONTAINS
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_total)
                  PRINT *, "DEALLOCATE"
               END DO
+            END IF
            END IF
 
            ! Release grids that require looping over atoms
