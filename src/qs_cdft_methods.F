@@ -746,6 +746,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
+           PRINT *, "Allocate gradient", iatom
            CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_dr_temp)
            DO igroup = 1, SIZE(cdft_control%group)
@@ -756,6 +757,7 @@ CONTAINS
 
          ! Allocate Hirshfeld densities
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           PRINT *, "Allocate Hirshfeld densities", iatom
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%hirsh_rho_atomic = 0.0_dp

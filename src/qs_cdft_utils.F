@@ -1450,7 +1450,9 @@ CONTAINS
         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom  = 1, (cdft_control%natoms)
 
-              tmp%pw%cr3d = cdft_control%group(igroup)%hirsh_rho_atomic(iatom)
+              PRINT *, "iatom", iatom
+
+              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hirsh_rho_atomic(iatom, :, :, :)
 
               ! PRINT *, "iatom", iatom
 
@@ -1463,7 +1465,7 @@ CONTAINS
 
              CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
-             ! PRINT *, "iatom", iatom
+
 
          END DO ! igroup = 1, SIZE(cdft_control%group)
        END DO
