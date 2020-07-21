@@ -828,7 +828,7 @@ CONTAINS
                END DO ! iex = 1, numexp
 
                ! Save atomic density
-                  ! IF (compute_charge(atom_a)) THEN
+                  ! IF (compute_charge(iatom)) THEN
                rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
               ! END IF
 
@@ -958,11 +958,18 @@ CONTAINS
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
 
+                         ! IF (is_constraint(iatom)) THEN
+
                          ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
-                         exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
+                         exp_eval = ((cdft_control%group(igroup)%coeff(iatom)  - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
                                      (rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                        ! ELSE
+                        !
+                        !   exp_eval = (-cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                        !               rs_rho_all%r(i, j, k)) * &
+                        !               (rs_single_dr(iatom)%rs_grid%r(i, j, k))
 
                          ! Store gradient d/dR_x w, including term: (r_x - R_x)
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
