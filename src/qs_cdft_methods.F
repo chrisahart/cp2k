@@ -750,9 +750,11 @@ CONTAINS
 
          coefficients(:) = 0.0_dp
          is_constraint = .FALSE.
+          DO igroup = 1, SIZE(cdft_control%group)
          DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
             coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
             is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
+         END DO
          END DO
          PRINT *, "coefficients", coefficients
 
