@@ -898,17 +898,10 @@ CONTAINS
            ! Calculate gradient if requested
            IF (in_memory) THEN
              PRINT *, "Calculate gradient"
-
-             ! Calculate sum of Gaussian exponents to simplify derivative
              DO igroup = 1, SIZE(cdft_control%group)
                DO ikind = 1, SIZE(atomic_kind_set)
 
-                 DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
-                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                   PRINT *, "alpha", alpha
-                   PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet(iex)", hirshfeld_env%kind_shape_fn(ikind)%zet
-                 END DO
-
+                 ! Calculate sum of Gaussian exponents to simplify derivative
                  sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
                  PRINT *, "sum_alpha", sum_alpha
 
@@ -921,27 +914,27 @@ CONTAINS
                          atom_a = atom_list(iatom)
                          ra(:) = particle_set(atom_a)%r - origin(:)
 
-                         ! d/dR w = ((delta - w) / sum(rho_all) * d/dR rho
+                         ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * rho * 2 * sum(zeta)
                          exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
-                                     !(1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
-                                     (2 * sum_alpha * rs_single(iatom)%rs_grid%r(i, j, k))
+                                     (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                                     !(2 * sum_alpha * rs_single(iatom)%rs_grid%r(i, j, k))
 
-                         ! Store gradient d/dR_x w, including term: d/R_x rho = 2 * zeta * (r_x - R_x) rho
+                         ! Store gradient d/dR_x w, including term: (r_x - R_x)
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                             ((i * dr(1)) - ra(1)) * exp_eval
+                                     cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                                     ((i * dr(1)) - ra(1)) * exp_eval
 
-                         ! Store gradient d/dR_y w, including term: d/R_y rho = 2 * zeta * (r_y - R_y) rho
+                         ! Store gradient d/dR_y w, including term: (r_y - R_y)
                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                             ((j * dr(2)) - ra(2)) * exp_eval
+                                     cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                                     ((j * dr(2)) - ra(2)) * exp_eval
 
-                         ! Store gradient d/dR_z w, including term: d/R_z rho = 2 * zeta * (r_z - R_z) rho
+                         ! Store gradient d/dR_z w, including term:(r_z - R_z)
                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                             ((k * dr(3)) - ra(3)) * exp_eval
+                                     cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                                     ((k * dr(3)) - ra(3)) * exp_eval
 
                        END DO ! i = lb(1), ub(1)
                      END DO ! j = lb(2), ub(2)
