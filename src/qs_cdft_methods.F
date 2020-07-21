@@ -756,6 +756,7 @@ CONTAINS
          END IF
 
          ! Allocate Hirshfeld densities
+         hirshfeld_control%print_density = .TRUE
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            PRINT *, "Allocate Hirshfeld densities", iatom
            DO igroup = 1, SIZE(cdft_control%group)
@@ -867,8 +868,8 @@ CONTAINS
            ! hirshfeld_control%print_density = .TRUE.
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              PRINT *, "Calculate atomic densities"
-             cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_single(1)%rs_grid%r(:, :, :)
-             cdft_control%group(igroup)%hirsh_rho_promolecular(:, :, :) = rs_single(1)%rs_grid%r(:, :, :)
+             cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
+             cdft_control%group(igroup)%hirsh_rho_promolecular(:, :, :) = rs_rho_constr%r(:, :, :)
              DO i = 1, cdft_control%natoms
                cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
              END DO
