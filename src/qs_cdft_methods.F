@@ -763,8 +763,8 @@ CONTAINS
          ! Allocate gradient
          IF (in_memory) THEN
            PRINT *, "Allocate gradient"
-           CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
-           CALL rs_grid_zero(rs_rho_dr_temp)
+           ! CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
+           ! CALL rs_grid_zero(rs_rho_dr_temp)
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -836,7 +836,7 @@ CONTAINS
                        exp_eval = coef * EXP(-alpha * r_squared)
 
                        ! Store atomic density
-                       rho_temp(i, j, k) = rho_tempr(i, j, k) + exp_eval
+                       rho_temp(i, j, k) = rho_temp(i, j, k) + exp_eval
 
                        ! Store analytic derivative of atomic density
                        IF (in_memory) THEN
@@ -880,7 +880,7 @@ CONTAINS
                        ! Save analytic derivative
                        IF (in_memory) THEN
                          PRINT *, "in_memory"
-                         rho_atom_dr_temp(iatom) = rho_atom_dr_temp(iatom) + rho_dr_temp
+                         rho_atom_dr_temp(iatom, :, :, :) = rho_atom_dr_temp(iatom, :, :, :) + rho_dr_temp(:, :, :)
                        END IF
 
 
