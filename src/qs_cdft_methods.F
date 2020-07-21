@@ -702,8 +702,6 @@ CONTAINS
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
          ! Allcoate as needed
-         ! ALLOCATE (rs_single(cdft_control%natoms))
-         ! ALLOCATE (rs_single_dr(cdft_control%natoms))
          ALLOCATE (coefficients(natom))
 
          ! Get size of pw grid
@@ -712,26 +710,6 @@ CONTAINS
          npts = rho_r(1)%pw%pw_grid%npts
          dr = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
-
-         ! Setup grids
-         ! CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
-                         ! auxbas_pw_pool=auxbas_pw_pool)
-         ! CALL rs_grid_retain(rs_rho_all)
-         ! CALL rs_grid_zero(rs_rho_all)
-         ! CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
-         ! CALL rs_grid_zero(rs_rho_constr)
-         ! CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
-         ! CALL rs_grid_zero(rs_rho_temp)
-
-         ! Setup allocatable grids
-         ! DO i = 1, cdft_control%natoms
-         !   NULLIFY (rs_single(i)%rs_grid)
-         !   NULLIFY (rs_single_dr(i)%rs_grid)
-         !   CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-         !   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-         !   CALL rs_grid_zero(rs_single(i)%rs_grid)
-         !   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-         ! END DO
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -763,8 +741,6 @@ CONTAINS
          ! Allocate gradient
          IF (in_memory) THEN
            PRINT *, "Allocate gradient"
-           ! CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
-           ! CALL rs_grid_zero(rs_rho_dr_temp)
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -852,33 +828,32 @@ CONTAINS
 
                ! Save atomic density
                IF (compute_charge(iatom)) THEN
-                    PRINT *, "compute_charge"
-                    cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
-                       cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + rho_temp(:, :, :)
-              END IF
+                 PRINT *, "compute_charge"
+                 cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
+                      cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + rho_temp(:, :, :)
+               END IF
 
-              PRINT *, "hw_rho_atomic"
-              cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
+               PRINT *, "hw_rho_atomic"
+               cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + rho_temp(:, :, :)
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
                  PRINT *, "is_constraint"
-               cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
-                       cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
-                       coefficients(atom_a) * rho_temp(:, :, :)
-                END IF
+                 cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
+                     cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
+                     coefficients(atom_a) * rho_temp(:, :, :)
+               END IF
 
                PRINT *, "hw_rho_total"
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
-                       cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
+                     cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
 
-                       ! Save analytic derivative
-                       IF (in_memory) THEN
-                         PRINT *, "in_memory"
-                         rho_atom_dr_temp(iatom, :, :, :) = rho_atom_dr_temp(iatom, :, :, :) + rho_dr_temp(:, :, :)
-                       END IF
-
+               ! Save analytic derivative
+               IF (in_memory) THEN
+                 PRINT *, "in_memory"
+                 rho_atom_dr_temp(iatom, :, :, :) = rho_atom_dr_temp(iatom, :, :, :) + rho_dr_temp(:, :, :)
+               END IF
 
              END DO ! iatom = 1, natom
            END DO ! ikind = 1, SIZE(atomic_kind_set)
@@ -961,10 +936,6 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
-           ! Release grids
-           ! CALL rs_grid_release(rs_rho_temp)
-           ! CALL rs_grid_release(rs_rho_dr_temp)
-
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
               DO igroup = 1, SIZE(cdft_control%group)
@@ -975,27 +946,15 @@ CONTAINS
               END DO
             END IF
            END IF
-
-           ! Release grids that require looping over atoms
-           ! DO i = 1, cdft_control%natoms
-           !   CALL rs_grid_release(rs_single(i)%rs_grid)
-           !   CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-           ! END DO
-
            ! Deallocate
            DEALLOCATE (rho_temp)
            DEALLOCATE (rho_dr_temp)
            DEALLOCATE(rho_atom_dr_temp)
-           ! DEALLOCATE (rs_single)
-           ! DEALLOCATE (rs_single_dr)
            DEALLOCATE (coefficients)
 
            ! Deallocate if allocated
            IF (ALLOCATED(is_constraint)) &
            DEALLOCATE (is_constraint)
-
-           PRINT *, "gradients", cdft_control%group(1)%gradients(1, 10, 10, 10)
-           PRINT *, "end hirshfeld_constraint_low"
 
            CALL timestop(handle)
 
