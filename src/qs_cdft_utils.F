@@ -1426,14 +1426,14 @@ CONTAINS
 
         END DO ! igroup = 1, SIZE(cdft_control%group)
 
-        PRINT *, "printing promolecular density"
+        PRINT *, "printing constraint density"
 
         ! Loop over CDFT control groups printing promolecular density
             DO igroup = 1, SIZE(cdft_control%group)
 
-              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hirsh_rho_promolecular(:, :, :)
+              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :)
 
-              middle_name = "hirsh_rho_promolecular_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+              middle_name = "hirsh_rho_constraint"//TRIM(ADJUSTL(cp_to_string(igroup)))
               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 

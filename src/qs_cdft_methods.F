@@ -650,7 +650,7 @@ CONTAINS
                                                                nthread, numexp, k
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge!, is_constraint
-         REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, &
+         REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val
@@ -901,6 +901,14 @@ CONTAINS
              ! Calculate sum of Gaussian exponents to simplify derivative
              DO igroup = 1, SIZE(cdft_control%group)
                DO ikind = 1, SIZE(atomic_kind_set)
+
+                 alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                 sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet
+
+                !  rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
+                !                              + 2.0_dp * alpha * exp_eval
+                ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+
                  DO iatom = 1, natom
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
