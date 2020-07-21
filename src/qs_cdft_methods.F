@@ -845,14 +845,10 @@ CONTAINS
                   IF (compute_charge(iatom)) THEN
                ! rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
                cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
-                       cdft_control%group(igroup)%hw_rho_atomic_charge(:, :, :) + &
+                       cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + &
                        rs_rho_temp%r
               END IF
 
-               ! Save analytic derivative
-               IF (in_memory) THEN
-                 rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
-               END IF
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
@@ -864,6 +860,12 @@ CONTAINS
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                        cdft_control%group(igroup)%hw_rho_total(:, :, :) + &
                        rs_rho_temp%r
+
+                       ! Save analytic derivative
+                       IF (in_memory) THEN
+                         rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+                       END IF
+
 
              END DO ! iatom = 1, natom
            END DO ! ikind = 1, SIZE(atomic_kind_set)
