@@ -830,14 +830,21 @@ CONTAINS
                ! Save atomic density
                rs_single(iatom)%rs_grid%r = rs_single(iatom)%rs_grid%r + rs_rho_temp%r
 
-               ! Save sum over constraint atoms, sum over all atoms
-               rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
-               rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
-
                ! Save analytic derivative
                IF (in_memory) THEN
                  rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
                END IF
+
+               ! Save sum over constraint atoms, sum over all atoms
+               ! rs_rho_constr%r = rs_rho_constr%r + cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
+               cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = &
+                       cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) + &
+                       cdft_control%group(igroup)%coeff(atom_a) * rs_rho_temp%r
+
+               ! rs_rho_all%r = rs_rho_all%r + rs_rho_temp%r
+               cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = &
+                       cdft_control%group(igroup)%hirsh_rho_total(:, :, :) + &
+                       rs_rho_temp%r
 
              END DO ! iatom = 1, natom
            END DO ! ikind = 1, SIZE(atomic_kind_set)
@@ -848,49 +855,89 @@ CONTAINS
          DO igroup = 1, SIZE(cdft_control%group)
 
            ! Only calculate sum over all atoms for first loop
-           CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-           IF (igroup == 1) THEN
-             IF (ASSOCIATED(fnorm)) THEN
-               CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
-             END IF
-             ALLOCATE (fnorm)
-             CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, in_space=REALSPACE)
-             CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-             CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-           END IF
+           ! CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+           ! IF (igroup == 1) THEN
+           !   IF (ASSOCIATED(fnorm)) THEN
+           !     CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
+           !   END IF
+           !   ALLOCATE (fnorm)
+           !   CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, in_space=REALSPACE)
+           !   CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
+           !   CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
+           ! END IF
 
            ! Calculate weight function
            PRINT *, "Calculate weight function"
-           CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-           CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-           CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
-                           tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+           DO k = lb(3), ub(3)
+             DO j = lb(2), ub(2)
+               DO i = lb(1), ub(1)
+
+                 cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                     cdft_control%group(igroup)%hirsh_rho_constraint(i, j, k) / &
+                      cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+
+
+                      IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+
+                        cdft_control%charge(i)%pw%cr3d(i, j, k) = &
+                            rs_single(i)%rs_grid%r(i, j, k) / &
+                             cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+                      END IF
+
+               END DO
+             END DO
+           END DO
+
+
+           IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+             PRINT *, "Calculate charges"
+             DO iatom = 1, cdft_control%natoms
+             DO k = lb(3), ub(3)
+               DO j = lb(2), ub(2)
+                 DO i = lb(1), ub(1)
+
+                          cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                              rs_single(iatom)%rs_grid%r(i, j, k) / &
+                               cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+
+                 END DO
+               END DO
+             END DO
+           END DO
+         END IF
+
+           ! PRINT *, "Calculate weight function"
+           ! cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :)
+           ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+           ! CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
+           ! CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+           !                 tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+           ! CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
            ! Print atomic densities if requested
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              IF (para_env%ionode) THEN
-             PRINT *, "Calculate atomic densities"
-             cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
-             cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = rs_rho_constr%r(:, :, :)
-             DO i = 1, cdft_control%natoms
-               cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
-             END DO
+             ! PRINT *, "Calculate atomic densities"
+             ! cdft_control%group(igroup)%hirsh_rho_total(:, :, :) = rs_rho_all%r(:, :, :)
+             ! cdft_control%group(igroup)%hirsh_rho_constraint(:, :, :) = rs_rho_constr%r(:, :, :)
+             ! DO i = 1, cdft_control%natoms
+               ! cdft_control%group(igroup)%hirsh_rho_atomic(i, :, :, :) = rs_single(i)%rs_grid%r(:, :, :)
+             ! END DO
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
            END IF
 
              ! Compute charges if requested
-             IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-               PRINT *, "Calculate charges"
-               CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-               DO i = 1, cdft_control%natoms
-                 CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-                 CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
-               END DO
-               CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-               DEALLOCATE (compute_charge)
-             END IF
+             ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+             !   PRINT *, "Calculate charges"
+             !   CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+             !   DO i = 1, cdft_control%natoms
+             !     CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
+             !     CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, fnorm%pw%cr3d, divide=.TRUE.)
+             !   END DO
+             !   CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+             !   DEALLOCATE (compute_charge)
+             ! END IF
 
            END DO !  1, SIZE(cdft_control%group)
 
@@ -899,18 +946,7 @@ CONTAINS
              PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                DO ikind = 1, SIZE(atomic_kind_set)
-
                  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-
-                 ! Calculate sum of Gaussian exponents to simplify derivative
-                 sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
-                 PRINT *, "sum_alpha", sum_alpha
-
-                 PRINT *, "rs_single_dr", rs_single_dr(1)%rs_grid%r(10, 10, 10)
-                 PRINT *, "rs_single_dr", rs_single_dr(1)%rs_grid%r(10, 10, 10)/(2.0_dp * sum_alpha)
-                 PRINT *, "rs_single_dr", rs_single_dr(1)%rs_grid%r(10, 10, 10)/(16.0_dp * sum_alpha)
-                 PRINT *, "rs_single", rs_single(1)%rs_grid%r(10, 10, 10)
-
                  DO iatom = 1, natom
 
                    ! Get atomic position
@@ -921,13 +957,11 @@ CONTAINS
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
 
-                         ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * rho * 2 * sum(zeta)
+                         ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
                          exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
-                                     (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
-                                     !(rs_single(iatom)%rs_grid%r(i, j, k) * 2.0_dp * sum_alpha )
-
+                                     (rs_single_dr(iatom)%rs_grid%r(i, j, k))
 
                          ! Store gradient d/dR_x w, including term: (r_x - R_x)
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
@@ -961,11 +995,9 @@ CONTAINS
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
               DO igroup = 1, SIZE(cdft_control%group)
-                PRINT *, "attempting DEALLOCATE"
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic)
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_constraint)
                  DEALLOCATE (cdft_control%group(igroup)%hirsh_rho_total)
-                 PRINT *, "DEALLOCATE"
               END DO
             END IF
            END IF
@@ -974,25 +1006,7 @@ CONTAINS
            DO i = 1, cdft_control%natoms
              CALL rs_grid_release(rs_single(i)%rs_grid)
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_constraint%pw)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
-             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(i)%pw)
-             ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
-             !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
            END DO
-
-           ! DO igroup = 1, SIZE(cdft_control%group)
-           !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
-           !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_constraint)
-           !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_total)
-           ! END DO
-
-           ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_constraint%pw)
-           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
-           !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(iatom)%pw)
-           !   DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic)
-           ! END IF
 
            ! Deallocate
            DEALLOCATE (rs_single)
