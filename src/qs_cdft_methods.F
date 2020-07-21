@@ -649,7 +649,7 @@ CONTAINS
                                                                ikind, ithread, j, natom, npme, &
                                                                nthread, numexp, k
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
-         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge!, is_constraint
+         LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
                                                                radius, radius_constr, r_squared, exp_eval, sign
          ! REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
@@ -749,6 +749,7 @@ CONTAINS
          END IF
 
          coefficients(:) = 0.0_dp
+         ALLOCATE (is_constraint(natom))
          is_constraint = .FALSE.
           DO igroup = 1, SIZE(cdft_control%group)
          DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
