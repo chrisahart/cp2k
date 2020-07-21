@@ -903,12 +903,17 @@ CONTAINS
              DO igroup = 1, SIZE(cdft_control%group)
                DO ikind = 1, SIZE(atomic_kind_set)
 
-                 alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                 sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
+                 DO iex = 1, hirshfeld_env%kind_shape_fn(1)%numexp
 
-                !  rs_rho_dr_temp%r(i, j, k) = rs_rho_dr_temp%r(i, j, k) &
-                !                              + 2.0_dp * alpha * exp_eval
-                ! rs_single_dr(iatom)%rs_grid%r = rs_single_dr(iatom)%rs_grid%r + rs_rho_dr_temp%r
+                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                   PRINT *, "alpha", alpha
+                   PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet(iex)", hirshfeld_env%kind_shape_fn(ikind)%zet
+                   sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
+                   PRINT *, "Calculate gradient"
+                   
+                 END DO
+
+
 
                  DO iatom = 1, natom
                    DO k = lb(3), ub(3)
@@ -924,7 +929,7 @@ CONTAINS
                                      cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                      rs_rho_all%r(i, j, k)) * &
                                      (1 * rs_single_dr(iatom)%rs_grid%r(i, j, k))
-                                     !(2 * sum_alpha * rs_single_dr(iatom)%rs_grid%r(i, j, k))
+                                     !(2 * sum_alpha * rs_single(iatom)%rs_grid%r(i, j, k))
 
                          ! Store gradient d/dR_x w, including term: d/R_x rho = 2 * zeta * (r_x - R_x) rho
                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
