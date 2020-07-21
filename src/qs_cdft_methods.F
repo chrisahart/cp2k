@@ -782,6 +782,7 @@ CONTAINS
              ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (rho_dr_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
              cdft_control%group(igroup)%hw_rho_atomic_charge = 0.0_dp
