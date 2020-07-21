@@ -205,6 +205,11 @@ MODULE qs_cdft_types
 
       REAL(KIND=dp), POINTER, &
          DIMENSION(:, :, :, :)             :: hirsh_rho_atomic
+         REAL(KIND=dp), POINTER, &
+            DIMENSION(:, :, :)             :: hirsh_rho_promolecular
+
+            REAL(KIND=dp), POINTER, &
+               DIMENSION(:, :, :)             :: hirsh_rho_total
 
     END TYPE cdft_group_type
 
