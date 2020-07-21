@@ -867,7 +867,7 @@ CONTAINS
            ! END IF
 
            ! Calculate weight function
-           PRINT *, "Calculate weight function"
+           PRINT *, "Calculate weight function", SIZE(cdft_control%group(igroup)%weight%pw%cr3d)
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
@@ -876,13 +876,13 @@ CONTAINS
                      cdft_control%group(igroup)%hirsh_rho_constraint(i, j, k) / &
                       cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
 
-
-                      IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-
-                        cdft_control%charge(i)%pw%cr3d(i, j, k) = &
-                            rs_single(i)%rs_grid%r(i, j, k) / &
-                             cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
-                      END IF
+                      !
+                      ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+                      !
+                      !   cdft_control%charge(i)%pw%cr3d(i, j, k) = &
+                      !       rs_single(i)%rs_grid%r(i, j, k) / &
+                      !        cdft_control%group(igroup)%hirsh_rho_total(i, j, k)
+                      ! END IF
 
                END DO
              END DO
@@ -890,7 +890,7 @@ CONTAINS
 
 
            IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-             PRINT *, "Calculate charges"
+             PRINT *, "Calculate charges", SIZE(cdft_control%charge(iatom)%pw%cr3d)
              DO iatom = 1, cdft_control%natoms
              DO k = lb(3), ub(3)
                DO j = lb(2), ub(2)
