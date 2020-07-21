@@ -906,10 +906,10 @@ CONTAINS
                  sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
                  PRINT *, "sum_alpha", sum_alpha
 
-                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(50, 50, 50)
-                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(50, 50, 50)/(2.0_dp * sum_alpha)
-                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(50, 50, 50)/(16.0_dp * sum_alpha)
-                 PRINT *, "rs_single", rs_single(iatom)%rs_grid%r(50, 50, 50)
+                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(10, 10, 10)
+                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(10, 10, 10)/(2.0_dp * sum_alpha)
+                 PRINT *, "rs_single_dr", rs_single_dr(iatom)%rs_grid%r(10, 10, 10)/(16.0_dp * sum_alpha)
+                 PRINT *, "rs_single", rs_single(iatom)%rs_grid%r(10, 10, 10)
 
                  DO iatom = 1, natom
 
