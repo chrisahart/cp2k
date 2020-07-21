@@ -868,7 +868,7 @@ CONTAINS
              DO i = 1, cdft_control%natoms
                ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
                ! CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-               cdft_control%group(igroup)%hirsh_rho_atomic(i) = rs_single(i)%rs_grid
+               cdft_control%group(igroup)%hirsh_rho_atomic(i) = rs_single(i)%rs_grid%r
                ! cdft_control%group(igroup)%hirsh_rho_atomic(i)%pw%cr3d = tmp%pw%cr3d
              END DO
              CALL cdft_print_hirshfeld_density(qs_env)
