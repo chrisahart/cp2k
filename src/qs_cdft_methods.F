@@ -748,7 +748,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
-           PRINT *, "Allocate gradient", iatom
+           PRINT *, "Allocate gradient"
            CALL rs_grid_create(rs_rho_dr_temp, auxbas_rs_desc)
            CALL rs_grid_zero(rs_rho_dr_temp)
            DO igroup = 1, SIZE(cdft_control%group)
@@ -760,7 +760,7 @@ CONTAINS
          ! Allocate Hirshfeld densities
          hirshfeld_control%print_density = .TRUE.
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           PRINT *, "Allocate Hirshfeld densities", iatom
+           PRINT *, "Allocate Hirshfeld densities"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%hirsh_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (cdft_control%group(igroup)%hirsh_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
@@ -868,7 +868,7 @@ CONTAINS
            CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
            ! Print atomic densities if requested
-           ! hirshfeld_control%print_density = .TRUE.
+           hirshfeld_control%print_density = .TRUE.
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              IF (para_env%ionode) THEN
              PRINT *, "Calculate atomic densities"
@@ -901,18 +901,21 @@ CONTAINS
              DO igroup = 1, SIZE(cdft_control%group)
                DO ikind = 1, SIZE(atomic_kind_set)
 
+                 CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+
                  ! Calculate sum of Gaussian exponents to simplify derivative
                  sum_alpha = SUM(hirshfeld_env%kind_shape_fn(ikind)%zet)
                  PRINT *, "sum_alpha", sum_alpha
 
                  DO iatom = 1, natom
+
+                   ! Get atomic position
+                   atom_a = atom_list(iatom)
+                   ra(:) = particle_set(atom_a)%r - origin(:)
+
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
-
-                         ! Get atomic position
-                         atom_a = atom_list(iatom)
-                         ra(:) = particle_set(atom_a)%r - origin(:)
 
                          ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * rho * 2 * sum(zeta)
                          exp_eval = ((cdft_control%group(igroup)%coeff(atom_a)  - &

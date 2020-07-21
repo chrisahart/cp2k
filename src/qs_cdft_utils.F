@@ -1135,7 +1135,7 @@ CONTAINS
     IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
     CALL timestop(handle)
 
-    PRINT *, "end hirshfeld_constraint_init"
+    ! PRINT *, "end hirshfeld_constraint_init"
 
  END SUBROUTINE hirshfeld_constraint_init
 
