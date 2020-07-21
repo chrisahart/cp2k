@@ -1409,6 +1409,7 @@ CONTAINS
        tmp%pw%cr3d = 0.0_dp
 
        ! Loop over CDFT control groups printing hw_rho_total
+        IF (para_env%ionode) THEN
            DO igroup = 1, SIZE(cdft_control%group)
 
              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
@@ -1426,10 +1427,12 @@ CONTAINS
             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
         END DO ! igroup = 1, SIZE(cdft_control%group)
+      END DO
 
         PRINT *, "printing constraint density"
 
         ! Loop over CDFT control groups printing promolecular density
+         IF (para_env%ionode) THEN
             DO igroup = 1, SIZE(cdft_control%group)
 
               tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
@@ -1447,11 +1450,12 @@ CONTAINS
              CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
 
          END DO ! igroup = 1, SIZE(cdft_control%group)
+       END DO
 
         PRINT *, "printing atomic density"
 
         ! Loop over CDFT control groups printing atomic density
-
+         IF (para_env%ionode) THEN
         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom  = 1, (cdft_control%natoms)
 
@@ -1474,6 +1478,7 @@ CONTAINS
 
          END DO ! igroup = 1, SIZE(cdft_control%group)
        END DO
+     END IF
 
        CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
