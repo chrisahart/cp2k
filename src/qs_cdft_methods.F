@@ -946,8 +946,8 @@ CONTAINS
            END IF ! (in_memory) THEN
 
 
-           PRINT *, " gradients 1", cdft_control%group(igroup)%gradients(1, 10, 10, 10)
-           PRINT *, " gradients 2", cdft_control%group(igroup)%gradients(2, 10, 10, 10)
+           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, 10)
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, 10)
 
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
