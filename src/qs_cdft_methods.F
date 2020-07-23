@@ -701,7 +701,7 @@ CONTAINS
 
          ! PRINT *, "start hirshfeld_constraint_low"
          ! hirshfeld_control%print_density = .TRUE.
-         cdft_control%in_memory = .TRUE.
+         IF (calculate_forces) cdft_control%in_memory = .TRUE.
 
          ! Allcoate as needed
          ALLOCATE (coefficients(natom))
