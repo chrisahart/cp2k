@@ -780,7 +780,7 @@ CONTAINS
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
 
              ! Loop over each atom of atom type
-             DO iatom = 1, natom
+             DO iatom = 1, cdft_control%natoms
 
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
@@ -871,36 +871,37 @@ CONTAINS
                END DO
              END DO
            END DO
+        END DO !  1, SIZE(cdft_control%group)
 
            ! Calculate atomic charges if requested
-           IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-             PRINT *, "Calculate charges"
-             DO iatom = 1, cdft_control%natoms
-             DO k = lb(3), ub(3)
-               DO j = lb(2), ub(2)
-                 DO i = lb(1), ub(1)
-                          cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                              cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) / &
-                               cdft_control%group(igroup)%hw_rho_total(i, j, k)
-                 END DO
-               END DO
-             END DO
-           END DO
-         END IF
-         END DO !  1, SIZE(cdft_control%group)
+         !   IF (cdft_control%atomic_charges) THEN
+         !     PRINT *, "Calculate charges"
+         !     DO iatom = 1, cdft_control%natoms
+         !     DO k = lb(3), ub(3)
+         !       DO j = lb(2), ub(2)
+         !         DO i = lb(1), ub(1)
+         !                  cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+         !                      cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) / &
+         !                       cdft_control%group(igroup)%hw_rho_total(i, j, k)
+         !         END DO
+         !       END DO
+         !     END DO
+         !   END DO
+         ! END IF
 
            ! Print atomic densities if requested
-           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-             CALL cdft_print_hirshfeld_density(qs_env)
-            END IF
+           ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           !   CALL cdft_print_hirshfeld_density(qs_env)
+           !  END IF
 
            ! Calculate gradient if requested
            IF (in_memory) THEN
              PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
-                 DO iatom = 1, cdft_control%natoms
+                 DO iatom = 1, natom
 
-                   PRINT *, "natoms", cdft_control%natoms
+                   PRINT *, "cdft_control%natoms", cdft_control%natoms
+                   PRINT *, "natom", natom
                    PRINT *, "atom_a", atom_a
                    PRINT *, "iatom", iatom
 
@@ -946,8 +947,8 @@ CONTAINS
            END IF ! (in_memory) THEN
 
 
-           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, 10)
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, 10)
+           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
 
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -1046,16 +1047,16 @@ CONTAINS
           dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
           ! If gradients were not precomputed, calculate them now
-        IF (cdft_control%type == outer_scf_becke_constraint) THEN
-          IF (.NOT. cdft_control%becke_control%in_memory) THEN
-             CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
-           END IF
-
-        ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-          IF (.NOT. cdft_control%in_memory) THEN
-             CALL hirshfeld_constraint_low(qs_env, just_gradients=.TRUE.)
-           END IF
-        END IF
+        ! IF (cdft_control%type == outer_scf_becke_constraint) THEN
+        !   IF (.NOT. cdft_control%becke_control%in_memory) THEN
+        !      CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
+        !    END IF
+        !
+        ! ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+        !   IF (.NOT. cdft_control%in_memory) THEN
+        !      CALL hirshfeld_constraint_low(qs_env, just_gradients=.TRUE.)
+        !    END IF
+        ! END IF
 
         PRINT *, "calculating integrated"
 
