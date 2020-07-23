@@ -683,7 +683,9 @@ CONTAINS
                   auxbas_rs_desc, cdft_control, &
                   hirshfeld_control, rho_r, rho, fnorm)
 
-          PRINT *, "start hirshfeld_constraint_low"
+          ! PRINT *, "start hirshfeld_constraint_low"
+          ! hirshfeld_control%print_density = .TRUE.
+          cdft_control%in_memory = .TRUE.
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -719,8 +721,7 @@ CONTAINS
          END IF
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         ! in_memory = cdft_control%in_memory
-         in_memory = .TRUE.
+         in_memory = cdft_control%in_memory
          my_just_gradients = .FALSE.
          IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          IF (my_just_gradients) THEN
@@ -736,11 +737,11 @@ CONTAINS
             is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
          END DO
          END DO
-         PRINT *, "coefficients", coefficients
+         ! PRINT *, "coefficients", coefficients
 
          ! Allocate gradient
          IF (in_memory) THEN
-           PRINT *, "Allocate gradient"
+           ! PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -748,27 +749,27 @@ CONTAINS
          END IF
 
          ! Allocate Hirshfeld densities
-         hirshfeld_control%print_density = .TRUE.
+
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           PRINT *, "Allocate Hirshfeld densities"
+           ! PRINT *, "Allocate Hirshfeld densities"
            DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (rho_dr_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
              cdft_control%group(igroup)%hw_rho_atomic_charge = 0.0_dp
-             cdft_control%group(igroup)%hw_rho_total = 0.0_dp
-             cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
-             rho_temp = 0.0_dp
-             rho_dr_temp = 0.0_dp
-             rho_atom_dr_temp = 0.0_dp
            END DO
         END IF
+
+          DO igroup = 1, SIZE(cdft_control%group)
+            ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ALLOCATE (rho_dr_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
+            cdft_control%group(igroup)%hw_rho_total = 0.0_dp
+            cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
+          END DO
+          rho_atom_dr_temp = 0.0_dp
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
@@ -824,34 +825,34 @@ CONTAINS
                  END DO ! k = lb(3), ub(3)
                END DO ! iex = 1, numexp
 
-               PRINT *, "atom", iatom
+               ! PRINT *, "atom", iatom
 
                ! Save atomic density
                IF (compute_charge(iatom)) THEN
-                 PRINT *, "compute_charge"
+                 ! PRINT *, "compute_charge"
                  cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + rho_temp(:, :, :)
                END IF
 
-               PRINT *, "hw_rho_atomic"
+               ! PRINT *, "hw_rho_atomic"
                cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + rho_temp(:, :, :)
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
-                 PRINT *, "is_constraint"
+                 ! PRINT *, "is_constraint"
                  cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      coefficients(atom_a) * rho_temp(:, :, :)
                END IF
 
-               PRINT *, "hw_rho_total"
+               ! PRINT *, "hw_rho_total"
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
 
                ! Save analytic derivative
                IF (in_memory) THEN
-                 PRINT *, "in_memory"
+                 ! PRINT *, "in_memory"
                  rho_atom_dr_temp(iatom, :, :, :) = rho_atom_dr_temp(iatom, :, :, :) + rho_dr_temp(:, :, :)
                END IF
 
@@ -861,7 +862,7 @@ CONTAINS
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "Calculate weight function"
+           ! PRINT *, "Calculate weight function"
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
@@ -874,44 +875,46 @@ CONTAINS
         END DO !  1, SIZE(cdft_control%group)
 
            ! Calculate atomic charges if requested
-         !   IF (cdft_control%atomic_charges) THEN
-         !     PRINT *, "Calculate charges"
-         !     DO iatom = 1, cdft_control%natoms
-         !     DO k = lb(3), ub(3)
-         !       DO j = lb(2), ub(2)
-         !         DO i = lb(1), ub(1)
-         !                  cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-         !                      cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) / &
-         !                       cdft_control%group(igroup)%hw_rho_total(i, j, k)
-         !         END DO
-         !       END DO
-         !     END DO
-         !   END DO
-         ! END IF
+           IF (.NOT. my_just_gradients) THEN
+           IF (cdft_control%atomic_charges) THEN
+             ! PRINT *, "Calculate charges"
+             DO iatom = 1, cdft_control%natoms
+             DO k = lb(3), ub(3)
+               DO j = lb(2), ub(2)
+                 DO i = lb(1), ub(1)
+                          cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                              cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                               cdft_control%group(igroup)%hw_rho_total(i, j, k)
+                 END DO
+               END DO
+             END DO
+           END DO
+         END IF
 
            ! Print atomic densities if requested
-           ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           !   CALL cdft_print_hirshfeld_density(qs_env)
-           !  END IF
+           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             CALL cdft_print_hirshfeld_density(qs_env)
+            END IF
+          END IF
 
            ! Calculate gradient if requested
            IF (in_memory) THEN
-             PRINT *, "Calculate gradient"
+             ! PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
 
-                   PRINT *, "cdft_control%natoms", cdft_control%natoms
-                   PRINT *, "natom", natom
-                   PRINT *, "atom_a", atom_a
-                   PRINT *, "iatom", iatom
+                   ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+                   ! PRINT *, "natom", natom
+                   ! PRINT *, "atom_a", atom_a
+                   ! PRINT *, "iatom", iatom
 
                    ! Get atomic position
                    ! atom_a = atom_list(iatom)
                    ra(:) = particle_set(iatom)%r - origin(1)
 
-                   PRINT *, "ra(:)", ra(:)
-                   PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
-                   PRINT *, "origin(:)", origin(:)
+                   ! PRINT *, "ra(:)", ra(:)
+                   ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+                   ! PRINT *, "origin(:)", origin(:)
 
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
@@ -946,27 +949,30 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
-           IF (para_env%ionode) THEN
-             PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
+         !   IF (para_env%ionode) THEN
+         !     PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
+         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
+         !
+         !   PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
+         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
+         !
+         !   PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
+         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
+         ! END IF
 
-           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
-
-           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
-         END IF
-
-           IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
               DO igroup = 1, SIZE(cdft_control%group)
-                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
-                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
-                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint)
-                 DEALLOCATE (cdft_control%group(igroup)%hw_rho_total)
+                DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
               END DO
             END IF
-           END IF
+
+            DO igroup = 1, SIZE(cdft_control%group)
+               DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
+               DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
+               DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
+               DEALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint)
+               DEALLOCATE (cdft_control%group(igroup)%hw_rho_total)
+            END DO
 
            ! Deallocate
            DEALLOCATE (rho_temp)
@@ -1055,16 +1061,16 @@ CONTAINS
           dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
           ! If gradients were not precomputed, calculate them now
-        ! IF (cdft_control%type == outer_scf_becke_constraint) THEN
-        !   IF (.NOT. cdft_control%becke_control%in_memory) THEN
-        !      CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
-        !    END IF
-        !
-        ! ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-        !   IF (.NOT. cdft_control%in_memory) THEN
-        !      CALL hirshfeld_constraint_low(qs_env, just_gradients=.TRUE.)
-        !    END IF
-        ! END IF
+        IF (cdft_control%type == outer_scf_becke_constraint) THEN
+          IF (.NOT. cdft_control%becke_control%in_memory) THEN
+             CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
+           END IF
+
+        ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+          IF (.NOT. cdft_control%in_memory) THEN
+             CALL hirshfeld_constraint_low(qs_env, just_gradients=.TRUE.)
+           END IF
+        END IF
 
         PRINT *, "calculating integrated"
 
