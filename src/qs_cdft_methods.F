@@ -785,7 +785,7 @@ CONTAINS
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
                rho_dr_temp = 0.0_dp
-               rho_atom_dr_temp = 0.0_dp
+               ! rho_atom_dr_temp = 0.0_dp
 
                ! Get atomic position
                atom_a = atom_list(iatom)
@@ -946,9 +946,16 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
 
+           IF (para_env%ionode) THEN
+             PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
 
            PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
            PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
+
+           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
+         END IF
 
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -960,6 +967,7 @@ CONTAINS
               END DO
             END IF
            END IF
+
            ! Deallocate
            DEALLOCATE (rho_temp)
            DEALLOCATE (rho_dr_temp)
