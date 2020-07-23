@@ -621,7 +621,7 @@ CONTAINS
             ! Initialize the Hirshfeld constraint environment
             CALL hirshfeld_constraint_init(qs_env)
             ! Calculate the Hirshfeld weight function and possibly the gradients
-            CALL hirshfeld_constraint_low(qs_env)
+            CALL hirshfeld_constraint_low(qs_env, calculate_forces)
          END IF
          ! Integrate the Hirshfeld constraint
          CALL cdft_constraint_integrate(qs_env)
@@ -637,9 +637,10 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-        SUBROUTINE hirshfeld_constraint_low(qs_env, just_gradients)
+        SUBROUTINE hirshfeld_constraint_low(qs_env, calculate_forces, just_gradients)
          TYPE(qs_environment_type), POINTER                 :: qs_env
          LOGICAL, OPTIONAL                                  :: just_gradients
+         LOGICAL                                            :: calculate_forces
 
          CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
             routineP = moduleN//':'//routineN
