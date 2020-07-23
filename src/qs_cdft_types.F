@@ -476,7 +476,7 @@ CONTAINS
          IF (ASSOCIATED(cdft_control%group)) THEN
             DO i = 1, SIZE(cdft_control%group)
 
-              PRINT *, "cdft_control_release"
+              ! PRINT *, "cdft_control_release"
                IF (ASSOCIATED(cdft_control%group(i)%atoms)) &
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
