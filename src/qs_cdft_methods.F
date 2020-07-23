@@ -1083,7 +1083,7 @@ CONTAINS
            END IF
         END IF
 
-        PRINT *, "calculating integrated"
+        ! PRINT *, "calculating integrated"
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
@@ -1175,8 +1175,8 @@ CONTAINS
              END DO
           END IF
 
-             PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-             PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+             ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+             ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
 
           IF (.NOT. cdft_control%transfer_pot) THEN

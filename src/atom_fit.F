@@ -86,7 +86,7 @@ CONTAINS
       TYPE(opgrid_type), POINTER                         :: density
       TYPE(opt_state_type)                               :: ostate
 
-      PRINT *, "start atom_fit_density"
+      ! PRINT *, "start atom_fit_density"
 
       ! NULLIFY (logger)
       ! logger => cp_get_default_logger()
