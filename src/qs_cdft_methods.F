@@ -974,7 +974,7 @@ CONTAINS
               END DO
             END IF
 
-            F (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              DO igroup = 1, SIZE(cdft_control%group)
                DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
              END DO
