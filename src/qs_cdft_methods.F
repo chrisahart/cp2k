@@ -683,10 +683,6 @@ CONTAINS
                   auxbas_rs_desc, cdft_control, &
                   hirshfeld_control, rho_r, rho, fnorm)
 
-          ! PRINT *, "start hirshfeld_constraint_low"
-          ! hirshfeld_control%print_density = .TRUE.
-          cdft_control%in_memory = .TRUE.
-
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
                          atomic_kind_set=atomic_kind_set, &
@@ -702,6 +698,10 @@ CONTAINS
          cdft_control => dft_control%qs_control%cdft_control
          hirshfeld_control => cdft_control%hirshfeld_control
          hirshfeld_env => hirshfeld_control%hirshfeld_env
+
+         ! PRINT *, "start hirshfeld_constraint_low"
+         ! hirshfeld_control%print_density = .TRUE.
+         cdft_control%in_memory = .TRUE.
 
          ! Allcoate as needed
          ALLOCATE (coefficients(natom))
