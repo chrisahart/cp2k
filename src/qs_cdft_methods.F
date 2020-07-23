@@ -891,8 +891,8 @@ CONTAINS
                DO j = lb(2), ub(2)
                  DO i = lb(1), ub(1)
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                              cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) / &
-                               cdft_control%group(igroup)%hw_rho_total(i, j, k)
+                              cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                               cdft_control%group(1)%hw_rho_total(i, j, k)
                  END DO
                END DO
              END DO
