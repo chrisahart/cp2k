@@ -898,10 +898,19 @@ CONTAINS
            IF (in_memory) THEN
              PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
-                 DO iatom = 1, natom
+                 DO iatom = 1, cdft_control%natoms
+
+                   PRINT *, "natoms", natoms
+                   PRINT *, "atom_a", atom_a
+                   PRINT *, "iatom", iatom
 
                    ! Get atomic position
-                   ra(:) = particle_set(iatom)%r - origin(:)
+                   ! atom_a = atom_list(iatom)
+                   ra(:) = particle_set(iatom)%r - origin(1)
+
+                   PRINT *, "ra(:)", ra(:)
+                   PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+                   PRINT *, "origin(:)", origin(:)
 
                    DO k = lb(3), ub(3)
                      DO j = lb(2), ub(2)
@@ -935,6 +944,10 @@ CONTAINS
                ! END DO ! ikind = 1, SIZE(atomic_kind_set)
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (in_memory) THEN
+
+
+           PRINT *, " gradients 1", cdft_control%group(igroup)%gradients(1, 10, 10, 10)
+           PRINT *, " gradients 2", cdft_control%group(igroup)%gradients(2, 10, 10, 10)
 
            IF (.NOT. cdft_control%transfer_pot) THEN
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
