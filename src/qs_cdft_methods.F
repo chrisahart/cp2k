@@ -900,7 +900,7 @@ CONTAINS
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, cdft_control%natoms
 
-                   PRINT *, "natoms", natoms
+                   PRINT *, "natoms", cdft_control%natoms
                    PRINT *, "atom_a", atom_a
                    PRINT *, "iatom", iatom
 
