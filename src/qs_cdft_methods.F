@@ -750,22 +750,26 @@ CONTAINS
 
          ! Allocate Hirshfeld densities
 
-         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           ! PRINT *, "Allocate Hirshfeld densities"
+         IF (cdft_control%atomic_charges .eqv. .TRUE.) THEN
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%hw_rho_atomic_charge = 0.0_dp
            END DO
         END IF
 
+        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
           DO igroup = 1, SIZE(cdft_control%group)
             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
+          END DO
+       END IF
+
+          DO igroup = 1, SIZE(cdft_control%group)
             ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_dr_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
             cdft_control%group(igroup)%hw_rho_total = 0.0_dp
             cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
           END DO
@@ -828,15 +832,19 @@ CONTAINS
                ! PRINT *, "atom", iatom
 
                ! Save atomic density
+               IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(iatom)) THEN
                  ! PRINT *, "compute_charge"
                  cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + rho_temp(:, :, :)
                END IF
+             END IF
 
                ! PRINT *, "hw_rho_atomic"
+               IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + rho_temp(:, :, :)
+                    END IF
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
@@ -966,10 +974,13 @@ CONTAINS
               END DO
             END IF
 
-            DO igroup = 1, SIZE(cdft_control%group)
-               DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
+            F (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             DO igroup = 1, SIZE(cdft_control%group)
                DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
-               DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
+             END DO
+           END IF
+
+            DO igroup = 1, SIZE(cdft_control%group)
                DEALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint)
                DEALLOCATE (cdft_control%group(igroup)%hw_rho_total)
             END DO
