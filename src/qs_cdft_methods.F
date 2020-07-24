@@ -703,7 +703,7 @@ CONTAINS
          ! PRINT *, "start hirshfeld_constraint_low"
          ! hirshfeld_control%print_density = .TRUE.
          IF (calculate_forces) cdft_control%in_memory = .TRUE.
-         eps_weight = 1.0e-6_dp
+         ! hirshfeld_control%eps_rho_constraint = 1.0e-6_dp
 
          ! Allcoate as needed
          ALLOCATE (coefficients(natom))
@@ -877,7 +877,9 @@ CONTAINS
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
 
-                 IF (cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) > eps_weight) THEN
+                 IF (cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) &
+                     > hirshfeld_control%eps_rho_constraint) THEN
+
                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                         cdft_control%group(igroup)%hw_rho_total(i, j, k)
@@ -897,7 +899,9 @@ CONTAINS
                DO j = lb(2), ub(2)
                  DO i = lb(1), ub(1)
 
-                   IF (cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) > eps_weight) THEN
+                   IF (cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) &
+                       > hirshfeld_control%eps_rho_constraint) THEN
+
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                                cdft_control%group(1)%hw_rho_total(i, j, k)
@@ -938,7 +942,8 @@ CONTAINS
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
 
-                         IF (cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) > eps_weight) THEN
+                         IF (cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) &
+                             > hirshfeld_control%eps_rho_constraint) THEN
 
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
                            exp_eval = ((coefficients(iatom) - &
