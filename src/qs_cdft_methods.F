@@ -900,7 +900,7 @@ CONTAINS
                  DO i = lb(1), ub(1)
 
                    IF (hirshfeld_control%use_cutoff .AND. &
-                   cdft_control%group(igroup)%hw_rho_atomic_charge(i, j, k) > hirshfeld_control%eps_constraint) THEN
+                   cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) > hirshfeld_control%eps_constraint) THEN
 
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
