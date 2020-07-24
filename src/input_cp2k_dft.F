@@ -4751,6 +4751,28 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="PRINT_DENSITY", &
+                          description="PRINT_DENSITY", &
+                          usage="PRINT_DENSITY TRUE", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="USE_CUTOFF", &
+                          description="USE_CUTOFF", &
+                          usage="USE_CUTOFF TRUE", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="EPS_CONSTRAINT", &
+                          description="EPS_CONSTRAINT.", &
+                          usage="ATOMIC_RADII {real}", repeats=.FALSE., &
+                          unit_str="angstrom", &
+                          type_of_var=real_t, n_var=-1)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
    END SUBROUTINE create_hirshfeld_constraint_section
 
 ! **************************************************************************************************
