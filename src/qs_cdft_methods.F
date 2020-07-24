@@ -776,7 +776,10 @@ CONTAINS
             cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
           END DO
           rho_atom_dr_temp = 0.0_dp
-          cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+
+          DO igroup = 1, SIZE(cdft_control%group)
+            cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+          END DO
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
