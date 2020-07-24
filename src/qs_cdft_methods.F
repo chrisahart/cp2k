@@ -882,7 +882,8 @@ CONTAINS
                DO i = lb(1), ub(1)
 
                  IF (hirshfeld_control%use_cutoff .AND. &
-                 cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) > hirshfeld_control%eps_constraint) THEN
+                     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
+                      > hirshfeld_control%eps_constraint) THEN
 
                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
@@ -904,7 +905,8 @@ CONTAINS
                  DO i = lb(1), ub(1)
 
                    IF (hirshfeld_control%use_cutoff .AND. &
-                   cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) > hirshfeld_control%eps_constraint) THEN
+                       ABS(cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k)) &
+                        > hirshfeld_control%eps_constraint) THEN
 
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
@@ -947,7 +949,8 @@ CONTAINS
                        DO i = lb(1), ub(1)
 
                          IF (hirshfeld_control%use_cutoff .AND. &
-                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) > hirshfeld_control%eps_constraint) THEN
+                             ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
+                              > hirshfeld_control%eps_constraint) THEN
 
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
                            exp_eval = ((coefficients(iatom) - &
