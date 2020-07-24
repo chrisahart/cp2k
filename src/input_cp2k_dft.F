@@ -4764,12 +4764,10 @@ CONTAINS
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
-
+      
       CALL keyword_create(keyword, __LOCATION__, name="EPS_CONSTRAINT", &
-                          description="EPS_CONSTRAINT.", &
-                          usage="ATOMIC_RADII {real}", repeats=.FALSE., &
-                          unit_str="angstrom", &
-                          type_of_var=real_t, n_var=-1)
+                          description="Density threshold for constraint.", &
+                          usage="EPS_CONSTRAINT {real} ", default_r_val=1.0e-6_dp)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 

@@ -700,7 +700,7 @@ CONTAINS
          hirshfeld_control => cdft_control%hirshfeld_control
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
-         ! PRINT *, "start hirshfeld_constraint_low"
+         PRINT *, "start hirshfeld_constraint_low"
          ! hirshfeld_control%print_density = .TRUE.
          IF (calculate_forces) cdft_control%in_memory = .TRUE.
          ! hirshfeld_control%eps_constraint = 1.0e-6_dp
@@ -743,7 +743,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
-           ! PRINT *, "Allocate gradient"
+           PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -872,7 +872,7 @@ CONTAINS
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
-           ! PRINT *, "Calculate weight function"
+           PRINT *, "Calculate weight function"
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
@@ -900,7 +900,7 @@ CONTAINS
                  DO i = lb(1), ub(1)
 
                    IF (hirshfeld_control%use_cutoff .AND. &
-                   cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, i, j, k) > hirshfeld_control%eps_constraint) THEN
+                   cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) > hirshfeld_control%eps_constraint) THEN
 
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
