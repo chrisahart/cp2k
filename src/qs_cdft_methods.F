@@ -807,6 +807,7 @@ CONTAINS
 
                PRINT *, "cdft_control%natoms", cdft_control%natoms
                PRINT *, "natom", natom
+               PRINT *, "atom_a", atom_a
                PRINT *, "atom_list(iatom)", atom_list(iatom)
                PRINT *, "ra(:)", ra(:)
 
