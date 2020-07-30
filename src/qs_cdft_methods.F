@@ -787,11 +787,14 @@ CONTAINS
            ! Loop over each atomic kind
            DO ikind = 1, SIZE(atomic_kind_set)
 
+             PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
+             PRINT *, "ikind", ikind
+
              ! Get list of atom kind, number of exponentials
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
 
              ! Loop over each atom of atom type
-             DO iatom = 1, cdft_control%natoms
+             DO iatom = 1, natom
 
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
@@ -801,6 +804,11 @@ CONTAINS
                ! Get atomic position
                atom_a = atom_list(iatom)
                ra(:) = particle_set(atom_a)%r - origin(1)
+
+               PRINT *, "cdft_control%natoms", cdft_control%natoms
+               PRINT *, "natom", natom
+               PRINT *, "atom_list(iatom)", atom_list(iatom)
+               PRINT *, "ra(:)", ra(:)
 
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(1)%numexp
