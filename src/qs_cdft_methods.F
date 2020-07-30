@@ -647,7 +647,7 @@ CONTAINS
 
          LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
-                                                               ikind, ithread, j, natom, npme, &
+                                                               ikind, ithread, j, natom, npme, num_species, &
                                                                nthread, numexp, k
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -707,6 +707,7 @@ CONTAINS
 
          ! Allcoate as needed
          ALLOCATE (coefficients(natom))
+         PRINT *, "natom", natom
 
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
@@ -791,10 +792,10 @@ CONTAINS
              PRINT *, "ikind", ikind
 
              ! Get list of atom kind, number of exponentials
-             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+             CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
 
-             ! Loop over each atom of atom type
-             DO iatom = 1, natom
+             ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
+             DO iatom = 1, num_species
 
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
@@ -808,6 +809,7 @@ CONTAINS
                PRINT *, "cdft_control%natoms", cdft_control%natoms
                PRINT *, "iatom", iatom
                PRINT *, "natom", natom
+               PRINT *, "num_species", num_species
                PRINT *, "atom_a", atom_a
                PRINT *, "atom_list(iatom)", atom_list(iatom)
                PRINT *, "ra(:)", ra(:)
@@ -849,17 +851,17 @@ CONTAINS
 
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
-               IF (compute_charge(iatom)) THEN
+               IF (compute_charge(atom_a)) THEN
                  ! PRINT *, "compute_charge"
-                 cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) = &
-                      cdft_control%group(igroup)%hw_rho_atomic_charge(iatom, :, :, :) + rho_temp(:, :, :)
+                 cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
+                      cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
                END IF
              END IF
 
                ! PRINT *, "hw_rho_atomic"
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) = &
-                      cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :) + rho_temp(:, :, :)
+               cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
+                      cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
                     END IF
 
                ! Save sum over constraint atoms, sum over all atoms
@@ -877,7 +879,7 @@ CONTAINS
                ! Save analytic derivative
                IF (in_memory) THEN
                  ! PRINT *, "in_memory"
-                 rho_atom_dr_temp(iatom, :, :, :) = rho_atom_dr_temp(iatom, :, :, :) + rho_dr_temp(:, :, :)
+                 rho_atom_dr_temp(atom_a, :, :, :) = rho_atom_dr_temp(atom_a, :, :, :) + rho_dr_temp(:, :, :)
                END IF
 
              END DO ! iatom = 1, natom
@@ -937,14 +939,14 @@ CONTAINS
 
            ! Calculate gradient if requested
            IF (in_memory) THEN
-             ! PRINT *, "Calculate gradient"
+             PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
 
                    ! PRINT *, "cdft_control%natoms", cdft_control%natoms
-                   ! PRINT *, "natom", natom
+                   PRINT *, "natom", natom
                    ! PRINT *, "atom_a", atom_a
-                   ! PRINT *, "iatom", iatom
+                   PRINT *, "iatom", iatom
 
                    ! Get atomic position
                    ! atom_a = atom_list(iatom)
