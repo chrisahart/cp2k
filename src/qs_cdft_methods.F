@@ -813,6 +813,8 @@ CONTAINS
                PRINT *, "atom_a", atom_a
                PRINT *, "atom_list(iatom)", atom_list(iatom)
                PRINT *, "ra(:)", ra(:)
+               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
+               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
 
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(1)%numexp
@@ -900,6 +902,11 @@ CONTAINS
                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                        cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                         cdft_control%group(igroup)%hw_rho_total(i, j, k)
+
+                 ELSE
+                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
+                        cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
 
                END DO
@@ -912,6 +919,7 @@ CONTAINS
            IF (cdft_control%atomic_charges) THEN
              ! PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
+               !IF (compute_charge(atom_a)) THEN
              DO k = lb(3), ub(3)
                DO j = lb(2), ub(2)
                  DO i = lb(1), ub(1)
@@ -923,6 +931,11 @@ CONTAINS
                           cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                               cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                                cdft_control%group(1)%hw_rho_total(i, j, k)
+
+                   ELSE
+                     cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                         cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                          cdft_control%group(1)%hw_rho_total(i, j, k)
                   END IF
 
                  END DO
