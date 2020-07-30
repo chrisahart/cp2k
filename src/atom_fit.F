@@ -106,17 +106,17 @@ CONTAINS
          density%op = density%op*atom%basis%grid%rad**norder
       END IF
 
-      ! PRINT *, "density%op"
-      ! PRINT *, density%op ! Density on radial grid
-      !
-      ! PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
-      ! PRINT *, "atom%basis%grid%rad" ! Radial grid
-      ! PRINT *, atom%basis%grid%rad ! Radial grid
-      !
-      !
-      ! PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
-      ! PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
-      ! PRINT *, "atom%basis%nbas",  atom%basis%nbas
+      PRINT *, "density%op"
+      PRINT *, density%op ! Density on radial grid
+
+      PRINT *, "atom%basis%grid%nr", atom%basis%grid%nr
+      PRINT *, "atom%basis%grid%rad" ! Radial grid
+      PRINT *, atom%basis%grid%rad ! Radial grid
+
+
+      PRINT *, "atom%state%maxl_occ", atom%state%maxl_occ
+      PRINT *, "atom%basis%nbas(atom%state%maxl_occ)",  atom%basis%nbas(atom%state%maxl_occ)
+      PRINT *, "atom%basis%nbas",  atom%basis%nbas
 
 
       ostate%nf = 0
@@ -147,7 +147,7 @@ CONTAINS
             CALL density_fit(density, atom, num_gto, x(1), x(2), co, ostate%f)
          END IF
 
-        ! PRINT *, "aerr", ostate%f
+        PRINT *, "aerr", ostate%f
 
          IF (ostate%state == -1) EXIT
 

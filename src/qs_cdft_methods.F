@@ -806,22 +806,28 @@ CONTAINS
                atom_a = atom_list(iatom)
                ra(:) = particle_set(atom_a)%r - origin(1)
 
-               ! PRINT *, "cdft_control%natoms", cdft_control%natoms
-               ! PRINT *, "iatom", iatom
-               ! PRINT *, "natom", natom
-               ! PRINT *, "num_species", num_species
-               ! PRINT *, "atom_a", atom_a
-               ! PRINT *, "atom_list(iatom)", atom_list(iatom)
-               ! PRINT *, "ra(:)", ra(:)
-               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
-               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
+               PRINT *, "cdft_control%natoms", cdft_control%natoms
+               PRINT *, "ikind", ikind
+               PRINT *, "iatom", iatom
+               PRINT *, "natom", natom
+               PRINT *, "num_species", num_species
+               PRINT *, "atom_a", atom_a
+               PRINT *, "atom_list(iatom)", atom_list(iatom)
+               PRINT *, "ra(:)", ra(:)
+               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
+               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
+               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
+               PRINT *, "hirshfeld_env%kind_shape_fn(1)%numexp", hirshfeld_env%kind_shape_fn(1)%numexp
 
                ! Loop over each Gaussian
-               DO iex = 1, hirshfeld_env%kind_shape_fn(1)%numexp
+               DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
 
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+
+                 PRINT *, "alpha", alpha
+                 PRINT *, "coef", coef
 
                  ! Loop over grid
                  DO k = lb(3), ub(3)
