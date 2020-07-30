@@ -806,6 +806,7 @@ CONTAINS
                ra(:) = particle_set(atom_a)%r - origin(1)
 
                PRINT *, "cdft_control%natoms", cdft_control%natoms
+               PRINT *, "iatom", iatom
                PRINT *, "natom", natom
                PRINT *, "atom_a", atom_a
                PRINT *, "atom_list(iatom)", atom_list(iatom)
