@@ -1400,7 +1400,7 @@ CONTAINS
                 para_env, subsys, cdft_control, pw_env)
        logger => cp_get_default_logger()
 
-       PRINT *, "start cdft_print_hirshfeld_density"
+       ! PRINT *, "start cdft_print_hirshfeld_density"
 
        CALL get_qs_env(qs_env, subsys=subsys, para_env=para_env, dft_control=dft_control, pw_env=pw_env)
        CALL qs_subsys_get(subsys, particles=particles)
@@ -1432,7 +1432,7 @@ CONTAINS
         END DO ! igroup = 1, SIZE(cdft_control%group)
       END IF
 
-        PRINT *, "printing constraint density"
+        ! PRINT *, "printing constraint density"
 
         ! Loop over CDFT control groups printing promolecular density
          IF (para_env%ionode) THEN
@@ -1455,14 +1455,14 @@ CONTAINS
          END DO ! igroup = 1, SIZE(cdft_control%group)
        END IF
 
-        PRINT *, "printing atomic density"
+        ! PRINT *, "printing atomic density"
 
         ! Loop over CDFT control groups printing atomic density
          IF (para_env%ionode) THEN
         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom  = 1, (cdft_control%natoms)
 
-              PRINT *, "iatom", iatom
+              ! PRINT *, "iatom", iatom
 
               tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
 
@@ -1485,7 +1485,7 @@ CONTAINS
 
        CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
-         PRINT *, "end cdft_print_hirshfeld_density"
+         ! PRINT *, "end cdft_print_hirshfeld_density"
 
     END SUBROUTINE cdft_print_hirshfeld_density
 

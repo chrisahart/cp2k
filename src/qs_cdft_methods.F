@@ -700,14 +700,14 @@ CONTAINS
          hirshfeld_control => cdft_control%hirshfeld_control
          hirshfeld_env => hirshfeld_control%hirshfeld_env
 
-         PRINT *, "start hirshfeld_constraint_low"
+         ! PRINT *, "start hirshfeld_constraint_low"
          ! hirshfeld_control%print_density = .TRUE.
          IF (calculate_forces) cdft_control%in_memory = .TRUE.
          ! hirshfeld_control%eps_constraint = 1.0e-6_dp
 
          ! Allcoate as needed
          ALLOCATE (coefficients(natom))
-         PRINT *, "natom", natom
+         ! PRINT *, "natom", natom
 
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
@@ -744,7 +744,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
-           PRINT *, "Allocate gradient"
+           ! PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -788,8 +788,8 @@ CONTAINS
            ! Loop over each atomic kind
            DO ikind = 1, SIZE(atomic_kind_set)
 
-             PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
-             PRINT *, "ikind", ikind
+             ! PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
+             ! PRINT *, "ikind", ikind
 
              ! Get list of atom kind, number of exponentials
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
@@ -806,15 +806,15 @@ CONTAINS
                atom_a = atom_list(iatom)
                ra(:) = particle_set(atom_a)%r - origin(1)
 
-               PRINT *, "cdft_control%natoms", cdft_control%natoms
-               PRINT *, "iatom", iatom
-               PRINT *, "natom", natom
-               PRINT *, "num_species", num_species
-               PRINT *, "atom_a", atom_a
-               PRINT *, "atom_list(iatom)", atom_list(iatom)
-               PRINT *, "ra(:)", ra(:)
-               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
-               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
+               ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+               ! PRINT *, "iatom", iatom
+               ! PRINT *, "natom", natom
+               ! PRINT *, "num_species", num_species
+               ! PRINT *, "atom_a", atom_a
+               ! PRINT *, "atom_list(iatom)", atom_list(iatom)
+               ! PRINT *, "ra(:)", ra(:)
+               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
+               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
 
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(1)%numexp
@@ -890,7 +890,7 @@ CONTAINS
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "Calculate weight function"
+           ! PRINT *, "Calculate weight function"
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
@@ -952,14 +952,14 @@ CONTAINS
 
            ! Calculate gradient if requested
            IF (in_memory) THEN
-             PRINT *, "Calculate gradient"
+             ! PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
 
                    ! PRINT *, "cdft_control%natoms", cdft_control%natoms
-                   PRINT *, "natom", natom
+                   ! PRINT *, "natom", natom
                    ! PRINT *, "atom_a", atom_a
-                   PRINT *, "iatom", iatom
+                   ! PRINT *, "iatom", iatom
 
                    ! Get atomic position
                    ! atom_a = atom_list(iatom)
