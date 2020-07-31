@@ -678,11 +678,12 @@ CONTAINS
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp, rho_dr_temp
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)             :: rho_atom_dr_temp
+           REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
                   auxbas_rs_desc, cdft_control, &
-                  hirshfeld_control, rho_r, rho, fnorm)
+                  hirshfeld_control, rho_r, rho, fnorm, pab)
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -818,6 +819,7 @@ CONTAINS
                PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
                PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
                PRINT *, "hirshfeld_env%kind_shape_fn(1)%numexp", hirshfeld_env%kind_shape_fn(1)%numexp
+               PRINT *, "hirshfeld_env%charges(atom_a)", hirshfeld_env%charges(atom_a)
 
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -828,6 +830,24 @@ CONTAINS
 
                  PRINT *, "alpha", alpha
                  PRINT *, "coef", coef
+
+                 ALLOCATE (pab(1, 1))
+                 pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+                 PRINT *, "pab",pab
+                 DEALLOCATE (pab)
+                  ! ra(:) = pbc(particle_set(atom_a)%r, cell)
+                  ! subpatch_pattern = 0
+                  ! radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                  !                                   ra=ra, rb=ra, rp=ra, &
+                  !                                   zetp=alpha, eps=eps_rho_rspace, &
+                  !                                   pab=pab, o1=0, o2=0, &  ! without map_consistent
+                  !                                   prefactor=1.0_dp, cutoff=0.0_dp)
+                  !
+                  ! CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                  !                            (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                  !                            rs_rho_all, cell, cube_info, radius=radius, &
+                  !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                  !                            subpatch_pattern=subpatch_pattern)
 
                  ! Loop over grid
                  DO k = lb(3), ub(3)
