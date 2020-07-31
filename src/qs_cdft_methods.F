@@ -860,7 +860,7 @@ CONTAINS
                                    ((k * dr(3)) - ra(3)) ** 2.0_dp
 
                        ! Calculate Gaussian
-                       exp_eval = coef * hirshfeld_env%charges(atom_a) * EXP(-alpha * r_squared)
+                       exp_eval = coef * EXP(-alpha * r_squared)
 
                        ! Store atomic density
                        rho_temp(i, j, k) = rho_temp(i, j, k) + exp_eval
