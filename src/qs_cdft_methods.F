@@ -822,11 +822,11 @@ CONTAINS
                PRINT *, "hirshfeld_env%charges(atom_a)", hirshfeld_env%charges(atom_a)
 
                ! Loop over each Gaussian
-               DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
+               DO iex = 1, 2 !hirshfeld_env%kind_shape_fn(ikind)%numexp
 
                  ! Get Gaussian exponent and coefficient
-                 alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                 coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                 alpha = 1! hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                 coef = 1! hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
                  PRINT *, "alpha", alpha
                  PRINT *, "coef", coef
