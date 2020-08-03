@@ -673,6 +673,7 @@ CONTAINS
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
+           TYPE(cell_type), POINTER                           :: cell
            TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
@@ -683,13 +684,14 @@ CONTAINS
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
                   auxbas_rs_desc, cdft_control, &
-                  hirshfeld_control, rho_r, rho, fnorm, pab)
+                  hirshfeld_control, cell, rho_r, rho, fnorm, pab)
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
                          atomic_kind_set=atomic_kind_set, &
                          particle_set=particle_set, &
                          natom=natom, &
+                         cell=cell, &
                          rho=rho, &
                          dft_control=dft_control, &
                          para_env=para_env, &
@@ -805,6 +807,10 @@ CONTAINS
                ! Get atomic position
                atom_a = atom_list(iatom)
                ra(:) = particle_set(atom_a)%r - origin(1)
+               PRINT *, "ra(:)", ra(:)
+
+               ra(:) = pbc(particle_set(atom_a)%r, cell)
+              PRINT *, "ra(:)", ra(:)
 
                PRINT *, "cdft_control%natoms", cdft_control%natoms
                PRINT *, "ikind", ikind
@@ -894,7 +900,7 @@ CONTAINS
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
                  PRINT *, "is_constraint"
-                 PRINT *, "coefficients(atom_a)"
+                 PRINT *, "coefficients(atom_a)", coefficients(atom_a)
                  cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      coefficients(atom_a) * rho_temp(:, :, :)
