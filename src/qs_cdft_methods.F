@@ -807,10 +807,15 @@ CONTAINS
                ! Get atomic position
                atom_a = atom_list(iatom)
                ra(:) = particle_set(atom_a)%r - origin(1)
+               PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
+               PRINT *, "origin", origin
                PRINT *, "ra(:)", ra(:)
 
                ra(:) = pbc(particle_set(atom_a)%r, cell)
               PRINT *, "ra(:)", ra(:)
+
+              ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
+             PRINT *, "ra(:)", ra(:)
 
                PRINT *, "cdft_control%natoms", cdft_control%natoms
                PRINT *, "ikind", ikind
