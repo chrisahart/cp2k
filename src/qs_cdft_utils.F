@@ -1419,7 +1419,7 @@ CONTAINS
              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
 
              middle_name = "hw_rho_total"//TRIM(ADJUSTL(cp_to_string(igroup)))
-             unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io = .TRUE., &
+             unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                             file_position="REWIND", middle_name=middle_name, extension=".cube")
 
               ! PRINT *, "igroup", igroup
@@ -1478,7 +1478,7 @@ CONTAINS
               CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
-             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, mpi_io=mpi_io, "PROGRAM_RUN_INFO")
+             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
 
 
 
