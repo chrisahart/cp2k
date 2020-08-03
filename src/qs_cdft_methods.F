@@ -735,13 +735,13 @@ CONTAINS
          coefficients(:) = 0.0_dp
          ALLOCATE (is_constraint(natom))
          is_constraint = .FALSE.
-          DO igroup = 1, SIZE(cdft_control%group)
-         DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
-            coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
-            is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
+         DO igroup = 1, SIZE(cdft_control%group)
+           DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
+             coefficients(cdft_control%group(igroup)%atoms(i)) = cdft_control%group(igroup)%coeff(i)
+             is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
+           END DO
          END DO
-         END DO
-         ! PRINT *, "coefficients", coefficients
+         PRINT *, "coefficients", coefficients
 
          ! Allocate gradient
          IF (in_memory) THEN
@@ -753,7 +753,6 @@ CONTAINS
          END IF
 
          ! Allocate Hirshfeld densities
-
          IF (cdft_control%atomic_charges .eqv. .TRUE.) THEN
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
@@ -886,7 +885,7 @@ CONTAINS
                END IF
              END IF
 
-               ! PRINT *, "hw_rho_atomic"
+               PRINT *, "hw_rho_atomic"
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
@@ -894,13 +893,14 @@ CONTAINS
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
-                 ! PRINT *, "is_constraint"
+                 PRINT *, "is_constraint"
+                 PRINT *, "coefficients(atom_a)"
                  cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      coefficients(atom_a) * rho_temp(:, :, :)
                END IF
 
-               ! PRINT *, "hw_rho_total"
+               PRINT *, "hw_rho_total"
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
 

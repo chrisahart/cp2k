@@ -1410,78 +1410,81 @@ CONTAINS
 
        CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
        tmp%pw%cr3d = 0.0_dp
+       mpi_io = .TRUE.
 
        ! Loop over CDFT control groups printing hw_rho_total
-        IF (para_env%ionode) THEN
+        ! IF (para_env%ionode) THEN
            DO igroup = 1, SIZE(cdft_control%group)
 
              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
 
              middle_name = "hw_rho_total"//TRIM(ADJUSTL(cp_to_string(igroup)))
-             unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+             unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io = .TRUE., &
                                             file_position="REWIND", middle_name=middle_name, extension=".cube")
 
               ! PRINT *, "igroup", igroup
-             CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", &
+             CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
               particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
              ! PRINT *, "igroup", igroup
 
-            CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+            CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
 
         END DO ! igroup = 1, SIZE(cdft_control%group)
-      END IF
+      ! END IF
 
         ! PRINT *, "printing constraint density"
+        tmp%pw%cr3d = 0.0_dp
 
         ! Loop over CDFT control groups printing promolecular density
-         IF (para_env%ionode) THEN
+         ! IF (para_env%ionode) THEN
             DO igroup = 1, SIZE(cdft_control%group)
 
               tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
 
               middle_name = "hw_rho_total_constraint_"//TRIM(ADJUSTL(cp_to_string(igroup)))
-              unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+              unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 
                ! PRINT *, "igroup", igroup
-              CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function",&
+              CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
               ! PRINT *, "igroup", igroup
 
-             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
 
          END DO ! igroup = 1, SIZE(cdft_control%group)
-       END IF
+       ! END IF
 
-        ! PRINT *, "printing atomic density"
+        PRINT *, "printing atomic density"
+        tmp%pw%cr3d = 0.0_dp
 
         ! Loop over CDFT control groups printing atomic density
-         IF (para_env%ionode) THEN
+         ! IF (para_env%ionode) THEN
         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom  = 1, (cdft_control%natoms)
 
-              ! PRINT *, "iatom", iatom
+              PRINT *, "iatom", iatom
 
               tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
 
               ! PRINT *, "iatom", iatom
 
               middle_name = "hw_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
-              unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+              unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 
-              CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function",&
+              CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
-             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO")
+             CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, mpi_io=mpi_io, "PROGRAM_RUN_INFO")
 
 
 
          END DO ! igroup = 1, SIZE(cdft_control%group)
        END DO
-     END IF
+     ! END IF
 
        CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
