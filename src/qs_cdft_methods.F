@@ -863,7 +863,7 @@ CONTAINS
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=0.0_dp)
                 PRINT *, "radius",radius
-                radius = 1.0e6_dp
+                ! radius = 1.0e6_dp
 
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &

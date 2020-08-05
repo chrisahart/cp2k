@@ -147,7 +147,7 @@ CONTAINS
             CALL density_fit(density, atom, num_gto, x(1), x(2), co, ostate%f)
          END IF
 
-        PRINT *, "aerr", ostate%f
+        ! PRINT *, "aerr", ostate%f
 
          IF (ostate%state == -1) EXIT
 
