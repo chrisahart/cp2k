@@ -723,6 +723,21 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ! PRINT *, "natom", natom
 
+         dr(1) = rs_rho_temp%desc%dh(1, 1)
+         dr(2) = rs_rho_temp%desc%dh(2, 2)
+         dr(3) = rs_rho_temp%desc%dh(3, 3)
+         ng(:) = rs_rho_temp%desc%npts(:)
+         lb(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
+         lb(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
+         lb(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
+         ub(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
+         ub(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
+         ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
+         PRINT *, "dr from rsgrid", dr
+         PRINT *, "npts from rsgrid", ng
+         PRINT *, "lb from rsgrid", lb
+         PRINT *, "ub from rsgrid", ub
+
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
@@ -735,27 +750,6 @@ CONTAINS
          PRINT *, "npts from pw", npts
          PRINT *, "lb from pw", lb
          PRINT *, "ub from pw", ub
-
-         dr(1) = rs_rho_temp%desc%dh(1, 1)
-         dr(2) = rs_rho_temp%desc%dh(2, 2)
-         dr(3) = rs_rho_temp%desc%dh(3, 3)
-         ng(:) = rs_rho_temp%desc%npts(:)
-         ! gridbounds(1, 1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
-         ! gridbounds(2, 1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
-         ! gridbounds(1, 2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
-         ! gridbounds(2, 2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
-         ! gridbounds(1, 3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
-         ! gridbounds(2, 3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
-         lb(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
-         lb(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
-         lb(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
-         ub(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
-         ub(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
-         ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
-         PRINT *, "dr from rsgrid", dr
-         PRINT *, "npts from rsgrid", ng
-         PRINT *, "lb from rsgrid", lb
-         PRINT *, "ub from rsgrid", ub
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -912,9 +906,9 @@ CONTAINS
                      DO i = lb(1), ub(1)
 
                        ! Calculate (r - R) ^ 2
-                       r_squared = ((i * dr(1)) - ra(1)) ** 2.0_dp + &
-                                   ((j * dr(2)) - ra(2)) ** 2.0_dp + &
-                                   ((k * dr(3)) - ra(3)) ** 2.0_dp
+                       r_squared = ((i * dr(1)) - (ra(1) + dr(1)) ** 2.0_dp + &
+                                   ((j * dr(2)) - (ra(2) + dr(2)) ** 2.0_dp + &
+                                   ((k * dr(3)) - (ra(3) + dr(3)) ** 2.0_dp
 
                        ! Calculate Gaussian
                        exp_eval = coef * EXP(-alpha * r_squared)
@@ -995,6 +989,7 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                    ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                     cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
@@ -1030,6 +1025,7 @@ CONTAINS
                   ! END IF
 
                   IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                    ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                     cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                          cdft_control%group(1)%hw_rho_total(i, j, k)
