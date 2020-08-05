@@ -847,6 +847,7 @@ CONTAINS
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                 rs_rho_temp%r(:, :, :) = 0
 
                  PRINT *, "alpha", alpha
                  PRINT *, "coef", coef
