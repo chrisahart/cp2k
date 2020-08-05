@@ -984,18 +984,24 @@ CONTAINS
                DO j = lb(2), ub(2)
                  DO i = lb(1), ub(1)
 
-                   IF (hirshfeld_control%use_cutoff .AND. &
-                       ABS(cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k)) &
-                        > hirshfeld_control%eps_constraint) THEN
+                  !  IF (hirshfeld_control%use_cutoff .AND. &
+                  !      ABS(cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k)) &
+                  !       > hirshfeld_control%eps_constraint) THEN
+                  !
+                  !         cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                  !             cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                  !              cdft_control%group(1)%hw_rho_total(i, j, k)
+                  !
+                  !  ELSE
+                  !    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                  !        cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                  !         cdft_control%group(1)%hw_rho_total(i, j, k)
+                  ! END IF
 
-                          cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                              cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
-                               cdft_control%group(1)%hw_rho_total(i, j, k)
-
-                   ELSE
-                     cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                         cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
-                          cdft_control%group(1)%hw_rho_total(i, j, k)
+                  IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                        cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                         cdft_control%group(1)%hw_rho_total(i, j, k)
                   END IF
 
                  END DO
