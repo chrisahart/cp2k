@@ -744,8 +744,12 @@ CONTAINS
          ! gridbounds(2, 2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
          ! gridbounds(1, 3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
          ! gridbounds(2, 3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
-         lb(1:3) = LBOUND(rs_rho_temp%r(:, :, :), 1:3)
-         ub(1:3) = UBOUND(rs_rho_temp%r(:, :, :), 1:3)
+         lb(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
+         lb(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
+         lb(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
+         ub(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
+         ub(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
+         ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
          PRINT *, "dr from rsgrid", dr
          PRINT *, "npts from rsgrid", ng
          PRINT *, "lb from rsgrid", lb
