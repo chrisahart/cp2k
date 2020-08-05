@@ -906,9 +906,9 @@ CONTAINS
                      DO i = lb(1), ub(1)
 
                        ! Calculate (r - R) ^ 2
-                       r_squared = ((i * dr(1)) - (ra(1) + dr(1)) ** 2.0_dp + &
-                                   ((j * dr(2)) - (ra(2) + dr(2)) ** 2.0_dp + &
-                                   ((k * dr(3)) - (ra(3) + dr(3)) ** 2.0_dp
+                       r_squared = ((i * dr(1)) - (ra(1) + dr(1))) ** 2.0_dp + &
+                                   ((j * dr(2)) - (ra(2) + dr(2))) ** 2.0_dp + &
+                                   ((k * dr(3)) - (ra(3) + dr(3))) ** 2.0_dp
 
                        ! Calculate Gaussian
                        exp_eval = coef * EXP(-alpha * r_squared)
