@@ -700,7 +700,12 @@ CONTAINS
                          para_env=para_env, &
                          pw_env=pw_env)
         CALL qs_rho_get(rho, rho_r=rho_r)
+
+        CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_temp, &
+                        auxbas_pw_pool=auxbas_pw_pool)
         cube_info = pw_env%cube_info(1)
+        CALL rs_grid_retain(rs_rho_temp)
+        CALL rs_grid_zero(rs_rho_temp)
 
          ! Pointers
          cdft_control => dft_control%qs_control%cdft_control
@@ -863,7 +868,7 @@ CONTAINS
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
 
-                 rho_temp = rs_rho_temp%rs_grid
+                 rho_temp(:, :, :) = rs_rho_temp%r(:, :, :)
                  DEALLOCATE (pab)
 
                  ! Loop over grid
@@ -1089,6 +1094,8 @@ CONTAINS
            ! Deallocate if allocated
            IF (ALLOCATED(is_constraint)) &
            DEALLOCATE (is_constraint)
+
+           CALL rs_grid_release(rs_rho_temp)
 
            CALL timestop(handle)
 
