@@ -862,7 +862,8 @@ CONTAINS
                                                     zetp=alpha, eps=eps_rho_rspace, &
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=0.0_dp)
-                PRINT *, "radius",radius                                    
+                PRINT *, "radius",radius
+                radius = 1.0e6_dp
 
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
@@ -870,7 +871,7 @@ CONTAINS
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
 
-                 rho_temp(:, :, :) = rs_rho_temp%r(:, :, :)
+                 rho_temp(:, :, :) = rho_temp(:, :, :) + rs_rho_temp%r(:, :, :)
                  DEALLOCATE (pab)
 
                  ! Loop over grid
