@@ -993,7 +993,7 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                    cdft_control%group(igroup)%weight%pw%cr3d(i-76, j-76, k-76) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
