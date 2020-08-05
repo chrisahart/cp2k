@@ -723,21 +723,6 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ! PRINT *, "natom", natom
 
-         dr(1) = rs_rho_temp%desc%dh(1, 1)
-         dr(2) = rs_rho_temp%desc%dh(2, 2)
-         dr(3) = rs_rho_temp%desc%dh(3, 3)
-         ng(:) = rs_rho_temp%desc%npts(:)
-         gridbounds(1, 1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
-         gridbounds(2, 1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
-         gridbounds(1, 2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
-         gridbounds(2, 2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
-         gridbounds(1, 3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
-         gridbounds(2, 3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
-         PRINT *, "dr from rsgrid", dr
-         PRINT *, "npts from rsgrid", ng
-         PRINT *, "lb from rsgrid", gridbounds(1, 1), gridbounds(1, 2), gridbounds(1, 3)
-         PRINT *, "ub from rsgrid", gridbounds(2, 1), gridbounds(2, 2), gridbounds(2, 3)
-
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
@@ -748,6 +733,23 @@ CONTAINS
          PRINT *, "npts from pw", npts
          PRINT *, "lb from pw", lb
          PRINT *, "ub from pw", ub
+
+         dr(1) = rs_rho_temp%desc%dh(1, 1)
+         dr(2) = rs_rho_temp%desc%dh(2, 2)
+         dr(3) = rs_rho_temp%desc%dh(3, 3)
+         ng(:) = rs_rho_temp%desc%npts(:)
+         ! gridbounds(1, 1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
+         ! gridbounds(2, 1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
+         ! gridbounds(1, 2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
+         ! gridbounds(2, 2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
+         ! gridbounds(1, 3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
+         ! gridbounds(2, 3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
+         lb(1:3) = LBOUND(rs_rho_temp%r(:, :, :), 1:3)
+         ub(1:3) = UBOUND(rs_rho_temp%r(:, :, :), 1:3)
+         PRINT *, "dr from rsgrid", dr
+         PRINT *, "npts from rsgrid", ng
+         PRINT *, "lb from rsgrid", lb
+         PRINT *, "ub from rsgrid", ub
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -844,7 +846,7 @@ CONTAINS
                ra(:) = pbc(particle_set(atom_a)%r, cell)
               PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell)", ra(:)
 
-              ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
+              ! ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
              PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell) - origin(1)", ra(:)
 
                PRINT *, "cdft_control%natoms", cdft_control%natoms
