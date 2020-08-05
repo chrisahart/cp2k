@@ -669,7 +669,7 @@ CONTAINS
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp
          ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
-         INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng
+         INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs,
          ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
@@ -726,6 +726,8 @@ CONTAINS
          ! Get size of pw grid
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          npts = rho_r(1)%pw%pw_grid%npts
          dr = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
@@ -993,9 +995,7 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    cdft_control%group(igroup)%weight%pw%cr3d(i-rho_r(1)%pw%pw_grid%bounds_local(1, 1)-lb(1), &
-                    j-rho_r(1)%pw%pw_grid%bounds_local(1, 2)-lb(2), &
-                    k-rho_r(1)%pw%pw_grid%bounds_local(1, 3)-lb(3)) = &
+                    cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs-lb(1), j+lb_rs-lb(1), k+lb_rs-lb(1)) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
