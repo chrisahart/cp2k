@@ -847,7 +847,7 @@ CONTAINS
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-                 rs_rho_temp%r(:, :, :) = 0
+                 rs_rho_temp%r(:, :, :) = 0.0_dp
 
                  PRINT *, "alpha", alpha
                  PRINT *, "coef", coef
@@ -864,7 +864,7 @@ CONTAINS
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=0.0_dp)
                 PRINT *, "radius",radius
-                ! radius = 1.0e6_dp
+                ! radius = 10.0_dp
 
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
@@ -948,18 +948,25 @@ CONTAINS
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
 
-                 IF (hirshfeld_control%use_cutoff .AND. &
-                     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
-                      > hirshfeld_control%eps_constraint) THEN
+                 ! IF (hirshfeld_control%use_cutoff .AND. &
+                 !     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
+                 !      > hirshfeld_control%eps_constraint) THEN
+                 !
+                 !   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                 !       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
+                 !        cdft_control%group(igroup)%hw_rho_total(i, j, k)
+                 !
+                 ! ELSE
+                 !   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                 !       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
+                 !        cdft_control%group(igroup)%hw_rho_total(i, j, k)
+                 !  END IF
 
-                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
-                        cdft_control%group(igroup)%hw_rho_total(i, j, k)
 
-                 ELSE
-                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
-                        cdft_control%group(igroup)%hw_rho_total(i, j, k)
+                  IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                        cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
+                         cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
 
                END DO
@@ -970,7 +977,7 @@ CONTAINS
            ! Calculate atomic charges if requested
            IF (.NOT. my_just_gradients) THEN
            IF (cdft_control%atomic_charges) THEN
-             ! PRINT *, "Calculate charges"
+             PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
                !IF (compute_charge(atom_a)) THEN
              DO k = lb(3), ub(3)
