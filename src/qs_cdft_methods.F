@@ -706,6 +706,7 @@ CONTAINS
         cube_info = pw_env%cube_info(1)
         CALL rs_grid_retain(rs_rho_temp)
         CALL rs_grid_zero(rs_rho_temp)
+        eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
 
          ! Pointers
          cdft_control => dft_control%qs_control%cdft_control
