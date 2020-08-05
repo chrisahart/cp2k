@@ -723,6 +723,21 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ! PRINT *, "natom", natom
 
+
+
+         ! Get size of pw grid
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         npts = rho_r(1)%pw%pw_grid%npts
+         dr = rho_r(1)%pw%pw_grid%dr
+         origin(:) = (dr(:) * npts(:)) * 0.5_dp
+         PRINT *, "dr from pw", dr
+         PRINT *, "npts from pw", npts
+         PRINT *, "lb from pw", lb
+         PRINT *, "ub from pw", ub
+
          dr(1) = rs_rho_temp%desc%dh(1, 1)
          dr(2) = rs_rho_temp%desc%dh(2, 2)
          dr(3) = rs_rho_temp%desc%dh(3, 3)
@@ -737,19 +752,6 @@ CONTAINS
          PRINT *, "npts from rsgrid", ng
          PRINT *, "lb from rsgrid", lb
          PRINT *, "ub from rsgrid", ub
-
-         ! Get size of pw grid
-         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         npts = rho_r(1)%pw%pw_grid%npts
-         dr = rho_r(1)%pw%pw_grid%dr
-         origin(:) = (dr(:) * npts(:)) * 0.5_dp
-         PRINT *, "dr from pw", dr
-         PRINT *, "npts from pw", npts
-         PRINT *, "lb from pw", lb
-         PRINT *, "ub from pw", ub
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
