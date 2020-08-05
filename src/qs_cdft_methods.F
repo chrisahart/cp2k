@@ -723,16 +723,16 @@ CONTAINS
          ALLOCATE (coefficients(natom))
          ! PRINT *, "natom", natom
 
-         dr(1) = rsgrid%desc%dh(1, 1)
-         dr(2) = rsgrid%desc%dh(2, 2)
-         dr(3) = rsgrid%desc%dh(3, 3)
-         ng(:) = rsgrid%desc%npts(:)
-         gridbounds(1, 1) = LBOUND(rsgrid%r(:, :, :), 1)
-         gridbounds(2, 1) = UBOUND(rsgrid%r(:, :, :), 1)
-         gridbounds(1, 2) = LBOUND(rsgrid%r(:, :, :), 2)
-         gridbounds(2, 2) = UBOUND(rsgrid%r(:, :, :), 2)
-         gridbounds(1, 3) = LBOUND(rsgrid%r(:, :, :), 3)
-         gridbounds(2, 3) = UBOUND(rsgrid%r(:, :, :), 3)
+         dr(1) = rs_rho_temp%desc%dh(1, 1)
+         dr(2) = rs_rho_temp%desc%dh(2, 2)
+         dr(3) = rs_rho_temp%desc%dh(3, 3)
+         ng(:) = rs_rho_temp%desc%npts(:)
+         gridbounds(1, 1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
+         gridbounds(2, 1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
+         gridbounds(1, 2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
+         gridbounds(2, 2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
+         gridbounds(1, 3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
+         gridbounds(2, 3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
          PRINT *, "dr from rsgrid", dr
          PRINT *, "npts from rsgrid", ng
          PRINT *, "lb from rsgrid", gridbounds(1, 1), gridbounds(1, 2), gridbounds(1, 3)
