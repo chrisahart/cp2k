@@ -858,13 +858,13 @@ CONTAINS
 
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   subpatch_pattern = 0
-                  radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                    ra=ra, rb=ra, rp=ra, &
-                                                    zetp=alpha, eps=eps_rho_rspace, &
-                                                    pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                    prefactor=1.0_dp, cutoff=0.0_dp)
-                PRINT *, "radius",radius
-                ! radius = 10.0_dp
+                !   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                !                                     ra=ra, rb=ra, rp=ra, &
+                !                                     zetp=alpha, eps=eps_rho_rspace, &
+                !                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
+                !                                     prefactor=1.0_dp, cutoff=0.0_dp)
+                ! PRINT *, "radius",radius
+                radius = 10.0_dp
 
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
