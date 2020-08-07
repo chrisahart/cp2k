@@ -851,7 +851,7 @@ CONTAINS
                ra(:) = pbc(particle_set(atom_a)%r, cell)
               ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell)", ra(:)
 
-              ! ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
+              ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
              ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell) - origin(1)", ra(:)
 
                ! PRINT *, "cdft_control%natoms", cdft_control%natoms
