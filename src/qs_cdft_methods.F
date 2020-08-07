@@ -733,10 +733,10 @@ CONTAINS
          npts = rho_r(1)%pw%pw_grid%npts
          dr = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
-         PRINT *, "dr from pw", dr
-         PRINT *, "npts from pw", npts
-         PRINT *, "lb from pw", lb
-         PRINT *, "ub from pw", ub
+         ! PRINT *, "dr from pw", dr
+         ! PRINT *, "npts from pw", npts
+         ! PRINT *, "lb from pw", lb
+         ! PRINT *, "ub from pw", ub
 
          dr(1) = rs_rho_temp%desc%dh(1, 1)
          dr(2) = rs_rho_temp%desc%dh(2, 2)
@@ -748,10 +748,10 @@ CONTAINS
          ub(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
          ub(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
          ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
-         PRINT *, "dr from rsgrid", dr
-         PRINT *, "npts from rsgrid", ng
-         PRINT *, "lb from rsgrid", lb
-         PRINT *, "ub from rsgrid", ub
+         ! PRINT *, "dr from rsgrid", dr
+         ! PRINT *, "npts from rsgrid", ng
+         ! PRINT *, "lb from rsgrid", lb
+         ! PRINT *, "ub from rsgrid", ub
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -777,7 +777,7 @@ CONTAINS
              is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
            END DO
          END DO
-         PRINT *, "coefficients", coefficients
+         ! PRINT *, "coefficients", coefficients
 
          ! Allocate gradient
          IF (in_memory) THEN
@@ -841,29 +841,29 @@ CONTAINS
                ! Get atomic position
                atom_a = atom_list(iatom)
                ra(:) = particle_set(atom_a)%r - origin(1)
-               PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
-               PRINT *, "origin", origin
-               PRINT *, "ra(:) particle_set(atom_a)%r - origin(1)", ra(:)
+               ! PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
+               ! PRINT *, "origin", origin
+               ! PRINT *, "ra(:) particle_set(atom_a)%r - origin(1)", ra(:)
 
                ra(:) = pbc(particle_set(atom_a)%r, cell)
-              PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell)", ra(:)
+              ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell)", ra(:)
 
               ! ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
-             PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell) - origin(1)", ra(:)
+             ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell) - origin(1)", ra(:)
 
-               PRINT *, "cdft_control%natoms", cdft_control%natoms
-               PRINT *, "ikind", ikind
-               PRINT *, "iatom", iatom
-               PRINT *, "natom", natom
-               PRINT *, "num_species", num_species
-               PRINT *, "atom_a", atom_a
-               PRINT *, "atom_list(iatom)", atom_list(iatom)
-               PRINT *, "ra(:)", ra(:)
-               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
-               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
-               PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
-               PRINT *, "hirshfeld_env%kind_shape_fn(1)%numexp", hirshfeld_env%kind_shape_fn(1)%numexp
-               PRINT *, "hirshfeld_env%charges(atom_a)", hirshfeld_env%charges(atom_a)
+               ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+               ! PRINT *, "ikind", ikind
+               ! PRINT *, "iatom", iatom
+               ! PRINT *, "natom", natom
+               ! PRINT *, "num_species", num_species
+               ! PRINT *, "atom_a", atom_a
+               ! PRINT *, "atom_list(iatom)", atom_list(iatom)
+               ! PRINT *, "ra(:)", ra(:)
+               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%zet", hirshfeld_env%kind_shape_fn(ikind)%zet
+               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%coef", hirshfeld_env%kind_shape_fn(ikind)%coef
+               ! PRINT *, "hirshfeld_env%kind_shape_fn(ikind)%numexp", hirshfeld_env%kind_shape_fn(ikind)%numexp
+               ! PRINT *, "hirshfeld_env%kind_shape_fn(1)%numexp", hirshfeld_env%kind_shape_fn(1)%numexp
+               ! PRINT *, "hirshfeld_env%charges(atom_a)", hirshfeld_env%charges(atom_a)
 
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -874,10 +874,10 @@ CONTAINS
 
                  rs_rho_temp%r(:, :, :) = 0.0_dp
 
-                 PRINT *, "alpha", alpha
-                 PRINT *, "coef", coef
+                 ! PRINT *, "alpha", alpha
+                 ! PRINT *, "coef", coef
                  coef = coef*hirshfeld_env%charges(atom_a)
-                 PRINT *, "coef", coef
+                 ! PRINT *, "coef", coef
 
                  ! ALLOCATE (pab(1, 1))
                  ! pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
@@ -937,13 +937,13 @@ CONTAINS
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
-                 PRINT *, "compute_charge"
+                 ! PRINT *, "compute_charge"
                  cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
                END IF
              END IF
 
-               PRINT *, "hw_rho_atomic"
+               ! PRINT *, "hw_rho_atomic"
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
                       cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
@@ -951,14 +951,14 @@ CONTAINS
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
-                 PRINT *, "is_constraint"
-                 PRINT *, "coefficients(atom_a)", coefficients(atom_a)
+                 ! PRINT *, "is_constraint"
+                 ! PRINT *, "coefficients(atom_a)", coefficients(atom_a)
                  cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      coefficients(atom_a) * rho_temp(:, :, :)
                END IF
 
-               PRINT *, "hw_rho_total"
+               ! PRINT *, "hw_rho_total"
                cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                      cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
 
@@ -1009,7 +1009,7 @@ CONTAINS
            ! Calculate atomic charges if requested
            IF (.NOT. my_just_gradients) THEN
            IF (cdft_control%atomic_charges) THEN
-             PRINT *, "Calculate charges"
+             ! PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
                !IF (compute_charge(atom_a)) THEN
              DO k = lb(3), ub(3)

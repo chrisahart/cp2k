@@ -1457,7 +1457,7 @@ CONTAINS
          END DO ! igroup = 1, SIZE(cdft_control%group)
        ! END IF
 
-        PRINT *, "printing atomic density"
+        ! PRINT *, "printing atomic density"
         tmp%pw%cr3d = 0.0_dp
 
         ! Loop over CDFT control groups printing atomic density
@@ -1465,7 +1465,7 @@ CONTAINS
         DO igroup = 1, SIZE(cdft_control%group)
             DO iatom  = 1, (cdft_control%natoms)
 
-              PRINT *, "iatom", iatom
+              ! PRINT *, "iatom", iatom
 
               tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
 
