@@ -4761,13 +4761,13 @@ CONTAINS
       CALL keyword_create(keyword, __LOCATION__, name="USE_CUTOFF", &
                           description="USE_CUTOFF", &
                           usage="USE_CUTOFF TRUE", &
-                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+                          default_l_val=.TRUE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
-      
+
       CALL keyword_create(keyword, __LOCATION__, name="EPS_CONSTRAINT", &
                           description="Density threshold for constraint.", &
-                          usage="EPS_CONSTRAINT {real} ", default_r_val=1.0e-6_dp)
+                          usage="EPS_CONSTRAINT {real} ", default_r_val=1.0e-12_dp)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 

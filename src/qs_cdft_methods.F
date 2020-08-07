@@ -725,19 +725,9 @@ CONTAINS
 
 
 
-         ! Get size of pw grid
-         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         npts = rho_r(1)%pw%pw_grid%npts
-         dr = rho_r(1)%pw%pw_grid%dr
-         origin(:) = (dr(:) * npts(:)) * 0.5_dp
-         ! PRINT *, "dr from pw", dr
-         ! PRINT *, "npts from pw", npts
-         ! PRINT *, "lb from pw", lb
-         ! PRINT *, "ub from pw", ub
 
+
+         ! Get size of rs grid
          dr(1) = rs_rho_temp%desc%dh(1, 1)
          dr(2) = rs_rho_temp%desc%dh(2, 2)
          dr(3) = rs_rho_temp%desc%dh(3, 3)
@@ -752,6 +742,19 @@ CONTAINS
          ! PRINT *, "npts from rsgrid", ng
          ! PRINT *, "lb from rsgrid", lb
          ! PRINT *, "ub from rsgrid", ub
+
+         ! Get size of pw grid
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         npts = rho_r(1)%pw%pw_grid%npts
+         dr = rho_r(1)%pw%pw_grid%dr
+         origin(:) = (dr(:) * npts(:)) * 0.5_dp
+         ! PRINT *, "dr from pw", dr
+         ! PRINT *, "npts from pw", npts
+         ! PRINT *, "lb from pw", lb
+         ! PRINT *, "ub from pw", ub
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -987,7 +990,7 @@ CONTAINS
                  !       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                  !        cdft_control%group(igroup)%hw_rho_total(i, j, k)
                  !
-                 ! ELSE
+                 ! ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                  !   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                  !       cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                  !        cdft_control%group(igroup)%hw_rho_total(i, j, k)
@@ -995,8 +998,8 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                    cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                    ! cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
@@ -1024,15 +1027,15 @@ CONTAINS
                   !             cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                   !              cdft_control%group(1)%hw_rho_total(i, j, k)
                   !
-                  !  ELSE
+                  !  ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                   !    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                   !        cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                   !         cdft_control%group(1)%hw_rho_total(i, j, k)
                   ! END IF
 
                   IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                    cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                    ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                          cdft_control%group(1)%hw_rho_total(i, j, k)
                   END IF
@@ -1072,6 +1075,13 @@ CONTAINS
                      DO j = lb(2), ub(2)
                        DO i = lb(1), ub(1)
 
+                         ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                         !   ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                         !   cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                         !       cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
+                         !        cdft_control%group(1)%hw_rho_total(i, j, k)
+                         ! END IF
+
                          IF (hirshfeld_control%use_cutoff .AND. &
                              ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
                               > hirshfeld_control%eps_constraint) THEN
@@ -1096,6 +1106,29 @@ CONTAINS
                            cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
                                        ((k * dr(3)) - ra(3)) * exp_eval
+
+                            ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
+
+                              ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
+                              exp_eval = ((coefficients(iatom) - &
+                                          cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                          cdft_control%group(igroup)%hw_rho_total(i, j, k)) * &
+                                          (rho_atom_dr_temp(iatom, i, j, k))
+
+                              ! Store gradient d/dR_x w, including term: (r_x - R_x)
+                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                                          ((i * dr(1)) - ra(1)) * exp_eval
+
+                              ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                                          ((j * dr(2)) - ra(2)) * exp_eval
+
+                              ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                                          ((k * dr(3)) - ra(3)) * exp_eval
 
                         END IF
 
