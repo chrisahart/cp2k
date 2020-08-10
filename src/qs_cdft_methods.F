@@ -727,6 +727,19 @@ CONTAINS
 
 
 
+         ! Get size of pw grid
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         npts = rho_r(1)%pw%pw_grid%npts
+         dr = rho_r(1)%pw%pw_grid%dr
+         origin(:) = (dr(:) * npts(:)) * 0.5_dp
+         ! PRINT *, "dr from pw", dr
+         ! PRINT *, "npts from pw", npts
+         ! PRINT *, "lb from pw", lb
+         ! PRINT *, "ub from pw", ub
+
          ! Get size of rs grid
          dr(1) = rs_rho_temp%desc%dh(1, 1)
          dr(2) = rs_rho_temp%desc%dh(2, 2)
@@ -743,18 +756,7 @@ CONTAINS
          ! PRINT *, "lb from rsgrid", lb
          ! PRINT *, "ub from rsgrid", ub
 
-         ! Get size of pw grid
-         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         npts = rho_r(1)%pw%pw_grid%npts
-         dr = rho_r(1)%pw%pw_grid%dr
-         origin(:) = (dr(:) * npts(:)) * 0.5_dp
-         ! PRINT *, "dr from pw", dr
-         ! PRINT *, "npts from pw", npts
-         ! PRINT *, "lb from pw", lb
-         ! PRINT *, "ub from pw", ub
+
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -843,7 +845,7 @@ CONTAINS
 
                ! Get atomic position
                atom_a = atom_list(iatom)
-               ra(:) = particle_set(atom_a)%r - origin(1)
+               ! ra(:) = particle_set(atom_a)%r - origin(1)
                ! PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
                ! PRINT *, "origin", origin
                ! PRINT *, "ra(:) particle_set(atom_a)%r - origin(1)", ra(:)
@@ -851,7 +853,7 @@ CONTAINS
                ra(:) = pbc(particle_set(atom_a)%r, cell)
               ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell)", ra(:)
 
-              ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
+              ! ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
              ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell) - origin(1)", ra(:)
 
                ! PRINT *, "cdft_control%natoms", cdft_control%natoms
@@ -875,7 +877,7 @@ CONTAINS
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
-                 rs_rho_temp%r(:, :, :) = 0.0_dp
+                 ! rs_rho_temp%r(:, :, :) = 0.0_dp
 
                  ! PRINT *, "alpha", alpha
                  ! PRINT *, "coef", coef
@@ -911,14 +913,14 @@ CONTAINS
                      DO i = lb(1), ub(1)
 
                        ! Calculate (r - R) ^ 2
-                       ! r_squared = ((i * dr(1)) - (ra(1) + dr(1))) ** 2.0_dp + &
-                       !             ((j * dr(2)) - (ra(2) + dr(2))) ** 2.0_dp + &
-                       !             ((k * dr(3)) - (ra(3) + dr(3))) ** 2.0_dp
+                       r_squared = ((i * dr(1)) - (ra(1) + dr(1))) ** 2.0_dp + &
+                                   ((j * dr(2)) - (ra(2) + dr(2))) ** 2.0_dp + &
+                                   ((k * dr(3)) - (ra(3) + dr(3))) ** 2.0_dp
 
 
-                                   r_squared = ((i * dr(1)) - (ra(1))) ** 2.0_dp + &
-                                               ((j * dr(2)) - (ra(2))) ** 2.0_dp + &
-                                               ((k * dr(3)) - (ra(3))) ** 2.0_dp
+                                   ! r_squared = ((i * dr(1)) - (ra(1))) ** 2.0_dp + &
+                                   !             ((j * dr(2)) - (ra(2))) ** 2.0_dp + &
+                                   !             ((k * dr(3)) - (ra(3))) ** 2.0_dp
                        ! ! Calculate Gaussian
                        exp_eval = coef * EXP(-alpha * r_squared)
 
@@ -998,8 +1000,8 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                    ! cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                    cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
@@ -1034,8 +1036,8 @@ CONTAINS
                   ! END IF
 
                   IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                    ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                    cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                          cdft_control%group(1)%hw_rho_total(i, j, k)
                   END IF
