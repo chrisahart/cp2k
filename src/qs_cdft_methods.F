@@ -737,8 +737,8 @@ CONTAINS
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
          ! PRINT *, "dr from pw", dr
          ! PRINT *, "npts from pw", npts
-         ! PRINT *, "lb from pw", lb
-         ! PRINT *, "ub from pw", ub
+         PRINT *, "lb from pw", lb
+         PRINT *, "ub from pw", ub
 
          ! Get size of rs grid
          dr(1) = rs_rho_temp%desc%dh(1, 1)
@@ -753,8 +753,8 @@ CONTAINS
          ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
          ! PRINT *, "dr from rsgrid", dr
          ! PRINT *, "npts from rsgrid", ng
-         ! PRINT *, "lb from rsgrid", lb
-         ! PRINT *, "ub from rsgrid", ub
+         PRINT *, "lb from rsgrid", lb
+         PRINT *, "ub from rsgrid", ub
 
 
 
@@ -999,7 +999,7 @@ CONTAINS
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
-           ! PRINT *, "Calculate weight function"
+           PRINT *, "Calculate weight function"
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
