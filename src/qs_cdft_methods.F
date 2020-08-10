@@ -648,7 +648,7 @@ CONTAINS
          LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, num_species, &
-                                                               nthread, numexp, k
+                                                               nthread, numexp, k, i2, j2, k2
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
          TYPE(cube_info_type)                               :: cube_info
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -728,12 +728,12 @@ CONTAINS
 
 
          ! Get size of pw grid
-         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         ! lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          npts = rho_r(1)%pw%pw_grid%npts
-         dr = rho_r(1)%pw%pw_grid%dr
+         ! dr = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
          ! PRINT *, "dr from pw", dr
          ! PRINT *, "npts from pw", npts
@@ -1000,8 +1000,22 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                    PRINT *, "i, j, k", i, j, k
+                    PRINT *, "i, j, k", i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)
+
+                    i2 = i+lb_rs(1)-lb(1)
+                    j2=j+lb_rs(2)-lb(2)
+                    k2=k+lb_rs(3)-lb(3)
+
+                    PRINT *, "i2, j2, k2", i2, j2, k2
+
+                    PRINT *, "UBOUND 1", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
+                    PRINT *, "UBOUND 2", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
+                    PRINT *, "UBOUND 3", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
+
                     ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                    cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    ! cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    cdft_control%group(igroup)%weight%pw%cr3d(i2, j2, k2) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
@@ -1372,8 +1386,6 @@ CONTAINS
              END DO
           END IF
 
-          ! PRINT *, "calculating force"
-
           DO igroup = 1, SIZE(group)
              CALL mp_sum(group(igroup)%integrated, para_env%group)
           END DO
@@ -1387,6 +1399,8 @@ CONTAINS
                    ikind = kind_of(iatom)
                    i = atom_of_kind(iatom)
                    force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + group(igroup)%integrated(:, iatom)*strength(igroup)
+                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                 END DO
              END DO
           END IF
@@ -1622,7 +1636,11 @@ CONTAINS
        energy%cdft = 0.0_dp
        DO ivar = 1, nvar
           energy%cdft = energy%cdft + (dE(ivar) - target_val(ivar))*strength(ivar)
+          PRINT *, "energy%cdft", energy%cdft
+          PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
        END DO
+
+
 
        ! Print constraint info and atomic CDFT charges
        CALL cdft_constraint_print(qs_env, electronic_charge)
