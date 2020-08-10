@@ -728,8 +728,8 @@ CONTAINS
 
 
          ! Get size of pw grid
-         ! lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          npts = rho_r(1)%pw%pw_grid%npts
@@ -823,25 +823,25 @@ CONTAINS
             cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
           END DO
 
-          IF (para_env%ionode) THEN
-            PRINT *, "lb_rs(1:3)", lb_rs(1:3)
-            PRINT *, "ub_rs(1:3)", ub_rs(1:3)
-            PRINT *, "LBOUND 1", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
-            PRINT *, "LBOUND 2", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
-            PRINT *, "LBOUND 3", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
-            PRINT *, "UBOUND 1", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
-            PRINT *, "UBOUND 2", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
-            PRINT *, "UBOUND 3", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
-        END IF
-
-        PRINT *, "lb_rs(1:3)", lb_rs(1:3)
-        PRINT *, "ub_rs(1:3)", ub_rs(1:3)
-        PRINT *, "LBOUND 1", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
-        PRINT *, "LBOUND 2", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
-        PRINT *, "LBOUND 3", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
-        PRINT *, "UBOUND 1", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
-        PRINT *, "UBOUND 2", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
-        PRINT *, "UBOUND 3", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
+        !   IF (para_env%ionode) THEN
+        !     PRINT *, "lb_rs(1:3)", lb_rs(1:3)
+        !     PRINT *, "ub_rs(1:3)", ub_rs(1:3)
+        !     PRINT *, "LBOUND 1", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
+        !     PRINT *, "LBOUND 2", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
+        !     PRINT *, "LBOUND 3", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
+        !     PRINT *, "UBOUND 1", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
+        !     PRINT *, "UBOUND 2", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
+        !     PRINT *, "UBOUND 3", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
+        ! END IF
+        !
+        ! PRINT *, "lb_rs(1:3)", lb_rs(1:3)
+        ! PRINT *, "ub_rs(1:3)", ub_rs(1:3)
+        ! PRINT *, "LBOUND 1", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
+        ! PRINT *, "LBOUND 2", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
+        ! PRINT *, "LBOUND 3", LBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
+        ! PRINT *, "UBOUND 1", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 1)
+        ! PRINT *, "UBOUND 2", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 2)
+        ! PRINT *, "UBOUND 3", UBOUND(cdft_control%group(1)%weight%pw%cr3d(:, :, :), 3)
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
@@ -999,7 +999,7 @@ CONTAINS
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
-           PRINT *, "Calculate weight function"
+           ! PRINT *, "Calculate weight function"
            DO k = lb(3), ub(3)
              DO j = lb(2), ub(2)
                DO i = lb(1), ub(1)
@@ -1020,25 +1020,25 @@ CONTAINS
 
 
                   IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    PRINT *, "i, j, k", i, j, k
-                    PRINT *, "i, j, k", i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)
+                    ! PRINT *, "i, j, k", i, j, k
+                    ! PRINT *, "i, j, k", i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)
+                    !
+                    ! i2 = i+lb_rs(1)-lb(1)
+                    ! j2=j+lb_rs(2)-lb(2)
+                    ! k2=k+lb_rs(3)-lb(3)
 
-                    i2 = i+lb_rs(1)-lb(1)
-                    j2=j+lb_rs(2)-lb(2)
-                    k2=k+lb_rs(3)-lb(3)
+                    ! PRINT *, "i2, j2, k2", i2, j2, k2
 
-                    PRINT *, "i2, j2, k2", i2, j2, k2
-
-                    PRINT *, "LBOUND 1", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
-                    PRINT *, "LBOUND 2", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
-                    PRINT *, "LBOUND 3", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
-                    PRINT *, "UBOUND 1", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
-                    PRINT *, "UBOUND 2", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
-                    PRINT *, "UBOUND 3", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
+                    ! PRINT *, "LBOUND 1", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
+                    ! PRINT *, "LBOUND 2", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
+                    ! PRINT *, "LBOUND 3", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
+                    ! PRINT *, "UBOUND 1", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
+                    ! PRINT *, "UBOUND 2", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
+                    ! PRINT *, "UBOUND 3", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
 
                     ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                    ! cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
-                    cdft_control%group(igroup)%weight%pw%cr3d(i2, j2, k2) = &
+                    cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    ! cdft_control%group(igroup)%weight%pw%cr3d(i2, j2, k2) = &
                         cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
                          cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   END IF
