@@ -732,14 +732,6 @@ CONTAINS
          ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         PRINT *, "lb_rs(1:3)", lb_rs(1:3)
-         PRINT *, "ub_rs(1:3)", ub_rs(1:3)
-         PRINT *, "LBOUND 1", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
-         PRINT *, "LBOUND 2", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
-         PRINT *, "LBOUND 3", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
-         PRINT *, "UBOUND 1", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
-         PRINT *, "UBOUND 2", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
-         PRINT *, "UBOUND 3", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
          npts = rho_r(1)%pw%pw_grid%npts
          ! dr = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr(:) * npts(:)) * 0.5_dp
@@ -830,6 +822,15 @@ CONTAINS
           DO igroup = 1, SIZE(cdft_control%group)
             cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
           END DO
+
+          PRINT *, "lb_rs(1:3)", lb_rs(1:3)
+          PRINT *, "ub_rs(1:3)", ub_rs(1:3)
+          PRINT *, "LBOUND 1", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
+          PRINT *, "LBOUND 2", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
+          PRINT *, "LBOUND 3", LBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
+          PRINT *, "UBOUND 1", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 1)
+          PRINT *, "UBOUND 2", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 2)
+          PRINT *, "UBOUND 3", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
