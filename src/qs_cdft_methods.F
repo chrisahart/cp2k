@@ -766,12 +766,12 @@ CONTAINS
          END IF
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         in_memory = cdft_control%in_memory
-         my_just_gradients = .FALSE.
-         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
-         IF (my_just_gradients) THEN
-           in_memory = .TRUE.
-         END IF
+         in_memory = .TRUE. !cdft_control%in_memory
+         ! my_just_gradients = .FALSE.
+         ! IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
+         ! IF (my_just_gradients) THEN
+         !   in_memory = .TRUE.
+         ! END IF
 
          coefficients(:) = 0.0_dp
          ALLOCATE (is_constraint(natom))
@@ -786,7 +786,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
-           ! PRINT *, "Allocate gradient"
+           PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -1093,7 +1093,7 @@ CONTAINS
 
            ! Calculate gradient if requested
            IF (in_memory) THEN
-             ! PRINT *, "Calculate gradient"
+             PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
 
@@ -1137,17 +1137,17 @@ CONTAINS
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
                            cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                       ((i * dr(1)) - ra(1)) * exp_eval
+                                       ((i * dr(1)) - (ra(1) + dr(1))) * exp_eval
 
                            ! Store gradient d/dR_y w, including term: (r_y - R_y)
                            cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                       ((j * dr(2)) - ra(2)) * exp_eval
+                                       ((j * dr(2)) - (ra(2) + dr(2))) * exp_eval
 
                            ! Store gradient d/dR_z w, including term:(r_z - R_z)
                            cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                       ((k * dr(3)) - ra(3)) * exp_eval
+                                       ((k * dr(3)) - (ra(3) + dr(3))) * exp_eval
 
                             ! ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                             !
