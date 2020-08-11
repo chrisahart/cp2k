@@ -1311,12 +1311,12 @@ CONTAINS
           ! dr(2) = rs_rho_temp%desc%dh(2, 2)
           ! dr(3) = rs_rho_temp%desc%dh(3, 3)
           ! ng(:) = rs_rho_temp%desc%npts(:)
-          lb(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
-          lb(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
-          lb(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
-          ub(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
-          ub(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
-          ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
+          lb(1) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
+          lb(2) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
+          lb(3) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
+          ub(1) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
+          ub(2) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
+          ub(3) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
           ! PRINT *, "dr from rsgrid", dr
           ! PRINT *, "npts from rsgrid", ng
           PRINT *, "lb from rsgrid", lb
