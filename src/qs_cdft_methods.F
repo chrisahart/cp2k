@@ -1135,8 +1135,8 @@ CONTAINS
                   ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
                     cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                     ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
-                        cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
-                         cdft_control%group(1)%hw_rho_total(i, j, k)
+                        cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d(i, j, k) / &
+                         cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k)
                   ! END IF
 
                  END DO
