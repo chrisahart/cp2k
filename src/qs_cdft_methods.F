@@ -1307,7 +1307,7 @@ CONTAINS
 
          ! Deallocate
          DEALLOCATE (rs_single)
-         DEALLOCATE (rs_single_dr)
+         ! DEALLOCATE (rs_single_dr)
 
            DEALLOCATE (coefficients)
 

@@ -1408,22 +1408,22 @@ CONTAINS
        cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
        CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
 
-       CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
-       tmp%pw%cr3d = 0.0_dp
+       ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+       ! tmp%pw%cr3d = 0.0_dp
        mpi_io = .TRUE.
 
        ! Loop over CDFT control groups printing hw_rho_total
         ! IF (para_env%ionode) THEN
            DO igroup = 1, SIZE(cdft_control%group)
 
-             tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
+             ! tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
 
              middle_name = "hw_rho_total"//TRIM(ADJUSTL(cp_to_string(igroup)))
              unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                             file_position="REWIND", middle_name=middle_name, extension=".cube")
 
               ! PRINT *, "igroup", igroup
-             CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
+             CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_total%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
               particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
              ! PRINT *, "igroup", igroup
@@ -1434,20 +1434,20 @@ CONTAINS
       ! END IF
 
         ! PRINT *, "printing constraint density"
-        tmp%pw%cr3d = 0.0_dp
+        ! tmp%pw%cr3d = 0.0_dp
 
         ! Loop over CDFT control groups printing promolecular density
          ! IF (para_env%ionode) THEN
             DO igroup = 1, SIZE(cdft_control%group)
 
-              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
+              ! tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
 
               middle_name = "hw_rho_total_constraint_"//TRIM(ADJUSTL(cp_to_string(igroup)))
               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 
                ! PRINT *, "igroup", igroup
-              CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
+              CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_total_constraint%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
               ! PRINT *, "igroup", igroup
@@ -1458,7 +1458,7 @@ CONTAINS
        ! END IF
 
         ! PRINT *, "printing atomic density"
-        tmp%pw%cr3d = 0.0_dp
+        ! tmp%pw%cr3d = 0.0_dp
 
         ! Loop over CDFT control groups printing atomic density
          ! IF (para_env%ionode) THEN
@@ -1467,7 +1467,7 @@ CONTAINS
 
               ! PRINT *, "iatom", iatom
 
-              tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
+              ! tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
 
               ! PRINT *, "iatom", iatom
 
@@ -1475,7 +1475,7 @@ CONTAINS
               unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                              file_position="REWIND", middle_name=middle_name, extension=".cube")
 
-              CALL cp_pw_to_cube(tmp%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
+              CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
                particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
              CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
@@ -1486,7 +1486,7 @@ CONTAINS
        END DO
      ! END IF
 
-       CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+       ! CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
 
          ! PRINT *, "end cdft_print_hirshfeld_density"
 
