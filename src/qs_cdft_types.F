@@ -220,7 +220,7 @@ MODULE qs_cdft_types
 
 
 
-*
+
                ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic
                !    TYPE(realspace_grid_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_charge
                !    TYPE(realspace_grid_type), POINTER             :: hw_rho_total_constraint

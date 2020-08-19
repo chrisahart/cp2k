@@ -1274,13 +1274,46 @@ CONTAINS
            DEALLOCATE (rho_temp)
            DEALLOCATE (rho_dr_temp)
            DEALLOCATE(rho_atom_dr_temp)
+
+           ! Release grids
+         CALL rs_grid_release(rs_rho_constr)
+         CALL rs_grid_release(rs_rho_all)
+         CALL rs_grid_release(rs_rho_temp)
+         ! CALL rs_grid_release(rs_rho_dr_temp)
+
+         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
+
+         ! Release grids that require looping over atoms
+         DO i = 1, cdft_control%natoms
+           CALL rs_grid_release(rs_single(i)%rs_grid)
+           CALL rs_grid_release(rs_single_charge(i)%rs_grid)
+           ! CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(i)%pw)
+           ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
+           !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+         END DO
+
+         ! DO igroup = 1, SIZE(cdft_control%group)
+         !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+         ! END DO
+
+         ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+         !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
+         !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
+         !   CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(iatom)%pw)
+         !   DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic)
+         ! END IF
+
+         ! Deallocate
+         DEALLOCATE (rs_single)
+         DEALLOCATE (rs_single_dr)
+
            DEALLOCATE (coefficients)
 
            ! Deallocate if allocated
            IF (ALLOCATED(is_constraint)) &
            DEALLOCATE (is_constraint)
-
-           CALL rs_grid_release(rs_rho_temp)
 
            CALL timestop(handle)
 
