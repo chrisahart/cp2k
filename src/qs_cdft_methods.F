@@ -1000,7 +1000,7 @@ CONTAINS
                  ! PRINT *, "compute_charge"
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
-                      rs_single_charge(atom_a)%rs_grid(:, :, :) = rs_single_charge(atom_a)%rs_grid(:, :, :) + rho_temp(:, :, :)
+                      rs_single_charge(atom_a)%rs_grid%r(:, :, :) = rs_single_charge(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
                END IF
              END IF
 
@@ -1008,7 +1008,7 @@ CONTAINS
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
-                      rs_single(atom_a)%rs_grid(:, :, :) = rs_single(atom_a)%rs_grid(:, :, :) + rho_temp(:, :, :)
+                      rs_single(atom_a)%rs_grid%r(:, :, :) = rs_single(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
                     END IF
 
                ! Save sum over constraint atoms, sum over all atoms
@@ -1018,13 +1018,13 @@ CONTAINS
                  ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      ! coefficients(atom_a) * rho_temp(:, :, :)
-                     rs_rho_constr%rs_grid(:, :, :) = rs_rho_constr%rs_grid(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
+                     rs_rho_constr%rs_grid%r(:, :, :) = rs_rho_constr%rs_grid%r(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
                END IF
 
                ! PRINT *, "hw_rho_total"
                ! cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                      ! cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
-               rs_rho_all%rs_grid(:, :, :) = rs_rho_all%rs_grid(:, :, :) + rho_temp(:, :, :)
+               rs_rho_all%rs_grid%r(:, :, :) = rs_rho_all%rs_grid%r(:, :, :) + rho_temp(:, :, :)
 
                ! Save analytic derivative
                IF (in_memory) THEN
