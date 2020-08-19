@@ -1101,7 +1101,7 @@ CONTAINS
 
                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                       cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k) / &
-                       cdft_control%group(igroup)%pw%cr3d%hw_rho_total(i, j, k)
+                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
 
                END DO
              END DO
@@ -1281,15 +1281,15 @@ CONTAINS
          CALL rs_grid_release(rs_rho_temp)
          ! CALL rs_grid_release(rs_rho_dr_temp)
 
-         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_promolecular%pw)
-         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_total%pw)
+         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
+         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
 
          ! Release grids that require looping over atoms
          DO i = 1, cdft_control%natoms
            CALL rs_grid_release(rs_single(i)%rs_grid)
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
            ! CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hirsh_rho_atomic(i)%pw)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
            ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
