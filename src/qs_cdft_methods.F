@@ -684,11 +684,16 @@ CONTAINS
            REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
            INTEGER(KIND=int_8)                                :: subpatch_pattern
            TYPE(realspace_grid_type)                :: rsgrid
+           TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge
+          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
+
+           ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
+          ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
                   auxbas_rs_desc, cdft_control, &
-                  hirshfeld_control, cell, rho_r, rho, fnorm, pab)
+                  hirshfeld_control, cell, rho_r, rho, fnorm, pab, rs_single, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -707,6 +712,34 @@ CONTAINS
         cube_info = pw_env%cube_info(1)
         CALL rs_grid_retain(rs_rho_temp)
         CALL rs_grid_zero(rs_rho_temp)
+
+        ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
+         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
+         ! IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
+            ! CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
+                            ! auxbas_pw_pool=auxbas_pw_pool)
+            ! cube_info = pw_env%cube_info(1)
+            CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
+            CALL rs_grid_retain(rs_rho_all)
+            CALL rs_grid_zero(rs_rho_all)
+         ! END IF
+         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
+         CALL rs_grid_zero(rs_rho_constr)
+         ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
+         ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+            ALLOCATE (rs_single(cdft_control%natoms))
+            ALLOCATE (rs_single_charge(cdft_control%natoms))
+            DO i = 1, cdft_control%natoms
+               NULLIFY (rs_single(i)%rs_grid)
+               CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+               CALL rs_grid_zero(rs_single(i)%rs_grid)
+               NULLIFY (rs_single_charge(i)%rs_grid)
+               CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
+               CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
+               ! compute_charge(cdft_control%atoms(i)) = .TRUE.
+            END DO
+
+
         eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
 
          ! Pointers
@@ -728,17 +761,17 @@ CONTAINS
 
 
          ! Get size of pw grid
-         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         npts = rho_r(1)%pw%pw_grid%npts
+         ! lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         ! lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ! ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         ! npts = rho_r(1)%pw%pw_grid%npts
          ! dr = rho_r(1)%pw%pw_grid%dr
-         origin(:) = (dr(:) * npts(:)) * 0.5_dp
+         ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
          ! PRINT *, "dr from pw", dr
          ! PRINT *, "npts from pw", npts
-         PRINT *, "lb from pw", lb
-         PRINT *, "ub from pw", ub
+         ! PRINT *, "lb from pw", lb
+         ! PRINT *, "ub from pw", ub
 
          ! Get size of rs grid
          dr(1) = rs_rho_temp%desc%dh(1, 1)
@@ -755,6 +788,8 @@ CONTAINS
          ! PRINT *, "npts from rsgrid", ng
          PRINT *, "lb from rsgrid", lb
          PRINT *, "ub from rsgrid", ub
+
+         ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
 
 
 
@@ -794,28 +829,28 @@ CONTAINS
          END IF
 
          ! Allocate Hirshfeld densities
-         IF (cdft_control%atomic_charges .eqv. .TRUE.) THEN
-           DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-             cdft_control%group(igroup)%hw_rho_atomic_charge = 0.0_dp
-           END DO
-        END IF
-
-        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+       !   IF (cdft_control%atomic_charges .eqv. .TRUE.) THEN
+       !     DO igroup = 1, SIZE(cdft_control%group)
+       !       ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+       !       cdft_control%group(igroup)%hw_rho_atomic_charge = 0.0_dp
+       !     END DO
+       !  END IF
+       !
+       !  IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+       !    DO igroup = 1, SIZE(cdft_control%group)
+       !      ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+       !      cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
+       !    END DO
+       ! END IF
+       !
           DO igroup = 1, SIZE(cdft_control%group)
-            ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            cdft_control%group(igroup)%hw_rho_atomic = 0.0_dp
-          END DO
-       END IF
-
-          DO igroup = 1, SIZE(cdft_control%group)
-            ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_dr_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            cdft_control%group(igroup)%hw_rho_total = 0.0_dp
-            cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
+            ! cdft_control%group(igroup)%hw_rho_total = 0.0_dp
+            ! cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
           END DO
           rho_atom_dr_temp = 0.0_dp
 
@@ -963,29 +998,33 @@ CONTAINS
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
                  ! PRINT *, "compute_charge"
-                 cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
-                      cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
+                 ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
+                      ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
+                      rs_single_charge(atom_a)%rs_grid(:, :, :) = rs_single_charge(atom_a)%rs_grid(:, :, :) + rho_temp(:, :, :)
                END IF
              END IF
 
                ! PRINT *, "hw_rho_atomic"
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
-                      cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
+               ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
+                      ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
+                      rs_single(atom_a)%rs_grid(:, :, :) = rs_single(atom_a)%rs_grid(:, :, :) + rho_temp(:, :, :)
                     END IF
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
                  ! PRINT *, "is_constraint"
                  ! PRINT *, "coefficients(atom_a)", coefficients(atom_a)
-                 cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
-                     cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
-                     coefficients(atom_a) * rho_temp(:, :, :)
+                 ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
+                     ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
+                     ! coefficients(atom_a) * rho_temp(:, :, :)
+                     rs_rho_constr%rs_grid(:, :, :) = rs_rho_constr%rs_grid(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
                END IF
 
                ! PRINT *, "hw_rho_total"
-               cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
-                     cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
+               ! cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
+                     ! cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
+               rs_rho_all%rs_grid(:, :, :) = rs_rho_all%rs_grid(:, :, :) + rho_temp(:, :, :)
 
                ! Save analytic derivative
                IF (in_memory) THEN
@@ -996,6 +1035,23 @@ CONTAINS
              END DO ! iatom = 1, natom
            END DO ! ikind = 1, SIZE(atomic_kind_set)
          END DO ! igroup = 1, SIZE(cdft_control%group)
+
+
+         ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
+         CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
+         CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
+         DO i = 1, cdft_control%natoms
+           CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic%pw, rs2pw)
+           CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge%pw, rs2pw)
+            END DO
+
+
+         ! Change grid to pw
+         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         npts = rho_r(1)%pw%pw_grid%npts
+         dr = rho_r(1)%pw%pw_grid%dr
+         origin(:) = (dr(:) * npts(:)) * 0.5_dp
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
@@ -1019,7 +1075,7 @@ CONTAINS
                  !  END IF
 
 
-                  IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                  ! IF (cdft_control%group(igroup)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
                     ! PRINT *, "i, j, k", i, j, k
                     ! PRINT *, "i, j, k", i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)
                     !
@@ -1037,11 +1093,15 @@ CONTAINS
                     ! PRINT *, "UBOUND 3", UBOUND(cdft_control%group(igroup)%weight%pw%cr3d(:, :, :), 3)
 
                     ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                    cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                    ! cdft_control%group(igroup)%weight%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                     ! cdft_control%group(igroup)%weight%pw%cr3d(i2, j2, k2) = &
-                        cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
-                         cdft_control%group(igroup)%hw_rho_total(i, j, k)
-                  END IF
+                        ! cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k) / &
+                         ! cdft_control%group(igroup)%hw_rho_total(i, j, k)
+                  ! END IF
+
+                  cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                      cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k) / &
+                       cdft_control%group(igroup)%%pw%cr3dhw_rho_total(i, j, k)
 
                END DO
              END DO
@@ -1072,12 +1132,12 @@ CONTAINS
                   !         cdft_control%group(1)%hw_rho_total(i, j, k)
                   ! END IF
 
-                  IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
-                    ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                    cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+                  ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+                    ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k) / &
                          cdft_control%group(1)%hw_rho_total(i, j, k)
-                  END IF
+                  ! END IF
 
                  END DO
                END DO
@@ -1193,22 +1253,22 @@ CONTAINS
          !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
          ! END IF
 
-             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-              DO igroup = 1, SIZE(cdft_control%group)
-                DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
-              END DO
-            END IF
-
-            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-             DO igroup = 1, SIZE(cdft_control%group)
-               DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
-             END DO
-           END IF
-
-            DO igroup = 1, SIZE(cdft_control%group)
-               DEALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint)
-               DEALLOCATE (cdft_control%group(igroup)%hw_rho_total)
-            END DO
+           !   IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           !    DO igroup = 1, SIZE(cdft_control%group)
+           !      DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge)
+           !    END DO
+           !  END IF
+           !
+           !  IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           !   DO igroup = 1, SIZE(cdft_control%group)
+           !     DEALLOCATE (cdft_control%group(igroup)%hw_rho_atomic)
+           !   END DO
+           ! END IF
+           !
+           !  DO igroup = 1, SIZE(cdft_control%group)
+           !     DEALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint)
+           !     DEALLOCATE (cdft_control%group(igroup)%hw_rho_total)
+           !  END DO
 
            ! Deallocate
            DEALLOCATE (rho_temp)

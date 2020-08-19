@@ -25,6 +25,9 @@ MODULE qs_cdft_types
                                               qs_outer_scf_type
    USE pw_types,                        ONLY: pw_p_type
    USE qs_cdft_opt_types,               ONLY: cdft_opt_type_release
+   USE realspace_grid_types,            ONLY: &
+        realspace_grid_desc_type, realspace_grid_p_type, realspace_grid_type, rs2pw, &
+        rs_grid_create, rs_grid_release, rs_grid_retain, rs_grid_zero, pw2rs, rs_pw_transfer
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -205,15 +208,30 @@ MODULE qs_cdft_types
       ! Hirshfeld atomic density
       ! TYPE(pw_p_type), DIMENSION(:), POINTER  :: hirsh_rho_atomic
 
-      REAL(KIND=dp), POINTER, &
-         DIMENSION(:, :, :, :)             :: hw_rho_atomic
-         REAL(KIND=dp), POINTER, &
-            DIMENSION(:, :, :, :)             :: hw_rho_atomic_charge
-         REAL(KIND=dp), POINTER, &
-            DIMENSION(:, :, :)             :: hw_rho_total_constraint
+      ! REAL(KIND=dp), POINTER, &
+      !    DIMENSION(:, :, :, :)             :: hw_rho_atomic
+      !    REAL(KIND=dp), POINTER, &
+      !       DIMENSION(:, :, :, :)             :: hw_rho_atomic_charge
+      !    REAL(KIND=dp), POINTER, &
+      !       DIMENSION(:, :, :)             :: hw_rho_total_constraint
+      !
+      !       REAL(KIND=dp), POINTER, &
+      !          DIMENSION(:, :, :)             :: hw_rho_total
 
-            REAL(KIND=dp), POINTER, &
-               DIMENSION(:, :, :)             :: hw_rho_total
+
+
+*
+               ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic
+               !    TYPE(realspace_grid_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_charge
+               !    TYPE(realspace_grid_type), POINTER             :: hw_rho_total_constraint
+               !       TYPE(realspace_grid_type), POINTER          :: hw_rho_total
+
+
+                     TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic
+                     ! TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_gradient
+                        TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_charge
+                        TYPE(pw_p_type)             :: hw_rho_total_constraint
+                           TYPE(pw_p_type)          :: hw_rho_total
 
     END TYPE cdft_group_type
 
