@@ -713,6 +713,11 @@ CONTAINS
         CALL rs_grid_retain(rs_rho_temp)
         CALL rs_grid_zero(rs_rho_temp)
 
+        ! Pointers
+        cdft_control => dft_control%qs_control%cdft_control
+        hirshfeld_control => cdft_control%hirshfeld_control
+        hirshfeld_env => hirshfeld_control%hirshfeld_env
+
         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
          ! IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
@@ -742,10 +747,7 @@ CONTAINS
 
         eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
 
-         ! Pointers
-         cdft_control => dft_control%qs_control%cdft_control
-         hirshfeld_control => cdft_control%hirshfeld_control
-         hirshfeld_env => hirshfeld_control%hirshfeld_env
+
 
          ! PRINT *, "start hirshfeld_constraint_low"
          ! hirshfeld_control%print_density = .TRUE.
