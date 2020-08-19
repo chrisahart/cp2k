@@ -1018,13 +1018,13 @@ CONTAINS
                  ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      ! coefficients(atom_a) * rho_temp(:, :, :)
-                     rs_rho_constr%rs_grid%r(:, :, :) = rs_rho_constr%rs_grid%r(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
+                     rs_rho_constr%r(:, :, :) = rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
                END IF
 
                ! PRINT *, "hw_rho_total"
                ! cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                      ! cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
-               rs_rho_all%rs_grid%r(:, :, :) = rs_rho_all%rs_grid%r(:, :, :) + rho_temp(:, :, :)
+               rs_rho_all%r(:, :, :) = rs_rho_all%r(:, :, :) + rho_temp(:, :, :)
 
                ! Save analytic derivative
                IF (in_memory) THEN
@@ -1101,7 +1101,7 @@ CONTAINS
 
                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                       cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k) / &
-                       cdft_control%group(igroup)%%pw%cr3dhw_rho_total(i, j, k)
+                       cdft_control%group(igroup)%pw%cr3d%hw_rho_total(i, j, k)
 
                END DO
              END DO
