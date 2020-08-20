@@ -1203,7 +1203,7 @@ CONTAINS
                            exp_eval = ((coefficients(iatom) - &
                                        cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                        cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) * &
-                                       cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k))
+                                       cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
