@@ -753,7 +753,10 @@ CONTAINS
 
 
 
-         ! PRINT *, "start hirshfeld_constraint_low"
+         PRINT *, "start hirshfeld_constraint_low"
+         PRINT *, "calculate_forces", calculate_forces
+         ! cdft_control%in_memory = .TRUE.
+
          ! hirshfeld_control%print_density = .TRUE.
          IF (calculate_forces) cdft_control%in_memory = .TRUE.
          ! hirshfeld_control%eps_constraint = 1.0e-6_dp
@@ -1414,10 +1417,10 @@ CONTAINS
           END DO
 
           ! Get size of pw grid
-          ! lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-          ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-          lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-          ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+          ! lb_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+          ! ub_rs(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
           ! npts = rho_r(1)%pw%pw_grid%npts
           ! dr = rho_r(1)%pw%pw_grid%dr
           ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
@@ -1431,13 +1434,13 @@ CONTAINS
           ! dr(2) = rs_rho_temp%desc%dh(2, 2)
           ! dr(3) = rs_rho_temp%desc%dh(3, 3)
           ! ng(:) = rs_rho_temp%desc%npts(:)
-          lb(1) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
-          lb(2) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
-          lb(3) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
-          ub(1) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
-          ub(2) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
-          ub(3) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
-          ! PRINT *, "dr from rsgrid", dr
+          ! lb(1) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
+          ! lb(2) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
+          ! lb(3) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
+          ! ub(1) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
+          ! ub(2) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
+          ! ub(3) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
+          ! ! PRINT *, "dr from rsgrid", dr
           ! PRINT *, "npts from rsgrid", ng
           ! PRINT *, "lb from rsgrid", lb
           ! PRINT *, "ub from rsgrid", ub
@@ -1453,10 +1456,10 @@ CONTAINS
              CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
            END IF
 
-        ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-          IF (.NOT. cdft_control%in_memory) THEN
-             CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
-           END IF
+        ! ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+        !   IF (.NOT. cdft_control%in_memory) THEN
+        !      CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
+        !    END IF
         END IF
 
         ! PRINT *, "calculating integrated"
