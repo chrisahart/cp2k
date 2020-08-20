@@ -1148,9 +1148,9 @@ CONTAINS
          END IF
 
            ! Print atomic densities if requested
-           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-             CALL cdft_print_hirshfeld_density(qs_env)
-            END IF
+           ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             ! CALL cdft_print_hirshfeld_density(qs_env)
+            ! END IF
           END IF
 
            ! ! Calculate gradient if requested
@@ -1311,6 +1311,8 @@ CONTAINS
          ! Deallocate
          DEALLOCATE (rs_single)
          DEALLOCATE (rs_single_charge)
+         DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
+         DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
          ! DEALLOCATE (rs_single_dr)
 
            DEALLOCATE (coefficients)
@@ -1790,8 +1792,8 @@ CONTAINS
        energy%cdft = 0.0_dp
        DO ivar = 1, nvar
           energy%cdft = energy%cdft + (dE(ivar) - target_val(ivar))*strength(ivar)
-          PRINT *, "energy%cdft", energy%cdft
-          PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
+          ! PRINT *, "energy%cdft", energy%cdft
+          ! PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
        END DO
 
 
