@@ -496,7 +496,7 @@ CONTAINS
          IF (ASSOCIATED(cdft_control%group)) THEN
             DO i = 1, SIZE(cdft_control%group)
 
-              ! PRINT *, "cdft_control_release"
+              PRINT *, "cdft_control_release"
                IF (ASSOCIATED(cdft_control%group(i)%atoms)) &
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
@@ -507,14 +507,19 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
+
+                  PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
+
                   IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_charge)) &
                      DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
                      IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic)) &
                         DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
 
+                        PRINT *, "DEALLOCATED hirsh_rho_atomic"
 
 
-                  ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
+
+
                   ! IF (ALLOCATED(cdft_control%group(i)%hirsh_rho_atomic)) THEN
                   !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
                   ! END IF

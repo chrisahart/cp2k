@@ -667,7 +667,7 @@ CONTAINS
          ! TYPE(pw_p_type)                                    :: tmp !, fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
-         TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp
+         ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp
          ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_dr
          INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs
          ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
@@ -707,11 +707,11 @@ CONTAINS
                          pw_env=pw_env)
         CALL qs_rho_get(rho, rho_r=rho_r)
 
-        CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_temp, &
+        CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                         auxbas_pw_pool=auxbas_pw_pool)
         cube_info = pw_env%cube_info(1)
-        CALL rs_grid_retain(rs_rho_temp)
-        CALL rs_grid_zero(rs_rho_temp)
+        ! CALL rs_grid_retain(rs_rho_temp)
+        ! CALL rs_grid_zero(rs_rho_temp)
 
         ! Pointers
         cdft_control => dft_control%qs_control%cdft_control
@@ -724,7 +724,7 @@ CONTAINS
             ! CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                             ! auxbas_pw_pool=auxbas_pw_pool)
             ! cube_info = pw_env%cube_info(1)
-            CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
+            ! CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
             CALL rs_grid_retain(rs_rho_all)
             CALL rs_grid_zero(rs_rho_all)
          ! END IF
@@ -776,16 +776,16 @@ CONTAINS
          ! PRINT *, "ub from pw", ub
 
          ! Get size of rs grid
-         dr(1) = rs_rho_temp%desc%dh(1, 1)
-         dr(2) = rs_rho_temp%desc%dh(2, 2)
-         dr(3) = rs_rho_temp%desc%dh(3, 3)
-         ng(:) = rs_rho_temp%desc%npts(:)
-         lb(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
-         lb(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
-         lb(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
-         ub(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
-         ub(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
-         ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
+         dr(1) = rs_rho_all%desc%dh(1, 1)
+         dr(2) = rs_rho_all%desc%dh(2, 2)
+         dr(3) = rs_rho_all%desc%dh(3, 3)
+         ng(:) = rs_rho_all%desc%npts(:)
+         lb(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
+         lb(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
+         lb(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
+         ub(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
+         ub(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
+         ub(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
          ! PRINT *, "dr from rsgrid", dr
          ! PRINT *, "npts from rsgrid", ng
          ! PRINT *, "lb from rsgrid", lb
@@ -1283,7 +1283,7 @@ CONTAINS
            ! Release grids
          CALL rs_grid_release(rs_rho_constr)
          CALL rs_grid_release(rs_rho_all)
-         CALL rs_grid_release(rs_rho_temp)
+         ! CALL rs_grid_release(rs_rho_temp)
          ! CALL rs_grid_release(rs_rho_dr_temp)
 
          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)

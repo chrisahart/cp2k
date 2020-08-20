@@ -1110,8 +1110,8 @@ CONTAINS
     END IF
 
     ! Setup atomic densities if requested
-    hirshfeld_control%print_density = .TRUE.
-    IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+    ! hirshfeld_control%print_density = .TRUE.
+    ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
       ! PRINT *, "Setting up atomic densities"
       DO igroup = 1, SIZE(cdft_control%group)
         ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
@@ -1137,7 +1137,7 @@ CONTAINS
           cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
         END DO
       END DO
-    END IF
+    ! END IF
 
     ! Radii no longer needed
     IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
