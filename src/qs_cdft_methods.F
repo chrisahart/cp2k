@@ -664,7 +664,7 @@ CONTAINS
          TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
          TYPE(pw_env_type), POINTER                         :: pw_env
          INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf, gridbounds
-         TYPE(pw_p_type)                                    :: tmp !, fnorm
+         ! TYPE(pw_p_type)                                    :: tmp !, fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp
@@ -676,7 +676,7 @@ CONTAINS
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr
            TYPE(cell_type), POINTER                           :: cell
-           TYPE(pw_p_type), POINTER                           :: fnorm
+           ! TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp, rho_dr_temp
@@ -693,7 +693,7 @@ CONTAINS
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
                   auxbas_rs_desc, cdft_control, &
-                  hirshfeld_control, cell, rho_r, rho, fnorm, pab, rs_single, rs_rho_all, rs_rho_constr, rs_single_charge)
+                  hirshfeld_control, cell, rho_r, rho, pab, rs_single, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1042,6 +1042,7 @@ CONTAINS
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
          CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
          CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
+
          DO i = 1, cdft_control%natoms
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
            CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
@@ -1101,9 +1102,11 @@ CONTAINS
                          ! cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   ! END IF
 
-                  cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+                  IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
+                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
                       cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k) / &
                        cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+                     END IF
 
                END DO
              END DO
@@ -1134,12 +1137,12 @@ CONTAINS
                   !         cdft_control%group(1)%hw_rho_total(i, j, k)
                   ! END IF
 
-                  ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
+                  IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
                     cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
                     ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
                         cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d(i, j, k) / &
                          cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k)
-                  ! END IF
+                  END IF
 
                  END DO
                END DO
