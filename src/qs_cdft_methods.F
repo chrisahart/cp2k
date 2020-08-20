@@ -1502,8 +1502,8 @@ CONTAINS
                                cdft_control%group(igroup)%integrated(:, iatom) = &
                                  cdft_control%group(igroup)%integrated(:, iatom) + &
                                  cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
-                                 * rho_r(ispin)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) &
-                                 ! * rho_r(ispin)%pw%cr3d(i, j, k) &
+                                 ! * rho_r(ispin)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) &
+                                 * rho_r(ispin)%pw%cr3d(i, j, k) &
                                  * dvol
                             END DO
                          END DO
