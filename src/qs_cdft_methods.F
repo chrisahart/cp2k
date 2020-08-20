@@ -1318,6 +1318,9 @@ CONTAINS
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
          ! DEALLOCATE (rs_single_dr)
 
+         DEALLOCATE (cdft_control%group(1)%hw_rho_total)
+         DEALLOCATE (cdft_control%group(1)%hw_rho_total_constraint)
+
            DEALLOCATE (coefficients)
 
            ! Deallocate if allocated
