@@ -1411,7 +1411,7 @@ CONTAINS
        CALL qs_subsys_get(subsys, particles=particles)
        cdft_control => dft_control%qs_control%cdft_control
        cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
-       CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
+       ! CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
 
        ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
        ! tmp%pw%cr3d = 0.0_dp
