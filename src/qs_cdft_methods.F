@@ -681,7 +681,7 @@ CONTAINS
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp, rho_dr_temp
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)             :: rho_atom_dr_temp
-           REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
+           ! REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
            INTEGER(KIND=int_8)                                :: subpatch_pattern
            TYPE(realspace_grid_type)                :: rsgrid
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge
@@ -693,7 +693,7 @@ CONTAINS
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
                   auxbas_rs_desc, cdft_control, &
-                  hirshfeld_control, cell, rho_r, rho, pab, rs_single, rs_rho_all, rs_rho_constr, rs_single_charge)
+                  hirshfeld_control, cell, rho_r, rho, rs_single, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
          CALL get_qs_env(qs_env, &
@@ -1312,20 +1312,25 @@ CONTAINS
          ! END IF
 
          ! Deallocate
+         DEALLOCATE (compute_charge)
          DEALLOCATE (rs_single)
          DEALLOCATE (rs_single_charge)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
+
          ! DEALLOCATE (rs_single_dr)
 
-         DEALLOCATE (cdft_control%group(1)%hw_rho_total)
-         DEALLOCATE (cdft_control%group(1)%hw_rho_total_constraint)
+         ! DEALLOCATE (cdft_control%group(1)%hw_rho_total)
+         ! DEALLOCATE (cdft_control%group(1)%hw_rho_total_constraint)
 
            DEALLOCATE (coefficients)
 
            ! Deallocate if allocated
            IF (ALLOCATED(is_constraint)) &
            DEALLOCATE (is_constraint)
+
+           IF (ALLOCATED(compute_charge)) &
+           DEALLOCATE (compute_charge)
 
            CALL timestop(handle)
 
