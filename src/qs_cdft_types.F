@@ -228,6 +228,7 @@ MODULE qs_cdft_types
 
 
                      TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic
+                     TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_dr
                      ! TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_gradient
                         TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_charge
                         TYPE(pw_p_type)             :: hw_rho_total_constraint
@@ -514,6 +515,8 @@ CONTAINS
                      DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
                      IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic)) &
                         DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
+                        IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_dr)) &
+                           DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_dr)
 
                         ! PRINT *, "DEALLOCATED hirsh_rho_atomic"
 
