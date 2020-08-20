@@ -788,8 +788,8 @@ CONTAINS
          ub(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
          ! PRINT *, "dr from rsgrid", dr
          ! PRINT *, "npts from rsgrid", ng
-         PRINT *, "lb from rsgrid", lb
-         PRINT *, "ub from rsgrid", ub
+         ! PRINT *, "lb from rsgrid", lb
+         ! PRINT *, "ub from rsgrid", ub
 
          ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
 
@@ -823,7 +823,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
-           PRINT *, "Allocate gradient"
+           ! PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
@@ -1051,9 +1051,9 @@ CONTAINS
          ! Change grid to pw
          lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         npts = rho_r(1)%pw%pw_grid%npts
-         dr = rho_r(1)%pw%pw_grid%dr
-         origin(:) = (dr(:) * npts(:)) * 0.5_dp
+         ! npts = rho_r(1)%pw%pw_grid%npts
+         ! dr = rho_r(1)%pw%pw_grid%dr
+         ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
@@ -1292,6 +1292,7 @@ CONTAINS
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
            ! CALL rs_grid_release(rs_single_dr(i)%rs_grid)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
            ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
@@ -1309,6 +1310,7 @@ CONTAINS
 
          ! Deallocate
          DEALLOCATE (rs_single)
+         DEALLOCATE (rs_single_charge)
          ! DEALLOCATE (rs_single_dr)
 
            DEALLOCATE (coefficients)
