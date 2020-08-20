@@ -669,7 +669,7 @@ CONTAINS
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
          ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp
          ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single,
-         INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs
+         INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs, lb_pw, ub_pw
          ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
@@ -784,18 +784,25 @@ CONTAINS
          dr(2) = rs_rho_all%desc%dh(2, 2)
          dr(3) = rs_rho_all%desc%dh(3, 3)
          ng(:) = rs_rho_all%desc%npts(:)
-         lb(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
-         lb(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
-         lb(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
-         ub(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
-         ub(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
-         ub(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
+         lb_rs(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
+         lb_rs(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
+         lb_rs(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
+         ub_rs(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
+         ub_rs(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
+         ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
          ! PRINT *, "dr from rsgrid", dr
          ! PRINT *, "npts from rsgrid", ng
          ! PRINT *, "lb from rsgrid", lb
          ! PRINT *, "ub from rsgrid", ub
 
          ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
+
+         ! Change grid to pw
+         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         ! npts = rho_r(1)%pw%pw_grid%npts
+         ! dr = rho_r(1)%pw%pw_grid%dr
+         ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
 
 
 
@@ -829,7 +836,7 @@ CONTAINS
          IF (in_memory) THEN
            ! PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
            END DO
          END IF
@@ -852,9 +859,9 @@ CONTAINS
           DO igroup = 1, SIZE(cdft_control%group)
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            ALLOCATE (rho_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            ALLOCATE (rho_dr_temp(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            ALLOCATE (rho_atom_dr_temp(natom, lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            ALLOCATE (rho_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
+            ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
+            ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
             ! cdft_control%group(igroup)%hw_rho_total = 0.0_dp
             ! cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
           END DO
@@ -969,9 +976,9 @@ CONTAINS
                 !  DEALLOCATE (pab)
 
                  ! Loop over grid
-                 DO k = lb(3), ub(3)
-                   DO j = lb(2), ub(2)
-                     DO i = lb(1), ub(1)
+                 DO k = lb_rs(3), ub_rs(3)
+                   DO j = lb_rs(2), ub_rs(2)
+                     DO i = lb_rs(1), ub_rs(1)
 
                        ! Calculate (r - R) ^ 2
                        r_squared = ((i * dr(1)) - (ra(1) + dr(1))) ** 2.0_dp + &
@@ -1055,19 +1062,14 @@ CONTAINS
             END DO
 
 
-         ! Change grid to pw
-         lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         ! npts = rho_r(1)%pw%pw_grid%npts
-         ! dr = rho_r(1)%pw%pw_grid%dr
-         ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
+
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
            ! PRINT *, "Calculate weight function"
-           DO k = lb(3), ub(3)
-             DO j = lb(2), ub(2)
-               DO i = lb(1), ub(1)
+           DO k = lb_pw(3), ub_pw(3)
+             DO j = lb_pw(2), ub_pw(2)
+               DO i = lb_pw(1), ub_pw(1)
 
                  ! IF (hirshfeld_control%use_cutoff .AND. &
                  !     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
@@ -1125,9 +1127,9 @@ CONTAINS
              ! PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
                !IF (compute_charge(atom_a)) THEN
-             DO k = lb(3), ub(3)
-               DO j = lb(2), ub(2)
-                 DO i = lb(1), ub(1)
+             DO k = lb_pw(3), ub_pw(3)
+               DO j = lb_pw(2), ub_pw(2)
+                 DO i = lb_pw(1), ub_pw(1)
 
                   !  IF (hirshfeld_control%use_cutoff .AND. &
                   !      ABS(cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k)) &
@@ -1182,9 +1184,9 @@ CONTAINS
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
                    ! PRINT *, "origin(:)", origin(:)
 
-                   DO k = lb(3), ub(3)
-                     DO j = lb(2), ub(2)
-                       DO i = lb(1), ub(1)
+                   DO k = lb_pw(3), ub_pw(3)
+                     DO j = lb_pw(2), ub_pw(2)
+                       DO i = lb_pw(1), ub_pw(1)
 
                          ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
                          !   ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
@@ -1421,8 +1423,8 @@ CONTAINS
           ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
           ! PRINT *, "dr from pw", dr
           ! PRINT *, "npts from pw", npts
-          PRINT *, "lb from pw", lb
-          PRINT *, "ub from pw", ub
+          ! PRINT *, "lb from pw", lb
+          ! PRINT *, "ub from pw", ub
 
           ! Get size of rs grid
           ! dr(1) = rs_rho_temp%desc%dh(1, 1)
@@ -1437,8 +1439,8 @@ CONTAINS
           ub(3) = UBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
           ! PRINT *, "dr from rsgrid", dr
           ! PRINT *, "npts from rsgrid", ng
-          PRINT *, "lb from rsgrid", lb
-          PRINT *, "ub from rsgrid", ub
+          ! PRINT *, "lb from rsgrid", lb
+          ! PRINT *, "ub from rsgrid", ub
 
           bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
           ! lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
@@ -1551,8 +1553,8 @@ CONTAINS
              END DO
           END IF
 
-             ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-             ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+             PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+             PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
 
           IF (.NOT. cdft_control%transfer_pot) THEN
