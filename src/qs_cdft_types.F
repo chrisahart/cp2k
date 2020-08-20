@@ -507,6 +507,11 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
+                  IF (ALLOCATED(cdft_control%group(i)%hw_rho_atomic_charge)) THEN
+                     DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
+                     IF (ALLOCATED(cdft_control%group(i)%hw_rho_atomic)) THEN
+                        DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
+
 
 
                   ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
