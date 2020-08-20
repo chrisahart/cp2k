@@ -507,9 +507,9 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%gradients)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
-                  IF (ALLOCATED(cdft_control%group(i)%hw_rho_atomic_charge)) THEN
+                  IF (ALLOCATED(cdft_control%group(i)%hw_rho_atomic_charge)) &
                      DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
-                     IF (ALLOCATED(cdft_control%group(i)%hw_rho_atomic)) THEN
+                     IF (ALLOCATED(cdft_control%group(i)%hw_rho_atomic)) &
                         DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
 
 
