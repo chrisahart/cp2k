@@ -1040,8 +1040,8 @@ CONTAINS
 
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
-         CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
-         CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
+         CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
+         CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
          DO i = 1, cdft_control%natoms
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
            CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
