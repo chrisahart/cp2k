@@ -795,10 +795,13 @@ CONTAINS
          ub_rs(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
          ub_rs(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
          ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
-         ! PRINT *, "dr from rsgrid", dr
-         ! PRINT *, "npts from rsgrid", ng
-         ! PRINT *, "lb from rsgrid", lb
-         ! PRINT *, "ub from rsgrid", ub
+         PRINT *, "dr from rsgrid", dr
+         PRINT *, "npts from rsgrid", ng
+         PRINT *, "lb from rsgrid", lb
+         PRINT *, "ub from rsgrid", ub
+
+         bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+         PRINT *, "bo", bo
 
          ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
 
