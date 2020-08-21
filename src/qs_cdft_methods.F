@@ -739,9 +739,11 @@ CONTAINS
                NULLIFY (rs_single(i)%rs_grid)
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single(i)%rs_grid)
+
                NULLIFY (rs_single_dr(i)%rs_grid)
                CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+               
                NULLIFY (rs_single_charge(i)%rs_grid)
                CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
@@ -1186,6 +1188,7 @@ CONTAINS
                    ! atom_a = atom_list(iatom)
                    ! ra(:) = particle_set(iatom)%r - origin(1)
                    ra(:) = pbc(particle_set(iatom)%r, cell)
+                   ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                    ! PRINT *, "ra(:)", ra(:)
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
@@ -1218,17 +1221,17 @@ CONTAINS
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
                            cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                       ((i * dr(1)) - (ra(1) + dr(1))) * exp_eval
+                                       ((i * dr(1)) - (ra(1)) * exp_eval
 
                            ! Store gradient d/dR_y w, including term: (r_y - R_y)
                            cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                       ((j * dr(2)) - (ra(2) + dr(2))) * exp_eval
+                                       ((j * dr(2)) - (ra(2)) * exp_eval
 
                            ! Store gradient d/dR_z w, including term:(r_z - R_z)
                            cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                       ((k * dr(3)) - (ra(3) + dr(3))) * exp_eval
+                                       ((k * dr(3)) - (ra(3)) * exp_eval
 
                         !     ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                         !
