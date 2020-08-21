@@ -674,7 +674,7 @@ CONTAINS
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
-           REAL(KIND=dp), DIMENSION(3)              :: dr
+           REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw
            TYPE(cell_type), POINTER                           :: cell
            ! TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
@@ -785,9 +785,9 @@ CONTAINS
          ! PRINT *, "ub from pw", ub
 
          ! Get size of rs grid
-         dr(1) = rs_rho_all%desc%dh(1, 1)
-         dr(2) = rs_rho_all%desc%dh(2, 2)
-         dr(3) = rs_rho_all%desc%dh(3, 3)
+         dr_rs(1) = rs_rho_all%desc%dh(1, 1)
+         dr_rs(2) = rs_rho_all%desc%dh(2, 2)
+         dr_rs(3) = rs_rho_all%desc%dh(3, 3)
          ng(:) = rs_rho_all%desc%npts(:)
          lb_rs(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
          lb_rs(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
@@ -805,11 +805,15 @@ CONTAINS
          ! Change grid to pw
          lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         ! npts = rho_r(1)%pw%pw_grid%npts
-         ! dr = rho_r(1)%pw%pw_grid%dr
-         ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
+         npts = rho_r(1)%pw%pw_grid%npts
+         dr_pw = rho_r(1)%pw%pw_grid%dr
+         origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
 
-
+         PRINT *, "lb_rs", lb_rs
+         PRINT *, "ub_rs", ub_rs
+         PRINT *, "lb_pw", lb_pw
+         PRINT *, "ub_pw", ub_pw
+         PRINT *, "origin", origin
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
@@ -988,9 +992,9 @@ CONTAINS
                      DO i = lb_rs(1), ub_rs(1)
 
                        ! Calculate (r - R) ^ 2
-                       r_squared = ((i * dr(1)) - (ra(1) + dr(1))) ** 2.0_dp + &
-                                   ((j * dr(2)) - (ra(2) + dr(2))) ** 2.0_dp + &
-                                   ((k * dr(3)) - (ra(3) + dr(3))) ** 2.0_dp
+                       r_squared = ((i * dr_rs(1)) - (ra(1) + dr_rs(1))) ** 2.0_dp + &
+                                   ((j * dr_rs(2)) - (ra(2) + dr_rs(2))) ** 2.0_dp + &
+                                   ((k * dr_rs(3)) - (ra(3) + dr_rs(3))) ** 2.0_dp
 
 
                                    ! r_squared = ((i * dr(1)) - (ra(1))) ** 2.0_dp + &
@@ -1050,7 +1054,7 @@ CONTAINS
 
                ! Save analytic derivative
                IF (in_memory) THEN
-                 ! PRINT *, "in_memory"
+                 PRINT *, "in_memory"
                  ! rho_atom_dr_temp(atom_a, :, :, :) = rho_atom_dr_temp(atom_a, :, :, :) + rho_dr_temp(:, :, :)
                  rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) + rho_dr_temp(:, :, :)
                END IF
@@ -1221,17 +1225,17 @@ CONTAINS
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
                            cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                       ((i * dr(1)) - (ra(1))) * exp_eval
+                                       ((i * dr_pw(1)) - (ra(1))) * exp_eval
 
                            ! Store gradient d/dR_y w, including term: (r_y - R_y)
                            cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                       ((j * dr(2)) - (ra(2))) * exp_eval
+                                       ((j * dr_pw(2)) - (ra(2))) * exp_eval
 
                            ! Store gradient d/dR_z w, including term:(r_z - R_z)
                            cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                       ((k * dr(3)) - (ra(3))) * exp_eval
+                                       ((k * dr_pw(3)) - (ra(3))) * exp_eval
 
                         !     ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                         !
