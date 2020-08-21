@@ -800,8 +800,8 @@ CONTAINS
          IF (para_env%ionode) THEN
            PRINT *, "dr from rsgrid", dr
            PRINT *, "npts from rsgrid", ng
-           PRINT *, "lb from rsgrid", lb
-           PRINT *, "ub from rsgrid", ub
+           PRINT *, "lb from rsgrid", lb_rs
+           PRINT *, "ub from rsgrid", ub_rs
            PRINT *, "bo", bo
        END IF
          ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
