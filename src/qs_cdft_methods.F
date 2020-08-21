@@ -743,7 +743,7 @@ CONTAINS
                NULLIFY (rs_single_dr(i)%rs_grid)
                CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-               
+
                NULLIFY (rs_single_charge(i)%rs_grid)
                CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
@@ -1221,17 +1221,17 @@ CONTAINS
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
                            cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                       ((i * dr(1)) - (ra(1)) * exp_eval
+                                       ((i * dr(1)) - (ra(1))) * exp_eval
 
                            ! Store gradient d/dR_y w, including term: (r_y - R_y)
                            cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                       ((j * dr(2)) - (ra(2)) * exp_eval
+                                       ((j * dr(2)) - (ra(2))) * exp_eval
 
                            ! Store gradient d/dR_z w, including term:(r_z - R_z)
                            cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                        cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                       ((k * dr(3)) - (ra(3)) * exp_eval
+                                       ((k * dr(3)) - (ra(3))) * exp_eval
 
                         !     ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                         !
