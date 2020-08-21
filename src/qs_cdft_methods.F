@@ -811,10 +811,12 @@ CONTAINS
 
          IF (cdft_control%atomic_charges) THEN
           ALLOCATE (compute_charge(natom))
+          compute_charge = .FALSE.
           DO i = 1, cdft_control%natoms
             compute_charge(cdft_control%atoms(i)) = .TRUE.
           END DO
          END IF
+         PRINT *, "compute_charge", compute_charge
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          in_memory = .TRUE. !cdft_control%in_memory
@@ -1020,12 +1022,7 @@ CONTAINS
                END IF
              END IF
 
-               ! PRINT *, "hw_rho_atomic"
-               IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
-                      ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
-                      rs_single(atom_a)%rs_grid%r(:, :, :) = rs_single(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
-                    END IF
+
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
@@ -1035,6 +1032,13 @@ CONTAINS
                      ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      ! coefficients(atom_a) * rho_temp(:, :, :)
                      rs_rho_constr%r(:, :, :) = rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
+
+                     ! PRINT *, "hw_rho_atomic"
+                     IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+                     ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
+                            ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
+                            rs_single(atom_a)%rs_grid%r(:, :, :) = rs_single(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
+                          END IF
                END IF
 
                ! PRINT *, "hw_rho_total"
@@ -1162,9 +1166,9 @@ CONTAINS
          END IF
 
            ! Print atomic densities if requested
-           ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-             ! CALL cdft_print_hirshfeld_density(qs_env)
-            ! END IF
+           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             CALL cdft_print_hirshfeld_density(qs_env)
+            END IF
           END IF
 
            ! Calculate gradient if requested
