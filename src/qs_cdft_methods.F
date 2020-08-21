@@ -753,8 +753,8 @@ CONTAINS
 
 
 
-         PRINT *, "start hirshfeld_constraint_low"
-         PRINT *, "calculate_forces", calculate_forces
+         ! PRINT *, "start hirshfeld_constraint_low"
+         ! PRINT *, "calculate_forces", calculate_forces
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
@@ -1305,7 +1305,7 @@ CONTAINS
          DO i = 1, cdft_control%natoms
            CALL rs_grid_release(rs_single(i)%rs_grid)
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
-           ! CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+           CALL rs_grid_release(rs_single_dr(i)%rs_grid)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
@@ -1331,7 +1331,7 @@ CONTAINS
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
 
-         ! DEALLOCATE (rs_single_dr)
+         DEALLOCATE (rs_single_dr)
 
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total)
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total_constraint)
