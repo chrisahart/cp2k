@@ -731,7 +731,6 @@ CONTAINS
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
 
-
          CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
@@ -964,7 +963,7 @@ CONTAINS
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
-                 ! rs_rho_temp%r(:, :, :) = 0.0_dp
+                 rs_rho_temp%r(:, :, :) = 0.0_dp
 
                  ! PRINT *, "alpha", alpha
                  ! PRINT *, "coef", coef
