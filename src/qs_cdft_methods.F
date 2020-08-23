@@ -800,13 +800,13 @@ CONTAINS
          ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
-         IF (para_env%ionode) THEN
-           PRINT *, "dr from rsgrid", dr
-           PRINT *, "npts from rsgrid", ng
-           PRINT *, "lb from rsgrid", lb_rs
-           PRINT *, "ub from rsgrid", ub_rs
-           PRINT *, "bo", bo
-       END IF
+       !   IF (para_env%ionode) THEN
+       !     PRINT *, "dr from rsgrid", dr
+       !     PRINT *, "npts from rsgrid", ng
+       !     PRINT *, "lb from rsgrid", lb_rs
+       !     PRINT *, "ub from rsgrid", ub_rs
+       !     PRINT *, "bo", bo
+       ! END IF
          ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
 
          ! Change grid to pw
@@ -829,7 +829,7 @@ CONTAINS
             compute_charge(cdft_control%atoms(i)) = .TRUE.
           END DO
          END IF
-         PRINT *, "compute_charge", compute_charge
+         ! PRINT *, "compute_charge", compute_charge
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          in_memory = .TRUE. !cdft_control%in_memory
@@ -1066,7 +1066,7 @@ CONTAINS
 
                ! Save analytic derivative
                IF (in_memory) THEN
-                 PRINT *, "in_memory"
+                 ! PRINT *, "in_memory"
                  ! rho_atom_dr_temp(atom_a, :, :, :) = rho_atom_dr_temp(atom_a, :, :, :) + rho_dr_temp(:, :, :)
                  rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) + rho_dr_temp(:, :, :)
                END IF
