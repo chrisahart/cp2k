@@ -681,7 +681,7 @@ CONTAINS
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp, rho_dr_temp
            REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)             :: rho_atom_dr_temp
-           ! REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
+           REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
            INTEGER(KIND=int_8)                                :: subpatch_pattern
            TYPE(realspace_grid_type)                :: rsgrid
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
@@ -692,7 +692,7 @@ CONTAINS
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-                  auxbas_rs_desc, cdft_control, &
+                  auxbas_rs_desc, cdft_control, pab, &
                   hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
@@ -964,60 +964,65 @@ CONTAINS
 
                  ! PRINT *, "alpha", alpha
                  ! PRINT *, "coef", coef
-                 coef = coef*hirshfeld_env%charges(atom_a)
+                 ! coef = coef*hirshfeld_env%charges(atom_a)
                  ! PRINT *, "coef", coef
 
-                 ! ALLOCATE (pab(1, 1))
-                 ! pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+                 ALLOCATE (pab(1, 1))
+                 pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                  ! PRINT *, "pab",pab
 
-                  ! ra(:) = pbc(particle_set(atom_a)%r, cell)
-                  ! subpatch_pattern = 0
-                !   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                !                                     ra=ra, rb=ra, rp=ra, &
-                !                                     zetp=alpha, eps=eps_rho_rspace, &
-                !                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
-                !                                     prefactor=1.0_dp, cutoff=0.0_dp)
+                  ra(:) = pbc(particle_set(atom_a)%r, cell)
+                  subpatch_pattern = 0
+                  radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                    ra=ra, rb=ra, rp=ra, &
+                                                    zetp=alpha, eps=eps_rho_rspace, &
+                                                    pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                    prefactor=1.0_dp, cutoff=0.0_dp)
                 ! PRINT *, "radius",radius
                 ! radius = 50.0_dp
-                !
-                !   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                !                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                !                              rs_rho_temp, cell, cube_info, radius=radius, &
-                !                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                !                              subpatch_pattern=subpatch_pattern)
-                !
-                !  rho_temp(:, :, :) = rho_temp(:, :, :) + rs_rho_temp%r(:, :, :)
-                !  DEALLOCATE (pab)
+
+                  CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                             (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                             rs_rho_temp, cell, cube_info, radius=radius, &
+                                             ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                             subpatch_pattern=subpatch_pattern)
+
+                 rho_temp(:, :, :) = rho_temp(:, :, :) + rs_rho_temp%r(:, :, :)
+                 DEALLOCATE (pab)
+
+                 ! Store analytic derivative of atomic density
+                         IF (in_memory) THEN
+                           rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                         END IF
 
                  ! Loop over grid
-                 DO k = lb_rs(3), ub_rs(3)
-                   DO j = lb_rs(2), ub_rs(2)
-                     DO i = lb_rs(1), ub_rs(1)
-
-                       ! Calculate (r - R) ^ 2
-                       r_squared = ((i * dr_rs(1)) - (ra(1) + dr_rs(1))) ** 2.0_dp + &
-                                   ((j * dr_rs(2)) - (ra(2) + dr_rs(2))) ** 2.0_dp + &
-                                   ((k * dr_rs(3)) - (ra(3) + dr_rs(3))) ** 2.0_dp
-
-
-                                   ! r_squared = ((i * dr(1)) - (ra(1))) ** 2.0_dp + &
-                                   !             ((j * dr(2)) - (ra(2))) ** 2.0_dp + &
-                                   !             ((k * dr(3)) - (ra(3))) ** 2.0_dp
-                       ! ! Calculate Gaussian
-                       exp_eval = coef * EXP(-alpha * r_squared)
-
-                       ! Store atomic density
-                       rho_temp(i, j, k) = rho_temp(i, j, k) + exp_eval
-
-                       ! Store analytic derivative of atomic density
-                       IF (in_memory) THEN
-                         rho_dr_temp(i, j, k) = rho_dr_temp(i, j, k) + 2.0_dp * alpha * exp_eval
-                       END IF
-
-                     END DO ! i = lb(1), ub(1)
-                   END DO ! j = lb(2), ub(2)
-                 END DO ! k = lb(3), ub(3)
+               !   DO k = lb_rs(3), ub_rs(3)
+               !     DO j = lb_rs(2), ub_rs(2)
+               !       DO i = lb_rs(1), ub_rs(1)
+               !
+               !         ! Calculate (r - R) ^ 2
+               !         r_squared = ((i * dr_rs(1)) - (ra(1) + dr_rs(1))) ** 2.0_dp + &
+               !                     ((j * dr_rs(2)) - (ra(2) + dr_rs(2))) ** 2.0_dp + &
+               !                     ((k * dr_rs(3)) - (ra(3) + dr_rs(3))) ** 2.0_dp
+               !
+               !
+               !                     ! r_squared = ((i * dr(1)) - (ra(1))) ** 2.0_dp + &
+               !                     !             ((j * dr(2)) - (ra(2))) ** 2.0_dp + &
+               !                     !             ((k * dr(3)) - (ra(3))) ** 2.0_dp
+               !         ! ! Calculate Gaussian
+               !         exp_eval = coef * EXP(-alpha * r_squared)
+               !
+               !         ! Store atomic density
+               !         rho_temp(i, j, k) = rho_temp(i, j, k) + exp_eval
+               !
+               !         ! Store analytic derivative of atomic density
+               !         IF (in_memory) THEN
+               !           rho_dr_temp(i, j, k) = rho_dr_temp(i, j, k) + 2.0_dp * alpha * exp_eval
+               !         END IF
+               !
+               !       END DO ! i = lb(1), ub(1)
+               !     END DO ! j = lb(2), ub(2)
+               !   END DO ! k = lb(3), ub(3)
                END DO ! iex = 1, numexp
 
                ! PRINT *, "atom", iatom
