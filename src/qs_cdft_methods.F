@@ -685,14 +685,14 @@ CONTAINS
            INTEGER(KIND=int_8)                                :: subpatch_pattern
            TYPE(realspace_grid_type)                :: rsgrid
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
-          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
+          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
 
            ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
           ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-                  auxbas_rs_desc, cdft_control, pab, &
+                  auxbas_rs_desc, cdft_control, pab, rs_rho_temp, &
                   hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
@@ -730,6 +730,10 @@ CONTAINS
          END IF
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
+
+
+         CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+         CALL rs_grid_zero(rs_rho_temp)
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             ALLOCATE (rs_single(cdft_control%natoms))
@@ -1315,7 +1319,7 @@ CONTAINS
            ! Release grids
          CALL rs_grid_release(rs_rho_constr)
          CALL rs_grid_release(rs_rho_all)
-         ! CALL rs_grid_release(rs_rho_temp)
+         CALL rs_grid_release(rs_rho_temp)
          ! CALL rs_grid_release(rs_rho_dr_temp)
 
          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
