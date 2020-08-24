@@ -1839,7 +1839,10 @@ CONTAINS
        energy%cdft = 0.0_dp
        DO ivar = 1, nvar
           energy%cdft = energy%cdft + (dE(ivar) - target_val(ivar))*strength(ivar)
+
+          IF (para_env%ionode) THEN
           PRINT *, "energy%cdft", energy%cdft
+          END IF 
           ! PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
        END DO
 
