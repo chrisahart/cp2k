@@ -1740,6 +1740,7 @@ CONTAINS
              ELSE
                 dE(igroup) = dE(igroup) + sign * &
                              accurate_sum(group(igroup)%weight%pw%cr3d * rho_r(i)%pw%cr3d) * dvol
+                PRINT *, "dE(igroup) ", dE(igroup)           
              END IF
 
           END DO ! DO igroup = 1, SIZE(group)
