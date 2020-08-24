@@ -1603,7 +1603,7 @@ CONTAINS
                    i = atom_of_kind(iatom)
                    force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + group(igroup)%integrated(:, iatom)*strength(igroup)
                    PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                   ! PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                 END DO
              END DO
           END IF
@@ -1842,7 +1842,7 @@ CONTAINS
 
           IF (para_env%ionode) THEN
           PRINT *, "energy%cdft", energy%cdft
-          END IF 
+          END IF
           ! PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
        END DO
 
