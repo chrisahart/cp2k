@@ -1841,7 +1841,7 @@ CONTAINS
           energy%cdft = energy%cdft + (dE(ivar) - target_val(ivar))*strength(ivar)
 
           IF (para_env%ionode) THEN
-          PRINT *, "strength(ivar)", *strength(ivar)
+          PRINT *, "strength(ivar)", strength(ivar)
           PRINT *, "dE(ivar)", dE(ivar)
           PRINT *, "target_val(ivar)", target_val(ivar)
           PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
