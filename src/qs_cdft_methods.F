@@ -759,7 +759,8 @@ CONTAINS
 
 
          PRINT *, "start hirshfeld_constraint_low"
-         PRINT *, "calculate_forces", calculate_forces
+         PRINT *, "natom", natom
+         PRINT *, "cdft_control%natoms", cdft_control%natoms
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
