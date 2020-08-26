@@ -1030,6 +1030,8 @@ CONTAINS
     hirshfeld_env => hirshfeld_control%hirshfeld_env
     group => cdft_control%group
 
+    PRINT *, "start hirshfeld_constraint_init"
+
     ! Setup the Hirshfeld shape function
     IF (.NOT. ASSOCIATED(hirshfeld_env%kind_shape_fn)) THEN
        hirshfeld_env => hirshfeld_control%hirshfeld_env
@@ -1112,7 +1114,7 @@ CONTAINS
     ! Setup atomic densities if requested
     ! hirshfeld_control%print_density = .TRUE.
     ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-      ! PRINT *, "Setting up atomic densities"
+      PRINT *, "Setting up atomic densities"
       DO igroup = 1, SIZE(cdft_control%group)
         ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
         ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
@@ -1144,11 +1146,12 @@ CONTAINS
       END DO
     ! END IF
 
+
     ! Radii no longer needed
     IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
     CALL timestop(handle)
 
-    ! PRINT *, "end hirshfeld_constraint_init"
+    PRINT *, "end hirshfeld_constraint_init"
 
  END SUBROUTINE hirshfeld_constraint_init
 
