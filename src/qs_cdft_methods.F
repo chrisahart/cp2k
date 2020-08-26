@@ -1094,8 +1094,8 @@ CONTAINS
            ! PRINT *, "Calculate weight function"
 
            CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
-                              cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k), &
-                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k), divide=.TRUE.)
+                              cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
+                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE.)
 
            ! DO k = lb_pw(3), ub_pw(3)
            !   DO j = lb_pw(2), ub_pw(2)
@@ -1756,9 +1756,6 @@ CONTAINS
              END IF
 
           END DO ! DO igroup = 1, SIZE(group)
-
-          CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
-                              fnorm%pw%cr3d, divide=.TRUE.)
 
           ! Calculate atomic charges
           IF (cdft_control%atomic_charges) THEN
