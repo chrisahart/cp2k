@@ -761,9 +761,9 @@ CONTAINS
 
 
 
-         ! PRINT *, "start hirshfeld_constraint_low"
-         ! PRINT *, "natom", natom
-         ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+         PRINT *, "start hirshfeld_constraint_low"
+         PRINT *, "natom", natom
+         PRINT *, "cdft_control%natoms", cdft_control%natoms
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
@@ -856,9 +856,10 @@ CONTAINS
 
          ! Allocate gradient
          IF (in_memory) THEN
-           ! PRINT *, "Allocate gradient"
+           PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+             ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
            END DO
          END IF
@@ -883,7 +884,6 @@ CONTAINS
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
             ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
-            ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
             ! cdft_control%group(igroup)%hw_rho_total = 0.0_dp
             ! cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
           END DO
@@ -919,8 +919,8 @@ CONTAINS
            ! Loop over each atomic kind
            DO ikind = 1, SIZE(atomic_kind_set)
 
-             ! PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
-             ! PRINT *, "ikind", ikind
+             PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
+             PRINT *, "ikind", ikind
 
              ! Get list of atom kind, number of exponentials
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
