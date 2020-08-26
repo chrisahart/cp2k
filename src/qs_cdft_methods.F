@@ -648,7 +648,7 @@ CONTAINS
          LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, num_species, &
-                                                               nthread, numexp, k, i2, j2, k2
+                                                               nthread, numexp, k, i2, j2, k2, jatom
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
          TYPE(cube_info_type)                               :: cube_info
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -735,10 +735,10 @@ CONTAINS
          CALL rs_grid_zero(rs_rho_temp)
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-            ALLOCATE (rs_single(cdft_control%natoms))
-            ALLOCATE (rs_single_dr(cdft_control%natoms))
+            ALLOCATE (rs_single(natom))
+            ALLOCATE (rs_single_dr(natom))
             ALLOCATE (rs_single_charge(cdft_control%natoms))
-            DO i = 1, cdft_control%natoms
+            DO i = 1, natom
                NULLIFY (rs_single(i)%rs_grid)
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single(i)%rs_grid)
@@ -746,7 +746,10 @@ CONTAINS
                NULLIFY (rs_single_dr(i)%rs_grid)
                CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+               ! compute_charge(cdft_control%atoms(i)) = .TRUE.
+            END DO
 
+            DO i = 1, cdft_control%natoms
                NULLIFY (rs_single_charge(i)%rs_grid)
                CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
@@ -1036,14 +1039,14 @@ CONTAINS
                IF (compute_charge(atom_a)) THEN
                  PRINT *, "compute_charge", atom_a
 
-                 DO iatom = 1, cdft_control%natoms
-                           IF (atom_a == cdft_control%atoms(iatom)) EXIT
+                 DO jatom = 1, cdft_control%natoms
+                           IF (atom_a == cdft_control%atoms(jatom)) EXIT
                         END DO
-                  PRINT *, "iatom", iatom
+                  PRINT *, "jatom", jatom
 
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
-                      rs_single_charge(iatom)%rs_grid%r(:, :, :) = rs_single_charge(iatom)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
+                      rs_single_charge(jatom)%rs_grid%r(:, :, :) = rs_single_charge(jatom)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
                END IF
              END IF
 
