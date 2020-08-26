@@ -1033,7 +1033,7 @@ CONTAINS
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
-                 ! PRINT *, "compute_charge"
+                 PRINT *, "compute_charge", atom_a
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
                       rs_single_charge(atom_a)%rs_grid%r(:, :, :) = rs_single_charge(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
@@ -1151,6 +1151,7 @@ CONTAINS
            IF (cdft_control%atomic_charges) THEN
              ! PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
+               PRINT *, "iatom", iatom
                !IF (compute_charge(atom_a)) THEN
              DO k = lb_pw(3), ub_pw(3)
                DO j = lb_pw(2), ub_pw(2)
@@ -1740,7 +1741,7 @@ CONTAINS
              ELSE
                 dE(igroup) = dE(igroup) + sign * &
                              accurate_sum(group(igroup)%weight%pw%cr3d * rho_r(i)%pw%cr3d) * dvol
-                PRINT *, "dE(igroup) ", dE(igroup)           
+                PRINT *, "dE(igroup) ", dE(igroup)
              END IF
 
           END DO ! DO igroup = 1, SIZE(group)
