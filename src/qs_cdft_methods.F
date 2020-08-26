@@ -832,7 +832,7 @@ CONTAINS
          ! PRINT *, "compute_charge", compute_charge
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         in_memory = .TRUE. !cdft_control%in_memory
+         in_memory = .FALSE. !cdft_control%in_memory
          ! my_just_gradients = .FALSE.
          ! IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          ! IF (my_just_gradients) THEN
@@ -1033,7 +1033,7 @@ CONTAINS
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
-                 PRINT *, "compute_charge", atom_a
+                 ! PRINT *, "compute_charge", atom_a
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
                       rs_single_charge(atom_a)%rs_grid%r(:, :, :) = rs_single_charge(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
@@ -1156,7 +1156,7 @@ CONTAINS
            IF (cdft_control%atomic_charges) THEN
              ! PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
-               PRINT *, "iatom", iatom
+               ! PRINT *, "iatom", iatom
                !IF (compute_charge(atom_a)) THEN
 
                CALL hfun_scale(cdft_control%charge(iatom)%pw%cr3d, &
@@ -1853,14 +1853,14 @@ CONTAINS
        energy%cdft = 0.0_dp
        DO ivar = 1, nvar
           energy%cdft = energy%cdft + (dE(ivar) - target_val(ivar))*strength(ivar)
-
-          IF (para_env%ionode) THEN
-          PRINT *, "strength(ivar)", strength(ivar)
-          PRINT *, "dE(ivar)", dE(ivar)
-          PRINT *, "target_val(ivar)", target_val(ivar)
-          PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
-          PRINT *, "energy%cdft", energy%cdft
-          END IF
+          !
+          ! IF (para_env%ionode) THEN
+          ! PRINT *, "strength(ivar)", strength(ivar)
+          ! PRINT *, "dE(ivar)", dE(ivar)
+          ! PRINT *, "target_val(ivar)", target_val(ivar)
+          ! PRINT *, "(dE(ivar) - target_val(ivar))*strength(ivar)", (dE(ivar) - target_val(ivar))*strength(ivar)
+          ! PRINT *, "energy%cdft", energy%cdft
+          ! END IF
        END DO
 
        ! dE(igroup) = dE(igroup) + sign * &
