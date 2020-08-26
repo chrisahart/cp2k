@@ -1762,7 +1762,7 @@ CONTAINS
              ELSE
                 dE(igroup) = dE(igroup) + sign * &
                              accurate_sum(group(igroup)%weight%pw%cr3d * rho_r(i)%pw%cr3d) * dvol
-                PRINT *, "dE(igroup) ", dE(igroup)
+                ! PRINT *, "dE(igroup) ", dE(igroup)
              END IF
 
           END DO ! DO igroup = 1, SIZE(group)
@@ -1771,7 +1771,7 @@ CONTAINS
           IF (cdft_control%atomic_charges) THEN
              DO iatom = 1, cdft_control%natoms
                 electronic_charge(iatom, i) = accurate_sum(charge(iatom)%pw%cr3d*rho_r(i)%pw%cr3d) * dvol
-                PRINT *, "electronic_charge(iatom, i) ", electronic_charge(iatom, i)
+                ! PRINT *, "electronic_charge(iatom, i) ", electronic_charge(iatom, i)
              END DO
           END IF
 
