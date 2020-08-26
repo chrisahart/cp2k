@@ -1750,6 +1750,7 @@ CONTAINS
           IF (cdft_control%atomic_charges) THEN
              DO iatom = 1, cdft_control%natoms
                 electronic_charge(iatom, i) = accurate_sum(charge(iatom)%pw%cr3d*rho_r(i)%pw%cr3d) * dvol
+                PRINT *, "electronic_charge(iatom, i) ", electronic_charge(iatom, i)
              END DO
           END IF
 
