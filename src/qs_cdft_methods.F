@@ -758,8 +758,8 @@ CONTAINS
 
 
 
-         ! PRINT *, "start hirshfeld_constraint_low"
-         ! PRINT *, "calculate_forces", calculate_forces
+         PRINT *, "start hirshfeld_constraint_low"
+         PRINT *, "calculate_forces", calculate_forces
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
@@ -832,7 +832,7 @@ CONTAINS
          ! PRINT *, "compute_charge", compute_charge
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
-         in_memory = .FALSE. !cdft_control%in_memory
+         ! in_memory = .FALSE. !cdft_control%in_memory
          ! my_just_gradients = .FALSE.
          ! IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          ! IF (my_just_gradients) THEN
@@ -1033,10 +1033,16 @@ CONTAINS
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
-                 ! PRINT *, "compute_charge", atom_a
+                 PRINT *, "compute_charge", atom_a
+
+                 DO iatom = 1, cdft_control%natoms
+                           IF (atom_a == cdft_control%atoms(iatom)) EXIT
+                        END DO
+                  PRINT *, "iatom", iatom
+
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
-                      rs_single_charge(atom_a)%rs_grid%r(:, :, :) = rs_single_charge(atom_a)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
+                      rs_single_charge(iatom)%rs_grid%r(:, :, :) = rs_single_charge(iatom)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
                END IF
              END IF
 
