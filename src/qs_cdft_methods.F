@@ -761,9 +761,9 @@ CONTAINS
 
 
 
-         PRINT *, "start hirshfeld_constraint_low"
-         PRINT *, "natom", natom
-         PRINT *, "cdft_control%natoms", cdft_control%natoms
+         ! PRINT *, "start hirshfeld_constraint_low"
+         ! PRINT *, "natom", natom
+         ! PRINT *, "cdft_control%natoms", cdft_control%natoms
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
@@ -1037,12 +1037,12 @@ CONTAINS
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
-                 PRINT *, "compute_charge", atom_a
+                 ! PRINT *, "compute_charge", atom_a
 
                  DO jatom = 1, cdft_control%natoms
                            IF (atom_a == cdft_control%atoms(jatom)) EXIT
                         END DO
-                  PRINT *, "jatom", jatom
+                  ! PRINT *, "jatom", jatom
 
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
