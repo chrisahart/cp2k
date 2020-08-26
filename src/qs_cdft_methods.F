@@ -1159,7 +1159,7 @@ CONTAINS
                PRINT *, "iatom", iatom
                !IF (compute_charge(atom_a)) THEN
 
-               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
+               CALL hfun_scale(cdft_control%charge(iatom)%pw%cr3d, &
                                   cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
                                   cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE.)
 
