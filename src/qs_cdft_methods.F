@@ -1092,9 +1092,14 @@ CONTAINS
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
            ! PRINT *, "Calculate weight function"
-           DO k = lb_pw(3), ub_pw(3)
-             DO j = lb_pw(2), ub_pw(2)
-               DO i = lb_pw(1), ub_pw(1)
+
+           CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+                              cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k), &
+                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k), divide=.TRUE.)
+
+           ! DO k = lb_pw(3), ub_pw(3)
+           !   DO j = lb_pw(2), ub_pw(2)
+           !     DO i = lb_pw(1), ub_pw(1)
 
                  ! IF (hirshfeld_control%use_cutoff .AND. &
                  !     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
@@ -1135,15 +1140,15 @@ CONTAINS
                          ! cdft_control%group(igroup)%hw_rho_total(i, j, k)
                   ! END IF
 
-                  IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
-                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
-                      cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k) / &
-                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
-                     END IF
-
-               END DO
-             END DO
-           END DO
+           !        IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
+           !          cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) = &
+           !            cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d(i, j, k) / &
+           !             cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+           !           END IF
+           !
+           !     END DO
+           !   END DO
+           ! END DO
         END DO !  1, SIZE(cdft_control%group)
 
            ! Calculate atomic charges if requested
@@ -1153,9 +1158,15 @@ CONTAINS
              DO iatom = 1, cdft_control%natoms
                PRINT *, "iatom", iatom
                !IF (compute_charge(atom_a)) THEN
-             DO k = lb_pw(3), ub_pw(3)
-               DO j = lb_pw(2), ub_pw(2)
-                 DO i = lb_pw(1), ub_pw(1)
+
+               CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, &
+                                  cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
+                                  cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE.)
+
+
+             ! DO k = lb_pw(3), ub_pw(3)
+             !   DO j = lb_pw(2), ub_pw(2)
+             !     DO i = lb_pw(1), ub_pw(1)
 
                   !  IF (hirshfeld_control%use_cutoff .AND. &
                   !      ABS(cdft_control%group(1)%hw_rho_atomic_charge(iatom, i, j, k)) &
@@ -1171,16 +1182,16 @@ CONTAINS
                   !         cdft_control%group(1)%hw_rho_total(i, j, k)
                   ! END IF
 
-                  IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
-                    cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
-                    ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
-                        cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d(i, j, k) / &
-                         cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k)
-                  END IF
-
-                 END DO
-               END DO
-             END DO
+             !      IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
+             !        cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
+             !        ! cdft_control%charge(iatom)%pw%cr3d(i+lb_rs(1)-lb(1), j+lb_rs(2)-lb(2), k+lb_rs(3)-lb(3)) = &
+             !            cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d(i, j, k) / &
+             !             cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k)
+             !      END IF
+             !
+             !     END DO
+             !   END DO
+             ! END DO
            END DO
          END IF
 
@@ -1745,6 +1756,9 @@ CONTAINS
              END IF
 
           END DO ! DO igroup = 1, SIZE(group)
+
+          CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
+                              fnorm%pw%cr3d, divide=.TRUE.)
 
           ! Calculate atomic charges
           IF (cdft_control%atomic_charges) THEN
