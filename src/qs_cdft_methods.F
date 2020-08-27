@@ -759,7 +759,7 @@ CONTAINS
                CALL rs_grid_zero(rs_single(i)%rs_grid)
                ! compute_charge(cdft_control%atoms(i)) = .TRUE.
                END DO
-             END IF 
+             END IF
 
 
 
@@ -1391,17 +1391,17 @@ CONTAINS
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
 
-         ! IF (in_memory) THEN
+         IF (in_memory) THEN
          !   DEALLOCATE (rho_dr_temp)
          !   DEALLOCATE(rho_atom_dr_temp)
-         !   DO i = 1, cdft_control%natoms
+           DO i = 1, cdft_control%natoms
          !     CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-         !     CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
          !
-         !   END DO
+           END DO
          !   DEALLOCATE (rs_single_dr)
-         !   DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
-         ! END IF
+           DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
+         END IF
 
 
 
