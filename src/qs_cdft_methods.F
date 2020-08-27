@@ -687,6 +687,8 @@ CONTAINS
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
           TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
 
+          PRINT *, "start hirshfeld_constraint_low"
+
            ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
           ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
 
@@ -718,6 +720,8 @@ CONTAINS
         hirshfeld_control => cdft_control%hirshfeld_control
         hirshfeld_env => hirshfeld_control%hirshfeld_env
 
+        PRINT *, "Pointers"
+
         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
          IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
@@ -730,6 +734,8 @@ CONTAINS
          END IF
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
+
+         PRINT *, "rs_rho_constr, rs_rho_all"
 
          CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
@@ -749,6 +755,8 @@ CONTAINS
                ! compute_charge(cdft_control%atoms(i)) = .TRUE.
             END DO
 
+            PRINT *, "DO i = 1, natom"
+
             DO i = 1, cdft_control%natoms
                NULLIFY (rs_single_charge(i)%rs_grid)
                CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
@@ -756,12 +764,8 @@ CONTAINS
                ! compute_charge(cdft_control%atoms(i)) = .TRUE.
             END DO
 
-
         eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
 
-
-
-         PRINT *, "start hirshfeld_constraint_low"
          PRINT *, "natom", natom
          PRINT *, "cdft_control%natoms", cdft_control%natoms
          ! cdft_control%in_memory = .TRUE.
