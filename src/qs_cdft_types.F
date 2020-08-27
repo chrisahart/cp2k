@@ -511,12 +511,12 @@ CONTAINS
 
                   ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
 
-                  IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_charge)) &
-                     DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
-                     IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic)) &
-                        DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
-                        IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_dr)) &
-                           DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_dr)
+                  ! IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_charge)) &
+                  !    DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
+                  !    IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic)) &
+                  !       DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
+                        ! IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_dr)) &
+                           ! DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_dr)
 
                         ! PRINT *, "DEALLOCATED hirsh_rho_atomic"
 
