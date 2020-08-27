@@ -619,11 +619,14 @@ CONTAINS
       IF (dft_control%qs_control%cdft .AND. cdft_control%type == outer_scf_hirshfeld_constraint) THEN
          IF (calc_pot) THEN
             ! Initialize the Hirshfeld constraint environment
+            PRINT *, "CALL hirshfeld_constraint_init(qs_env)"
             CALL hirshfeld_constraint_init(qs_env)
             ! Calculate the Hirshfeld weight function and possibly the gradients
+            PRINT *, "CALL hirshfeld_constraint_low(qs_env, calculate_forces)"
             CALL hirshfeld_constraint_low(qs_env, calculate_forces)
          END IF
          ! Integrate the Hirshfeld constraint
+         PRINT *, "cdft_constraint_integrate(qs_env)"
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
          IF (calculate_forces) CALL cdft_constraint_force(qs_env)
