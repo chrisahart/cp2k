@@ -868,7 +868,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (cdft_control%in_memory) THEN
-           PRINT *, "Allocate gradient"
+           ! PRINT *, "Allocate gradient"
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
              ! ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
@@ -1550,8 +1550,8 @@ CONTAINS
           ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
           dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
-          PRINT *, "cdft_control%type", cdft_control%type
-          PRINT *, "calculate_forces", calculate_forces
+          ! PRINT *, "cdft_control%type", cdft_control%type
+          ! PRINT *, "calculate_forces", calculate_forces
 
           ! If gradients were not precomputed, calculate them now
         IF (cdft_control%type == outer_scf_becke_constraint) THEN
@@ -1565,7 +1565,7 @@ CONTAINS
            END IF
         END IF
 
-        PRINT *, "calculating integrated"
+        ! PRINT *, "calculating integrated"
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
