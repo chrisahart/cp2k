@@ -1406,7 +1406,6 @@ CONTAINS
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
        END IF
-       END IF
 
          ! Release grids that require looping over atoms
          DO i = 1, cdft_control%natoms
@@ -1422,7 +1421,7 @@ CONTAINS
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
            IF (.NOT. my_just_gradients) THEN
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
-         END IF 
+         END IF
          END IF
            ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
