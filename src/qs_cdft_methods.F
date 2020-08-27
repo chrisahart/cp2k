@@ -748,6 +748,7 @@ CONTAINS
          CALL rs_grid_zero(rs_rho_temp)
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
             ALLOCATE (rs_single(natom))
 
 
@@ -758,6 +759,7 @@ CONTAINS
                CALL rs_grid_zero(rs_single(i)%rs_grid)
                ! compute_charge(cdft_control%atoms(i)) = .TRUE.
                END DO
+             END IF 
 
 
 
@@ -1109,7 +1111,10 @@ CONTAINS
          CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
 
          DO i = 1, cdft_control%natoms
+
+           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
+         END IF
 
            IF (cdft_control%atomic_charges) THEN
              CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
@@ -1372,8 +1377,11 @@ CONTAINS
 
          ! Release grids that require looping over atoms
          DO i = 1, cdft_control%natoms
+
+           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            CALL rs_grid_release(rs_single(i)%rs_grid)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
+         END IF
 
            IF (cdft_control%atomic_charges) THEN
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
@@ -1409,8 +1417,10 @@ CONTAINS
          ! END IF
 
          ! Deallocate
+         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
          DEALLOCATE (rs_single)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
+       END IF
 
          IF (cdft_control%atomic_charges) THEN
            DEALLOCATE (rs_single_charge)
