@@ -617,7 +617,7 @@ CONTAINS
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
       ! PRINT *, "cdft_control%in_memory", cdft_control%in_memory
-      IF (calculate_forces) cdft_control%in_memory = .TRUE.
+      ! IF (calculate_forces) cdft_control%in_memory = .TRUE.
       ! PRINT *, "cdft_control%in_memory", cdft_control%in_memory
 
       IF (dft_control%qs_control%cdft .AND. cdft_control%type == outer_scf_hirshfeld_constraint) THEN
@@ -1550,6 +1550,9 @@ CONTAINS
           ! ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
           dvol = cdft_control%group(1)%weight%pw%pw_grid%dvol
 
+          PRINT *, "cdft_control%type", cdft_control%type
+          PRINT *, "calculate_forces", calculate_forces
+
           ! If gradients were not precomputed, calculate them now
         IF (cdft_control%type == outer_scf_becke_constraint) THEN
           IF (.NOT. cdft_control%becke_control%in_memory) THEN
@@ -1562,7 +1565,7 @@ CONTAINS
            END IF
         END IF
 
-        ! PRINT *, "calculating integrated"
+        PRINT *, "calculating integrated"
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
