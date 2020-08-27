@@ -746,12 +746,14 @@ CONTAINS
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             ALLOCATE (rs_single(natom))
 
-            ALLOCATE (rs_single_charge(cdft_control%natoms))
+
+            DO i = 1, natom
 
                NULLIFY (rs_single(i)%rs_grid)
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single(i)%rs_grid)
                ! compute_charge(cdft_control%atoms(i)) = .TRUE.
+               END DO
 
 
 
@@ -760,12 +762,7 @@ CONTAINS
 
             PRINT *, "DO i = 1, natom"
 
-            DO i = 1, cdft_control%natoms
-               NULLIFY (rs_single_charge(i)%rs_grid)
-               CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
-               CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
-               ! compute_charge(cdft_control%atoms(i)) = .TRUE.
-            END DO
+
 
         eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
 
@@ -834,11 +831,15 @@ CONTAINS
          ! PRINT *, "origin", origin
 
          IF (cdft_control%atomic_charges) THEN
-          ALLOCATE (compute_charge(natom))
-          compute_charge = .FALSE.
-          DO i = 1, cdft_control%natoms
-            compute_charge(cdft_control%atoms(i)) = .TRUE.
-          END DO
+           ALLOCATE (rs_single_charge(cdft_control%natoms))
+           ALLOCATE (compute_charge(natom))
+           compute_charge = .FALSE.
+           DO i = 1, cdft_control%natoms
+              NULLIFY (rs_single_charge(i)%rs_grid)
+              CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
+              CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
+              compute_charge(cdft_control%atoms(i)) = .TRUE.
+           END DO
          END IF
          ! PRINT *, "compute_charge", compute_charge
 
@@ -1113,7 +1114,9 @@ CONTAINS
          DO i = 1, cdft_control%natoms
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
 
-           CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
+           IF (cdft_control%atomic_charges) THEN
+             CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
+           END IF
 
            IF (in_memory) THEN
              CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
@@ -1360,8 +1363,6 @@ CONTAINS
 
            ! Deallocate
            DEALLOCATE (rho_temp)
-           DEALLOCATE (rho_dr_temp)
-           DEALLOCATE(rho_atom_dr_temp)
 
            ! Release grids
          CALL rs_grid_release(rs_rho_constr)
@@ -1375,14 +1376,19 @@ CONTAINS
          ! Release grids that require looping over atoms
          DO i = 1, cdft_control%natoms
            CALL rs_grid_release(rs_single(i)%rs_grid)
-           CALL rs_grid_release(rs_single_charge(i)%rs_grid)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
+
+           IF (cdft_control%atomic_charges) THEN
+           CALL rs_grid_release(rs_single_charge(i)%rs_grid)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
+         END IF
            ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
 
          IF (in_memory) THEN
+           DEALLOCATE (rho_dr_temp)
+           DEALLOCATE(rho_atom_dr_temp)
            DO i = 1, cdft_control%natoms
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
@@ -1391,6 +1397,8 @@ CONTAINS
            DEALLOCATE (rs_single_dr)
            DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
          END IF
+
+
 
          ! DO igroup = 1, SIZE(cdft_control%group)
          !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
@@ -1405,9 +1413,14 @@ CONTAINS
 
          ! Deallocate
          DEALLOCATE (rs_single)
-         DEALLOCATE (rs_single_charge)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
-         DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
+
+         IF (cdft_control%atomic_charges) THEN
+           DEALLOCATE (rs_single_charge)
+           DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
+
+          END IF
+
 
 
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total)
