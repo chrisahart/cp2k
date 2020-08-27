@@ -690,7 +690,7 @@ CONTAINS
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
           TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
 
-          PRINT *, "start hirshfeld_constraint_low"
+          ! PRINT *, "start hirshfeld_constraint_low"
 
            ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
           ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
@@ -724,7 +724,7 @@ CONTAINS
         hirshfeld_control => cdft_control%hirshfeld_control
         hirshfeld_env => hirshfeld_control%hirshfeld_env
 
-        PRINT *, "Pointers"
+        ! PRINT *, "Pointers"
 
 
         ! END IF
@@ -742,7 +742,7 @@ CONTAINS
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
 
-         PRINT *, "rs_rho_constr, rs_rho_all"
+         ! PRINT *, "rs_rho_constr, rs_rho_all"
 
          CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
@@ -763,8 +763,8 @@ CONTAINS
 
         eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
 
-         PRINT *, "natom", natom
-         PRINT *, "cdft_control%natoms", cdft_control%natoms
+         ! PRINT *, "natom", natom
+         ! PRINT *, "cdft_control%natoms", cdft_control%natoms
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
@@ -934,8 +934,8 @@ CONTAINS
            ! Loop over each atomic kind
            DO ikind = 1, SIZE(atomic_kind_set)
 
-             PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
-             PRINT *, "ikind", ikind
+             ! PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
+             ! PRINT *, "ikind", ikind
 
              ! Get list of atom kind, number of exponentials
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
