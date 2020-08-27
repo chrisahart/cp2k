@@ -1122,9 +1122,9 @@ CONTAINS
         ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
       END IF
 
-        IF (in_memory) THEN
-        ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
-      END IF
+        ! IF (in_memory) THEN
+        ! ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
+      ! END IF
       END DO
 
       DO igroup = 1, SIZE(cdft_control%group)
