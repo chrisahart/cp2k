@@ -616,6 +616,8 @@ CONTAINS
       CALL timeset(routineN, handle)
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
+      IF (calculate_forces) cdft_control%in_memory = .TRUE.
+
       IF (dft_control%qs_control%cdft .AND. cdft_control%type == outer_scf_hirshfeld_constraint) THEN
          IF (calc_pot) THEN
             ! Initialize the Hirshfeld constraint environment
@@ -770,7 +772,7 @@ CONTAINS
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
-         IF (calculate_forces) cdft_control%in_memory = .TRUE.
+         ! IF (calculate_forces) cdft_control%in_memory = .TRUE.
          ! hirshfeld_control%eps_constraint = 1.0e-6_dp
 
          ! Allcoate as needed
@@ -862,7 +864,7 @@ CONTAINS
          ! PRINT *, "coefficients", coefficients
 
          ! Allocate gradient
-         ! IF (in_memory) THEN
+         ! IF (cdft_control%in_memory) THEN
          !   PRINT *, "Allocate gradient"
          !   DO igroup = 1, SIZE(cdft_control%group)
          !     ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
@@ -948,7 +950,7 @@ CONTAINS
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
 
-             !   IF (in_memory) THEN
+             !   IF (cdft_control%in_memory) THEN
              !   rho_dr_temp = 0.0_dp
              ! END IF
                ! rho_atom_dr_temp = 0.0_dp
@@ -1018,7 +1020,7 @@ CONTAINS
                  DEALLOCATE (pab)
 
                  ! Store analytic derivative of atomic density
-                         ! IF (in_memory) THEN
+                         ! IF (cdft_control%in_memory) THEN
                          !   rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                          ! END IF
 
@@ -1043,7 +1045,7 @@ CONTAINS
                !         rho_temp(i, j, k) = rho_temp(i, j, k) + exp_eval
                !
                !         ! Store analytic derivative of atomic density
-               !         IF (in_memory) THEN
+               !         IF (cdft_control%in_memory) THEN
                !           rho_dr_temp(i, j, k) = rho_dr_temp(i, j, k) + 2.0_dp * alpha * exp_eval
                !         END IF
                !
@@ -1095,8 +1097,8 @@ CONTAINS
                rs_rho_all%r(:, :, :) = rs_rho_all%r(:, :, :) + rho_temp(:, :, :)
 
                ! Save analytic derivative
-               ! IF (in_memory) THEN
-               !   ! PRINT *, "in_memory"
+               ! IF (cdft_control%in_memory) THEN
+               !   ! PRINT *, "cdft_control%in_memory"
                !   ! rho_atom_dr_temp(atom_a, :, :, :) = rho_atom_dr_temp(atom_a, :, :, :) + rho_dr_temp(:, :, :)
                !   rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) + rho_dr_temp(:, :, :)
                ! END IF
@@ -1120,7 +1122,7 @@ CONTAINS
              CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
            END IF
 
-           ! IF (in_memory) THEN
+           ! IF (cdft_control%in_memory) THEN
            !   CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
            ! END IF
             END DO
@@ -1243,7 +1245,7 @@ CONTAINS
           END IF
 
            ! Calculate gradient if requested
-           ! IF (in_memory) THEN
+           ! IF (cdft_control%in_memory) THEN
            !   ! PRINT *, "Calculate gradient"
            !   DO igroup = 1, SIZE(cdft_control%group)
            !       DO iatom = 1, natom
@@ -1333,7 +1335,7 @@ CONTAINS
            !       END DO ! iatom = 1, natom
            !     ! END DO ! ikind = 1, SIZE(atomic_kind_set)
            !   END DO ! igroup = 1, SIZE(cdft_control%group)
-           ! END IF ! (in_memory) THEN
+           ! END IF ! (cdft_control%in_memory) THEN
 
          !   IF (para_env%ionode) THEN
          !     PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
@@ -1391,7 +1393,7 @@ CONTAINS
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
 
-         IF (in_memory) THEN
+         IF (cdft_control%in_memory) THEN
          !   DEALLOCATE (rho_dr_temp)
          !   DEALLOCATE(rho_atom_dr_temp)
            DO i = 1, cdft_control%natoms

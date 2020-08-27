@@ -1148,7 +1148,7 @@ CONTAINS
           cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
         END IF
 
-          IF (in_memory) THEN
+          IF (cdft_control%in_memory) THEN
 
           CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
           use_data=REALDATA3D, in_space=REALSPACE)
@@ -1161,7 +1161,7 @@ CONTAINS
           use_data=REALDATA3D, in_space=REALSPACE)
           cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
         END IF
-        
+
         END DO
       END DO
 
