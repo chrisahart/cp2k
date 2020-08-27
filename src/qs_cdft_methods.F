@@ -616,7 +616,9 @@ CONTAINS
       CALL timeset(routineN, handle)
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
+      PRINT *, "cdft_control%in_memory", cdft_control%in_memory
       IF (calculate_forces) cdft_control%in_memory = .TRUE.
+      PRINT *, "cdft_control%in_memory", cdft_control%in_memory
 
       IF (dft_control%qs_control%cdft .AND. cdft_control%type == outer_scf_hirshfeld_constraint) THEN
          IF (calc_pot) THEN
