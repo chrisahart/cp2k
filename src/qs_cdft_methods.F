@@ -745,18 +745,18 @@ CONTAINS
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             ALLOCATE (rs_single(natom))
-            ALLOCATE (rs_single_dr(natom))
+
             ALLOCATE (rs_single_charge(cdft_control%natoms))
-            DO i = 1, natom
+
                NULLIFY (rs_single(i)%rs_grid)
                CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
                CALL rs_grid_zero(rs_single(i)%rs_grid)
-
-               NULLIFY (rs_single_dr(i)%rs_grid)
-               CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-               CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                ! compute_charge(cdft_control%atoms(i)) = .TRUE.
-            END DO
+
+
+
+
+
 
             PRINT *, "DO i = 1, natom"
 
@@ -868,6 +868,16 @@ CONTAINS
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
              ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
+             ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
+           END DO
+           rho_atom_dr_temp = 0.0_dp
+
+           ALLOCATE (rs_single_dr(natom))
+
+           DO i = 1, natom
+           NULLIFY (rs_single_dr(i)%rs_grid)
+           CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+           CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
            END DO
          END IF
 
@@ -890,11 +900,11 @@ CONTAINS
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ALLOCATE (rho_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
-            ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
+
             ! cdft_control%group(igroup)%hw_rho_total = 0.0_dp
             ! cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
           END DO
-          rho_atom_dr_temp = 0.0_dp
+
 
           DO igroup = 1, SIZE(cdft_control%group)
             cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
@@ -937,7 +947,10 @@ CONTAINS
 
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
+
+               IF (in_memory) THEN
                rho_dr_temp = 0.0_dp
+             END IF
                ! rho_atom_dr_temp = 0.0_dp
 
                ! Get atomic position
@@ -1099,9 +1112,15 @@ CONTAINS
 
          DO i = 1, cdft_control%natoms
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
-           CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
+
            CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
+
+           IF (in_memory) THEN
+             CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
+           END IF
             END DO
+
+
 
 
 
@@ -1357,13 +1376,21 @@ CONTAINS
          DO i = 1, cdft_control%natoms
            CALL rs_grid_release(rs_single(i)%rs_grid)
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
-           CALL rs_grid_release(rs_single_dr(i)%rs_grid)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
            ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
+
+         IF (in_memory) THEN
+           DO i = 1, cdft_control%natoms
+             CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
+
+           END DO
+           DEALLOCATE (rs_single_dr)
+           DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
+         END IF
 
          ! DO igroup = 1, SIZE(cdft_control%group)
          !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
@@ -1380,10 +1407,8 @@ CONTAINS
          DEALLOCATE (rs_single)
          DEALLOCATE (rs_single_charge)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
-         DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
          DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
 
-         DEALLOCATE (rs_single_dr)
 
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total)
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total_constraint)
