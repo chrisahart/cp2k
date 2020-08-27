@@ -616,9 +616,9 @@ CONTAINS
       CALL timeset(routineN, handle)
       CALL get_qs_env(qs_env, dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
-      PRINT *, "cdft_control%in_memory", cdft_control%in_memory
+      ! PRINT *, "cdft_control%in_memory", cdft_control%in_memory
       IF (calculate_forces) cdft_control%in_memory = .TRUE.
-      PRINT *, "cdft_control%in_memory", cdft_control%in_memory
+      ! PRINT *, "cdft_control%in_memory", cdft_control%in_memory
 
       IF (dft_control%qs_control%cdft .AND. cdft_control%type == outer_scf_hirshfeld_constraint) THEN
          IF (calc_pot) THEN
@@ -771,7 +771,7 @@ CONTAINS
 
          ! PRINT *, "natom", natom
          ! PRINT *, "cdft_control%natoms", cdft_control%natoms
-         PRINT *, "cdft_control%in_memory", cdft_control%in_memory
+         ! PRINT *, "cdft_control%in_memory", cdft_control%in_memory
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
@@ -849,11 +849,11 @@ CONTAINS
 
          ! Check if only gradient should be calculated, if gradients should be precomputed
          ! in_memory = .FALSE. !cdft_control%in_memory
-         ! my_just_gradients = .FALSE.
-         ! IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
-         ! IF (my_just_gradients) THEN
-         !   in_memory = .TRUE.
-         ! END IF
+         my_just_gradients = .FALSE.
+         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
+         IF (my_just_gradients) THEN
+           cdft_control%in_memory = .TRUE.
+         END IF
 
          coefficients(:) = 0.0_dp
          ALLOCATE (is_constraint(natom))
@@ -1556,10 +1556,10 @@ CONTAINS
              CALL becke_constraint_low(qs_env, just_gradients=.TRUE.)
            END IF
 
-        ! ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-        !   IF (.NOT. cdft_control%in_memory) THEN
-        !      CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
-        !    END IF
+        ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+          IF (.NOT. cdft_control%in_memory) THEN
+             CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
+           END IF
         END IF
 
         ! PRINT *, "calculating integrated"
