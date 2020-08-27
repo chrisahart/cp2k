@@ -769,6 +769,7 @@ CONTAINS
 
          ! PRINT *, "natom", natom
          ! PRINT *, "cdft_control%natoms", cdft_control%natoms
+         PRINT *, "cdft_control%in_memory", cdft_control%in_memory
          ! cdft_control%in_memory = .TRUE.
 
          ! hirshfeld_control%print_density = .TRUE.
