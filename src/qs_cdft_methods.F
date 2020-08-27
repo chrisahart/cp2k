@@ -619,14 +619,14 @@ CONTAINS
       IF (dft_control%qs_control%cdft .AND. cdft_control%type == outer_scf_hirshfeld_constraint) THEN
          IF (calc_pot) THEN
             ! Initialize the Hirshfeld constraint environment
-            PRINT *, "CALL hirshfeld_constraint_init(qs_env)"
+            ! PRINT *, "CALL hirshfeld_constraint_init(qs_env)"
             CALL hirshfeld_constraint_init(qs_env)
             ! Calculate the Hirshfeld weight function and possibly the gradients
-            PRINT *, "CALL hirshfeld_constraint_low(qs_env, calculate_forces)"
+            ! PRINT *, "CALL hirshfeld_constraint_low(qs_env, calculate_forces)"
             CALL hirshfeld_constraint_low(qs_env, calculate_forces)
          END IF
          ! Integrate the Hirshfeld constraint
-         PRINT *, "cdft_constraint_integrate(qs_env)"
+         ! PRINT *, "cdft_constraint_integrate(qs_env)"
          CALL cdft_constraint_integrate(qs_env)
          ! Calculate forces
          IF (calculate_forces) CALL cdft_constraint_force(qs_env)
@@ -724,6 +724,53 @@ CONTAINS
         hirshfeld_env => hirshfeld_control%hirshfeld_env
 
         PRINT *, "Pointers"
+
+        ! Setup atomic densities if requested
+        ! hirshfeld_control%print_density = .TRUE.
+        ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+          PRINT *, "Setting up atomic densities"
+          DO igroup = 1, SIZE(cdft_control%group)
+            ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
+
+            IF (cdft_control%atomic_charges) THEN
+            ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
+          END IF
+
+            IF (in_memory) THEN
+            ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
+          END IF
+          END DO
+
+          DO igroup = 1, SIZE(cdft_control%group)
+            CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
+            use_data=REALDATA3D, in_space=REALSPACE)
+            cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
+
+            CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw, &
+            use_data=REALDATA3D, in_space=REALSPACE)
+            cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
+
+            DO iatom = 1, cdft_control%natoms
+              CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
+              use_data=REALDATA3D, in_space=REALSPACE)
+              cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+
+              IF (in_memory) THEN
+
+              CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
+              use_data=REALDATA3D, in_space=REALSPACE)
+              cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
+
+            END IF
+
+              IF (cdft_control%atomic_charges) THEN
+                CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
+              use_data=REALDATA3D, in_space=REALSPACE)
+              cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
+            END IF
+            END DO
+          END DO
+        ! END IF
 
         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
@@ -1420,8 +1467,6 @@ CONTAINS
            DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
 
           END IF
-
-
 
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total)
          ! DEALLOCATE (cdft_control%group(1)%hw_rho_total_constraint)
