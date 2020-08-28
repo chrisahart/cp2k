@@ -853,7 +853,9 @@ CONTAINS
          IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          IF (my_just_gradients) THEN
            cdft_control%in_memory = .TRUE.
-           CALL hirshfeld_constraint_init(qs_env)
+           ! IF only gradient, no need to caluclate atomic charges or print density
+           cdft_control%atomic_charges = .FALSE.
+           hirshfeld_control%print_density = .FALSE.
          END IF
 
          coefficients(:) = 0.0_dp
@@ -1192,11 +1194,11 @@ CONTAINS
 
          DO i = 1, cdft_control%natoms
 
-           IF (.NOT. my_just_gradients) THEN
+           ! IF (.NOT. my_just_gradients) THEN
 
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
-         END IF
+         ! END IF
 
            IF (cdft_control%atomic_charges) THEN
              CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
@@ -1215,7 +1217,7 @@ CONTAINS
 
 
          ! Calculate weight function
-         IF (.NOT. my_just_gradients) THEN
+         ! IF (.NOT. my_just_gradients) THEN
          DO igroup = 1, SIZE(cdft_control%group)
            ! PRINT *, "Calculate weight function"
 
@@ -1276,10 +1278,10 @@ CONTAINS
            !   END DO
            ! END DO
         END DO !  1, SIZE(cdft_control%group)
-      END IF
+      ! END IF
 
            ! Calculate atomic charges if requested
-           IF (.NOT. my_just_gradients) THEN
+           ! IF (.NOT. my_just_gradients) THEN
            IF (cdft_control%atomic_charges) THEN
              ! PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
@@ -1320,7 +1322,7 @@ CONTAINS
              !   END DO
              ! END DO
            END DO
-         END IF
+         ! END IF
 
            ! Print atomic densities if requested
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -1468,16 +1470,16 @@ CONTAINS
 
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            CALL rs_grid_release(rs_single(i)%rs_grid)
-           IF (.NOT. my_just_gradients) THEN
+           ! IF (.NOT. my_just_gradients) THEN
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
-         END IF
+         ! END IF
          END IF
 
            IF (cdft_control%atomic_charges) THEN
            CALL rs_grid_release(rs_single_charge(i)%rs_grid)
-           IF (.NOT. my_just_gradients) THEN
+           ! IF (.NOT. my_just_gradients) THEN
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
-         END IF
+         ! END IF
          END IF
            ! DEALLOCATE (cdft_control%group(1)%hirsh_rho_atomic(i))
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
