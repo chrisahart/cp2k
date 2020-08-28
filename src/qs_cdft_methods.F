@@ -853,6 +853,7 @@ CONTAINS
          IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
          IF (my_just_gradients) THEN
            cdft_control%in_memory = .TRUE.
+           CALL hirshfeld_constraint_init(qs_env)
          END IF
 
          coefficients(:) = 0.0_dp
@@ -870,21 +871,21 @@ CONTAINS
          IF (cdft_control%in_memory) THEN
            PRINT *, "Allocate gradient"
 
-           DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
-           END DO
-
-           DO igroup = 1, SIZE(cdft_control%group)
-
-             DO iatom = 1, cdft_control%natoms
-
-               CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
-               use_data=REALDATA3D, in_space=REALSPACE)
-               cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
-
-
-             END DO
-           END DO
+           ! DO igroup = 1, SIZE(cdft_control%group)
+           !   ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
+           ! END DO
+           !
+           ! DO igroup = 1, SIZE(cdft_control%group)
+           !
+           !   DO iatom = 1, cdft_control%natoms
+           !
+           !     CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
+           !     use_data=REALDATA3D, in_space=REALSPACE)
+           !     cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
+           !
+           !
+           !   END DO
+           ! END DO
 
            DO igroup = 1, SIZE(cdft_control%group)
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
@@ -902,6 +903,61 @@ CONTAINS
            CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
            END DO
          END IF
+
+         ! Setup atomic densities if requested
+         ! hirshfeld_control%print_density = .TRUE.
+         ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+           ! PRINT *, "Setting up atomic densities"
+           DO igroup = 1, SIZE(cdft_control%group)
+
+             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
+           END IF
+
+             IF (cdft_control%atomic_charges) THEN
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
+           END IF
+
+             IF (cdft_control%in_memory) THEN
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
+           END IF
+           END DO
+
+           DO igroup = 1, SIZE(cdft_control%group)
+
+             CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
+             use_data=REALDATA3D, in_space=REALSPACE)
+             cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
+
+             CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw, &
+             use_data=REALDATA3D, in_space=REALSPACE)
+             cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
+
+             DO iatom = 1, cdft_control%natoms
+
+               IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+               CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
+               use_data=REALDATA3D, in_space=REALSPACE)
+               cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+             END IF
+
+               IF (cdft_control%in_memory) THEN
+
+               CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
+               use_data=REALDATA3D, in_space=REALSPACE)
+               cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
+
+             END IF
+
+               IF (cdft_control%atomic_charges) THEN
+                 CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
+               use_data=REALDATA3D, in_space=REALSPACE)
+               cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
+             END IF
+
+             END DO
+           END DO
+
 
          ! Allocate Hirshfeld densities
        !   IF (cdft_control%atomic_charges .eqv. .TRUE.) THEN
@@ -1129,10 +1185,10 @@ CONTAINS
 
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
-         IF (.NOT. my_just_gradients) THEN
+         ! IF (.NOT. my_just_gradients) THEN
          CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
          CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
-       END IF
+       ! END IF
 
          DO i = 1, cdft_control%natoms
 

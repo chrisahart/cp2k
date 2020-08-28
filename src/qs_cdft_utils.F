@@ -1111,61 +1111,6 @@ CONTAINS
        cdft_control%first_iteration = .FALSE.
     END IF
 
-    ! Setup atomic densities if requested
-    ! hirshfeld_control%print_density = .TRUE.
-    ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-      ! PRINT *, "Setting up atomic densities"
-      DO igroup = 1, SIZE(cdft_control%group)
-
-        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-        ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
-      END IF
-
-        IF (cdft_control%atomic_charges) THEN
-        ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
-      END IF
-
-        IF (cdft_control%in_memory) THEN
-        ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
-      END IF
-      END DO
-
-      DO igroup = 1, SIZE(cdft_control%group)
-
-        CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
-        use_data=REALDATA3D, in_space=REALSPACE)
-        cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
-
-        CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw, &
-        use_data=REALDATA3D, in_space=REALSPACE)
-        cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
-
-        DO iatom = 1, cdft_control%natoms
-
-          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
-          use_data=REALDATA3D, in_space=REALSPACE)
-          cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-        END IF
-
-          IF (cdft_control%in_memory) THEN
-
-          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
-          use_data=REALDATA3D, in_space=REALSPACE)
-          cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
-
-        END IF
-
-          IF (cdft_control%atomic_charges) THEN
-            CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
-          use_data=REALDATA3D, in_space=REALSPACE)
-          cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
-        END IF
-
-        END DO
-      END DO
-
-
     ! Radii no longer needed
     IF (ASSOCIATED(hirshfeld_control%radii)) DEALLOCATE (hirshfeld_control%radii)
     CALL timestop(handle)
