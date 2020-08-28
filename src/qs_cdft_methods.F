@@ -869,7 +869,7 @@ CONTAINS
 
          ! Allocate gradient
          IF (cdft_control%in_memory) THEN
-           PRINT *, "Allocate gradient"
+           ! PRINT *, "Allocate gradient"
 
            ! DO igroup = 1, SIZE(cdft_control%group)
            !   ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
@@ -1458,10 +1458,10 @@ CONTAINS
          CALL rs_grid_release(rs_rho_temp)
          ! CALL rs_grid_release(rs_rho_dr_temp)
 
-         IF (.NOT. my_just_gradients) THEN
+         ! IF (.NOT. my_just_gradients) THEN
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
-       END IF
+       ! END IF
 
          ! Release grids that require looping over atoms
          DO i = 1, cdft_control%natoms
@@ -1769,8 +1769,8 @@ CONTAINS
                    ikind = kind_of(iatom)
                    i = atom_of_kind(iatom)
                    force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + group(igroup)%integrated(:, iatom)*strength(igroup)
-                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                   ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   ! PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                 END DO
              END DO
           END IF
