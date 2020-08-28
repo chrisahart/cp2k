@@ -734,6 +734,7 @@ CONTAINS
         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
         IF (my_just_gradients) THEN
           cdft_control%in_memory = .TRUE.
+
           ! IF only gradient, no need to caluclate atomic charges or print density
           cdft_control%atomic_charges = .FALSE.
           hirshfeld_control%print_density = .FALSE.
