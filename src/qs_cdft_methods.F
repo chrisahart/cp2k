@@ -721,7 +721,7 @@ CONTAINS
         ! cube_info = pw_env%cube_info(1)
         ! CALL rs_grid_retain(rs_rho_temp)
         ! CALL rs_grid_zero(rs_rho_temp)
-        CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
+        ! CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
 
         ! Pointers
         cdft_control => dft_control%qs_control%cdft_control
