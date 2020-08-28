@@ -728,6 +728,17 @@ CONTAINS
         hirshfeld_control => cdft_control%hirshfeld_control
         hirshfeld_env => hirshfeld_control%hirshfeld_env
 
+        ! Check if only gradient should be calculated, if gradients should be precomputed
+        ! in_memory = .FALSE. !cdft_control%in_memory
+        my_just_gradients = .FALSE.
+        IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
+        IF (my_just_gradients) THEN
+          cdft_control%in_memory = .TRUE.
+          ! IF only gradient, no need to caluclate atomic charges or print density
+          cdft_control%atomic_charges = .FALSE.
+          hirshfeld_control%print_density = .FALSE.
+        END IF
+
         ! PRINT *, "Pointers"
 
 
@@ -847,16 +858,7 @@ CONTAINS
          END IF
          ! PRINT *, "compute_charge", compute_charge
 
-         ! Check if only gradient should be calculated, if gradients should be precomputed
-         ! in_memory = .FALSE. !cdft_control%in_memory
-         my_just_gradients = .FALSE.
-         IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
-         IF (my_just_gradients) THEN
-           cdft_control%in_memory = .TRUE.
-           ! IF only gradient, no need to caluclate atomic charges or print density
-           cdft_control%atomic_charges = .FALSE.
-           hirshfeld_control%print_density = .FALSE.
-         END IF
+
 
          coefficients(:) = 0.0_dp
          ALLOCATE (is_constraint(natom))
