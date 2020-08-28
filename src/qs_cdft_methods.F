@@ -747,14 +747,14 @@ CONTAINS
 
         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
-         IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
+         ! IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
             CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                             auxbas_pw_pool=auxbas_pw_pool)
             cube_info = pw_env%cube_info(1)
             ! CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
             CALL rs_grid_retain(rs_rho_all)
             CALL rs_grid_zero(rs_rho_all)
-         END IF
+         ! END IF
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
 
