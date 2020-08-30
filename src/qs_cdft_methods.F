@@ -924,7 +924,7 @@ CONTAINS
            END IF
 
              IF (cdft_control%in_memory) THEN
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(cdft_control%natoms))
+             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(natom))
            END IF
            END DO
 
@@ -946,13 +946,7 @@ CONTAINS
                cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
              END IF
 
-               IF (cdft_control%in_memory) THEN
 
-               CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
-               use_data=REALDATA3D, in_space=REALSPACE)
-               cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
-
-             END IF
 
                IF (cdft_control%atomic_charges) THEN
                  CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
@@ -961,6 +955,20 @@ CONTAINS
              END IF
 
              END DO
+
+             IF (cdft_control%in_memory) THEN
+                 DO iatom = 1, natom
+
+
+
+             CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
+             use_data=REALDATA3D, in_space=REALSPACE)
+             cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
+
+
+         END DO
+         END IF
+
            END DO
 
 
@@ -1208,11 +1216,15 @@ CONTAINS
            END IF
 
          END IF
-
-           IF (cdft_control%in_memory) THEN
-             CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
-           END IF
             END DO
+
+              IF (cdft_control%in_memory) THEN
+                DO i = 1, natom
+
+                CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
+
+               END DO
+                 END IF
 
 
 
