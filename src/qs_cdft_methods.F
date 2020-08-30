@@ -1507,7 +1507,7 @@ CONTAINS
          IF (cdft_control%in_memory) THEN
            DEALLOCATE (rho_dr_temp)
          !   DEALLOCATE(rho_atom_dr_temp)
-           DO i = 1, cdft_control%natoms
+           DO i = 1, natom
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
          !
