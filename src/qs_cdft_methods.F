@@ -1335,7 +1335,7 @@ CONTAINS
 
            ! Calculate gradient if requested
            IF (cdft_control%in_memory) THEN
-             ! PRINT *, "Calculate gradient"
+             PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
 
