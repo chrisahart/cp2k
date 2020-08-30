@@ -497,7 +497,7 @@ CONTAINS
          IF (ASSOCIATED(cdft_control%group)) THEN
             DO i = 1, SIZE(cdft_control%group)
 
-              PRINT *, "attempting to DEALLOCATE cdft_control%group"
+              ! PRINT *, "attempting to DEALLOCATE cdft_control%group"
 
               ! PRINT *, "cdft_control_release"
                IF (ASSOCIATED(cdft_control%group(i)%atoms)) &
@@ -511,7 +511,7 @@ CONTAINS
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
 
-                  PRINT *, "DEALLOCATE cdft_control%group"
+                  ! PRINT *, "DEALLOCATE cdft_control%group"
 
 
 
