@@ -630,6 +630,8 @@ CONTAINS
     CALL reallocate(atomlist, 1, jj)
     CALL section_vals_val_get(cdft_control_section, "ATOMIC_CHARGES", &
                               l_val=cdft_control%atomic_charges)
+    CALL section_vals_val_get(cdft_control_section, "IN_MEMORY", &
+                              l_val=cdft_control%in_memory)                            
     ! Parse any dummy atoms (no constraint, just charges)
     IF (cdft_control%atomic_charges) THEN
        group_section => section_vals_get_subs_vals(cdft_control_section, "DUMMY_ATOMS")

@@ -4476,6 +4476,15 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="IN_MEMORY", &
+                          description="Precompute gradients due to constraint during"// &
+                          " initial formation of constraint and store them in memory. Does"// &
+                          " nothing if forces are not calculated.", &
+                          usage="IN_MEMORY", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="FRAGMENT_A_FILE_NAME", variants=(/"FRAGMENT_A_FILE"/), &
                           description="Name of the reference total electron density cube file for fragment A."// &
                           " May include a path. The reference electron density needs to be outputted"// &
