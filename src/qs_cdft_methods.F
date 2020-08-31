@@ -1225,8 +1225,7 @@ CONTAINS
               IF (cdft_control%in_memory) THEN
                 DO i = 1, natom
 
-                ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
-                cdft_control%group(igroup)%gradients(1:3+((i-1)*3) = rs_single_dr(i)%rs_grid%r
+                CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
 
                END DO
                  END IF
@@ -1391,8 +1390,8 @@ CONTAINS
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
                            exp_eval = ((coefficients(iatom) - &
                                        cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
-                                       ! cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
+                                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) * &
+                                       cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
@@ -1675,6 +1674,9 @@ CONTAINS
         END IF
 
         ! PRINT *, "calculating integrated"
+        IF (cdft_control%zero_force) THEN
+          cdft_control%group(igroup)%gradients = 0
+        END IF
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
@@ -1791,11 +1793,22 @@ CONTAINS
                    ikind = kind_of(iatom)
                    i = atom_of_kind(iatom)
                    force(ikind)%rho_elec(:, i) = force(ikind)%rho_elec(:, i) + group(igroup)%integrated(:, iatom)*strength(igroup)
-                   ! PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                   ! PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                 END DO
              END DO
           END IF
+
+          IF (cdft_control%print_force) THEN
+             IF (para_env%ionode) THEN
+             DO igroup = 1, SIZE(group)
+                DO iatom = 1, natom
+                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                END DO
+             END DO
+          END IF
+        END IF
+
+          print_force, zero_force
 
           DEALLOCATE (strength)
           DEALLOCATE (atom_of_kind)

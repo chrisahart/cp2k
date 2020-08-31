@@ -509,6 +509,8 @@ CONTAINS
     CALL section_vals_val_get(becke_section, "CAVITY_CONFINE", l_val=becke_control%cavity_confine)
     CALL section_vals_val_get(becke_section, "SHOULD_SKIP", l_val=becke_control%should_skip)
     CALL section_vals_val_get(becke_section, "IN_MEMORY", l_val=becke_control%in_memory)
+    CALL section_vals_val_get(becke_section, "PRINT_FORCE", l_val=becke_control%print_force)
+    CALL section_vals_val_get(becke_section, "ZERO_FORCE", l_val=becke_control%zero_force)
     IF (cdft_control%becke_control%cavity_confine) THEN
        CALL section_vals_val_get(becke_section, "CAVITY_SHAPE", i_val=becke_control%cavity_shape)
        IF (becke_control%cavity_shape == radius_user .AND. .NOT. becke_control%adjust) &
@@ -631,7 +633,7 @@ CONTAINS
     CALL section_vals_val_get(cdft_control_section, "ATOMIC_CHARGES", &
                               l_val=cdft_control%atomic_charges)
     CALL section_vals_val_get(cdft_control_section, "IN_MEMORY", &
-                              l_val=cdft_control%in_memory)                            
+                              l_val=cdft_control%in_memory)
     ! Parse any dummy atoms (no constraint, just charges)
     IF (cdft_control%atomic_charges) THEN
        group_section => section_vals_get_subs_vals(cdft_control_section, "DUMMY_ATOMS")

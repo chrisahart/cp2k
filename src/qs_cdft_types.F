@@ -252,7 +252,8 @@ MODULE qs_cdft_types
                                               atomic_charges, fragment_density, &
                                               fragments_integrated, flip_fragment(2), &
                                               transfer_pot, external_control, &
-                                              first_iteration, print_weight, in_memory
+                                              first_iteration, print_weight, in_memory, &
+                                              print_force, zero_force
       LOGICAL, POINTER, DIMENSION(:)       :: is_constraint
       REAL(KIND=dp), DIMENSION(:), POINTER :: strength, TARGET, value
       REAL(KIND=dp), POINTER, &
@@ -419,6 +420,8 @@ CONTAINS
       cdft_control%purge_history = .FALSE.
       cdft_control%calculate_metric = .FALSE.
       cdft_control%in_memory = .FALSE.
+      cdft_control%print_force = .FALSE.
+      cdft_control%zero_force = .FALSE.
       cdft_control%purge_freq = 0
       cdft_control%nbad_conv = 0
       cdft_control%purge_offset = 0
