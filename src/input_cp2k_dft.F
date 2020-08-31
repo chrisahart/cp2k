@@ -4486,16 +4486,14 @@ CONTAINS
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="PRINT_FORCE", &
-                          description="Precompute gradients due to constraint during"// &
-                          " initial formation of constraint and store them in memory. Does"// &
-                          " nothing if forces are not calculated.", &
+                          description="Print force. Useful for debugging.", &
                           usage="PRINT_FORCE", &
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="ZERO_FORCE", &
-                          description="Set CDFT force equal zero. Useful for debugging."
+                          description="Set CDFT force equal zero. Useful for debugging." &
                           usage="ZERO_FORCE", &
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
