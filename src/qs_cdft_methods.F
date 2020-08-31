@@ -1675,7 +1675,7 @@ CONTAINS
 
         ! PRINT *, "calculating integrated"
         IF (cdft_control%zero_force) THEN
-          cdft_control%group(igroup)%gradients = 0
+          cdft_control%group(igroup)%gradients = 0.0_dp
         END IF
 
           ! If no Becke Gaussian confinement
