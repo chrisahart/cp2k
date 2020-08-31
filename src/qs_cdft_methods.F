@@ -1808,7 +1808,7 @@ CONTAINS
           END IF
         END IF
 
-          print_force, zero_force
+          ! print_force, zero_force
 
           DEALLOCATE (strength)
           DEALLOCATE (atom_of_kind)
