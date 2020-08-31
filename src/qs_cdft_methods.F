@@ -1363,9 +1363,10 @@ CONTAINS
                    ! Get atomic position
                    ! atom_a = atom_list(iatom)
                    ! ra(:) = particle_set(iatom)%r - origin(1)
-                   ra(1) = pbc(particle_set(iatom)%r, cell)(1) - origin(1)
-                   ra(2) = pbc(particle_set(iatom)%r, cell)(2) - origin(2)
-                   ra(3) = pbc(particle_set(iatom)%r, cell)(3) - origin(3)
+                   ra(:) = pbc(particle_set(iatom)%r, cell)
+                   ra(1) = ra(1) - origin(1)
+                   ra(2) = ra(2) - origin(2)
+                   ra(3) = ra(3) - origin(3)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                    ! PRINT *, "ra(:)", ra(:)
