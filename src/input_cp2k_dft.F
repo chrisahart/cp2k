@@ -4500,6 +4500,7 @@ CONTAINS
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
+      !
 
       CALL keyword_create(keyword, __LOCATION__, name="FRAGMENT_A_FILE_NAME", variants=(/"FRAGMENT_A_FILE"/), &
                           description="Name of the reference total electron density cube file for fragment A."// &
