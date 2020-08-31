@@ -1225,7 +1225,8 @@ CONTAINS
               IF (cdft_control%in_memory) THEN
                 DO i = 1, natom
 
-                CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
+                ! CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
+                cdft_control%group(igroup)%gradients(1:3+((i-1)*3) = rs_single_dr(i)%rs_grid%r
 
                END DO
                  END IF
@@ -1390,8 +1391,8 @@ CONTAINS
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
                            exp_eval = ((coefficients(iatom) - &
                                        cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) * &
-                                       cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
+                                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
+                                       ! cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
                            ! Store gradient d/dR_x w, including term: (r_x - R_x)
