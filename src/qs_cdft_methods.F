@@ -1674,9 +1674,11 @@ CONTAINS
         END IF
 
         ! PRINT *, "calculating integrated"
+        DO igroup = 1, SIZE(cdft_control%group)
         IF (cdft_control%zero_force) THEN
           cdft_control%group(igroup)%gradients = 0.0_dp
         END IF
+      END DO 
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
