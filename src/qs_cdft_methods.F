@@ -1362,8 +1362,10 @@ CONTAINS
 
                    ! Get atomic position
                    ! atom_a = atom_list(iatom)
-                   ra(:) = particle_set(iatom)%r - origin(1)
-                   ! ra(:) = pbc(particle_set(iatom)%r, cell)
+                   ! ra(:) = particle_set(iatom)%r - origin(1)
+                   ra(1) = pbc(particle_set(iatom)%r, cell) - origin(1)
+                   ra(2) = pbc(particle_set(iatom)%r, cell) - origin(2)
+                   ra(3) = pbc(particle_set(iatom)%r, cell) - origin(3)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                    ! PRINT *, "ra(:)", ra(:)
@@ -1678,7 +1680,7 @@ CONTAINS
         IF (cdft_control%zero_force) THEN
           cdft_control%group(igroup)%gradients = 0.0_dp
         END IF
-      END DO 
+      END DO
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
