@@ -840,14 +840,6 @@ CONTAINS
          ! PRINT *, "ub_pw", ub_pw
          ! PRINT *, "origin", origin
 
-           IF (para_env%ionode) THEN
-             PRINT *, "dr from rsgrid", dr
-             PRINT *, "npts from rsgrid", ng
-             PRINT *, "lb_rs, ub_rs from rsgrid", lb_rs, ub_rs
-             PRINT *, "lb_pw, ub_pw from rsgrid", lb_pw, ub_pw
-             PRINT *, "bo", bo
-         END IF
-
          IF (cdft_control%atomic_charges) THEN
            ALLOCATE (rs_single_charge(cdft_control%natoms))
            ALLOCATE (compute_charge(natom))
@@ -1372,16 +1364,24 @@ CONTAINS
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
 
+                   IF (para_env%ionode) THEN
+                     PRINT *, "lb_rs, ub_rs", lb_rs, ub_rs
+                     PRINT *, "lb_pw, ub_pw", lb_pw, ub_pw
+                 END IF
+
+
 
     PRINT *, "origin", origin
     r2(:)=10
     PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
     r2(:)=-5
     PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
-    PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
-    PRINT *, "pbc(particle_set(atom_a)%r, cell)", pbc(particle_set(atom_a)%r, cell)
-    PRINT *, "pbc(particle_set(atom_a)%r, cell)", pbc(particle_set(atom_a)%r, cell) - origin(1)
-    PRINT *, "pbc(particle_set(atom_a)%r - origin(1), cell)", pbc(particle_set(atom_a)%r - origin(1), cell)
+
+    PRINT *, "iatom", iatom
+    PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+    PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
+    PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
+    PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
 
                    ! PRINT *, "ra(:)", ra(:)
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
