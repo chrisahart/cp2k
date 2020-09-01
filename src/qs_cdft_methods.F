@@ -1396,7 +1396,7 @@ CONTAINS
                      r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
                      PRINT *, "r2 = 0: pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
-                     r2 = (/npts * dr_pw(1), npts * dr_pw(2), npts * dr_pw(3)/)
+                     r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
                      PRINT *, "r2 = npts: pbc(ra, r2, cell)", pbc(ra, r2, cell)
                  END IF
 
@@ -1438,7 +1438,7 @@ CONTAINS
                                             ((j * dr_pw(2)) - (ra_pbc(2))) ** 2.0_dp + &
                                             ((k * dr_pw(3)) - (ra_pbc(3))) ** 2.0_dp
 
-                            r2 = (i * dr_pw(1), j * dr_pw(2), k * dr_pw(3))
+                            r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/)
 
 
                             IF (para_env%ionode) THEN
