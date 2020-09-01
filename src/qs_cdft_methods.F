@@ -1372,21 +1372,23 @@ CONTAINS
                      PRINT *, "lb_pw, ub_pw", lb_pw, ub_pw
                      PRINT *, "ra", ra
                      PRINT *, "pbc(ra, cell)", pbc(ra, cell)
+
+
+
+                     PRINT *, "origin", origin
+                     r2(:)=10
+                     PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
+                     r2(:)=-5
+                     PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
+
+                     PRINT *, "iatom", iatom
+                     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+                     PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
+                     PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
+                     PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
                  END IF
 
-    !
-    !
-    ! PRINT *, "origin", origin
-    ! r2(:)=10
-    ! PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
-    ! r2(:)=-5
-    ! PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
-    !
-    ! PRINT *, "iatom", iatom
-    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
-    ! PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
-    ! PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
-    ! PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
+
 
                    ! PRINT *, "ra(:)", ra(:)
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
