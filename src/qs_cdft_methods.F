@@ -1364,25 +1364,28 @@ CONTAINS
                    ra(3) = ra(3) - origin(3)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
+                   ra_pbc = pbc(ra, cell)
 
                    IF (para_env%ionode) THEN
                      PRINT *, "lb_rs, ub_rs", lb_rs, ub_rs
                      PRINT *, "lb_pw, ub_pw", lb_pw, ub_pw
+                     PRINT *, "ra", ra
+                     PRINT *, "pbc(ra, cell)", pbc(ra, cell)
                  END IF
 
-
-
-    PRINT *, "origin", origin
-    r2(:)=10
-    PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
-    r2(:)=-5
-    PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
-
-    PRINT *, "iatom", iatom
-    PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
-    PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
-    PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
-    PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
+    !
+    !
+    ! PRINT *, "origin", origin
+    ! r2(:)=10
+    ! PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
+    ! r2(:)=-5
+    ! PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
+    !
+    ! PRINT *, "iatom", iatom
+    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+    ! PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
+    ! PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
+    ! PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
 
                    ! PRINT *, "ra(:)", ra(:)
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
@@ -1412,20 +1415,58 @@ CONTAINS
                                        cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
-                           ! Store gradient d/dR_x w, including term: (r_x - R_x)
-                           cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                                       cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                       ((i * dr_pw(1)) - (ra(1))) * exp_eval
+                            r_squared = ((i * dr_pw(1)) - (ra(1))) ** 2.0_dp + &
+                                        ((j * dr_pw(2)) - (ra(2))) ** 2.0_dp + &
+                                        ((k * dr_pw(3)) - (ra(3))) ** 2.0_dp
 
-                           ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                           cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                                       cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                       ((j * dr_pw(2)) - (ra(2))) * exp_eval
+                            r_squared_pbc = ((i * dr_pw(1)) - (ra_pbc(1))) ** 2.0_dp + &
+                                            ((j * dr_pw(2)) - (ra_pbc(2))) ** 2.0_dp + &
+                                            ((k * dr_pw(3)) - (ra_pbc(3))) ** 2.0_dp
 
-                           ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                           cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                                       cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                       ((k * dr_pw(3)) - (ra(3))) * exp_eval
+
+                            IF (para_env%ionode) THEN
+                                PRINT *, "i, j, k", i, j, k
+                                PRINT *, "r_squared", r_squared
+                                PRINT *, "r_squared_pbc", r_squared_pbc
+                            END IF
+
+                            IF (r_squared < r_squared_pbc) THEN
+
+                             ! Store gradient d/dR_x w, including term: (r_x - R_x)
+                             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                                         ((i * dr_pw(1)) - (ra(1))) * exp_eval
+
+                             ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                                         ((j * dr_pw(2)) - (ra(2))) * exp_eval
+
+                             ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                                         ((k * dr_pw(3)) - (ra(3))) * exp_eval
+
+
+                            ELSE
+
+                              ! Store gradient d/dR_x w, including term: (r_x - R_x)
+                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                                          ((i * dr_pw(1)) - (ra_pbc(1))) * exp_eval
+
+                              ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                                          ((j * dr_pw(2)) - (ra_pbc(2))) * exp_eval
+
+                              ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                                          ((k * dr_pw(3)) - (ra_pbc(3))) * exp_eval
+                            END IF
+
+
 
                         !     ELSE IF (.NOT. hirshfeld_control%use_cutoff) THEN
                         !
