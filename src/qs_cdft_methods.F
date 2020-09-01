@@ -1383,6 +1383,7 @@ CONTAINS
 
                      PRINT *, "iatom", iatom
                      PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+                     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r - origin(1)
                      PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
                      PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
                      PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
