@@ -1393,10 +1393,10 @@ CONTAINS
 
 
                  IF (para_env%ionode) THEN
-                     r2 = (0 * dr_pw(1), 0 * dr_pw(2), 0 * dr_pw(3))
+                     r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
                      PRINT *, "r2 = 0: pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
-                     r2 = (npts * dr_pw(1), npts * dr_pw(2), npts * dr_pw(3))
+                     r2 = (/npts * dr_pw(1), npts * dr_pw(2), npts * dr_pw(3)/)
                      PRINT *, "r2 = npts: pbc(ra, r2, cell)", pbc(ra, r2, cell)
                  END IF
 
