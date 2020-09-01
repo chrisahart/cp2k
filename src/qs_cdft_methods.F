@@ -1386,6 +1386,17 @@ CONTAINS
                      PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
                      PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
                      PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
+
+
+                 END IF
+
+
+                 IF (para_env%ionode) THEN
+                     r2 = (0 * dr_pw(1), 0 * dr_pw(2), 0 * dr_pw(3))
+                     PRINT *, "r2 = 0: pbc(ra, r2, cell)", pbc(ra, r2, cell)
+
+                     r2 = (npts * dr_pw(1), npts * dr_pw(2), npts * dr_pw(3))
+                     PRINT *, "r2 = npts: pbc(ra, r2, cell)", pbc(ra, r2, cell)
                  END IF
 
 
@@ -1426,12 +1437,17 @@ CONTAINS
                                             ((j * dr_pw(2)) - (ra_pbc(2))) ** 2.0_dp + &
                                             ((k * dr_pw(3)) - (ra_pbc(3))) ** 2.0_dp
 
+                            r2 = (i * dr_pw(1), j * dr_pw(2), k * dr_pw(3))
+
 
                             IF (para_env%ionode) THEN
                                 PRINT *, "i, j, k", i, j, k
                                 PRINT *, "r_squared", r_squared
                                 PRINT *, "r_squared_pbc", r_squared_pbc
+                                PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
                             END IF
+                            !Apply the periodic boundary conditions defined by the simulation
+                            !          cell cell to the vector pointing from atom a to atom b.
 
                             IF (r_squared < r_squared_pbc) THEN
 
