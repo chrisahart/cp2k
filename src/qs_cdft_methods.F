@@ -681,7 +681,7 @@ CONTAINS
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
-           REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw
+           REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw, r2
            TYPE(cell_type), POINTER                           :: cell
            ! TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
@@ -824,13 +824,7 @@ CONTAINS
          ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
-       !   IF (para_env%ionode) THEN
-       !     PRINT *, "dr from rsgrid", dr
-       !     PRINT *, "npts from rsgrid", ng
-       !     PRINT *, "lb from rsgrid", lb_rs
-       !     PRINT *, "ub from rsgrid", ub_rs
-       !     PRINT *, "bo", bo
-       ! END IF
+
          ! CALL rs_pw_`transfer(rs_rho_constr, tmp%pw, rs2pw)
 
          ! Change grid to pw
@@ -845,6 +839,14 @@ CONTAINS
          ! PRINT *, "lb_pw", lb_pw
          ! PRINT *, "ub_pw", ub_pw
          ! PRINT *, "origin", origin
+
+           IF (para_env%ionode) THEN
+             PRINT *, "dr from rsgrid", dr
+             PRINT *, "npts from rsgrid", ng
+             PRINT *, "lb_rs, ub_rs from rsgrid", lb_rs, ub_rs
+             PRINT *, "lb_pw, ub_pw from rsgrid", lb_pw, ub_pw
+             PRINT *, "bo", bo
+         END IF
 
          IF (cdft_control%atomic_charges) THEN
            ALLOCATE (rs_single_charge(cdft_control%natoms))
@@ -1369,8 +1371,13 @@ CONTAINS
                    ra(3) = ra(3) - origin(3)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
+
+
     PRINT *, "origin", origin
-    PRINT *, "pbc((10, 10, 10), cell)", pbc((10, 10, 10), cell)
+    r2(:)=10
+    PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
+    r2(:)=-5
+    PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
     PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
     PRINT *, "pbc(particle_set(atom_a)%r, cell)", pbc(particle_set(atom_a)%r, cell)
     PRINT *, "pbc(particle_set(atom_a)%r, cell)", pbc(particle_set(atom_a)%r, cell) - origin(1)
