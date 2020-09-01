@@ -660,7 +660,7 @@ CONTAINS
          TYPE(cube_info_type)                               :: cube_info
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
-                                                               radius, radius_constr, r_squared, exp_eval, sign, eps_weight &
+                                                               radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
                                                                r_squared_pbc
          ! REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
