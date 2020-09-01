@@ -1056,7 +1056,7 @@ CONTAINS
                ! PRINT *, "ra(:) particle_set(atom_a)%r - origin(1)", ra(:)
 
                ra(:) = pbc(particle_set(atom_a)%r, cell)
-              ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell)", ra(:)
+
 
               ! ra(:) = pbc(particle_set(atom_a)%r, cell) - origin(1)
              ! PRINT *, "ra(:) pbc(particle_set(atom_a)%r, cell) - origin(1)", ra(:)
@@ -1368,6 +1368,13 @@ CONTAINS
                    ra(2) = ra(2) - origin(2)
                    ra(3) = ra(3) - origin(3)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
+
+    PRINT *, "origin", origin
+    PRINT *, "pbc((10, 10, 10), cell)", pbc((10, 10, 10), cell)
+    PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
+    PRINT *, "pbc(particle_set(atom_a)%r, cell)", pbc(particle_set(atom_a)%r, cell)
+    PRINT *, "pbc(particle_set(atom_a)%r, cell)", pbc(particle_set(atom_a)%r, cell) - origin(1)
+    PRINT *, "pbc(particle_set(atom_a)%r - origin(1), cell)", pbc(particle_set(atom_a)%r - origin(1), cell)
 
                    ! PRINT *, "ra(:)", ra(:)
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
