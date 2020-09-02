@@ -1440,11 +1440,13 @@ CONTAINS
 
                             r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/)
 
-
                             IF (para_env%ionode) THEN
                                 PRINT *, "i, j, k", i, j, k
                                 PRINT *, "r_squared", r_squared
                                 PRINT *, "r_squared_pbc", r_squared_pbc
+                                PRINT *, "ra", ra
+                                PRINT *, "r2", r2
+                                PRINT *, "ra - r2", ra - r2
                                 PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
                             END IF
                             !Apply the periodic boundary conditions defined by the simulation
