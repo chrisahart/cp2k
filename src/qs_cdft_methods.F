@@ -1370,12 +1370,13 @@ CONTAINS
                    IF (para_env%ionode) THEN
                      PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
                      PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
-                 !     PRINT *, "ra", ra
+                     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+                     PRINT *, "particle_set(iatom)%r - origin", particle_set(iatom)%r - origin
                  !     PRINT *, "pbc(ra, cell)", pbc(ra, cell)
                  !
                  !
                  !
-                 !     PRINT *, "origin", origin
+                     PRINT *, "origin", origin
                  !     r2(:)=10
                  !     PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
                  !     r2(:)=-5
@@ -1471,7 +1472,9 @@ CONTAINS
                             r_squared_pbc = r_pbc(1) ** 2.0_dp + r_pbc(2) ** 2.0_dp + r_pbc(3) ** 2.0_dp
 
                             IF (para_env%ionode) THEN
+                              PRINT *, "iatom", iatom
                               PRINT *, "i, j, k", i, j, k
+                              PRINT *, "ra", ra
                                 PRINT *, "r2", r2
                                 PRINT *, "r_rs", r_rs
                                 PRINT *, "r_pbc", r_pbc
