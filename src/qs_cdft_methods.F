@@ -1454,14 +1454,18 @@ CONTAINS
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
 
-                                       ra(:) = particle_set(iatom)%r
-                                       PRINT *, "ra", ra
-                                       ra = ra - origin
-                                       PRINT *, "ra - origin", ra - origin
+                                       ra(:) = particle_set(iatom)%r ! rs R
+                                       r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin ! rs r
 
-                            r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/)
-                            r_pbc = pbc(ra, r2, cell) ! Periodic distance
-                            r_rs = r2 - ra  ! Distance
+                                       ! PRINT *, "ra", ra
+                                       ! ra_pw = ra - origin ! pw R
+                                       ! PRINT *, "ra_pw", ra_pw
+
+
+                            ! r2_rs = r2 + origin ! rs r
+
+                            r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
+                            r_rs = r2 - ra  ! Distance (rs)
 
                             r_squared = r_rs(1) ** 2.0_dp + r_rs(2) ** 2.0_dp + r_rs(3) ** 2.0_dp
                             r_squared_pbc = r_pbc(1) ** 2.0_dp + r_pbc(2) ** 2.0_dp + r_pbc(3) ** 2.0_dp
@@ -1471,6 +1475,7 @@ CONTAINS
                                 PRINT *, "r2", r2
                                 PRINT *, "r_rs", r_rs
                                 PRINT *, "r_pbc", r_pbc
+                                PRINT *, "pw", (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) - (particle_set(iatom)%r-origin)
                                 PRINT *, "r_squared", r_squared
                                 PRINT *, "r_squared_pbc", r_squared_pbc
                             END IF
