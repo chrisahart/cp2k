@@ -1336,13 +1336,13 @@ CONTAINS
              !   END DO
              ! END DO
            END DO
-         ! END IF
+         END IF
 
            ! Print atomic densities if requested
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
-          END IF
+          ! END IF
 
            ! Calculate gradient if requested
            IF (cdft_control%in_memory) THEN
