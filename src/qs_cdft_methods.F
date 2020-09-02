@@ -661,7 +661,7 @@ CONTAINS
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
                                                                radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
-                                                               r_squared_pbc,
+                                                               r_squared_pbc
          ! REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -1365,49 +1365,49 @@ CONTAINS
                    ra(3) = ra(3) - origin(3)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
 
-                   ra_pbc = pbc(ra, cell)
+                   ! ra_pbc = pbc(ra, cell)
 
-                   IF (para_env%ionode) THEN
-                     PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
-                     PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
-                     PRINT *, "ra", ra
-                     PRINT *, "pbc(ra, cell)", pbc(ra, cell)
-
-
-
-                     PRINT *, "origin", origin
-                     r2(:)=10
-                     PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
-                     r2(:)=-5
-                     PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
-
-                     PRINT *, "iatom", iatom
-                     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
-                     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r - origin(1)
-                     PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
-                     PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
-                     PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
-
-
-                 END IF
-
-
-                 IF (para_env%ionode) THEN
-                     r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
-                     ra(:) = particle_set(iatom)%r
-                     PRINT *, "ra", ra
-                     PRINT *, "r2", r2
-                     PRINT *, "r2 - ra", r2 - ra
-                     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
-
-                     r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
-                     ra(:) = particle_set(iatom)%r
-                     PRINT *, "ra", ra
-                     PRINT *, "r2", r2
-                     PRINT *, "r2 - ra", r2 - ra
-                     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
-
-                 END IF
+                 !   IF (para_env%ionode) THEN
+                 !     PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
+                 !     PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
+                 !     PRINT *, "ra", ra
+                 !     PRINT *, "pbc(ra, cell)", pbc(ra, cell)
+                 !
+                 !
+                 !
+                 !     PRINT *, "origin", origin
+                 !     r2(:)=10
+                 !     PRINT *, "pbc((10, 10, 10), cell)", pbc(r2, cell)
+                 !     r2(:)=-5
+                 !     PRINT *, "pbc((-5, -5, -5), cell)", pbc(r2, cell)
+                 !
+                 !     PRINT *, "iatom", iatom
+                 !     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
+                 !     PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r - origin(1)
+                 !     PRINT *, "pbc(particle_set(iatom)%r, cell)", pbc(particle_set(iatom)%r, cell)
+                 !     PRINT *, "pbc(particle_set(iatom)%r, cell) - origin(1)", pbc(particle_set(iatom)%r, cell) - origin(1)
+                 !     PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
+                 !
+                 !
+                 ! END IF
+                 !
+                 !
+                 ! IF (para_env%ionode) THEN
+                 !     r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
+                 !     ra(:) = particle_set(iatom)%r
+                 !     PRINT *, "ra", ra
+                 !     PRINT *, "r2", r2
+                 !     PRINT *, "r2 - ra", r2 - ra
+                 !     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
+                 !
+                 !     r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
+                 !     ra(:) = particle_set(iatom)%r
+                 !     PRINT *, "ra", ra
+                 !     PRINT *, "r2", r2
+                 !     PRINT *, "r2 - ra", r2 - ra
+                 !     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
+                 !
+                 ! END IF
 
 
 
