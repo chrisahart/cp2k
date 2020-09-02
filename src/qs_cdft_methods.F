@@ -1156,13 +1156,13 @@ CONTAINS
                      ! PRINT *, "hw_rho_atomic"
                      IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
 
-                       PRINT *, "hirshfeld_control%print_density", atom_a
+                       ! PRINT *, "hirshfeld_control%print_density", atom_a
 
                        DO jatom = 1, cdft_control%natoms
                                  IF (atom_a == cdft_control%atoms(jatom)) EXIT
                               END DO
-                        PRINT *, "jatom", jatom
-                        PRINT *, "hirshfeld_control%print_density", atom_a
+                        ! PRINT *, "jatom", jatom
+                        ! PRINT *, "hirshfeld_control%print_density", atom_a
                      ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
                             ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
                             rs_single(jatom)%rs_grid%r(:, :, :) = rs_single(jatom)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
@@ -1184,13 +1184,13 @@ CONTAINS
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
                IF (compute_charge(atom_a)) THEN
-                 PRINT *, "compute_charge", atom_a
+                 ! PRINT *, "compute_charge", atom_a
 
                  DO jatom = 1, cdft_control%natoms
                            IF (atom_a == cdft_control%atoms(jatom)) EXIT
                         END DO
-                  PRINT *, "jatom", jatom
-                  PRINT *, "compute_charge", atom_a
+                  ! PRINT *, "jatom", jatom
+                  ! PRINT *, "compute_charge", atom_a
 
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
