@@ -661,7 +661,7 @@ CONTAINS
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
                                                                radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
-                                                               r_squared_pbc
+                                                               r_squared_pbc,
          ! REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -682,7 +682,7 @@ CONTAINS
          ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
-           REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw, r2
+           REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw, r2, r_pbc, r_rs
            TYPE(cell_type), POINTER                           :: cell
            ! TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
@@ -1441,16 +1441,16 @@ CONTAINS
 
                             r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/)
                             r_pbc = pbc(ra, r2, cell) ! Periodic distance
-                            r = r2 - ra  ! Distance
+                            r_rs = r2 - ra  ! Distance
 
-                            r_squared = r(1) ** 2.0_dp + r(1) ** 2.0_dp + r(1) ** 2.0_dp
-                            r_squared_pbc = r_pbc(1) ** 2.0_dp + r_pbc(1) ** 2.0_dp + r_pbc(1) ** 2.0_dp
+                            r_squared = r_rs(1) ** 2.0_dp + r_rs(2) ** 2.0_dp + r_rs(3) ** 2.0_dp
+                            r_squared_pbc = r_pbc(1) ** 2.0_dp + r_pbc(2) ** 2.0_dp + r_pbc(3) ** 2.0_dp
 
                             IF (para_env%ionode) THEN
                                 PRINT *, "i, j, k", i, j, k
                                 PRINT *, "ra", ra
                                 PRINT *, "r2", r2
-                                PRINT *, "r", r
+                                PRINT *, "r_rs", r_rs
                                 PRINT *, "r_pbc", r_pbc
                                 PRINT *, "r_squared", r_squared
                                 PRINT *, "r_squared_pbc", r_squared_pbc
@@ -1463,17 +1463,17 @@ CONTAINS
                              ! Store gradient d/dR_x w, including term: (r_x - R_x)
                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                         r(1) * exp_eval
+                                         r_rs(1) * exp_eval
 
                              ! Store gradient d/dR_y w, including term: (r_y - R_y)
                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                         r(2) * exp_eval
+                                         r_rs(2) * exp_eval
 
                              ! Store gradient d/dR_z w, including term:(r_z - R_z)
                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                         r(3) * exp_eval
+                                         r_rs(3) * exp_eval
 
 
                             ELSE
