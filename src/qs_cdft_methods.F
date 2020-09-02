@@ -1348,7 +1348,7 @@ CONTAINS
            IF (cdft_control%in_memory) THEN
              ! PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
-                 DO iatom = (/2, 1/) !1, natom
+                 DO iatom = 2, 1, -1 !1, natom
 
                    ! PRINT *, "cdft_control%natoms", cdft_control%natoms
                    ! PRINT *, "natom", natom
