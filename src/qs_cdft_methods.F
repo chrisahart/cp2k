@@ -1367,9 +1367,9 @@ CONTAINS
 
                    ! ra_pbc = pbc(ra, cell)
 
-                 !   IF (para_env%ionode) THEN
-                 !     PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
-                 !     PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
+                   IF (para_env%ionode) THEN
+                     PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
+                     PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
                  !     PRINT *, "ra", ra
                  !     PRINT *, "pbc(ra, cell)", pbc(ra, cell)
                  !
@@ -1389,25 +1389,27 @@ CONTAINS
                  !     PRINT *, "pbc(particle_set(iatom)%r - origin(1), cell)", pbc(particle_set(iatom)%r - origin(1), cell)
                  !
                  !
-                 ! END IF
+                 END IF
                  !
                  !
-                 ! IF (para_env%ionode) THEN
-                 !     r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
-                 !     ra(:) = particle_set(iatom)%r
-                 !     PRINT *, "ra", ra
-                 !     PRINT *, "r2", r2
-                 !     PRINT *, "r2 - ra", r2 - ra
-                 !     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
-                 !
-                 !     r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
-                 !     ra(:) = particle_set(iatom)%r
-                 !     PRINT *, "ra", ra
-                 !     PRINT *, "r2", r2
-                 !     PRINT *, "r2 - ra", r2 - ra
-                 !     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
-                 !
-                 ! END IF
+                 IF (para_env%ionode) THEN
+                     ra(:) = particle_set(iatom)%r
+                     ! r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
+                     r2 = (/ra(1), ra(2), 0.0_dp * dr_pw(3)/)
+                     PRINT *, "ra", ra
+                     PRINT *, "r2", r2
+                     PRINT *, "r2 - ra", r2 - ra
+                     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
+
+                     ra(:) = particle_set(iatom)%r
+                     r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
+                     r2 = (/ra(1), ra(2), npts(3) * dr_pw(3)/)
+                     PRINT *, "ra", ra
+                     PRINT *, "r2", r2
+                     PRINT *, "r2 - ra", r2 - ra
+                     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
+
+                 END IF
 
 
 
@@ -1415,9 +1417,9 @@ CONTAINS
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
                    ! PRINT *, "origin(:)", origin(:)
 
-                   DO k = lb_pw(3), ub_pw(3)
-                     DO j = lb_pw(2), ub_pw(2)
-                       DO i = lb_pw(1), ub_pw(1)
+                   DO k = ub_pw(3), lb_pw(3)
+                     DO j = ub_pw(2), lb_pw(2)
+                       DO i = ub_pw(1), lb_pw(1)
 
                          ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
                          !   ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
@@ -1439,6 +1441,12 @@ CONTAINS
                                        cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
+
+                                       ra(:) = particle_set(iatom)%r
+                                       PRINT *, "ra", ra
+                                       ra = ra - origin
+                                       PRINT *, "ra - origin", ra - origin
+
                             r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/)
                             r_pbc = pbc(ra, r2, cell) ! Periodic distance
                             r_rs = r2 - ra  ! Distance
@@ -1447,8 +1455,7 @@ CONTAINS
                             r_squared_pbc = r_pbc(1) ** 2.0_dp + r_pbc(2) ** 2.0_dp + r_pbc(3) ** 2.0_dp
 
                             IF (para_env%ionode) THEN
-                                PRINT *, "i, j, k", i, j, k
-                                PRINT *, "ra", ra
+                              PRINT *, "i, j, k", i, j, k
                                 PRINT *, "r2", r2
                                 PRINT *, "r_rs", r_rs
                                 PRINT *, "r_pbc", r_pbc
