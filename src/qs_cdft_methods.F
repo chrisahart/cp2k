@@ -1348,7 +1348,7 @@ CONTAINS
            IF (cdft_control%in_memory) THEN
              ! PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
-                 DO iatom = 1, natom
+                 DO iatom = ((/2, 1/) !1, natom
 
                    ! PRINT *, "cdft_control%natoms", cdft_control%natoms
                    ! PRINT *, "natom", natom
@@ -1393,7 +1393,7 @@ CONTAINS
                  !
                  !
                  IF (para_env%ionode) THEN
-                     ra(:) = particle_set(iatom)%r
+                     ! ra(:) = particle_set(iatom)%r
                      ! r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
                      r2 = (/ra(1), ra(2), 0.0_dp * dr_pw(3)/)
                      PRINT *, "ra", ra
@@ -1401,8 +1401,8 @@ CONTAINS
                      PRINT *, "r2 - ra", r2 - ra
                      PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
-                     ra(:) = particle_set(iatom)%r
-                     r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
+                     ! ra(:) = particle_set(iatom)%r
+                     ! r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
                      r2 = (/ra(1), ra(2), npts(3) * dr_pw(3)/)
                      PRINT *, "ra", ra
                      PRINT *, "r2", r2
@@ -1417,9 +1417,9 @@ CONTAINS
                    ! PRINT *, "particle_set(iatom)%r", particle_set(iatom)%r
                    ! PRINT *, "origin(:)", origin(:)
 
-                   DO k = ub_pw(3), lb_pw(3)
-                     DO j = ub_pw(2), lb_pw(2)
-                       DO i = ub_pw(1), lb_pw(1)
+                   DO k = lb_pw(3), ub_pw(3)
+                     DO j = lb_pw(2), ub_pw(2)
+                       DO i = lb_pw(1), ub_pw(1)
 
                          ! IF (cdft_control%group(1)%hw_rho_total(i, j, k) > 1.0e-12_dp) THEN
                          !   ! cdft_control%charge(iatom)%pw%cr3d(i, j, k) = &
