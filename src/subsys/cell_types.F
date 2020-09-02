@@ -640,6 +640,10 @@ CONTAINS
 
       ra_pbc(:) = pbc(ra(:), cell)
       rb_pbc(:) = pbc(rb(:), cell)
+      ! PRINT *, "ra", ra
+      ! PRINT *, "ra_pbc", ra_pbc
+      ! PRINT *, "rb", rb
+      ! PRINT *, "rb_pbc", rb_pbc
 
       rab2_pbc = HUGE(1.0_dp)
 
@@ -657,6 +661,14 @@ CONTAINS
                END IF
             END DO
          END DO
+
+         ! PRINT *, "periodic", periodic
+         ! PRINT *, "r", r
+         ! PRINT *, "rb_image", rb_image
+         ! PRINT *, "rab", rab
+         ! PRINT *, "rab2", rab2
+         ! PRINT *, "rab2_pbc", rab2_pbc
+         ! PRINT *, "rab_pbc", rab_pbc
       END DO
 
    END FUNCTION pbc3
