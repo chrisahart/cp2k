@@ -1409,6 +1409,18 @@ CONTAINS
                      PRINT *, "r2 - ra", r2 - ra
                      PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
+                     r2 = (/ra(1), ra(2), lb_pw*dr_pw/)
+                     PRINT *, "ra", ra
+                     PRINT *, "r2", r2
+                     PRINT *, "r2 - ra", r2 - ra
+                     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
+
+                     r2 = (/ra(1), ra(2), ub_pw*dr_pw/)
+                     PRINT *, "ra", ra
+                     PRINT *, "r2", r2
+                     PRINT *, "r2 - ra", r2 - ra
+                     PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
+
                  END IF
 
 
