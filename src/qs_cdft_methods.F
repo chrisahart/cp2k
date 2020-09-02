@@ -1367,6 +1367,8 @@ CONTAINS
 
                    ! ra_pbc = pbc(ra, cell)
 
+                   IF (cdft_control%debug) THEN
+
                    IF (para_env%ionode) THEN
                      PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
                      PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
@@ -1423,6 +1425,7 @@ CONTAINS
                      PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
                  END IF
+               END IF 
 
 
 
@@ -1456,7 +1459,10 @@ CONTAINS
 
 
                                        ra(:) = particle_set(iatom)%r ! rs R
-                                       r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin ! rs r
+                                       r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) ! rs r
+                                       ! PRINT *, "r2", r2
+                                       r2 = r2 + origin ! rs r
+                                       ! PRINT *, "r2", r2
 
                                        ! PRINT *, "ra", ra
                                        ! ra_pw = ra - origin ! pw R
@@ -1471,6 +1477,7 @@ CONTAINS
                             r_squared = r_rs(1) ** 2.0_dp + r_rs(2) ** 2.0_dp + r_rs(3) ** 2.0_dp
                             r_squared_pbc = r_pbc(1) ** 2.0_dp + r_pbc(2) ** 2.0_dp + r_pbc(3) ** 2.0_dp
 
+                            IF (cdft_control%debug) THEN
                             IF (para_env%ionode) THEN
                               PRINT *, "iatom", iatom
                               PRINT *, "i, j, k", i, j, k
@@ -1482,6 +1489,7 @@ CONTAINS
                                 PRINT *, "r_squared", r_squared
                                 PRINT *, "r_squared_pbc", r_squared_pbc
                             END IF
+                          END IF
                             !Apply the periodic boundary conditions defined by the simulation
                             !          cell cell to the vector pointing from atom a to atom b.
 

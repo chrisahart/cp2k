@@ -4485,6 +4485,14 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="DEBUG", &
+                          description="Enables additional printing. "// &
+                          "Useful for debugging.", &
+                          usage="DEBUG", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="PRINT_FORCE", &
                           description="Print force "// &
                           "Useful for debugging.", &
