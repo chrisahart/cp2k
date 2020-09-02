@@ -1368,8 +1368,8 @@ CONTAINS
                    ra_pbc = pbc(ra, cell)
 
                    IF (para_env%ionode) THEN
-                     PRINT *, "lb_rs, ub_rs", lb_rs, ub_rs
-                     PRINT *, "lb_pw, ub_pw", lb_pw, ub_pw
+                     PRINT *, "lb_rs, ub_rs, dr_rs", lb_rs, ub_rs, dr_rs
+                     PRINT *, "lb_pw, ub_pw, dr_pw", lb_pw, ub_pw, dr_pw
                      PRINT *, "ra", ra
                      PRINT *, "pbc(ra, cell)", pbc(ra, cell)
 
@@ -1394,10 +1394,17 @@ CONTAINS
 
                  IF (para_env%ionode) THEN
                      r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
+                     ra(:) = particle_set(iatom)%r
+                     PRINT *, "r2 - ra", r2 - ra
+                     PRINT *, "ra", ra
                      PRINT *, "r2 = 0: pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
                      r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
+                     ra(:) = particle_set(iatom)%r
                      PRINT *, "r2 = npts: pbc(ra, r2, cell)", pbc(ra, r2, cell)
+                     PRINT *, "ra", ra
+                     PRINT *, "r2 - ra", r2 - ra
+
                  END IF
 
 
@@ -1438,15 +1445,16 @@ CONTAINS
                                             ((j * dr_pw(2)) - (ra_pbc(2))) ** 2.0_dp + &
                                             ((k * dr_pw(3)) - (ra_pbc(3))) ** 2.0_dp
 
-                            r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/)
+
 
                             IF (para_env%ionode) THEN
                                 PRINT *, "i, j, k", i, j, k
                                 PRINT *, "r_squared", r_squared
                                 PRINT *, "r_squared_pbc", r_squared_pbc
+
                                 PRINT *, "ra", ra
                                 PRINT *, "r2", r2
-                                PRINT *, "ra - r2", ra - r2
+                                PRINT *, "r2 - ra", r2 - ra
                                 PRINT *, "pbc(ra, r2, cell)", pbc(ra, r2, cell)
                             END IF
                             !Apply the periodic boundary conditions defined by the simulation
