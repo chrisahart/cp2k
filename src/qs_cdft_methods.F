@@ -1395,15 +1395,17 @@ CONTAINS
                  IF (para_env%ionode) THEN
                      r2 = (/0.0_dp * dr_pw(1), 0.0_dp * dr_pw(2), 0.0_dp * dr_pw(3)/)
                      ra(:) = particle_set(iatom)%r
-                     PRINT *, "r2 - ra", r2 - ra
                      PRINT *, "ra", ra
+                     PRINT *, "r2", r2
+                     PRINT *, "r2 - ra", r2 - ra
                      PRINT *, "r2 = 0: pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
                      r2 = (/npts(1) * dr_pw(1), npts(2) * dr_pw(2), npts(3) * dr_pw(3)/)
                      ra(:) = particle_set(iatom)%r
-                     PRINT *, "r2 = npts: pbc(ra, r2, cell)", pbc(ra, r2, cell)
                      PRINT *, "ra", ra
+                     PRINT *, "r2", r2
                      PRINT *, "r2 - ra", r2 - ra
+                     PRINT *, "r2 = 0: pbc(ra, r2, cell)", pbc(ra, r2, cell)
 
                  END IF
 
