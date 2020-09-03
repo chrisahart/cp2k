@@ -197,6 +197,14 @@ CONTAINS
       END IF
       CALL zero_qs_force(force)
 
+      IF (cdft_control%print_force) THEN
+         IF (para_env%ionode) THEN
+            DO iatom = 1, natom
+               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+            END DO
+      END IF
+    END IF
+
       ! Check if CDFT potential is needed and save it until forces have been calculated
       IF (dft_control%qs_control%cdft) THEN
          dft_control%qs_control%cdft_control%save_pot = .TRUE.
@@ -308,8 +316,24 @@ CONTAINS
          ENDIF
       END IF
 
+      IF (cdft_control%print_force) THEN
+         IF (para_env%ionode) THEN
+            DO iatom = 1, natom
+               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+            END DO
+      END IF
+    END IF
+
       ! Compute grid-based forces
       CALL qs_ks_update_qs_env(qs_env, calculate_forces=.TRUE.)
+
+      IF (cdft_control%print_force) THEN
+         IF (para_env%ionode) THEN
+            DO iatom = 1, natom
+               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+            END DO
+      END IF
+    END IF
 
       ! MP2 Code
       IF (ASSOCIATED(qs_env%mp2_env)) THEN
@@ -446,6 +470,15 @@ CONTAINS
       END IF
       CALL cp_print_key_finished_output(output_unit, logger, qs_env%input, &
                                         "DFT%PRINT%DERIVATIVES")
+
+
+                                        IF (cdft_control%print_force) THEN
+                                           IF (para_env%ionode) THEN
+                                              DO iatom = 1, natom
+                                                 PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                                              END DO
+                                        END IF
+                                      END IF
 
       ! deallocate W Matrix:
       NULLIFY (ks_env, matrix_w_kp)
