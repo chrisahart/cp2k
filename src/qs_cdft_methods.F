@@ -1753,6 +1753,17 @@ CONTAINS
              cdft_control%group(igroup)%integrated = 0.0_dp
           END DO
 
+          IF (cdft_control%print_force) THEN
+             IF (para_env%ionode) THEN
+             DO igroup = 1, SIZE(group)
+                DO iatom = 1, natom
+                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                END DO
+             END DO
+          END IF
+        END IF
+
           ! Get size of pw grid
           lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
           ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
