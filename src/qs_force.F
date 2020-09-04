@@ -199,6 +199,8 @@ CONTAINS
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
             DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
     END IF
@@ -316,6 +318,8 @@ CONTAINS
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
             DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
     END IF
@@ -325,6 +329,8 @@ CONTAINS
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
             DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
     END IF
@@ -465,13 +471,13 @@ CONTAINS
       CALL cp_print_key_finished_output(output_unit, logger, qs_env%input, &
                                         "DFT%PRINT%DERIVATIVES")
 
-
                                         IF (dft_control%qs_control%cdft_control%print_force) THEN
                                               DO iatom = 1, natom
+                                                ikind = kind_of(iatom)
+                                                i = atom_of_kind(iatom)
                                                  PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                                               END DO
                                       END IF
-
       ! deallocate W Matrix:
       NULLIFY (ks_env, matrix_w_kp)
       CALL get_qs_env(qs_env=qs_env, &
