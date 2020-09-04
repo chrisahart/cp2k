@@ -198,11 +198,9 @@ CONTAINS
       CALL zero_qs_force(force)
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
-         IF (para_env%ionode) THEN
             DO iatom = 1, natom
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
-      END IF
     END IF
 
       ! Check if CDFT potential is needed and save it until forces have been calculated
@@ -317,22 +315,18 @@ CONTAINS
       END IF
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
-         IF (para_env%ionode) THEN
             DO iatom = 1, natom
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
-      END IF
     END IF
 
       ! Compute grid-based forces
       CALL qs_ks_update_qs_env(qs_env, calculate_forces=.TRUE.)
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
-         IF (para_env%ionode) THEN
             DO iatom = 1, natom
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
             END DO
-      END IF
     END IF
 
       ! MP2 Code
@@ -473,11 +467,9 @@ CONTAINS
 
 
                                         IF (dft_control%qs_control%cdft_control%print_force) THEN
-                                           IF (para_env%ionode) THEN
                                               DO iatom = 1, natom
                                                  PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                                               END DO
-                                        END IF
                                       END IF
 
       ! deallocate W Matrix:
