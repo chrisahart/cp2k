@@ -1757,7 +1757,7 @@ CONTAINS
                 DO iatom = 1, natom
                   ikind = kind_of(iatom)
                   i = atom_of_kind(iatom)
-                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "force(ikind)%rho_elec(:, i) i", force(ikind)%rho_elec(:, i) i
                 END DO
           END IF
 
@@ -1942,7 +1942,7 @@ CONTAINS
                 DO iatom = 1, natom
                   ikind = kind_of(iatom)
                   i = atom_of_kind(iatom)
-                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "force(ikind)%rho_elec(:, i) i", force(ikind)%rho_elec(:, i) i
                    PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                 END DO
              END DO

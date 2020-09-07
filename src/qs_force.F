@@ -202,6 +202,7 @@ CONTAINS
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
     END IF
 
@@ -320,7 +321,8 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%rho_elec(:, i) i", force(ikind)%rho_elec(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
     END IF
 
@@ -331,7 +333,8 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%rho_elec(:, i) i", force(ikind)%rho_elec(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
     END IF
 
@@ -475,7 +478,8 @@ CONTAINS
                                               DO iatom = 1, natom
                                                 ikind = kind_of(iatom)
                                                 i = atom_of_kind(iatom)
-                                                 PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                                                 PRINT *, "force(ikind)%rho_elec(:, i) i", force(ikind)%rho_elec(:, i) i
+                                                 PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
                                               END DO
                                       END IF
       ! deallocate W Matrix:
@@ -485,6 +489,15 @@ CONTAINS
                       ks_env=ks_env)
       CALL dbcsr_deallocate_matrix_set(matrix_w_kp)
       CALL set_ks_env(ks_env, matrix_w=Null(), matrix_w_kp=Null())
+
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+               PRINT *, "force(ikind)%rho_elec(:, i) i", force(ikind)%rho_elec(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
+            END DO
+    END IF
 
       DEALLOCATE (atom_of_kind, kind_of)
 
