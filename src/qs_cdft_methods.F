@@ -1759,6 +1759,7 @@ CONTAINS
                   i = atom_of_kind(iatom)
                   PRINT *, "iatom i", iatom, i
                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                  PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
                 END DO
           END IF
 
@@ -1944,8 +1945,9 @@ CONTAINS
                   ikind = kind_of(iatom)
                   i = atom_of_kind(iatom)
                    PRINT *, "iatom i", iatom, i
-                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                    PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
                 END DO
              END DO
           END IF

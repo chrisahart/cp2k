@@ -384,6 +384,16 @@ CONTAINS
 
       END IF
 
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
+
       ! Add forces resulting from wavefunction fitting
       IF (dft_control%do_admm_dm) THEN
          CPABORT("Forces with ADMM DM methods not implemented")
@@ -411,8 +421,28 @@ CONTAINS
          CALL calc_mixed_overlap_force(qs_env)
       END IF
 
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
+
       ! Energy_correction
       CALL energy_correction(qs_env, ec_init=.FALSE., calculate_forces=.TRUE.)
+
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
 
       ! replicate forces (get current pointer)
       NULLIFY (force)
@@ -454,6 +484,16 @@ CONTAINS
             END DO
          END IF
       END IF
+
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
 
       output_unit = cp_print_key_unit_nr(logger, qs_env%input, "DFT%PRINT%DERIVATIVES", &
                                          extension=".Log")
