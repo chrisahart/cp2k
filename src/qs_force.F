@@ -201,7 +201,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+               PRINT *, "1: iatom i", iatom, i
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -322,7 +322,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+              PRINT *, "2: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -330,16 +330,6 @@ CONTAINS
 
       ! Compute grid-based forces
       CALL qs_ks_update_qs_env(qs_env, calculate_forces=.TRUE.)
-
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-            END DO
-    END IF
 
       ! MP2 Code
       IF (ASSOCIATED(qs_env%mp2_env)) THEN
@@ -388,7 +378,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+              PRINT *, "3: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -425,7 +415,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+              PRINT *, "4: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -438,7 +428,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+              PRINT *, "5: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -448,6 +438,16 @@ CONTAINS
       NULLIFY (force)
       CALL get_qs_env(qs_env=qs_env, force=force)
       CALL replicate_qs_force(force, para_env)
+
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "6: iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
 
       DO iatom = 1, natom
          ikind = kind_of(iatom)
@@ -461,6 +461,16 @@ CONTAINS
          force(ikind)%total(1:3, i) = force(ikind)%total(1:3, i) + force(ikind)%other(1:3, i)
          particle_set(iatom)%f = -force(ikind)%total(1:3, i)
       END DO
+
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "7: iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
 
       NULLIFY (virial, energy)
       CALL get_qs_env(qs_env=qs_env, virial=virial, energy=energy)
@@ -489,7 +499,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+              PRINT *, "8: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -521,7 +531,7 @@ CONTAINS
                                               DO iatom = 1, natom
                                                 ikind = kind_of(iatom)
                                                 i = atom_of_kind(iatom)
-                                                PRINT *, "iatom i", iatom, i
+                                                PRINT *, "9: iatom i", iatom, i
                                                 PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                                                  PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
                                               END DO
@@ -538,7 +548,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom, i
+              PRINT *, "10: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
