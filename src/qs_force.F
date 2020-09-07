@@ -201,6 +201,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
+              PRINT *, "iatom i", iatom, i
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
@@ -321,7 +322,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom i
+              PRINT *, "iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
@@ -334,7 +335,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom i
+              PRINT *, "iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
@@ -480,7 +481,7 @@ CONTAINS
                                               DO iatom = 1, natom
                                                 ikind = kind_of(iatom)
                                                 i = atom_of_kind(iatom)
-                                                PRINT *, "iatom i", iatom i
+                                                PRINT *, "iatom i", iatom, i
                                                 PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                                                  PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
                                               END DO
@@ -497,7 +498,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "iatom i", iatom i
+              PRINT *, "iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
             END DO
