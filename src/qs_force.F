@@ -203,7 +203,7 @@ CONTAINS
               i = atom_of_kind(iatom)
               PRINT *, "iatom i", iatom, i
                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
     END IF
 
@@ -324,7 +324,7 @@ CONTAINS
               i = atom_of_kind(iatom)
               PRINT *, "iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
     END IF
 
@@ -337,7 +337,7 @@ CONTAINS
               i = atom_of_kind(iatom)
               PRINT *, "iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
     END IF
 
@@ -483,7 +483,7 @@ CONTAINS
                                                 i = atom_of_kind(iatom)
                                                 PRINT *, "iatom i", iatom, i
                                                 PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                                                 PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
+                                                 PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
                                               END DO
                                       END IF
       ! deallocate W Matrix:
@@ -500,7 +500,7 @@ CONTAINS
               i = atom_of_kind(iatom)
               PRINT *, "iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i) i
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
     END IF
 
