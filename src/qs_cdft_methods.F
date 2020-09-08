@@ -1452,7 +1452,8 @@ CONTAINS
                          !      > hirshfeld_control%eps_constraint) THEN
 
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
-                           exp_eval =  ((coefficients(iatom) - &
+                           ! exp_eval =  ((coefficients(iatom) - &
+                           exp_eval =  1 - &
                                        cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
                                        cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) * &
                                        cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
