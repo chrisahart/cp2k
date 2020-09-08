@@ -437,13 +437,24 @@ CONTAINS
       ! replicate forces (get current pointer)
       NULLIFY (force)
       CALL get_qs_env(qs_env=qs_env, force=force)
-      CALL replicate_qs_force(force, para_env)
 
       IF (dft_control%qs_control%cdft_control%print_force) THEN
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
               PRINT *, "6: iatom i", iatom, i
+              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+            END DO
+    END IF
+
+      CALL replicate_qs_force(force, para_env)
+
+      IF (dft_control%qs_control%cdft_control%print_force) THEN
+            DO iatom = 1, natom
+              ikind = kind_of(iatom)
+              i = atom_of_kind(iatom)
+              PRINT *, "7: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -466,7 +477,7 @@ CONTAINS
             DO iatom = 1, natom
               ikind = kind_of(iatom)
               i = atom_of_kind(iatom)
-              PRINT *, "7: iatom i", iatom, i
+              PRINT *, "8: iatom i", iatom, i
               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
             END DO
@@ -495,16 +506,6 @@ CONTAINS
          END IF
       END IF
 
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "8: iatom i", iatom, i
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-            END DO
-    END IF
-
       output_unit = cp_print_key_unit_nr(logger, qs_env%input, "DFT%PRINT%DERIVATIVES", &
                                          extension=".Log")
       print_section => section_vals_get_subs_vals(qs_env%input, "DFT%PRINT%DERIVATIVES")
@@ -527,15 +528,6 @@ CONTAINS
       CALL cp_print_key_finished_output(output_unit, logger, qs_env%input, &
                                         "DFT%PRINT%DERIVATIVES")
 
-                                        IF (dft_control%qs_control%cdft_control%print_force) THEN
-                                              DO iatom = 1, natom
-                                                ikind = kind_of(iatom)
-                                                i = atom_of_kind(iatom)
-                                                PRINT *, "9: iatom i", iatom, i
-                                                PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                                                 PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-                                              END DO
-                                      END IF
       ! deallocate W Matrix:
       NULLIFY (ks_env, matrix_w_kp)
       CALL get_qs_env(qs_env=qs_env, &
@@ -543,16 +535,6 @@ CONTAINS
                       ks_env=ks_env)
       CALL dbcsr_deallocate_matrix_set(matrix_w_kp)
       CALL set_ks_env(ks_env, matrix_w=Null(), matrix_w_kp=Null())
-
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "10: iatom i", iatom, i
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-            END DO
-    END IF
 
       DEALLOCATE (atom_of_kind, kind_of)
 

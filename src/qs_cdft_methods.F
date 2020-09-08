@@ -662,7 +662,6 @@ CONTAINS
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
                                                                radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
                                                                r_squared_pbc
-         ! REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
          REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
          TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
          TYPE(cdft_control_type), POINTER                   :: cdft_control
@@ -672,23 +671,16 @@ CONTAINS
          TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
          TYPE(pw_env_type), POINTER                         :: pw_env
          INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf, gridbounds
-         ! TYPE(pw_p_type)                                    :: tmp !, fnorm
          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
          TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
-         ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp
-         ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single,
          INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs, lb_pw, ub_pw
-         ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_temp, rs_rho_dr_temp !rs_rho_all, rs_rho_constr, ,
-         ! REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)      :: rs_rho_all, rs_rho_constr, rs_rho_temp, rs_rho_dr_temp
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
            REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw, r2, r_pbc, r_rs
            TYPE(cell_type), POINTER                           :: cell
-           ! TYPE(pw_p_type), POINTER                           :: fnorm
            TYPE(cp_para_env_type), POINTER                    :: para_env
            REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
-           REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp, rho_dr_temp
-           REAL(KIND=dp), POINTER, DIMENSION(:, :, :, :)             :: rho_atom_dr_temp
+           REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp!, rho_dr_temp
            REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
            INTEGER(KIND=int_8)                                :: subpatch_pattern
            TYPE(realspace_grid_type)                :: rsgrid
@@ -893,7 +885,7 @@ CONTAINS
              ! ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
              ! PRINT *, "ALLOCATE (rho_dr_temp"
-             ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
+             ! ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
            END DO
            ! rho_atom_dr_temp = 0.0_dp
 
@@ -1038,9 +1030,9 @@ CONTAINS
                ! Set temproary array equal zero
                rho_temp = 0.0_dp
 
-               IF (cdft_control%in_memory) THEN
-               rho_dr_temp = 0.0_dp
-             END IF
+               ! IF (cdft_control%in_memory) THEN
+               ! rho_dr_temp = 0.0_dp
+             ! END IF
                ! rho_atom_dr_temp = 0.0_dp
 
                ! Get atomic position
@@ -1109,7 +1101,9 @@ CONTAINS
 
                  ! Store analytic derivative of atomic density
                          IF (cdft_control%in_memory) THEN
-                           rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                           rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) &
+                                                                     + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                           ! rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                          END IF
 
                  ! Loop over grid
@@ -1175,11 +1169,11 @@ CONTAINS
                rs_rho_all%r(:, :, :) = rs_rho_all%r(:, :, :) + rho_temp(:, :, :)
 
                ! Save analytic derivative
-               IF (cdft_control%in_memory) THEN
+               ! IF (cdft_control%in_memory) THEN
                  ! PRINT *, "cdft_control%in_memory"
                  ! rho_atom_dr_temp(atom_a, :, :, :) = rho_atom_dr_temp(atom_a, :, :, :) + rho_dr_temp(:, :, :)
-                 rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) + rho_dr_temp(:, :, :)
-               END IF
+                 ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) + rho_dr_temp(:, :, :)
+               ! END IF
 
                ! Save atomic density
                IF (cdft_control%atomic_charges) THEN
@@ -1634,7 +1628,7 @@ CONTAINS
          END DO
 
          IF (cdft_control%in_memory) THEN
-           DEALLOCATE (rho_dr_temp)
+           ! DEALLOCATE (rho_dr_temp)
          !   DEALLOCATE(rho_atom_dr_temp)
            DO i = 1, natom
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
@@ -1753,15 +1747,15 @@ CONTAINS
              cdft_control%group(igroup)%integrated = 0.0_dp
           END DO
 
-          IF (dft_control%qs_control%cdft_control%print_force) THEN
-                DO iatom = 1, natom
-                  ikind = kind_of(iatom)
-                  i = atom_of_kind(iatom)
-                  PRINT *, "iatom i", iatom, i
-                  PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                  PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-                END DO
-          END IF
+          ! IF (dft_control%qs_control%cdft_control%print_force) THEN
+          !       DO iatom = 1, natom
+          !         ikind = kind_of(iatom)
+          !         i = atom_of_kind(iatom)
+          !         PRINT *, "iatom i", iatom, i
+          !         PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+          !         PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+          !       END DO
+          ! END IF
 
           ! Get size of pw grid
           lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
@@ -1944,6 +1938,7 @@ CONTAINS
                 DO iatom = 1, natom
                   ikind = kind_of(iatom)
                   i = atom_of_kind(iatom)
+                   PRINT *, "cdft_constraint_force"
                    PRINT *, "iatom i", iatom, i
                    PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                    PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
