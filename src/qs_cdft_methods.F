@@ -1603,10 +1603,11 @@ CONTAINS
                          !      > hirshfeld_control%eps_constraint) THEN
 
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
-                           ! exp_eval =  ((coefficients(iatom) -
+
                            ! exp_eval =  ((1 - &
-                                       ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                       ! cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) * &
+                            exp_eval =  ((coefficients(iatom) -
+                                       cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
                                        ! cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
@@ -1615,7 +1616,7 @@ CONTAINS
                                        !             cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
 
 
-                                      exp_eval = 1 !cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
+                                      ! exp_eval = 1 !cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
 
 
                                        ! ra(:) = particle_set(iatom)%r ! rs R
@@ -1676,17 +1677,17 @@ CONTAINS
                               ! Store gradient d/dR_x w, including term: (r_x - R_x)
                               cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                                           cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                                           exp_eval !r_pbc(1) !* exp_eval
+                                          r_pbc(1) * exp_eval
 
                               ! Store gradient d/dR_y w, including term: (r_y - R_y)
                               cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
                                           cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                                           exp_eval !r_pbc(2) !* exp_eval
+                                           r_pbc(2) * exp_eval
 
                               ! Store gradient d/dR_z w, including term:(r_z - R_z)
                               cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                                           cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                                           exp_eval ! r_pbc(3) !* exp_eval
+                                           r_pbc(3) * exp_eval
                             ! END IF
 
 
