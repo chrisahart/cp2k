@@ -1684,17 +1684,17 @@ CONTAINS
 
                               ! Store gradient d/dR_x w, including term: (r_x - R_x)
                               cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
                                           r_pbc(1) * exp_eval
 
                               ! Store gradient d/dR_y w, including term: (r_y - R_y)
                               cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
                                            r_pbc(2) * exp_eval
 
                               ! Store gradient d/dR_z w, including term:(r_z - R_z)
                               cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
                                            r_pbc(3) * exp_eval
                             ! END IF
 
