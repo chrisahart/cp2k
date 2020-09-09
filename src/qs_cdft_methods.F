@@ -1358,9 +1358,9 @@ CONTAINS
             IF (cdft_control%in_memory) THEN
               PRINT *, "Sucessfully allocated gradient"
               DO iatom = 1, natom
-                DO k = lb_pw(3), ub_pw(3)
-                  DO j = lb_pw(2), ub_pw(2)
-                    DO i = lb_pw(1), ub_pw(1)
+                DO k = lb_rs(3), ub_rs(3)
+                  DO j = lb_rs(2), ub_rs(2)
+                    DO i = lb_rs(1), ub_rs(1)
 
                       im = i + rs_single_dr(iatom)%rs_grid%desc%npts(1)
                       jm = j + rs_single_dr(iatom)%rs_grid%desc%npts(2)

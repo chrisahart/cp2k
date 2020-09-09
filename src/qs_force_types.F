@@ -404,26 +404,26 @@ CONTAINS
          CALL mp_sum(qs_force(ikind)%gcp, para_env%group)
          CALL mp_sum(qs_force(ikind)%ehrenfest, para_env%group)
 
-         PRINT *, "qs_force(ikind)%overlap", qs_force(ikind)%overlap
-         PRINT *, "qs_force(ikind)%overlap_admm", qs_force(ikind)%overlap_admm
-         PRINT *, "qs_force(ikind)%kinetic", qs_force(ikind)%kinetic
-         PRINT *, "qs_force(ikind)%gth_ppl", qs_force(ikind)%gth_ppl
-         PRINT *, "qs_force(ikind)%gth_nlcc", qs_force(ikind)%gth_nlcc
-         PRINT *, "qs_force(ikind)%gth_ppnl", qs_force(ikind)%gth_ppnl
-         PRINT *, "qs_force(ikind)%all_potential", qs_force(ikind)%all_potential
-         PRINT *, "qs_force(ikind)%core_overlap", qs_force(ikind)%core_overlap
-         PRINT *, "qs_force(ikind)%rho_core", qs_force(ikind)%rho_core
-         PRINT *, "qs_force(ikind)%rho_elec", qs_force(ikind)%rho_elec
-         PRINT *, "qs_force(ikind)%rho_lri_elec", qs_force(ikind)%rho_lri_elec
-         PRINT *, "qs_force(ikind)%vhxc_atom", qs_force(ikind)%vhxc_atom
-         PRINT *, "qs_force(ikind)%g0s_Vh_elec", qs_force(ikind)%g0s_Vh_elec
-         PRINT *, "qs_force(ikind)%fock_4c", qs_force(ikind)%fock_4c
-         PRINT *, "qs_force(ikind)%mp2_non_sep", qs_force(ikind)%mp2_non_sep
-         PRINT *, "qs_force(ikind)%mp2_sep", qs_force(ikind)%mp2_sep
-         PRINT *, "qs_force(ikind)%repulsive", qs_force(ikind)%repulsive
-         PRINT *, "qs_force(ikind)%dispersion", qs_force(ikind)%dispersion
-         PRINT *, "qs_force(ikind)%gcp", qs_force(ikind)%gcp
-         PRINT *, "qs_force(ikind)%ehrenfest", qs_force(ikind)%ehrenfest
+         ! PRINT *, "qs_force(ikind)%overlap", qs_force(ikind)%overlap
+         ! PRINT *, "qs_force(ikind)%overlap_admm", qs_force(ikind)%overlap_admm
+         ! PRINT *, "qs_force(ikind)%kinetic", qs_force(ikind)%kinetic
+         ! PRINT *, "qs_force(ikind)%gth_ppl", qs_force(ikind)%gth_ppl
+         ! PRINT *, "qs_force(ikind)%gth_nlcc", qs_force(ikind)%gth_nlcc
+         ! PRINT *, "qs_force(ikind)%gth_ppnl", qs_force(ikind)%gth_ppnl
+         ! PRINT *, "qs_force(ikind)%all_potential", qs_force(ikind)%all_potential
+         ! PRINT *, "qs_force(ikind)%core_overlap", qs_force(ikind)%core_overlap
+         ! PRINT *, "qs_force(ikind)%rho_core", qs_force(ikind)%rho_core
+         ! PRINT *, "qs_force(ikind)%rho_elec", qs_force(ikind)%rho_elec
+         ! PRINT *, "qs_force(ikind)%rho_lri_elec", qs_force(ikind)%rho_lri_elec
+         ! PRINT *, "qs_force(ikind)%vhxc_atom", qs_force(ikind)%vhxc_atom
+         ! PRINT *, "qs_force(ikind)%g0s_Vh_elec", qs_force(ikind)%g0s_Vh_elec
+         ! PRINT *, "qs_force(ikind)%fock_4c", qs_force(ikind)%fock_4c
+         ! PRINT *, "qs_force(ikind)%mp2_non_sep", qs_force(ikind)%mp2_non_sep
+         ! PRINT *, "qs_force(ikind)%mp2_sep", qs_force(ikind)%mp2_sep
+         ! PRINT *, "qs_force(ikind)%repulsive", qs_force(ikind)%repulsive
+         ! PRINT *, "qs_force(ikind)%dispersion", qs_force(ikind)%dispersion
+         ! PRINT *, "qs_force(ikind)%gcp", qs_force(ikind)%gcp
+         ! PRINT *, "qs_force(ikind)%ehrenfest", qs_force(ikind)%ehrenfest
 
          ! qs_force(ikind)%total(:, :) = qs_force(ikind)%rho_elec(:, :)
 
