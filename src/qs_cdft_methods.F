@@ -655,7 +655,7 @@ CONTAINS
          LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, num_species, &
-                                                               nthread, numexp, k, i2, j2, k2, jatom
+                                                               nthread, numexp, k, i2, j2, k2, jatom,  im, jm, km
          INTEGER, DIMENSION(:), POINTER                     :: atom_list
          TYPE(cube_info_type)                               :: cube_info
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
