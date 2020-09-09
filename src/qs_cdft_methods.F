@@ -1117,8 +1117,8 @@ CONTAINS
 
                  ! Store analytic derivative of atomic density
                          IF (cdft_control%in_memory) THEN
-                           rs_single_dr(atom_a)%rs_grid%r(:, :, :) = rs_single_dr(atom_a)%rs_grid%r(:, :, :) &
-                                                                     + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                           rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 1 !rs_single_dr(atom_a)%rs_grid%r(:, :, :) &
+                                                                     !+ 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                            ! rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                          END IF
 
@@ -1427,7 +1427,7 @@ CONTAINS
               PRINT *, "LBOUND(pw%cr3d, 3)", LBOUND(rho_r(1)%pw%cr3d, 3)
             END IF
 
-            CPASSERT(LBOUND(rho_r(1)%pw%cr3d, 3) .EQ. rs_single_dr(1)%rs_grid%lb_real(3))
+            ! CPASSERT(LBOUND(rho_r(1)%pw%cr3d, 3) .EQ. rs_single_dr(1)%rs_grid%lb_real(3))
 
 
 
@@ -1501,7 +1501,7 @@ CONTAINS
                 !   END DO
                 ! END DO
              END DO
-           END IF 
+           END IF
                END IF
 
 
@@ -1685,19 +1685,19 @@ CONTAINS
                             ! ELSE
 
                               ! Store gradient d/dR_x w, including term: (r_x - R_x)
-                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
-                                          r_pbc(1) * exp_eval
-
-                              ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
-                                           r_pbc(2) * exp_eval
-
-                              ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
-                                           r_pbc(3) * exp_eval
+                              ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                              !             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
+                              !             r_pbc(1) * exp_eval
+                              !
+                              ! ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                              ! cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                              !             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
+                              !              r_pbc(2) * exp_eval
+                              !
+                              ! ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                              ! cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                              !             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
+                              !              r_pbc(3) * exp_eval
                             ! END IF
 
 
