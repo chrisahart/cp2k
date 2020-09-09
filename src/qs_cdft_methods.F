@@ -1432,6 +1432,7 @@ CONTAINS
 
 
             IF (cdft_control%in_memory) THEN
+              IF (para_env%ionode) THEN
               PRINT *, "Sucessfully allocated gradient"
               DO iatom = 1, natom
 
@@ -1500,6 +1501,7 @@ CONTAINS
                 !   END DO
                 ! END DO
              END DO
+           END IF 
                END IF
 
 
