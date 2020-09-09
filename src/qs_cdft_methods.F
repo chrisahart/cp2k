@@ -879,14 +879,14 @@ CONTAINS
            !   END DO
            ! END DO
 
-           DO igroup = 1, SIZE(cdft_control%group)
+           ! DO igroup = 1, SIZE(cdft_control%group)
              ! PRINT *, "ALLOCATE (cdft_control%group(igroup)%gradients"
-             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+             ! ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
              ! ALLOCATE (rho_atom_dr_temp(natom, lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
-             cdft_control%group(igroup)%gradients = 0.0_dp
+             ! cdft_control%group(igroup)%gradients = 0.0_dp
              ! PRINT *, "ALLOCATE (rho_dr_temp"
              ! ALLOCATE (rho_dr_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
-           END DO
+           ! END DO
            ! rho_atom_dr_temp = 0.0_dp
 
            ALLOCATE (rs_single_dr(natom))
@@ -912,10 +912,10 @@ CONTAINS
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
            END IF
 
-             IF (cdft_control%in_memory) THEN
+             ! IF (cdft_control%in_memory) THEN
                ! PRINT *, "ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr"
-             ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(natom))
-           END IF
+             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_dr(natom))
+           ! END IF
            END DO
 
            DO igroup = 1, SIZE(cdft_control%group)
@@ -946,19 +946,19 @@ CONTAINS
 
              END DO
 
-             IF (cdft_control%in_memory) THEN
-                 DO iatom = 1, natom
+             ! IF (cdft_control%in_memory) THEN
+                 ! DO iatom = 1, natom
 
 
 
              ! PRINT *, "pw_pool_create_pw hw_rho_atomic_dr"
-             CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
-             use_data=REALDATA3D, in_space=REALSPACE)
-             cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
+             ! CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw, &
+             ! use_data=REALDATA3D, in_space=REALSPACE)
+             ! cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d = 1.0_dp
 
 
-         END DO
-         END IF
+         ! END DO
+         ! END IF
 
            END DO
 
@@ -1218,13 +1218,7 @@ CONTAINS
          END IF
             END DO
 
-              IF (cdft_control%in_memory) THEN
-                DO i = 1, natom
 
-                CALL rs_pw_transfer(rs_single_dr(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw, rs2pw)
-
-               END DO
-                 END IF
 
 
 
@@ -1345,6 +1339,41 @@ CONTAINS
             END IF
           ! END IF
 
+
+
+
+
+            ! Set up gradient
+            IF (cdft_control%in_memory) THEN
+              DO igroup = 1, SIZE(cdft_control%group)
+                ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+                cdft_control%group(igroup)%gradients = 0.0_dp
+              END DO
+
+            END IF
+
+
+            IF (cdft_control%in_memory) THEN
+              DO iatom = 1, natom
+                DO k = lb_pw(3), ub_pw(3)
+                  DO j = lb_pw(2), ub_pw(2)
+                    DO i = lb_pw(1), ub_pw(1)
+
+                      im = i + rs_single_dr(iatom)%rs_grid%desc%npts(1)
+                      jm = j + rs_single_dr(iatom)%rs_grid%desc%npts(2)
+                      km = k + rs_single_dr(iatom)%rs_grid%desc%npts(3)
+
+                      cdft_control%group(igroup)%gradients(1+((iatom-1)*3), im, jm, km) = &
+                                                          rs_single_dr(iatom)%rs_grid%r(i, j, k)
+
+                    END DO
+                  END DO
+                END DO
+             END DO
+               END IF
+
+
+
            ! Calculate gradient if requested
            IF (cdft_control%in_memory) THEN
              ! PRINT *, "Calculate gradient"
@@ -1464,7 +1493,7 @@ CONTAINS
                                        !             cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
 
 
-                                      exp_eval = cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
+                                      exp_eval = 1 !cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
 
 
                                        ! ra(:) = particle_set(iatom)%r ! rs R
@@ -1640,11 +1669,11 @@ CONTAINS
          !   DEALLOCATE(rho_atom_dr_temp)
            DO i = 1, natom
              CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-             CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
+             ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
          !
            END DO
            DEALLOCATE (rs_single_dr)
-           DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
+           ! DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
          END IF
 
 
