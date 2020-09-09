@@ -1442,17 +1442,17 @@ CONTAINS
 
                     ! cdft_control%group(1)%gradients(1+((iatom-1)*3), :, :, i) = 1
                     ! cdft_control%group(1)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, :, :, i) = 1
-                    cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, i) =  &
-                    rs_single_dr(iatom)%rs_grid%r(rs_single_dr(1)%rs_grid%lb_real(1):rs_single_dr(1)%rs_grid%ub_real(1), &
-                                                  rs_single_dr(1)%rs_grid%lb_real(2):rs_single_dr(1)%rs_grid%ub_real(2), i)
+              cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, i) =  &
+              rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
+                                              rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
 
-                    cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, i) =  &
-                    rs_single_dr(iatom)%rs_grid%r(rs_single_dr(1)%rs_grid%lb_real(1):rs_single_dr(1)%rs_grid%ub_real(1), &
-                                                  rs_single_dr(1)%rs_grid%lb_real(2):rs_single_dr(1)%rs_grid%ub_real(2), i)
+              cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, i) =  &
+              rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
+                                              rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
 
-                    cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, i) =  &
-                    rs_single_dr(iatom)%rs_grid%r(rs_single_dr(1)%rs_grid%lb_real(1):rs_single_dr(1)%rs_grid%ub_real(1), &
-                                                  rs_single_dr(1)%rs_grid%lb_real(2):rs_single_dr(1)%rs_grid%ub_real(2), i)
+              cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, i) =  &
+              rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
+                                            rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
 
                     ! pw%cr3d(:, :, i) = rs%r(rs%lb_real(1):rs%ub_real(1), &
                     !                        rs%lb_real(2):rs%ub_real(2), i)
@@ -1735,16 +1735,16 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (cdft_control%in_memory) THEN
 
-         !   IF (para_env%ionode) THEN
-         !     PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
-         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
-         !
-         !   PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
-         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
-         !
-         !   PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
-         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
-         ! END IF
+           IF (para_env%ionode) THEN
+             PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
+
+           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
+
+           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
+           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
+         END IF
 
            !   IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            !    DO igroup = 1, SIZE(cdft_control%group)
@@ -2110,6 +2110,7 @@ CONTAINS
                   i = atom_of_kind(iatom)
                    PRINT *, "cdft_constraint_force"
                    PRINT *, "iatom i", iatom, i
+                   PRINT *, "group(igroup)%integrated(:, iatom)", group(igroup)%integrated(:, iatom)
                    PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
                    PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                    PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
