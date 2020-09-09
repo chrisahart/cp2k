@@ -1210,6 +1210,22 @@ CONTAINS
            END DO ! ikind = 1, SIZE(atomic_kind_set)
          END DO ! igroup = 1, SIZE(cdft_control%group)
 
+         IF (para_env%ionode) THEN
+           PRINT *, "lb_rs", lb_rs
+           PRINT *, "ub_rs", ub_rs
+           PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_rho_all%rs_grid%lb_real
+           PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_rho_all%rs_grid%ub_real
+           PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_rho_all%rs_grid%lb_local
+           PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_rho_all%rs_grid%ub_local
+           PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
+           PRINT *, "lb_pw", lb_pw
+           PRINT *, "ub_pw", ub_pw
+           PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+           PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+           PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
+         END IF
+
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
          ! IF (.NOT. my_just_gradients) THEN
@@ -1231,6 +1247,22 @@ CONTAINS
 
          END IF
             END DO
+
+            IF (para_env%ionode) THEN
+              PRINT *, "lb_rs", lb_rs
+              PRINT *, "ub_rs", ub_rs
+              PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_rho_all%rs_grid%lb_real
+              PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_rho_all%rs_grid%ub_real
+              PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_rho_all%rs_grid%lb_local
+              PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_rho_all%rs_grid%ub_local
+              PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
+              PRINT *, "lb_pw", lb_pw
+              PRINT *, "ub_pw", ub_pw
+              PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+              PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+              PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
+            END IF
 
 
 
@@ -1380,6 +1412,9 @@ CONTAINS
               PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
               PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
               PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
+                PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+                PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+                PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
               PRINT *, "lb_pw", lb_pw
               PRINT *, "ub_pw", ub_pw
               PRINT *, "origin", origin
