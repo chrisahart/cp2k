@@ -1213,10 +1213,10 @@ CONTAINS
          IF (para_env%ionode) THEN
            PRINT *, "lb_rs", lb_rs
            PRINT *, "ub_rs", ub_rs
-           PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_rho_all%rs_grid%lb_real
-           PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_rho_all%rs_grid%ub_real
-           PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_rho_all%rs_grid%lb_local
-           PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_rho_all%rs_grid%ub_local
+           PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_rho_all%lb_real
+           PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_rho_all%ub_real
+           PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_rho_all%lb_local
+           PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_rho_all%ub_local
            PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
            PRINT *, "lb_pw", lb_pw
            PRINT *, "ub_pw", ub_pw
@@ -1251,10 +1251,10 @@ CONTAINS
             IF (para_env%ionode) THEN
               PRINT *, "lb_rs", lb_rs
               PRINT *, "ub_rs", ub_rs
-              PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_rho_all%rs_grid%lb_real
-              PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_rho_all%rs_grid%ub_real
-              PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_rho_all%rs_grid%lb_local
-              PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_rho_all%rs_grid%ub_local
+              PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_rho_all%lb_real
+              PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_rho_all%ub_real
+              PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_rho_all%lb_local
+              PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_rho_all%ub_local
               PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
               PRINT *, "lb_pw", lb_pw
               PRINT *, "ub_pw", ub_pw
