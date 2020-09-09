@@ -1427,7 +1427,7 @@ CONTAINS
               PRINT *, "LBOUND(pw%cr3d, 3)", LBOUND(rho_r(1)%pw%cr3d, 3)
             END IF
 
-            CPASSERT(LBOUND(pw%cr3d, 3) .EQ. rs%lb_real(3))
+            CPASSERT(LBOUND(rho_r(1)%pw%cr3d, 3) .EQ. rs_single_dr(1)%rs_grid%lb_real(3))
 
 
 
