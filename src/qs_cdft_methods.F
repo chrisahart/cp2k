@@ -827,11 +827,7 @@ CONTAINS
          dr_pw = rho_r(1)%pw%pw_grid%dr
          origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
 
-         ! PRINT *, "lb_rs", lb_rs
-         ! PRINT *, "ub_rs", ub_rs
-         ! PRINT *, "lb_pw", lb_pw
-         ! PRINT *, "ub_pw", ub_pw
-         ! PRINT *, "origin", origin
+
 
          IF (cdft_control%atomic_charges) THEN
            ALLOCATE (rs_single_charge(cdft_control%natoms))
@@ -978,6 +974,16 @@ CONTAINS
        !    END DO
        ! END IF
        !
+
+       IF (para_env%ionode) THEN
+         PRINT *, "lb_rs", lb_rs
+         PRINT *, "ub_rs", ub_rs
+         PRINT *, "lb_pw", lb_pw
+         PRINT *, "ub_pw", ub_pw
+         PRINT *, "origin", origin
+       END IF
+
+
           DO igroup = 1, SIZE(cdft_control%group)
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
@@ -1359,12 +1365,38 @@ CONTAINS
               PRINT *, "Sucessfully allocated gradient"
               DO iatom = 1, natom
                 DO k = lb_rs(3), ub_rs(3)
+
+                  IF (k < rs_single_dr(iatom)%rs_grid%lb_real(3)) THEN
+                     km = k + rs_single_dr(iatom)%rs_grid%desc%npts(3)
+                  ELSE IF (k > rs_single_dr(iatom)%rs_grid%ub_real(3)) THEN
+                     km = k - rs_single_dr(iatom)%rs_grid%desc%npts(3)
+                  ELSE
+                     km = k
+                  END IF
+
                   DO j = lb_rs(2), ub_rs(2)
+
+                    IF (j < rs_single_dr(iatom)%rs_grid%lb_real(2)) THEN
+                       jm = j + rs_single_dr(iatom)%rs_grid%desc%npts(2)
+                    ELSE IF (j > rs_single_dr(iatom)%rs_grid%ub_real(2)) THEN
+                       jm = j - rs_single_dr(iatom)%rs_grid%desc%npts(2)
+                    ELSE
+                       jm = j
+                    END IF
+
                     DO i = lb_rs(1), ub_rs(1)
 
-                      im = i + rs_single_dr(iatom)%rs_grid%desc%npts(1)
-                      jm = j + rs_single_dr(iatom)%rs_grid%desc%npts(2)
-                      km = k + rs_single_dr(iatom)%rs_grid%desc%npts(3)
+                      IF (i < rs_single_dr(iatom)%rs_grid%lb_real(1)) THEN
+                         im = i + rs_single_dr(iatom)%rs_grid%desc%npts(1)
+                      ELSE IF (i > rs_single_dr(iatom)%rs_grid%ub_real(1)) THEN
+                         im = i - rs_single_dr(iatom)%rs_grid%desc%npts(1)
+                      ELSE
+                         im = i
+                    END IF
+
+                      ! im = i + rs_single_dr(iatom)%rs_grid%desc%npts(1)
+                      ! jm = j + rs_single_dr(iatom)%rs_grid%desc%npts(2)
+                      ! km = k + rs_single_dr(iatom)%rs_grid%desc%npts(3)
 
                       cdft_control%group(1)%gradients(1+((iatom-1)*3), im, jm, km) = &
                                                           rs_single_dr(iatom)%rs_grid%r(i, j, k)
