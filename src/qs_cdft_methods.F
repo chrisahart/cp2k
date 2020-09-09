@@ -1228,7 +1228,7 @@ CONTAINS
          ! Calculate weight function
          ! IF (.NOT. my_just_gradients) THEN
          DO igroup = 1, SIZE(cdft_control%group)
-           ! PRINT *, "Calculate weight function"
+           PRINT *, "Calculate weight function"
 
            CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
@@ -1292,7 +1292,7 @@ CONTAINS
            ! Calculate atomic charges if requested
            ! IF (.NOT. my_just_gradients) THEN
            IF (cdft_control%atomic_charges) THEN
-             ! PRINT *, "Calculate charges"
+             PRINT *, "Calculate charges"
              DO iatom = 1, cdft_control%natoms
                ! PRINT *, "iatom", iatom
                !IF (compute_charge(atom_a)) THEN
@@ -1335,6 +1335,7 @@ CONTAINS
 
            ! Print atomic densities if requested
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             PRINT *, "Print density"
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
           ! END IF
@@ -1345,6 +1346,7 @@ CONTAINS
 
             ! Set up gradient
             IF (cdft_control%in_memory) THEN
+              PRINT *, "Attempting to allocate gradient"
               DO igroup = 1, SIZE(cdft_control%group)
                 ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
                 cdft_control%group(igroup)%gradients = 0.0_dp
@@ -1354,6 +1356,7 @@ CONTAINS
 
 
             IF (cdft_control%in_memory) THEN
+              PRINT *, "Sucessfully allocated gradient"
               DO iatom = 1, natom
                 DO k = lb_pw(3), ub_pw(3)
                   DO j = lb_pw(2), ub_pw(2)
@@ -1363,7 +1366,7 @@ CONTAINS
                       jm = j + rs_single_dr(iatom)%rs_grid%desc%npts(2)
                       km = k + rs_single_dr(iatom)%rs_grid%desc%npts(3)
 
-                      cdft_control%group(igroup)%gradients(1+((iatom-1)*3), im, jm, km) = &
+                      cdft_control%group(1)%gradients(1+((iatom-1)*3), im, jm, km) = &
                                                           rs_single_dr(iatom)%rs_grid%r(i, j, k)
 
                     END DO
@@ -1376,7 +1379,7 @@ CONTAINS
 
            ! Calculate gradient if requested
            IF (cdft_control%in_memory) THEN
-             ! PRINT *, "Calculate gradient"
+             PRINT *, "Calculate gradient"
              DO igroup = 1, SIZE(cdft_control%group)
                  DO iatom = 1, natom
 
