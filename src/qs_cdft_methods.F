@@ -1364,10 +1364,10 @@ CONTAINS
             IF (para_env%ionode) THEN
               PRINT *, "lb_rs", lb_rs
               PRINT *, "ub_rs", ub_rs
-              PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(iatom)%rs_grid%lb_real
-              PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(iatom)%rs_grid%ub_real
-              PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(iatom)%rs_grid%lb_local
-              PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(iatom)%rs_grid%ub_local
+              PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
+              PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
+              PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
+              PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
               PRINT *, "ub_pw", ub_pw
               PRINT *, "origin", origin
             END IF
