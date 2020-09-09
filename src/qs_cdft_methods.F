@@ -1440,10 +1440,10 @@ CONTAINS
                   !       cdft_control%group(1)%gradients(1+((iatom-1)*3), im, jm, km) = rs_single_dr(iatom)%rs_grid%r(i, j, k)
 
                     ! cdft_control%group(1)%gradients(1+((iatom-1)*3), :, :, i) = 1
-                    cdft_control%group(1)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, :, :, i) = 1
-                    ! cdft_control%group(1)%gradients(1+((iatom-1)*3), :, :, i) =  &
-                    ! rs_single_dr(iatom)%rs_grid%r(rs_single_dr(1)%rs_grid%lb_real(1):rs_single_dr(1)%rs_grid%lb_real(1), &
-                                                  ! rs_single_dr(1)%rs_grid%lb_real(2):rs_single_dr(1)%rs_grid%lb_real(2), i)
+                    ! cdft_control%group(1)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, :, :, i) = 1
+                    cdft_control%group(1)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, :, :, i) =  &
+                    rs_single_dr(iatom)%rs_grid%r(rs_single_dr(1)%rs_grid%lb_real(1):rs_single_dr(1)%rs_grid%lb_real(1), &
+                                                  rs_single_dr(1)%rs_grid%lb_real(2):rs_single_dr(1)%rs_grid%lb_real(2), i)
 
                     ! pw%cr3d(:, :, i) = rs%r(rs%lb_real(1):rs%ub_real(1), &
                     !                        rs%lb_real(2):rs%ub_real(2), i)
