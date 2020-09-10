@@ -1152,12 +1152,14 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (cdft_control%in_memory) THEN
 
+           IF (cdft_control%in_memory) THEN
+             CALL rs_grid_release(rho_dr_temp)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
+           END IF
 
            CALL rs_grid_release(rs_rho_temp)
-           CALL rs_grid_release(rho_dr_temp)
            CALL rs_grid_release(rs_rho_all)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
            DEALLOCATE (pab)
            DEALLOCATE (coefficients)
 
