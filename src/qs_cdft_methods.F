@@ -756,7 +756,6 @@ CONTAINS
          CALL rs_grid_zero(rs_rho_temp)
 
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
-         ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
             ALLOCATE (rs_single(cdft_control%natoms))
             DO i = 1, cdft_control%natoms
@@ -769,19 +768,14 @@ CONTAINS
          ! Get size of rs and pw grids
          npts = rho_r(1)%pw%pw_grid%npts
          dr_pw = rho_r(1)%pw%pw_grid%dr
-         origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
-         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          dr_rs(1) = rs_rho_all%desc%dh(1, 1)
          dr_rs(2) = rs_rho_all%desc%dh(2, 2)
          dr_rs(3) = rs_rho_all%desc%dh(3, 3)
-         ng(:) = rs_rho_all%desc%npts(:)
-         lb_rs(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
-         lb_rs(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
-         lb_rs(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
-         ub_rs(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
-         ub_rs(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
-         ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
+         origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
+         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         lb_rs(1:3) = LBOUND(rs_rho_all%r(:, :, :), 1:3)
+         ub_rs(1:3) = UBOUND(rs_rho_all%r(:, :, :), 1:3)
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
          ! Charges
@@ -810,11 +804,9 @@ CONTAINS
          END DO
 
            DO igroup = 1, SIZE(cdft_control%group)
-
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
            END IF
-
              IF (cdft_control%atomic_charges) THEN
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
            END IF
@@ -833,7 +825,6 @@ CONTAINS
              DO iatom = 1, cdft_control%natoms
 
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-
                CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
                use_data=REALDATA3D, in_space=REALSPACE)
                cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
@@ -888,7 +879,7 @@ CONTAINS
                                                     ra=ra, rb=ra, rp=ra, &
                                                     zetp=alpha, eps=eps_rho_rspace, &
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                    prefactor=1.0_dp, cutoff=0.0_dp)
+                                                    prefactor=1.0_dp, cutoff=0.0_dp) ! cutoff=hirshfeld_control%eps_constraint
                 ! PRINT *, "radius",radius
                 ! radius = 50.0_dp
 
@@ -1004,7 +995,6 @@ CONTAINS
 
           ! Clear memory before allocating gradient (very memory expensive)
           CALL rs_grid_release(rs_rho_constr)
-          CALL rs_grid_release(rs_rho_all)
           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
 
           ! Release grids that require looping over atoms
@@ -1029,8 +1019,6 @@ CONTAINS
             DEALLOCATE (rs_single_charge)
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
           END IF
-
-          DEALLOCATE (coefficients)
 
           ! Deallocate if allocated
           IF (ALLOCATED(is_constraint)) &
@@ -1160,11 +1148,13 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (cdft_control%in_memory) THEN
 
+           CALL rs_grid_release(rs_rho_all)
            CALL rs_grid_release(rs_rho_temp)
            CALL rs_grid_release(rho_dr_temp)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
            DEALLOCATE (pab)
+           DEALLOCATE (coefficients)
 
            CALL timestop(handle)
 
