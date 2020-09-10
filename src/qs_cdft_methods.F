@@ -775,6 +775,9 @@ CONTAINS
          ! Change grid to pw
          lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         PRINT *, "lb from pw", lb_pw
+         PRINT *, "ub from pw", ub_pw
+         PRINT *, "group(1)%weight%pw%pw_grid%bounds_local", group(1)%weight%pw%pw_grid%bounds_local
 
          ! Set up gradient
          IF (cdft_control%in_memory) THEN
@@ -849,8 +852,7 @@ CONTAINS
          ! origin(:) = (dr(:) * npts(:)) * 0.5_dp
          ! PRINT *, "dr from pw", dr
          ! PRINT *, "npts from pw", npts
-         ! PRINT *, "lb from pw", lb
-         ! PRINT *, "ub from pw", ub
+
 
          ! Get size of rs grid
          dr_rs(1) = rs_rho_all%desc%dh(1, 1)
