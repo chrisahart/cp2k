@@ -772,6 +772,10 @@ CONTAINS
             CALL rs_grid_zero(rs_rho_all)
          END IF
 
+         ! Change grid to pw
+         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
          ! Set up gradient
          IF (cdft_control%in_memory) THEN
            IF (para_env%ionode) PRINT *, "Attempting to allocate gradient"
@@ -785,9 +789,7 @@ CONTAINS
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_constr)
 
-         ! Change grid to pw
-         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
 
 
 
