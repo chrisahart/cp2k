@@ -1309,7 +1309,7 @@ CONTAINS
 
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
-         ! END IF
+         END IF
 
            IF (cdft_control%atomic_charges) THEN
              CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
@@ -1876,6 +1876,7 @@ CONTAINS
                        END DO ! i = lb(1), ub(1)
                      END DO ! j = lb(2), ub(2)
                    END DO ! k = lb(3), ub(3)
+
                  END DO ! iatom = 1, natom
                ! END DO ! ikind = 1, SIZE(atomic_kind_set)
              END DO ! igroup = 1, SIZE(cdft_control%group)
