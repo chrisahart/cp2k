@@ -197,17 +197,6 @@ CONTAINS
       END IF
       CALL zero_qs_force(force)
 
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-               PRINT *, "1: iatom i", iatom, i
-               PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-               PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
 
       ! Check if CDFT potential is needed and save it until forces have been calculated
       IF (dft_control%qs_control%cdft) THEN
@@ -320,17 +309,6 @@ CONTAINS
          ENDIF
       END IF
 
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "2: iatom i", iatom, i
-              PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-              PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-              PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
 
       ! Compute grid-based forces
       CALL qs_ks_update_qs_env(qs_env, calculate_forces=.TRUE.)
@@ -378,18 +356,6 @@ CONTAINS
 
       END IF
 
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "3: iatom i", iatom, i
-              PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-              PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-              PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
-
       ! Add forces resulting from wavefunction fitting
       IF (dft_control%do_admm_dm) THEN
          CPABORT("Forces with ADMM DM methods not implemented")
@@ -417,62 +383,13 @@ CONTAINS
          CALL calc_mixed_overlap_force(qs_env)
       END IF
 
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "4: iatom i", iatom, i
-              PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-              PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-              PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
-
       ! Energy_correction
       CALL energy_correction(qs_env, ec_init=.FALSE., calculate_forces=.TRUE.)
-
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "5: iatom i", iatom, i
-              PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-              PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-              PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
 
       ! replicate forces (get current pointer)
       NULLIFY (force)
       CALL get_qs_env(qs_env=qs_env, force=force)
-
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "6: iatom i", iatom, i
-              PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-              PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-              PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
-
       CALL replicate_qs_force(force, para_env)
-
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-              ikind = kind_of(iatom)
-              i = atom_of_kind(iatom)
-              PRINT *, "7: iatom i", iatom, i
-              PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-              PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-              PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-              PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
 
       DO iatom = 1, natom
          ikind = kind_of(iatom)
@@ -486,18 +403,6 @@ CONTAINS
          force(ikind)%total(1:3, i) = force(ikind)%total(1:3, i) + force(ikind)%other(1:3, i)
          particle_set(iatom)%f = -force(ikind)%total(1:3, i)
       END DO
-
-      IF (dft_control%qs_control%cdft_control%print_force) THEN
-            DO iatom = 1, natom
-               ikind = kind_of(iatom)
-               i = atom_of_kind(iatom)
-               PRINT *, "8: iatom i", iatom, i
-               PRINT *, "force(ikind)%other", force(ikind)%other(:, i)
-               PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-               PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-               PRINT *, "particle_set(iatom)%f", particle_set(iatom)%f
-            END DO
-    END IF
 
       NULLIFY (virial, energy)
       CALL get_qs_env(qs_env=qs_env, virial=virial, energy=energy)
