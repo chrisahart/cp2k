@@ -298,10 +298,12 @@ CONTAINS
          ALLOCATE (atom_in_group(SIZE(group), natom))
          atom_in_group = .FALSE.
          DO igroup = 1, SIZE(group)
+           IF (para_env%ionode) PRINT *, "Allocate gradient"
             ALLOCATE (group(igroup)%gradients(3*natom, bo_conf(1, 1):bo_conf(2, 1), &
                                               bo_conf(1, 2):bo_conf(2, 2), &
                                               bo_conf(1, 3):bo_conf(2, 3)))
             group(igroup)%gradients = 0.0_dp
+            IF (para_env%ionode) PRINT *, "Allocated gradient"
             ALLOCATE (group(igroup)%d_sum_const_dR(3, natom))
             group(igroup)%d_sum_const_dR = 0.0_dp
             DO ip = 1, SIZE(group(igroup)%atoms)
@@ -932,16 +934,16 @@ CONTAINS
            ! END DO
            ! rho_atom_dr_temp = 0.0_dp
 
-           IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_single_dr"
+           ! IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_single_dr"
 
-           ALLOCATE (rs_single_dr(natom))
-
-           DO i = 1, natom
-           NULLIFY (rs_single_dr(i)%rs_grid)
-           CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-           CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-           END DO
-         END IF
+         !   ALLOCATE (rs_single_dr(natom))
+         !
+         !   DO i = 1, natom
+         !   NULLIFY (rs_single_dr(i)%rs_grid)
+         !   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+         !   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+         !   END DO
+         ! END IF
 
          ! Setup atomic densities if requested
          ! hirshfeld_control%print_density = .TRUE.
@@ -1031,23 +1033,23 @@ CONTAINS
        ! END IF
        !
 
-       IF (para_env%ionode) THEN
-         PRINT *, "lb_rs", LBOUND(rs_rho_all%r(:, :, :), 1),  LBOUND(rs_rho_all%r(:, :, :), 2), LBOUND(rs_rho_all%r(:, :, :), 3)
-         PRINT *, "ub_rs", UBOUND(rs_rho_all%r(:, :, :), 1),  UBOUND(rs_rho_all%r(:, :, :), 2), UBOUND(rs_rho_all%r(:, :, :), 3)
-         PRINT *, "lb_rs", lb_rs
-         PRINT *, "ub_rs", ub_rs
-         PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_single(1)%rs_grid%lb_real
-         PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_single(1)%rs_grid%ub_real
-         PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_single(1)%rs_grid%lb_local
-         PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_single(1)%rs_grid%ub_local
-         PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
-         PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
-         PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
-         PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
-         PRINT *, "lb_pw", lb_pw
-         PRINT *, "ub_pw", ub_pw
-         PRINT *, "origin", origin
-       END IF
+       ! IF (para_env%ionode) THEN
+       !   PRINT *, "lb_rs", LBOUND(rs_rho_all%r(:, :, :), 1),  LBOUND(rs_rho_all%r(:, :, :), 2), LBOUND(rs_rho_all%r(:, :, :), 3)
+       !   PRINT *, "ub_rs", UBOUND(rs_rho_all%r(:, :, :), 1),  UBOUND(rs_rho_all%r(:, :, :), 2), UBOUND(rs_rho_all%r(:, :, :), 3)
+       !   PRINT *, "lb_rs", lb_rs
+       !   PRINT *, "ub_rs", ub_rs
+       !   PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_single(1)%rs_grid%lb_real
+       !   PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_single(1)%rs_grid%ub_real
+       !   PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_single(1)%rs_grid%lb_local
+       !   PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_single(1)%rs_grid%ub_local
+       !   PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
+       !   PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
+       !   PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
+       !   PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
+       !   PRINT *, "lb_pw", lb_pw
+       !   PRINT *, "ub_pw", ub_pw
+       !   PRINT *, "origin", origin
+       ! END IF
 
 
           ! DO igroup = 1, SIZE(cdft_control%group)
@@ -1176,11 +1178,11 @@ CONTAINS
                  DEALLOCATE (pab)
 
                  ! Store analytic derivative of atomic density
-                         IF (cdft_control%in_memory) THEN
-                           rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 1 !rs_single_dr(atom_a)%rs_grid%r(:, :, :) &
+                         ! IF (cdft_control%in_memory) THEN
+                           ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 1 !rs_single_dr(atom_a)%rs_grid%r(:, :, :) &
                                                                      !+ 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                            ! rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
-                         END IF
+                         ! END IF
 
                  ! Loop over grid
                !   DO k = lb_rs(3), ub_rs(3)
@@ -1471,16 +1473,16 @@ CONTAINS
               PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_single(1)%rs_grid%ub_real
               PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_single(1)%rs_grid%lb_local
               PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_single(1)%rs_grid%ub_local
-              PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
-              PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
-              PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
-              PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
+              ! PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
+              ! PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
+              ! PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
+              ! PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
                 PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
                 PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
                 PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
               PRINT *, "lb_pw", lb_pw
               PRINT *, "ub_pw", ub_pw
-              PRINT *, "rs%lb_real(3)", rs_single_dr(1)%rs_grid%lb_real(3)
+              ! PRINT *, "rs%lb_real(3)", rs_single_dr(1)%rs_grid%lb_real(3)
               PRINT *, "LBOUND(pw%cr3d, 3)", LBOUND(rho_r(1)%pw%cr3d, 3)
             END IF
 
@@ -1488,32 +1490,32 @@ CONTAINS
 
 
 
-            IF (cdft_control%in_memory) THEN
-              IF (para_env%ionode) THEN
-              PRINT *, "Sucessfully allocated gradient"
-              DO iatom = 1, natom
-
-
-                DO i = rs_single_dr(iatom)%rs_grid%lb_real(3), rs_single_dr(iatom)%rs_grid%ub_real(3)
-                  !       cdft_control%group(1)%gradients(1+((iatom-1)*3), im, jm, km) = rs_single_dr(iatom)%rs_grid%r(i, j, k)
-
-                    ! cdft_control%group(1)%gradients(1+((iatom-1)*3), :, :, i) = 1
-                    ! cdft_control%group(1)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, :, :, i) = 1
-              cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, i) =  &
-              rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
-                                              rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
-
-              cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, i) =  &
-              rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
-                                              rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
-
-              cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, i) =  &
-              rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
-                                            rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
-
-                    ! pw%cr3d(:, :, i) = rs%r(rs%lb_real(1):rs%ub_real(1), &
-                    !                        rs%lb_real(2):rs%ub_real(2), i)
-                END DO
+            ! IF (cdft_control%in_memory) THEN
+            !   IF (para_env%ionode) THEN
+            !   PRINT *, "Sucessfully allocated gradient"
+            !   DO iatom = 1, natom
+            !
+            !
+            !     DO i = rs_single_dr(iatom)%rs_grid%lb_real(3), rs_single_dr(iatom)%rs_grid%ub_real(3)
+            !       !       cdft_control%group(1)%gradients(1+((iatom-1)*3), im, jm, km) = rs_single_dr(iatom)%rs_grid%r(i, j, k)
+            !
+            !         ! cdft_control%group(1)%gradients(1+((iatom-1)*3), :, :, i) = 1
+            !         ! cdft_control%group(1)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, :, :, i) = 1
+            !   cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, i) =  &
+            !   rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
+            !                                   rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
+            !
+            !   cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, i) =  &
+            !   rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
+            !                                   rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
+            !
+            !   cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, i) =  &
+            !   rs_single_dr(iatom)%rs_grid%r(rs_single_dr(iatom)%rs_grid%lb_real(1):rs_single_dr(iatom)%rs_grid%ub_real(1), &
+            !                                 rs_single_dr(iatom)%rs_grid%lb_real(2):rs_single_dr(iatom)%rs_grid%ub_real(2), i)
+            !
+            !         ! pw%cr3d(:, :, i) = rs%r(rs%lb_real(1):rs%ub_real(1), &
+            !         !                        rs%lb_real(2):rs%ub_real(2), i)
+            !     END DO
 
 
 
@@ -1723,38 +1725,38 @@ CONTAINS
 
                             ! IF (r_squared < r_squared_pbc) THEN
                             !
-                            !  ! Store gradient d/dR_x w, including term: (r_x - R_x)
-                            !  cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                            !              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
-                            !              r_rs(1) * exp_eval
-                            !
-                            !  ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                            !  cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                            !              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
-                            !              r_rs(2) * exp_eval
-                            !
-                            !  ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                            !  cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                            !              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
-                            !              r_rs(3) * exp_eval
+                             ! Store gradient d/dR_x w, including term: (r_x - R_x)
+                             ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                             !             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                             !             r_rs(1) * exp_eval
+                             !
+                             ! ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                             ! cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                             !             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                             !             r_rs(2) * exp_eval
+                             !
+                             ! ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                             ! cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                             !             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                             !             r_rs(3) * exp_eval
                             !
                             !
                             ! ELSE
 
                               ! Store gradient d/dR_x w, including term: (r_x - R_x)
-                              ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                              !             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
-                              !             r_pbc(1) * exp_eval
-                              !
-                              ! ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                              ! cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                              !             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
-                              !              r_pbc(2) * exp_eval
-                              !
-                              ! ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                              ! cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                              !             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
-                              !              r_pbc(3) * exp_eval
+                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) + &
+                                          r_pbc(1) * exp_eval
+
+                              ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) + &
+                                           r_pbc(2) * exp_eval
+
+                              ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) + &
+                                           r_pbc(3) * exp_eval
                             ! END IF
 
 
@@ -1854,17 +1856,17 @@ CONTAINS
            !DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
          END DO
 
-         IF (cdft_control%in_memory) THEN
+         ! IF (cdft_control%in_memory) THEN
            ! DEALLOCATE (rho_dr_temp)
          !   DEALLOCATE(rho_atom_dr_temp)
-           DO i = 1, natom
-             CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+           ! DO i = 1, natom
+             ! CALL rs_grid_release(rs_single_dr(i)%rs_grid)
              ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_dr(i)%pw)
          !
-           END DO
-           DEALLOCATE (rs_single_dr)
+           ! END DO
+           ! DEALLOCATE (rs_single_dr)
            ! DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_dr)
-         END IF
+         ! END IF
 
 
 
