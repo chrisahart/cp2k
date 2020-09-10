@@ -200,17 +200,17 @@ CONTAINS
       group => cdft_control%group
       cutoffs => becke_control%cutoffs
 
-      IF (para_env%ionode) PRINT *, "start becke_constraint_low"
-      bo = group(1)%weight%pw%pw_grid%bounds_local
-      DO igroup = 1, SIZE(group)
-        IF (para_env%ionode) PRINT *, "Allocate gradient"
-
-         ALLOCATE (group(igroup)%gradients(3*natom, bo(1, 1):bo(2, 1), &
-                                           bo(1, 2):bo(2, 2), &
-                                           bo(1, 3):bo(2, 3)))
-         group(igroup)%gradients = 0.0_dp
-      END DO
-      IF (para_env%ionode) PRINT *, "Secesfully allocated gradient"
+      ! IF (para_env%ionode) PRINT *, "start becke_constraint_low"
+      ! bo = group(1)%weight%pw%pw_grid%bounds_local
+      ! DO igroup = 1, SIZE(group)
+      !   IF (para_env%ionode) PRINT *, "Allocate gradient"
+      !
+      !    ALLOCATE (group(igroup)%gradients(3*natom, bo(1, 1):bo(2, 1), &
+      !                                      bo(1, 2):bo(2, 2), &
+      !                                      bo(1, 3):bo(2, 3)))
+      !    group(igroup)%gradients = 0.0_dp
+      ! END DO
+      ! IF (para_env%ionode) PRINT *, "Secesfully allocated gradient"
 
 
       IF (cdft_control%atomic_charges) &
