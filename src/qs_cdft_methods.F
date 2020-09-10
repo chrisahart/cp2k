@@ -744,7 +744,8 @@ CONTAINS
         IF (.NOT. ASSOCIATED(rs_rho_temp)) THEN
           CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_temp, &
                         auxbas_pw_pool=auxbas_pw_pool)
-        CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+        ! CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+        CALL rs_grid_retain(rs_rho_temp)
          CALL rs_grid_zero(rs_rho_temp)
        END IF
 
@@ -1101,7 +1102,7 @@ CONTAINS
               END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
           END DO ! igroup = 1, SIZE(cdft_control%group)
-          END IF
+          END IF ! (cdft_control%in_memory) THEN
 
            ! Calculate gradient if requested
            IF (cdft_control%in_memory) THEN
