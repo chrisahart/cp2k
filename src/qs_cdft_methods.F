@@ -1760,7 +1760,7 @@ CONTAINS
                          !        cdft_control%group(1)%hw_rho_total(i, j, k)
                          ! END IF
 
-                         ! IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
+                         IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
 
                          ! IF (hirshfeld_control%use_cutoff .AND. &
                          !     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
@@ -1769,9 +1769,9 @@ CONTAINS
                            ! d/dR w = ((delta - w) / sum(rho_all) * (r_xyz - R_xyz) * d/dR rho
 
                            ! exp_eval =  ((1 - &
-                            exp_eval =  ((coefficients(iatom) -&
-                                       cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                       cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
+                            ! exp_eval =  ((coefficients(iatom) -&
+                                       ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                       ! cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
                                        ! cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
                                        ! (rho_atom_dr_temp(iatom, i, j, k))
 
@@ -1843,8 +1843,8 @@ CONTAINS
 
                               ! Store gradient d/dR_x w, including term: (r_x - R_x)
                               cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = exp_eval
-                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = exp_eval
-                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = exp_eval
+                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = exp_eval
+                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = exp_eval
 
                               ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                               !             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
@@ -1859,7 +1859,7 @@ CONTAINS
                               ! cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
                               !             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
                               !              r_pbc(3) * exp_eval
-                            ! END IF
+                            END IF
 
 
 
