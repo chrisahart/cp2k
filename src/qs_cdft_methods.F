@@ -713,7 +713,7 @@ CONTAINS
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-                  auxbas_rs_desc, cdft_control, pab, rs_rho_temp, rho_dr_temp &
+                  auxbas_rs_desc, cdft_control, pab, rs_rho_temp, rho_dr_temp, &
                   hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
