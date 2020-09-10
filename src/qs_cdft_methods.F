@@ -777,7 +777,7 @@ CONTAINS
          ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
          PRINT *, "lb from pw", lb_pw
          PRINT *, "ub from pw", ub_pw
-         PRINT *, "group(1)%weight%pw%pw_grid%bounds_local", group(1)%weight%pw%pw_grid%bounds_local
+         PRINT *, "cdft_control%group(1)%weight%pw%pw_grid%bounds_local", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
          ! Set up gradient
          IF (cdft_control%in_memory) THEN
