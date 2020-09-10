@@ -744,7 +744,6 @@ CONTAINS
         IF (.NOT. ASSOCIATED(rs_rho_temp)) THEN
           CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_temp, &
                         auxbas_pw_pool=auxbas_pw_pool)
-        ! CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
         CALL rs_grid_retain(rs_rho_temp)
          CALL rs_grid_zero(rs_rho_temp)
        END IF
@@ -786,7 +785,6 @@ CONTAINS
 
          ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
             CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
-             CALL rs_grid_retain(rs_rho_all)
              CALL rs_grid_zero(rs_rho_all)
 
           ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
