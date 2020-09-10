@@ -687,7 +687,7 @@ CONTAINS
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
           TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
 
-          ! PRINT *, "start hirshfeld_constraint_low"
+          IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
 
            ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
           ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
@@ -738,6 +738,9 @@ CONTAINS
 
         ! END IF
 
+        IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_all, rs_rho_constr"
+
+
         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
          IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
@@ -752,6 +755,8 @@ CONTAINS
          CALL rs_grid_zero(rs_rho_constr)
 
          ! PRINT *, "rs_rho_constr, rs_rho_all"
+
+         IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_temp, rs_single"
 
          CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
@@ -828,8 +833,10 @@ CONTAINS
          origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
 
 
-
          IF (cdft_control%atomic_charges) THEN
+
+             IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_single_charge"
+
            ALLOCATE (rs_single_charge(cdft_control%natoms))
            ALLOCATE (compute_charge(natom))
            compute_charge = .FALSE.
@@ -885,6 +892,8 @@ CONTAINS
            ! END DO
            ! rho_atom_dr_temp = 0.0_dp
 
+           IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_single_dr"
+
            ALLOCATE (rs_single_dr(natom))
 
            DO i = 1, natom
@@ -901,10 +910,12 @@ CONTAINS
            DO igroup = 1, SIZE(cdft_control%group)
 
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+               IF (para_env%ionode) PRINT *, "Attemoting to allocate hw_rho_atomic"
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
            END IF
 
              IF (cdft_control%atomic_charges) THEN
+               IF (para_env%ionode) PRINT *, "Attemoting to allocate hw_rho_atomic"
              ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic_charge(cdft_control%natoms))
            END IF
 
@@ -916,10 +927,12 @@ CONTAINS
 
            DO igroup = 1, SIZE(cdft_control%group)
 
+             IF (para_env%ionode) PRINT *, "Attempting to create hw_rho_total_constraint hw_rho_total_constraint"
              CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
              use_data=REALDATA3D, in_space=REALSPACE)
              cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
 
+             IF (para_env%ionode) PRINT *, "Attempting to create hw_rho_total"
              CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw, &
              use_data=REALDATA3D, in_space=REALSPACE)
              cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
@@ -927,6 +940,8 @@ CONTAINS
              DO iatom = 1, cdft_control%natoms
 
                IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+
+               IF (para_env%ionode) PRINT *, "Attempting to create hw_rho_atomic"
                CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
                use_data=REALDATA3D, in_space=REALSPACE)
                cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
@@ -935,6 +950,7 @@ CONTAINS
 
 
                IF (cdft_control%atomic_charges) THEN
+                 IF (para_env%ionode) PRINT *, "Attempting to create hw_rho_atomic_charge"
                  CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
                use_data=REALDATA3D, in_space=REALSPACE)
                cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
@@ -997,6 +1013,7 @@ CONTAINS
           DO igroup = 1, SIZE(cdft_control%group)
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
+            IF (para_env%ionode) PRINT *, "Attempting to allocate rho_temp"
             ALLOCATE (rho_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
 
             ! cdft_control%group(igroup)%hw_rho_total = 0.0_dp
