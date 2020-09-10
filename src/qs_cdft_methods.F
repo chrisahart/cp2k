@@ -1487,68 +1487,70 @@ CONTAINS
 
 
           ! Loop over each CDFT group
-          ! DO igroup = 1, SIZE(cdft_control%group)
-          !
-          !   IF (para_env%ionode) PRINT *, "atomic density dR"
-          !
-          !   ! Loop over each atomic kind
-          !   DO ikind = 1, SIZE(atomic_kind_set)
-          !
-          !     ! PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
-          !     ! PRINT *, "ikind", ikind
-          !
-          !     ! Get list of atom kind, number of exponentials
-          !     CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
-          !
-          !     ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
-          !     DO iatom = 1, num_species
-          !
-          !       ! Get atomic position
-          !       atom_a = atom_list(iatom)
-          !       ra(:) = pbc(particle_set(atom_a)%r, cell)
-          !
-          !       rho_dr_temp%r(:, :, :) = 0.0_dp
-          !       pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
-          !
-          !       ! Loop over each Gaussian
-          !       DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
-          !
-          !         ! Get Gaussian exponent and coefficient
-          !         alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-          !         coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-          !
-          !         rs_rho_temp%r(:, :, :) = 0.0_dp
-          !
-          !         ALLOCATE (pab(1, 1))
-          !         pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-          !
-          !          ra(:) = pbc(particle_set(atom_a)%r, cell)
-          !          subpatch_pattern = 0
-          !          radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-          !                                            ra=ra, rb=ra, rp=ra, &
-          !                                            zetp=alpha, eps=eps_rho_rspace, &
-          !                                            pab=pab, o1=0, o2=0, &  ! without map_consistent
-          !                                            prefactor=1.0_dp, cutoff=0.0_dp)
-          !
-          !          CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-          !                                     (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-          !                                     rs_rho_temp, cell, cube_info, radius=radius, &
-          !                                     ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-          !                                     subpatch_pattern=subpatch_pattern)
-          !
-          !         DEALLOCATE (pab)
-          !
-          !         rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
-          !       END DO
-          !
-          !       CALL rs_pw_transfer(rs_rho_temp, pw_rho_temp%pw, rs2pw)
-          !       cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-          !       cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-          !       cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-          !
-          !     END DO ! iatom = 1, natom
-          !   END DO ! ikind = 1, SIZE(atomic_kind_set)
-          ! END DO ! igroup = 1, SIZE(cdft_control%group)
+          IF (cdft_control%in_memory) THEN
+          DO igroup = 1, SIZE(cdft_control%group)
+
+            IF (para_env%ionode) PRINT *, "atomic density dR"
+
+            ! Loop over each atomic kind
+            DO ikind = 1, SIZE(atomic_kind_set)
+
+              ! PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
+              ! PRINT *, "ikind", ikind
+
+              ! Get list of atom kind, number of exponentials
+              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
+
+              ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
+              DO iatom = 1, num_species
+
+                ! Get atomic position
+                atom_a = atom_list(iatom)
+                ra(:) = pbc(particle_set(atom_a)%r, cell)
+
+                rho_dr_temp%r(:, :, :) = 0.0_dp
+                pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
+
+                ! Loop over each Gaussian
+                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
+
+                  ! Get Gaussian exponent and coefficient
+                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+
+                  rs_rho_temp%r(:, :, :) = 0.0_dp
+
+                  ALLOCATE (pab(1, 1))
+                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
+                   subpatch_pattern = 0
+                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                     ra=ra, rb=ra, rp=ra, &
+                                                     zetp=alpha, eps=eps_rho_rspace, &
+                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                     prefactor=1.0_dp, cutoff=0.0_dp)
+
+                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                              rs_rho_temp, cell, cube_info, radius=radius, &
+                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                              subpatch_pattern=subpatch_pattern)
+
+                  DEALLOCATE (pab)
+
+                  rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                END DO
+
+                CALL rs_pw_transfer(rs_rho_temp, pw_rho_temp%pw, rs2pw)
+                cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+
+              END DO ! iatom = 1, natom
+            END DO ! ikind = 1, SIZE(atomic_kind_set)
+          END DO ! igroup = 1, SIZE(cdft_control%group)
+          END IF
 
 
 
