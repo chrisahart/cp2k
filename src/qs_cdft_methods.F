@@ -1545,9 +1545,9 @@ CONTAINS
                 END DO
 
                 CALL rs_pw_transfer(rs_rho_temp, pw_rho_temp%pw, rs2pw)
-                cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = 1.0_dp !pw_rho_temp%pw%cr3d(:, :, :)
-                cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = 1.0_dp !pw_rho_temp%pw%cr3d(:, :, :)
-                cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = 1.0_dp !pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
 
               END DO ! iatom = 1, natom
             END DO ! ikind = 1, SIZE(atomic_kind_set)
@@ -1770,17 +1770,17 @@ CONTAINS
 
                            ! exp_eval =  ((1 - &
                             ! exp_eval =  ((coefficients(iatom) -&
-                                       ! cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                       ! cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
-                                       ! cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
-                                       ! (rho_atom_dr_temp(iatom, i, j, k))
+                            !            cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                            !            cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)) !* &
+                            !            cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
+                            !            (rho_atom_dr_temp(iatom, i, j, k))
 
-                                       exp_eval =  cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) / &
-                                                                cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+                                       ! exp_eval =  cdft_control%group(igroup)%weight%pw%cr3d(i, j, k) / &
+                                                                ! cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
 
-                                       ! exp_eval =  (coefficients(iatom) - &
-                                       !              cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                       !             cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+                                       exp_eval =  (coefficients(iatom) - &
+                                                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                                   cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
 
 
                                       ! exp_eval = 1 !cdft_control%group(igroup)%hw_rho_atomic_dr(iatom)%pw%cr3d(i, j, k)
@@ -1842,23 +1842,23 @@ CONTAINS
                             ! ELSE
 
                               ! Store gradient d/dR_x w, including term: (r_x - R_x)
-                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = exp_eval
-                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = exp_eval
-                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = exp_eval
+                              ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = exp_eval
+                              ! cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = exp_eval
+                              ! cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = exp_eval
 
-                              ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                              !             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
-                              !             r_pbc(1) * exp_eval
-                              !
-                              ! ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                              ! cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                              !             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
-                              !              r_pbc(2) * exp_eval
-                              !
-                              ! ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                              ! cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                              !             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
-                              !              r_pbc(3) * exp_eval
+                              cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) !* &
+                                          ! r_pbc(1) * exp_eval
+
+                              ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                              cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) !* &
+                                           ! r_pbc(2) * exp_eval
+
+                              ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                              cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                          cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) !* &
+                                           ! r_pbc(3) * exp_eval
                             END IF
 
 
