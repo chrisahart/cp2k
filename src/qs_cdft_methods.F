@@ -741,59 +741,35 @@ CONTAINS
           hirshfeld_control%print_density = .FALSE.
         END IF
 
-        ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
-         IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
-            CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
-                            auxbas_pw_pool=auxbas_pw_pool)
-            CALL rs_grid_retain(rs_rho_all)
-            CALL rs_grid_zero(rs_rho_all)
-         END IF
-
-         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
-         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
-         CALL rs_grid_zero(rs_rho_constr)
-         CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+        IF (.NOT. ASSOCIATED(rs_rho_temp)) THEN
+          CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_temp, &
+                        auxbas_pw_pool=auxbas_pw_pool)
+        CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
-
-         ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
-         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-            ALLOCATE (rs_single(cdft_control%natoms))
-            DO i = 1, cdft_control%natoms
-               NULLIFY (rs_single(i)%rs_grid)
-               CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
-               CALL rs_grid_zero(rs_single(i)%rs_grid)
-               END DO
-        END IF
+       END IF
 
          ! Get size of rs and pw grids
          npts = rho_r(1)%pw%pw_grid%npts
          dr_pw = rho_r(1)%pw%pw_grid%dr
-         dr_rs(1) = rs_rho_all%desc%dh(1, 1)
-         dr_rs(2) = rs_rho_all%desc%dh(2, 2)
-         dr_rs(3) = rs_rho_all%desc%dh(3, 3)
+         dr_rs(1) = rs_rho_temp%desc%dh(1, 1)
+         dr_rs(2) = rs_rho_temp%desc%dh(2, 2)
+         dr_rs(3) = rs_rho_temp%desc%dh(3, 3)
          origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
          lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         lb_rs(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
-         lb_rs(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
-         lb_rs(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
-         ub_rs(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
-         ub_rs(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
-         ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
+         lb_rs(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
+         lb_rs(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
+         lb_rs(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
+         ub_rs(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
+         ub_rs(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
+         ub_rs(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
-         ! Charges
-         IF (cdft_control%atomic_charges) THEN
-           ALLOCATE (rs_single_charge(cdft_control%natoms))
-           ALLOCATE (compute_charge(natom))
-           compute_charge = .FALSE.
-           DO i = 1, cdft_control%natoms
-              NULLIFY (rs_single_charge(i)%rs_grid)
-              CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
-              CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
-              compute_charge(cdft_control%atoms(i)) = .TRUE.
-           END DO
-         END IF
+         ! Neccessary for collocate_pgf_product
+         ALLOCATE (pab(1, 1))
+         subpatch_pattern = 0
+         eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
+         cube_info = pw_env%cube_info(1)
 
          ! Coefficients
          ALLOCATE (coefficients(natom))
@@ -806,6 +782,25 @@ CONTAINS
              is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
            END DO
          END DO
+
+         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
+            CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
+             CALL rs_grid_retain(rs_rho_all)
+             CALL rs_grid_zero(rs_rho_all)
+
+          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
+          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
+          CALL rs_grid_zero(rs_rho_constr)
+
+         ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
+         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+            ALLOCATE (rs_single(cdft_control%natoms))
+            DO i = 1, cdft_control%natoms
+               NULLIFY (rs_single(i)%rs_grid)
+               CALL rs_grid_create(rs_single(i)%rs_grid, auxbas_rs_desc)
+               CALL rs_grid_zero(rs_single(i)%rs_grid)
+               END DO
+        END IF
 
            DO igroup = 1, SIZE(cdft_control%group)
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -844,11 +839,18 @@ CONTAINS
              cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
            END DO
 
-          ! Neccessary for collocate_pgf_product
-          ALLOCATE (pab(1, 1))
-          subpatch_pattern = 0
-          eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
-          cube_info = pw_env%cube_info(1)
+            ! Charges
+            IF (cdft_control%atomic_charges) THEN
+              ALLOCATE (rs_single_charge(cdft_control%natoms))
+              ALLOCATE (compute_charge(natom))
+              compute_charge = .FALSE.
+              DO i = 1, cdft_control%natoms
+                 NULLIFY (rs_single_charge(i)%rs_grid)
+                 CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
+                 CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
+                 compute_charge(cdft_control%atoms(i)) = .TRUE.
+              END DO
+            END IF
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
@@ -996,7 +998,6 @@ CONTAINS
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
 
-
           ! Clear memory before allocating gradient (very memory expensive)
           CALL rs_grid_release(rs_rho_constr)
           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
@@ -1029,7 +1030,6 @@ CONTAINS
           DEALLOCATE (is_constraint)
           IF (ALLOCATED(compute_charge)) &
           DEALLOCATE (compute_charge)
-
 
           ! Set up gradient
           IF (cdft_control%in_memory) THEN
@@ -1152,9 +1152,10 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (cdft_control%in_memory) THEN
 
-           CALL rs_grid_release(rs_rho_all)
+
            CALL rs_grid_release(rs_rho_temp)
            CALL rs_grid_release(rho_dr_temp)
+           CALL rs_grid_release(rs_rho_all)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
            DEALLOCATE (pab)
@@ -1416,22 +1417,22 @@ CONTAINS
              END DO
           END IF
 
-          IF (cdft_control%print_force) THEN
-             IF (para_env%ionode) THEN
-             DO igroup = 1, SIZE(group)
-                DO iatom = 1, natom
-                  ikind = kind_of(iatom)
-                  i = atom_of_kind(iatom)
-                   PRINT *, "cdft_constraint_force"
-                   PRINT *, "iatom i", iatom, i
-                   PRINT *, "group(igroup)%integrated(:, iatom)", group(igroup)%integrated(:, iatom)
-                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
-                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-                   PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-                END DO
-             END DO
-          END IF
-        END IF
+        !   IF (cdft_control%print_force) THEN
+        !      IF (para_env%ionode) THEN
+        !      DO igroup = 1, SIZE(group)
+        !         DO iatom = 1, natom
+        !           ikind = kind_of(iatom)
+        !           i = atom_of_kind(iatom)
+        !            PRINT *, "cdft_constraint_force"
+        !            PRINT *, "iatom i", iatom, i
+        !            PRINT *, "group(igroup)%integrated(:, iatom)", group(igroup)%integrated(:, iatom)
+        !            PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+        !            PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+        !            PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+        !         END DO
+        !      END DO
+        !   END IF
+        ! END IF
 
           ! print_force, zero_force
 
