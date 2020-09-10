@@ -774,8 +774,12 @@ CONTAINS
          origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
          lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
          ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-         lb_rs(1:3) = LBOUND(rs_rho_all%r(:, :, :), 1:3)
-         ub_rs(1:3) = UBOUND(rs_rho_all%r(:, :, :), 1:3)
+         lb_rs(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
+         lb_rs(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
+         lb_rs(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
+         ub_rs(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
+         ub_rs(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
+         ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
          bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
          ! Charges
