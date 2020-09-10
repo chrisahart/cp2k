@@ -1544,7 +1544,7 @@ CONTAINS
                   rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                 END DO
 
-                CALL rs_pw_transfer(rs_rho_temp, pw_rho_temp%pw, rs2pw)
+                CALL rs_pw_transfer(rho_dr_temp, pw_rho_temp%pw, rs2pw)
                 cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
