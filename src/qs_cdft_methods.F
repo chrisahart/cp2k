@@ -173,6 +173,7 @@ CONTAINS
                                                             sum_cell_f_group
       REAL(kind=dp), ALLOCATABLE, DIMENSION(:, :)        :: d_sum_Pm_dR, dP_i_dRi
       REAL(kind=dp), ALLOCATABLE, DIMENSION(:, :, :)     :: dP_i_dRj
+      TYPE(cp_para_env_type), POINTER                    :: para_env
       REAL(kind=dp), DIMENSION(3)                        :: cell_v, dist_vec, dmy_dR_i, dmy_dR_j, &
                                                             dr, dr1_r2, dr_i_dR, dr_ij_dR, &
                                                             dr_j_dR, grid_p, r, r1, shift
@@ -185,18 +186,33 @@ CONTAINS
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
       TYPE(pw_p_type), DIMENSION(:), POINTER             :: charge
 
-      NULLIFY (cutoffs, cell, dft_control, particle_set, group, charge, cdft_control)
+      NULLIFY (cutoffs, cell, dft_control, particle_set, group, charge, cdft_control, para_env)
       CALL timeset(routineN, handle)
       ! Get simulation environment
       CALL get_qs_env(qs_env, &
                       cell=cell, &
                       particle_set=particle_set, &
                       natom=natom, &
+                      para_env=para_env, &
                       dft_control=dft_control)
       cdft_control => dft_control%qs_control%cdft_control
       becke_control => cdft_control%becke_control
       group => cdft_control%group
       cutoffs => becke_control%cutoffs
+
+      IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
+      bo = group(1)%weight%pw%pw_grid%bounds_local
+      DO igroup = 1, SIZE(group)
+        IF (para_env%ionode) PRINT *, "Allocate gradient"
+
+         ALLOCATE (group(igroup)%gradients(3*natom, bo_conf(1, 1):bo_conf(2, 1), &
+                                           bo_conf(1, 2):bo_conf(2, 2), &
+                                           bo_conf(1, 3):bo_conf(2, 3)))
+         group(igroup)%gradients = 0.0_dp
+      END DO
+      IF (para_env%ionode) PRINT *, "Secesfully allocated gradient"
+
+
       IF (cdft_control%atomic_charges) &
          charge => cdft_control%charge
       in_memory = .FALSE.
@@ -687,7 +703,7 @@ CONTAINS
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
           TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
 
-          IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
+
 
            ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
           ! TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
@@ -708,6 +724,8 @@ CONTAINS
                          para_env=para_env, &
                          pw_env=pw_env)
         CALL qs_rho_get(rho, rho_r=rho_r)
+
+        IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
 
         ! CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
                         ! auxbas_pw_pool=auxbas_pw_pool)
@@ -741,8 +759,7 @@ CONTAINS
 
 
 
-        IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_all, rs_rho_constr"
-
+        IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_all"
 
         ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
          ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
@@ -754,12 +771,6 @@ CONTAINS
             CALL rs_grid_retain(rs_rho_all)
             CALL rs_grid_zero(rs_rho_all)
          END IF
-         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
-         CALL rs_grid_zero(rs_rho_constr)
-
-         ! Change grid to pw
-         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
 
          ! Set up gradient
          IF (cdft_control%in_memory) THEN
@@ -768,8 +779,17 @@ CONTAINS
              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
              cdft_control%group(igroup)%gradients = 0.0_dp
            END DO
-
          END IF
+
+         IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_constr"
+         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
+         CALL rs_grid_zero(rs_rho_constr)
+
+         ! Change grid to pw
+         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+
+
 
          npts = rho_r(1)%pw%pw_grid%npts
          dr_pw = rho_r(1)%pw%pw_grid%dr
@@ -777,7 +797,7 @@ CONTAINS
 
          ! PRINT *, "rs_rho_constr, rs_rho_all"
 
-         IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_temp, rs_single"
+         IF (para_env%ionode) PRINT *, "Attempting to allocate rs_rho_temp, rs_single"
 
          CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
