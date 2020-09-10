@@ -694,6 +694,7 @@ CONTAINS
          INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs, lb_pw, ub_pw
            TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
            TYPE(qs_rho_type), POINTER                         :: rho
+           TYPE(pw_p_type)                                    :: pw_rho_temp
            REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw, r2, r_pbc, r_rs
            TYPE(cell_type), POINTER                           :: cell
            TYPE(cp_para_env_type), POINTER                    :: para_env
@@ -703,7 +704,7 @@ CONTAINS
            INTEGER(KIND=int_8)                                :: subpatch_pattern
            TYPE(realspace_grid_type)                :: rsgrid
            TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
-          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp
+          TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rho_dr_temp
 
 
 
@@ -712,7 +713,7 @@ CONTAINS
 
          NULLIFY (atom_list, atomic_kind_set, dft_control, &
                   hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-                  auxbas_rs_desc, cdft_control, pab, rs_rho_temp, &
+                  auxbas_rs_desc, cdft_control, pab, rs_rho_temp, rho_dr_temp &
                   hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
 
          CALL timeset(routineN, handle)
@@ -781,14 +782,7 @@ CONTAINS
          PRINT *, "ub from pw", ub_pw
          PRINT *, "cdft_control%group(1)%weight%pw%pw_grid%bounds_local", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
-         ! Set up gradient
-         IF (cdft_control%in_memory) THEN
-           IF (para_env%ionode) PRINT *, "Attempting to allocate gradient"
-           DO igroup = 1, SIZE(cdft_control%group)
-             ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-             cdft_control%group(igroup)%gradients = 0.0_dp
-           END DO
-         END IF
+
 
          IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_constr"
          CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
@@ -808,6 +802,10 @@ CONTAINS
 
          CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
          CALL rs_grid_zero(rs_rho_temp)
+
+
+
+
          ! Compute Gaussian density over single atoms (rs_single) when atomic charges are requested
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -1464,27 +1462,114 @@ CONTAINS
 
 
 
+          ! Gradient code
+          ! Calculates atomic density dR, using rs2pw with temporary variable to reduce memory requirements
+
+          ! Set up gradient
+          IF (cdft_control%in_memory) THEN
+            IF (para_env%ionode) PRINT *, "Attempting to allocate gradient"
+            DO igroup = 1, SIZE(cdft_control%group)
+              ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+              cdft_control%group(igroup)%gradients = 0.0_dp
+            END DO
+
+            IF (para_env%ionode) PRINT *, "Attempting to allocate rho_dr_temp"
+            CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
+            CALL rs_grid_zero(rho_dr_temp)
+
+            IF (para_env%ionode) PRINT *, "Attempting to allocate pw_rho_temp"
+            CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
+                                in_space=REALSPACE)
+
+          ! Loop over each CDFT group
+          DO igroup = 1, SIZE(cdft_control%group)
+            IF (para_env%ionode) PRINT *, "atomic density dR"
+
+            ! Loop over each atomic kind
+            DO ikind = 1, SIZE(atomic_kind_set)
+
+              ! PRINT *, "SIZE(atomic_kind_set)", SIZE(atomic_kind_set)
+              ! PRINT *, "ikind", ikind
+
+              ! Get list of atom kind, number of exponentials
+              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
+
+              ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
+              DO iatom = 1, num_species
+
+                ! Get atomic position
+                atom_a = atom_list(iatom)
+                ra(:) = pbc(particle_set(atom_a)%r, cell)
+
+                rho_dr_temp%r(:, :, :) = 0.0_dp
+                pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
+
+                ! Loop over each Gaussian
+                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
+
+                  ! Get Gaussian exponent and coefficient
+                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+
+                  rs_rho_temp%r(:, :, :) = 0.0_dp
+
+                  ALLOCATE (pab(1, 1))
+                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
+                   subpatch_pattern = 0
+                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                     ra=ra, rb=ra, rp=ra, &
+                                                     zetp=alpha, eps=eps_rho_rspace, &
+                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                     prefactor=1.0_dp, cutoff=0.0_dp)
+
+                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                              rs_rho_temp, cell, cube_info, radius=radius, &
+                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                              subpatch_pattern=subpatch_pattern)
+
+                  DEALLOCATE (pab)
+
+                  rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                END DO
+
+                CALL rs_pw_transfer(rs_rho_temp, pw_rho_temp%pw, rs2pw)
+                cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+
+              END DO ! iatom = 1, natom
+            END DO ! ikind = 1, SIZE(atomic_kind_set)
+          END DO ! igroup = 1, SIZE(cdft_control%group)
+          END IF
 
 
-            IF (para_env%ionode) THEN
-              PRINT *, "lb_rs", lb_rs
-              PRINT *, "ub_rs", ub_rs
-              PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_single(1)%rs_grid%lb_real
-              PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_single(1)%rs_grid%ub_real
-              PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_single(1)%rs_grid%lb_local
-              PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_single(1)%rs_grid%ub_local
-              ! PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
-              ! PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
-              ! PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
-              ! PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
-                PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-                PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-                PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-              PRINT *, "lb_pw", lb_pw
-              PRINT *, "ub_pw", ub_pw
-              ! PRINT *, "rs%lb_real(3)", rs_single_dr(1)%rs_grid%lb_real(3)
-              PRINT *, "LBOUND(pw%cr3d, 3)", LBOUND(rho_r(1)%pw%cr3d, 3)
-            END IF
+
+
+
+
+
+            ! IF (para_env%ionode) THEN
+            !   PRINT *, "lb_rs", lb_rs
+            !   PRINT *, "ub_rs", ub_rs
+            !   PRINT *, "rs_single(iatom)%rs_grid%lb_real", rs_single(1)%rs_grid%lb_real
+            !   PRINT *, "rs_single(iatom)%rs_grid%ub_real", rs_single(1)%rs_grid%ub_real
+            !   PRINT *, "rs_single(iatom)%rs_grid%lb_local", rs_single(1)%rs_grid%lb_local
+            !   PRINT *, "rs_single(iatom)%rs_grid%ub_local", rs_single(1)%rs_grid%ub_local
+            !   ! PRINT *, "rs_single_dr(iatom)%rs_grid%lb_real", rs_single_dr(1)%rs_grid%lb_real
+            !   ! PRINT *, "rs_single_dr(iatom)%rs_grid%ub_real", rs_single_dr(1)%rs_grid%ub_real
+            !   ! PRINT *, "rs_single_dr(iatom)%rs_grid%lb_local", rs_single_dr(1)%rs_grid%lb_local
+            !   ! PRINT *, "rs_single_dr(iatom)%rs_grid%ub_local", rs_single_dr(1)%rs_grid%ub_local
+            !     PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+            !     PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+            !     PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+            !   PRINT *, "lb_pw", lb_pw
+            !   PRINT *, "ub_pw", ub_pw
+            !   ! PRINT *, "rs%lb_real(3)", rs_single_dr(1)%rs_grid%lb_real(3)
+            !   PRINT *, "LBOUND(pw%cr3d, 3)", LBOUND(rho_r(1)%pw%cr3d, 3)
+            ! END IF
 
             ! CPASSERT(LBOUND(rho_r(1)%pw%cr3d, 3) .EQ. rs_single_dr(1)%rs_grid%lb_real(3))
 
@@ -1665,7 +1750,7 @@ CONTAINS
                          !        cdft_control%group(1)%hw_rho_total(i, j, k)
                          ! END IF
 
-                         IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
+                         ! IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
 
                          ! IF (hirshfeld_control%use_cutoff .AND. &
                          !     ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
@@ -1794,16 +1879,16 @@ CONTAINS
              END DO ! igroup = 1, SIZE(cdft_control%group)
            END IF ! (cdft_control%in_memory) THEN
 
-           IF (para_env%ionode) THEN
-             PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
-
-           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
-
-           PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
-           PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
-         END IF
+         !   IF (para_env%ionode) THEN
+         !     PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, -10, -10, lb(3):ub(3))
+         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, -10, -10, lb(3):ub(3))
+         !
+         !   PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 0, 0, lb(3):ub(3))
+         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 0, 0, lb(3):ub(3))
+         !
+         !   PRINT *, " gradients 1", cdft_control%group(1)%gradients(1, 10, 10, lb(3):ub(3))
+         !   PRINT *, " gradients 2", cdft_control%group(1)%gradients(2, 10, 10, lb(3):ub(3))
+         ! END IF
 
            !   IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            !    DO igroup = 1, SIZE(cdft_control%group)
