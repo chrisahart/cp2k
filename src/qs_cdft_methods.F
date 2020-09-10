@@ -741,9 +741,6 @@ CONTAINS
         ! Change grid to pw
         lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
         ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-        npts = rho_r(1)%pw%pw_grid%npts
-        dr_pw = rho_r(1)%pw%pw_grid%dr
-        origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
 
         ! Set up gradient
         IF (cdft_control%in_memory) THEN
@@ -754,6 +751,10 @@ CONTAINS
           END DO
 
         END IF
+
+        npts = rho_r(1)%pw%pw_grid%npts
+        dr_pw = rho_r(1)%pw%pw_grid%dr
+        origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
 
 
         IF (para_env%ionode) PRINT *, "Attemoting to allocate rs_rho_all, rs_rho_constr"
