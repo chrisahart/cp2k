@@ -1010,15 +1010,15 @@ CONTAINS
        END IF
 
 
-          DO igroup = 1, SIZE(cdft_control%group)
+          ! DO igroup = 1, SIZE(cdft_control%group)
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
             ! ALLOCATE (cdft_control%group(igroup)%hw_rho_total_constraint(lb(1):ub(1), lb(2):ub(2), lb(3):ub(3)))
-            IF (para_env%ionode) PRINT *, "Attempting to allocate rho_temp"
-            ALLOCATE (rho_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
+            ! IF (para_env%ionode) PRINT *, "Attempting to allocate rho_temp"
+            ! ALLOCATE (rho_temp(lb_rs(1):ub_rs(1), lb_rs(2):ub_rs(2), lb_rs(3):ub_rs(3)))
 
             ! cdft_control%group(igroup)%hw_rho_total = 0.0_dp
             ! cdft_control%group(igroup)%hw_rho_total_constraint = 0.0_dp
-          END DO
+          ! END DO
 
 
           DO igroup = 1, SIZE(cdft_control%group)
@@ -1061,7 +1061,7 @@ CONTAINS
              DO iatom = 1, num_species
 
                ! Set temproary array equal zero
-               rho_temp = 0.0_dp
+               ! rho_temp = 0.0_dp
 
                ! IF (cdft_control%in_memory) THEN
                ! rho_dr_temp = 0.0_dp
@@ -1070,6 +1070,7 @@ CONTAINS
 
                ! Get atomic position
                atom_a = atom_list(iatom)
+               ! rs_rho_temp = 0
                ! ra(:) = particle_set(atom_a)%r - origin(1)
                ! PRINT *, "particle_set(atom_a)%r", particle_set(atom_a)%r
                ! PRINT *, "origin", origin
@@ -1095,6 +1096,8 @@ CONTAINS
                ! PRINT *, "hirshfeld_env%kind_shape_fn(1)%numexp", hirshfeld_env%kind_shape_fn(1)%numexp
                ! PRINT *, "hirshfeld_env%charges(atom_a)", hirshfeld_env%charges(atom_a)
 
+               rs_rho_temp%r(:, :, :) = 0.0_dp
+
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
 
@@ -1102,7 +1105,7 @@ CONTAINS
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
-                 rs_rho_temp%r(:, :, :) = 0.0_dp
+
 
                  ! PRINT *, "alpha", alpha
                  ! PRINT *, "coef", coef
@@ -1129,7 +1132,7 @@ CONTAINS
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
 
-                 rho_temp(:, :, :) = rho_temp(:, :, :) + rs_rho_temp%r(:, :, :)
+                 ! rho_temp(:, :, :) = rho_temp(:, :, :) + rs_rho_temp%r(:, :, :)
                  DEALLOCATE (pab)
 
                  ! Store analytic derivative of atomic density
@@ -1169,6 +1172,7 @@ CONTAINS
                !   END DO ! k = lb(3), ub(3)
                END DO ! iex = 1, numexp
 
+
                ! PRINT *, "atom", iatom
 
                ! Save sum over constraint atoms, sum over all atoms
@@ -1178,7 +1182,8 @@ CONTAINS
                  ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) = &
                      ! cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :) + &
                      ! coefficients(atom_a) * rho_temp(:, :, :)
-                     rs_rho_constr%r(:, :, :) = rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rho_temp(:, :, :)
+                     rs_rho_constr%r(:, :, :) = &
+                     rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rs_rho_temp%r(:, :, :)
 
                      ! PRINT *, "hw_rho_atomic"
                      IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -1192,14 +1197,16 @@ CONTAINS
                         ! PRINT *, "hirshfeld_control%print_density", atom_a
                      ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) = &
                             ! cdft_control%group(igroup)%hw_rho_atomic(atom_a, :, :, :) + rho_temp(:, :, :)
-                            rs_single(jatom)%rs_grid%r(:, :, :) = rs_single(jatom)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
+                            rs_single(jatom)%rs_grid%r(:, :, :) = &
+                            rs_single(jatom)%rs_grid%r(:, :, :) + rs_rho_temp%r(:, :, :)
                           END IF
                END IF
 
                ! PRINT *, "hw_rho_total"
                ! cdft_control%group(igroup)%hw_rho_total(:, :, :) = &
                      ! cdft_control%group(igroup)%hw_rho_total(:, :, :) + rho_temp(:, :, :)
-               rs_rho_all%r(:, :, :) = rs_rho_all%r(:, :, :) + rho_temp(:, :, :)
+               rs_rho_all%r(:, :, :) = &
+               rs_rho_all%r(:, :, :) + rs_rho_temp%r(:, :, :)
 
                ! Save analytic derivative
                ! IF (cdft_control%in_memory) THEN
@@ -1221,9 +1228,11 @@ CONTAINS
 
                  ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) = &
                       ! cdft_control%group(igroup)%hw_rho_atomic_charge(atom_a, :, :, :) + rho_temp(:, :, :)
-                      rs_single_charge(jatom)%rs_grid%r(:, :, :) = rs_single_charge(jatom)%rs_grid%r(:, :, :) + rho_temp(:, :, :)
+                      rs_single_charge(jatom)%rs_grid%r(:, :, :) = &
+                      rs_single_charge(jatom)%rs_grid%r(:, :, :) + rs_rho_temp%r(:, :, :)
                END IF
              END IF
+
 
              END DO ! iatom = 1, natom
            END DO ! ikind = 1, SIZE(atomic_kind_set)
@@ -1781,7 +1790,7 @@ CONTAINS
            !  END DO
 
            ! Deallocate
-           DEALLOCATE (rho_temp)
+           ! DEALLOCATE (rho_temp)
 
            ! Release grids
          CALL rs_grid_release(rs_rho_constr)
