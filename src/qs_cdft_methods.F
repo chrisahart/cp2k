@@ -1278,23 +1278,23 @@ CONTAINS
            END DO ! ikind = 1, SIZE(atomic_kind_set)
          END DO ! igroup = 1, SIZE(cdft_control%group)
 
-         IF (para_env%ionode) THEN
-           PRINT *, "lb_rs", LBOUND(rs_rho_all%r(:, :, :), 1),  LBOUND(rs_rho_all%r(:, :, :), 2), LBOUND(rs_rho_all%r(:, :, :), 3)
-           PRINT *, "ub_rs", UBOUND(rs_rho_all%r(:, :, :), 1),  UBOUND(rs_rho_all%r(:, :, :), 2), UBOUND(rs_rho_all%r(:, :, :), 3)
-           PRINT *, "lb_rs", lb_rs
-           PRINT *, "ub_rs", ub_rs
-           PRINT *, "rs_rho_all%lb_real", rs_rho_all%lb_real
-           PRINT *, "rs_rho_all%ub_real", rs_rho_all%ub_real
-           PRINT *, "rs_rho_all%lb_local", rs_rho_all%lb_local
-           PRINT *, "rs_rho_all%ub_local", rs_rho_all%ub_local
-           PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
-           PRINT *, "lb_pw", lb_pw
-           PRINT *, "ub_pw", ub_pw
-           PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-           PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-           PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-
-         END IF
+         ! IF (para_env%ionode) THEN
+         !   PRINT *, "lb_rs", LBOUND(rs_rho_all%r(:, :, :), 1),  LBOUND(rs_rho_all%r(:, :, :), 2), LBOUND(rs_rho_all%r(:, :, :), 3)
+         !   PRINT *, "ub_rs", UBOUND(rs_rho_all%r(:, :, :), 1),  UBOUND(rs_rho_all%r(:, :, :), 2), UBOUND(rs_rho_all%r(:, :, :), 3)
+         !   PRINT *, "lb_rs", lb_rs
+         !   PRINT *, "ub_rs", ub_rs
+         !   PRINT *, "rs_rho_all%lb_real", rs_rho_all%lb_real
+         !   PRINT *, "rs_rho_all%ub_real", rs_rho_all%ub_real
+         !   PRINT *, "rs_rho_all%lb_local", rs_rho_all%lb_local
+         !   PRINT *, "rs_rho_all%ub_local", rs_rho_all%ub_local
+         !   PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
+         !   PRINT *, "lb_pw", lb_pw
+         !   PRINT *, "ub_pw", ub_pw
+         !   PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+         !   PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+         !   PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+         !
+         ! END IF
 
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
@@ -1318,23 +1318,23 @@ CONTAINS
          END IF
             END DO
 
-            IF (para_env%ionode) THEN
-              PRINT *, "lb_rs", LBOUND(rs_rho_all%r(:, :, :), 1),  LBOUND(rs_rho_all%r(:, :, :), 2), LBOUND(rs_rho_all%r(:, :, :), 3)
-              PRINT *, "ub_rs", UBOUND(rs_rho_all%r(:, :, :), 1),  UBOUND(rs_rho_all%r(:, :, :), 2), UBOUND(rs_rho_all%r(:, :, :), 3)
-              PRINT *, "lb_rs", lb_rs
-              PRINT *, "ub_rs", ub_rs
-              PRINT *, "rs_rho_all%lb_real", rs_rho_all%lb_real
-              PRINT *, "rs_rho_all%ub_real", rs_rho_all%ub_real
-              PRINT *, "rs_rho_all%lb_local", rs_rho_all%lb_local
-              PRINT *, "rs_rho_all%ub_local", rs_rho_all%ub_local
-              PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
-              PRINT *, "lb_pw", lb_pw
-              PRINT *, "ub_pw", ub_pw
-              PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
-              PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
-              PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-
-            END IF
+            ! IF (para_env%ionode) THEN
+            !   PRINT *, "lb_rs", LBOUND(rs_rho_all%r(:, :, :), 1),  LBOUND(rs_rho_all%r(:, :, :), 2), LBOUND(rs_rho_all%r(:, :, :), 3)
+            !   PRINT *, "ub_rs", UBOUND(rs_rho_all%r(:, :, :), 1),  UBOUND(rs_rho_all%r(:, :, :), 2), UBOUND(rs_rho_all%r(:, :, :), 3)
+            !   PRINT *, "lb_rs", lb_rs
+            !   PRINT *, "ub_rs", ub_rs
+            !   PRINT *, "rs_rho_all%lb_real", rs_rho_all%lb_real
+            !   PRINT *, "rs_rho_all%ub_real", rs_rho_all%ub_real
+            !   PRINT *, "rs_rho_all%lb_local", rs_rho_all%lb_local
+            !   PRINT *, "rs_rho_all%ub_local", rs_rho_all%ub_local
+            !   PRINT *, "cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds", cdft_control%group(1)%hw_rho_total%pw%pw_grid%bounds
+            !   PRINT *, "lb_pw", lb_pw
+            !   PRINT *, "ub_pw", ub_pw
+            !   PRINT *, "bo", cdft_control%group(1)%weight%pw%pw_grid%bounds_local
+            !   PRINT *, "lb(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
+            !   PRINT *, "ub(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)", rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
+            !
+            ! END IF
 
 
 
@@ -1468,6 +1468,7 @@ CONTAINS
           ! Set up gradient
           IF (cdft_control%in_memory) THEN
             IF (para_env%ionode) PRINT *, "Attempting to allocate gradient"
+
             DO igroup = 1, SIZE(cdft_control%group)
               ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
               cdft_control%group(igroup)%gradients = 0.0_dp
@@ -1483,6 +1484,7 @@ CONTAINS
 
           ! Loop over each CDFT group
           DO igroup = 1, SIZE(cdft_control%group)
+
             IF (para_env%ionode) PRINT *, "atomic density dR"
 
             ! Loop over each atomic kind
@@ -1532,7 +1534,7 @@ CONTAINS
 
                   DEALLOCATE (pab)
 
-                  rho_dr_temp(:, :, :) = rho_dr_temp(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                  rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                 END DO
 
                 CALL rs_pw_transfer(rs_rho_temp, pw_rho_temp%pw, rs2pw)
