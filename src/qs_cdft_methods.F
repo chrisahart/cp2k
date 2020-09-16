@@ -621,7 +621,7 @@ CONTAINS
 !> \par   History
 !>        Created 09.2018 [Nico Holmberg]
 ! **************************************************************************************************
-   SUBROUTINE hirshfeld_constraint(qs_env, calc_pot, calculate_forces)
+    SUBROUTINE hirshfeld_constraint(qs_env, calc_pot, calculate_forces)
       TYPE(qs_environment_type), POINTER                 :: qs_env
       LOGICAL                                            :: calc_pot, calculate_forces
 
@@ -887,6 +887,8 @@ CONTAINS
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=hirshfeld_control%atomic_cutoff)
                 IF (para_env%ionode) PRINT *, "radius",radius
+                IF (para_env%ionode) PRINT *, "eps_rho_rspace",eps_rho_rspace
+                IF (para_env%ionode) PRINT *, "hirshfeld_control%atomic_cutoff",hirshfeld_control%atomic_cutoff
 
                 ! Calculate atomic density (Juerg Hutter code)
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
