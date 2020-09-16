@@ -883,10 +883,10 @@ CONTAINS
                   ! Calculate cutoff (Juerg Hutter code)
                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                     ra=ra, rb=ra, rp=ra, &
-                                                    zetp=alpha, eps=eps_rho_rspace, &
+                                                    zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                    prefactor=1.0_dp, cutoff=hirshfeld_control%atomic_cutoff)
-                IF (para_env%ionode) PRINT *, "radius",radius
+                                                    prefactor=1.0_dp, cutoff=0.0_dp)
+                IF (para_env%ionode) PRINT *, "radius", radius
                 IF (para_env%ionode) PRINT *, "eps_rho_rspace",eps_rho_rspace
                 IF (para_env%ionode) PRINT *, "hirshfeld_control%atomic_cutoff",hirshfeld_control%atomic_cutoff
 
@@ -1080,9 +1080,9 @@ CONTAINS
 
                    radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                      ra=ra, rb=ra, rp=ra, &
-                                                     zetp=alpha, eps=eps_rho_rspace, &
+                                                     zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                     prefactor=1.0_dp, cutoff=hirshfeld_control%atomic_cutoff)
+                                                     prefactor=1.0_dp, cutoff=0.0_dp)
 
                    IF (para_env%ionode) PRINT *, "radius",radius
 
