@@ -840,8 +840,8 @@ CONTAINS
     CALL section_vals_val_get(hirshfeld_section, "GAUSSIAN_RADIUS", r_val=hirshfeld_control%radius)
     CALL section_vals_val_get(hirshfeld_section, "USE_BOHR", l_val=hirshfeld_control%use_bohr)
     CALL section_vals_val_get(hirshfeld_section, "PRINT_DENSITY", l_val=hirshfeld_control%print_density)
-    CALL section_vals_val_get(hirshfeld_section, "USE_CUTOFF", l_val=hirshfeld_control%use_cutoff)
     CALL section_vals_val_get(hirshfeld_section, "EPS_CUTOFF", r_val=hirshfeld_control%eps_cutoff)
+    CALL section_vals_val_get(hirshfeld_section, "ATOMIC_CUTOFF", r_val=hirshfeld_control%atomic_cutoff)
     IF (.NOT. hirshfeld_control%use_bohr) THEN
        hirshfeld_control%radius = cp_unit_from_cp2k(hirshfeld_control%radius, "angstrom")
     END IF
@@ -927,7 +927,7 @@ CONTAINS
      REAL(KIND=dp), DIMENSION(:, :, :), INTENT(OUT)     :: fout
      REAL(KIND=dp), DIMENSION(:, :, :), INTENT(IN)      :: fun1, fun2
      LOGICAL, INTENT(IN)                                :: divide
-     REAL(KIND=dp), , INTENT(IN)                        :: small
+     REAL(KIND=dp), INTENT(IN)                        :: small
 
      CHARACTER(len=*), PARAMETER :: routineN = 'hfun_scale', routineP = moduleN//':'//routineN
 
