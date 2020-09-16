@@ -886,8 +886,7 @@ CONTAINS
                                                     zetp=alpha, eps=eps_rho_rspace, &
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=hirshfeld_control%eps_cutoff)
-                ! PRINT *, "radius",radius
-                ! radius = 50.0_dp
+                IF (para_env%ionode) PRINT *, "radius",radius
 
                 ! Calculate atomic density (Juerg Hutter code)
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
@@ -980,7 +979,7 @@ CONTAINS
          DO igroup = 1, SIZE(cdft_control%group)
            CALL hfun_scale2(cdft_control%group(igroup)%weight%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
-                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
+                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=1.0e-12_dp)
         END DO
 
            ! Calculate atomic charges if requested
@@ -988,7 +987,7 @@ CONTAINS
              DO iatom = 1, cdft_control%natoms
                CALL hfun_scale2(cdft_control%charge(iatom)%pw%cr3d, &
                                   cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
-                                  cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
+                                  cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=1.0e-12_dp)
            END DO
          END IF
 
@@ -1082,6 +1081,8 @@ CONTAINS
                                                      zetp=alpha, eps=eps_rho_rspace, &
                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                      prefactor=1.0_dp, cutoff=hirshfeld_control%eps_cutoff)
+
+                   IF (para_env%ionode) PRINT *, "radius",radius
 
                    CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
