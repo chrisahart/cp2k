@@ -99,15 +99,15 @@ MODULE qs_cdft_types
 !> \param radius          Gaussian radius parameter
 !> \param shape_function  the constraint type: atomic density or single Gaussian
 !> \param use_bohr        determines whether to use angstrom or bohr units for the radii of Gaussians
-!> \param use_cutoff        logical to determine use of eps_constraint
-!> \param eps_constraint       cutoff for Hirshfeld constraint density
+!> \param use_cutoff        logical to determine use of eps_cutoff
+!> \param eps_cutoff       cutoff for Hirshfeld constraint density
 !> \param print_density    logical to decide if Hirshfeld densities should be printed
 !> \param hirshfeld_env   auxiliary type storing information about the Gaussians
 ! **************************************************************************************************
    TYPE hirshfeld_constraint_type
       INTEGER                              :: gaussian_shape, shape_function
       LOGICAL                              :: use_bohr, print_density, use_cutoff
-      REAL(KIND=dp)                        :: radius, eps_constraint
+      REAL(KIND=dp)                        :: radius, eps_cutoff
       REAL(KIND=dp), DIMENSION(:), POINTER :: radii
       TYPE(hirshfeld_type), POINTER        :: hirshfeld_env
    END TYPE hirshfeld_constraint_type
@@ -614,7 +614,7 @@ CONTAINS
       hirshfeld_control%print_density = .FALSE.
       hirshfeld_control%use_cutoff = .FALSE.
       hirshfeld_control%radius = 3.0_dp
-      hirshfeld_control%eps_constraint = 1.0e-12_dp
+      hirshfeld_control%eps_cutoff = 1.0e-12_dp
       hirshfeld_control%shape_function = shape_function_gaussian
       hirshfeld_control%gaussian_shape = radius_single
       NULLIFY (hirshfeld_control%hirshfeld_env)

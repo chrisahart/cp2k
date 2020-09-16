@@ -72,6 +72,7 @@ MODULE qs_cdft_methods
    USE qs_cdft_utils,                   ONLY: becke_constraint_init,&
                                               cdft_constraint_print,&
                                               hfun_scale,&
+                                              hfun_scale2,&
                                               hirshfeld_constraint_init, &
                                               cdft_print_weight_function, &
                                               cdft_print_hirshfeld_density
@@ -884,7 +885,7 @@ CONTAINS
                                                     ra=ra, rb=ra, rp=ra, &
                                                     zetp=alpha, eps=eps_rho_rspace, &
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                    prefactor=1.0_dp, cutoff=0.0_dp) ! cutoff=hirshfeld_control%eps_constraint
+                                                    prefactor=1.0_dp, cutoff=hirshfeld_control%eps_cutoff)
                 ! PRINT *, "radius",radius
                 ! radius = 50.0_dp
 
@@ -977,18 +978,17 @@ CONTAINS
 
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
-           CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, &
+           CALL hfun_scale2(cdft_control%group(igroup)%weight%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
-                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE.)
+                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
         END DO
 
            ! Calculate atomic charges if requested
            IF (cdft_control%atomic_charges) THEN
              DO iatom = 1, cdft_control%natoms
-
-               CALL hfun_scale(cdft_control%charge(iatom)%pw%cr3d, &
+               CALL hfun_scale2(cdft_control%charge(iatom)%pw%cr3d, &
                                   cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
-                                  cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE.)
+                                  cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
            END DO
          END IF
 
@@ -1081,7 +1081,7 @@ CONTAINS
                                                      ra=ra, rb=ra, rp=ra, &
                                                      zetp=alpha, eps=eps_rho_rspace, &
                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                     prefactor=1.0_dp, cutoff=0.0_dp)
+                                                     prefactor=1.0_dp, cutoff=hirshfeld_control%eps_cutoff)
 
                    CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
@@ -1115,10 +1115,7 @@ CONTAINS
                      DO j = lb_pw(2), ub_pw(2)
                        DO i = lb_pw(1), ub_pw(1)
 
-                         IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > 1.0e-12_dp) THEN
-
-                         ! IF (ABS(cdft_control%group(igroup)%hw_rho_total_constraint(i, j, k)) &
-                         !      > hirshfeld_control%eps_constraint) THEN
+                         IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
 
                                        exp_eval =  (coefficients(iatom) - &
                                                     cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &

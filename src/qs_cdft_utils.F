@@ -634,7 +634,7 @@ CONTAINS
                               l_val=cdft_control%in_memory)
     CALL section_vals_val_get(cdft_control_section, "PRINT_FORCE", l_val=cdft_control%print_force)
     CALL section_vals_val_get(cdft_control_section, "ZERO_FORCE", l_val=cdft_control%zero_force)
-    CALL section_vals_val_get(cdft_control_section, "DEBUG", l_val=cdft_control%debug)                     
+    CALL section_vals_val_get(cdft_control_section, "DEBUG", l_val=cdft_control%debug)
     ! Parse any dummy atoms (no constraint, just charges)
     IF (cdft_control%atomic_charges) THEN
        group_section => section_vals_get_subs_vals(cdft_control_section, "DUMMY_ATOMS")
@@ -841,7 +841,7 @@ CONTAINS
     CALL section_vals_val_get(hirshfeld_section, "USE_BOHR", l_val=hirshfeld_control%use_bohr)
     CALL section_vals_val_get(hirshfeld_section, "PRINT_DENSITY", l_val=hirshfeld_control%print_density)
     CALL section_vals_val_get(hirshfeld_section, "USE_CUTOFF", l_val=hirshfeld_control%use_cutoff)
-    CALL section_vals_val_get(hirshfeld_section, "EPS_CONSTRAINT", r_val=hirshfeld_control%eps_constraint)
+    CALL section_vals_val_get(hirshfeld_section, "EPS_CUTOFF", r_val=hirshfeld_control%eps_cutoff)
     IF (.NOT. hirshfeld_control%use_bohr) THEN
        hirshfeld_control%radius = cp_unit_from_cp2k(hirshfeld_control%radius, "angstrom")
     END IF
@@ -915,6 +915,57 @@ CONTAINS
     END IF
 
  END SUBROUTINE hfun_scale
+
+ ! **************************************************************************************************
+ !> \brief Calculate fout = fun1/fun2 or fout = fun1*fun2
+ !> \param fout the output 3D potential
+ !> \param fun1 the first input 3D potential
+ !> \param fun2 the second input 3D potential
+ !> \param divide logical that decides whether to divide or multiply the input potentials
+ ! **************************************************************************************************
+  SUBROUTINE hfun_scale2(fout, fun1, fun2, divide, small)
+     REAL(KIND=dp), DIMENSION(:, :, :), INTENT(OUT)     :: fout
+     REAL(KIND=dp), DIMENSION(:, :, :), INTENT(IN)      :: fun1, fun2
+     LOGICAL, INTENT(IN)                                :: divide
+     REAL(KIND=dp), , INTENT(IN)                        :: small
+
+     CHARACTER(len=*), PARAMETER :: routineN = 'hfun_scale', routineP = moduleN//':'//routineN
+
+     INTEGER                                            :: i1, i2, i3, n1, n2, n3
+
+     n1 = SIZE(fout, 1)
+     n2 = SIZE(fout, 2)
+     n3 = SIZE(fout, 3)
+     CPASSERT(n1 == SIZE(fun1, 1))
+     CPASSERT(n2 == SIZE(fun1, 2))
+     CPASSERT(n3 == SIZE(fun1, 3))
+     CPASSERT(n1 == SIZE(fun2, 1))
+     CPASSERT(n2 == SIZE(fun2, 2))
+     CPASSERT(n3 == SIZE(fun2, 3))
+
+     IF (divide) THEN
+        DO i3 = 1, n3
+           DO i2 = 1, n2
+              DO i1 = 1, n1
+                 IF (fun2(i1, i2, i3) > small) THEN
+                    fout(i1, i2, i3) = fun1(i1, i2, i3)/fun2(i1, i2, i3)
+                 ELSE
+                    fout(i1, i2, i3) = 0.0_dp
+                 END IF
+              END DO
+           END DO
+        END DO
+     ELSE
+        DO i3 = 1, n3
+           DO i2 = 1, n2
+              DO i1 = 1, n1
+                 fout(i1, i2, i3) = fun1(i1, i2, i3)*fun2(i1, i2, i3)
+              END DO
+           END DO
+        END DO
+     END IF
+
+  END SUBROUTINE hfun_scale2
 
 ! **************************************************************************************************
 !> \brief Determine confinement bounds along confinement dir (hardcoded to be z)
