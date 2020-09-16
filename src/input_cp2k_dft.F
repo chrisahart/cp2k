@@ -4792,6 +4792,13 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="USE_ATOMIC_CUTOFF", &
+                          description="USE_ATOMIC_CUTOFF", &
+                          usage="USE_ATOMIC_CUTOFF TRUE", &
+                          default_l_val=.TRUE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="EPS_CUTOFF", &
                           description="Density threshold for constraint.", &
                           usage="EPS_CUTOFF {real} ", default_r_val=1.0e-12_dp)

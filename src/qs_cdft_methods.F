@@ -771,6 +771,7 @@ CONTAINS
          subpatch_pattern = 0
          eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
          cube_info = pw_env%cube_info(1)
+         radius = 100.0_dp
 
          ! Coefficients
          ALLOCATE (coefficients(natom))
@@ -877,16 +878,17 @@ CONTAINS
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-
-                  ra(:) = pbc(particle_set(atom_a)%r, cell)
+                 ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                   ! Calculate cutoff (Juerg Hutter code)
-                  radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                    ra=ra, rb=ra, rp=ra, &
-                                                    zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
-                                                    pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                    prefactor=1.0_dp, cutoff=0.0_dp)
-                ! IF (para_env%ionode) PRINT *, "radius", radius
+                  IF (hirshfeld_control%use_atomic_cutoff) THEN
+                    radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                      ra=ra, rb=ra, rp=ra, &
+                                                      zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
+                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                      prefactor=1.0_dp, cutoff=0.0_dp)
+                    ! IF (para_env%ionode) PRINT *, "radius", radius
+                  END IF
 
                 ! Calculate atomic density (Juerg Hutter code)
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
