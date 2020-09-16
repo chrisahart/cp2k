@@ -886,9 +886,7 @@ CONTAINS
                                                     zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=0.0_dp)
-                IF (para_env%ionode) PRINT *, "radius", radius
-                IF (para_env%ionode) PRINT *, "eps_rho_rspace",eps_rho_rspace
-                IF (para_env%ionode) PRINT *, "hirshfeld_control%atomic_cutoff",hirshfeld_control%atomic_cutoff
+                ! IF (para_env%ionode) PRINT *, "radius", radius
 
                 ! Calculate atomic density (Juerg Hutter code)
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
@@ -1084,7 +1082,7 @@ CONTAINS
                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                      prefactor=1.0_dp, cutoff=0.0_dp)
 
-                   IF (para_env%ionode) PRINT *, "radius",radius
+                   ! IF (para_env%ionode) PRINT *, "radius",radius
 
                    CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &

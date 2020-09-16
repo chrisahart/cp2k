@@ -614,7 +614,7 @@ CONTAINS
       hirshfeld_control%print_density = .FALSE.
       hirshfeld_control%radius = 3.0_dp
       hirshfeld_control%eps_cutoff = 1.0e-12_dp
-      hirshfeld_control%atomic_cutoff = 0.0_dp
+      hirshfeld_control%atomic_cutoff = 1.0e-12_dp
       hirshfeld_control%shape_function = shape_function_gaussian
       hirshfeld_control%gaussian_shape = radius_single
       NULLIFY (hirshfeld_control%hirshfeld_env)
