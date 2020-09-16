@@ -612,7 +612,6 @@ CONTAINS
 
       hirshfeld_control%use_bohr = .FALSE.
       hirshfeld_control%print_density = .FALSE.
-      hirshfeld_control%use_cutoff = .FALSE.
       hirshfeld_control%radius = 3.0_dp
       hirshfeld_control%eps_cutoff = 1.0e-12_dp
       hirshfeld_control%atomic_cutoff = 0.0_dp
