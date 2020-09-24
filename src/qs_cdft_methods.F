@@ -1072,19 +1072,15 @@ CONTAINS
 
           IF (cdft_control%in_memory) THEN
             DO igroup = 1, SIZE(cdft_control%group)
+
+              nthread = 1
+           ithread = 0
+
               DO ikind = 1, SIZE(atomic_kind_set)
 
               ! Get list of atom kind, number of exponentials
               CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
-
-              ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
-              DO iatom = 1, num_species
-
-                ! Get atomic position
-                atom_a = atom_list(iatom)
-                ra(:) = pbc(particle_set(atom_a)%r, cell)
-
-                rho_dr_temp%r(:, :, :) = 0.0_dp
+              ALLOCATE (cores(num_species))
 
                 ! Loop over each Gaussian
                 DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -1093,10 +1089,35 @@ CONTAINS
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
+                  npme = 0
+                cores = 0
+
+                ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
+                DO iatom = 1, num_species
+
+                  ! Get atomic position
+                  atom_a = atom_list(iatom)
+                  ra(:) = pbc(particle_set(atom_a)%r, cell)
+
+
+                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+                     ! replicated realspace grid, split the atoms up between procs
+                     IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+                        npme = npme + 1
+                        cores(npme) = iatom
+                     ENDIF
+                  ELSE
+                     npme = npme + 1
+                     cores(npme) = iatom
+                  ENDIF
+               END DO
+
+               DO j = 1, npme
+                iatom = cores(j)
+                atom_a = atom_list(iatom)
+                  rho_dr_temp%r(:, :, :) = 0.0_dp
                   rs_rho_temp%r(:, :, :) = 0.0_dp
-
                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                    ! Calculate cutoff (Juerg Hutter code)
