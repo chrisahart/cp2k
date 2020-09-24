@@ -675,7 +675,7 @@ CONTAINS
          INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
                                                                ikind, ithread, j, natom, npme, num_species, &
                                                                nthread, numexp, k, i2, j2, k2, jatom,  im, jm, km
-         INTEGER, DIMENSION(:), POINTER                     :: atom_list
+         INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
          TYPE(cube_info_type)                               :: cube_info
          LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
          REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
@@ -856,20 +856,15 @@ CONTAINS
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
 
+           nthread = 1
+           ithread = 0
+
            ! Loop over each atomic kind
            DO ikind = 1, SIZE(atomic_kind_set)
 
              ! Get list of atom kind, number of exponentials
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
-
-             ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
-             DO iatom = 1, num_species
-
-               ! Get atomic position
-               atom_a = atom_list(iatom)
-               ra(:) = pbc(particle_set(atom_a)%r, cell)
-
-               rs_rho_temp%r(:, :, :) = 0.0_dp
+             ALLOCATE (cores(num_species))
 
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -877,8 +872,34 @@ CONTAINS
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+
+                 npme = 0
+                 cores = 0
+
+                 ! Loop over each atom of atom type
+                 DO iatom = 1, num_species
+
+                   ! Get atomic position
+                   atom_a = atom_list(iatom)
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
+
+                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+                     ! replicated realspace grid, split the atoms up between procs
+                     IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+                        npme = npme + 1
+                        cores(npme) = iatom
+                     ENDIF
+                  ELSE
+                     npme = npme + 1
+                     cores(npme) = iatom
+                  ENDIF
+               END DO
+
+               DO j = 1, npme
+                 iatom = cores(j)
+                 atom_a = atom_list(iatom)
                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-                 ra(:) = pbc(particle_set(atom_a)%r, cell)
+                 rs_rho_temp%r(:, :, :) = 0.0_dp
 
                   ! Calculate cutoff (Juerg Hutter code)
                   IF (hirshfeld_control%use_atomic_cutoff) THEN
@@ -1078,13 +1099,15 @@ CONTAINS
 
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
-                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                     ra=ra, rb=ra, rp=ra, &
-                                                     zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
-                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                     prefactor=1.0_dp, cutoff=0.0_dp)
-
-                   ! IF (para_env%ionode) PRINT *, "radius",radius
+                   ! Calculate cutoff (Juerg Hutter code)
+                   IF (hirshfeld_control%use_atomic_cutoff) THEN
+                     radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                       ra=ra, rb=ra, rp=ra, &
+                                                       zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
+                                                       pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                       prefactor=1.0_dp, cutoff=0.0_dp)
+                     ! IF (para_env%ionode) PRINT *, "radius", radius
+                   END IF
 
                    CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
