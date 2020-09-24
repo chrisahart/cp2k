@@ -879,7 +879,6 @@ CONTAINS
                  ! Loop over each atom of atom type
                  DO iatom = 1, num_species
 
-                   ! Get atomic position
                    atom_a = atom_list(iatom)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
@@ -898,6 +897,7 @@ CONTAINS
                DO j = 1, npme
                  iatom = cores(j)
                  atom_a = atom_list(iatom)
+                 ra(:) = pbc(particle_set(atom_a)%r, cell)
                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                  rs_rho_temp%r(:, :, :) = 0.0_dp
 
@@ -982,6 +982,7 @@ CONTAINS
              END IF
              END DO ! iatom = 1, natom
            END DO ! ikind = 1, SIZE(atomic_kind_set)
+            DEALLOCATE (cores)
          END DO ! igroup = 1, SIZE(cdft_control%group)
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
@@ -1094,11 +1095,6 @@ CONTAINS
 
                 ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
                 DO iatom = 1, num_species
-
-                  ! Get atomic position
-                  atom_a = atom_list(iatom)
-                  ra(:) = pbc(particle_set(atom_a)%r, cell)
-
 
                    IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
                      ! replicated realspace grid, split the atoms up between procs
