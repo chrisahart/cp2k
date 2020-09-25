@@ -885,7 +885,10 @@ CONTAINS
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                    IF (rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed) THEN
-                     PRINT *, "rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed"
+                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%parallel", rs_rho_temp%desc%parallel
+                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
+                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
+                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
                      ! replicated realspace grid, split the atoms up between procs
                      IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
                         npme = npme + 1
