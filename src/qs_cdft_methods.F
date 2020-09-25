@@ -919,7 +919,7 @@ CONTAINS
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
 
-                 END DO ! iex = 1, numexp
+
 
                  ! Loop over grid
                !   DO k = lb_rs(3), ub_rs(3)
@@ -981,6 +981,7 @@ CONTAINS
                       rs_single_charge(jatom)%rs_grid%r(:, :, :) + rs_rho_temp%r(:, :, :)
                END IF
              END IF
+             END DO ! iex = 1, numexp
              END DO ! iatom = 1, natom
              DEALLOCATE (cores)
            END DO ! ikind = 1, SIZE(atomic_kind_set)
