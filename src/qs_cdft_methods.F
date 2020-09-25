@@ -982,8 +982,9 @@ CONTAINS
                END IF
              END IF
              END DO ! iatom = 1, natom
+             DEALLOCATE (cores)
            END DO ! ikind = 1, SIZE(atomic_kind_set)
-            DEALLOCATE (cores)
+
          END DO ! igroup = 1, SIZE(cdft_control%group)
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
