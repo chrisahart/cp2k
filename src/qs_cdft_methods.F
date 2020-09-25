@@ -869,6 +869,8 @@ CONTAINS
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
 
+                  PRINT *, "iex", iex
+
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                  coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
@@ -883,10 +885,12 @@ CONTAINS
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
                    IF (rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed) THEN
+                     PRINT *, "rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed"
                      ! replicated realspace grid, split the atoms up between procs
                      IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
                         npme = npme + 1
                         cores(npme) = iatom
+                        PRINT *, "npme", npme
                      ENDIF
                   ELSE
                      npme = npme + 1
@@ -895,6 +899,11 @@ CONTAINS
                END DO
 
                DO j = 1, npme
+
+                 PRINT *, "j", j
+                 IF (para_env%ionode) PRINT *, "cores", cores
+                 IF (para_env%ionode) PRINT *, "npme", npme
+
                  iatom = cores(j)
                  atom_a = atom_list(iatom)
                  ra(:) = pbc(particle_set(atom_a)%r, cell)
@@ -981,6 +990,7 @@ CONTAINS
                       rs_single_charge(jatom)%rs_grid%r(:, :, :) + rs_rho_temp%r(:, :, :)
                END IF
              END IF
+             PRINT *, "complete iex", iex
              END DO ! iex = 1, numexp
              END DO ! iatom = 1, natom
              DEALLOCATE (cores)
