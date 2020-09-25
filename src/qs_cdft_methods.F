@@ -882,9 +882,9 @@ CONTAINS
                    atom_a = atom_list(iatom)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
-                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+                   IF (rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed) THEN
                      ! replicated realspace grid, split the atoms up between procs
-                     IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+                     IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
                         npme = npme + 1
                         cores(npme) = iatom
                      ENDIF
@@ -898,6 +898,7 @@ CONTAINS
                  iatom = cores(j)
                  atom_a = atom_list(iatom)
                  ra(:) = pbc(particle_set(atom_a)%r, cell)
+                 subpatch_pattern = 0
                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                  rs_rho_temp%r(:, :, :) = 0.0_dp
 
