@@ -1002,7 +1002,7 @@ CONTAINS
                       rs_single_charge(jatom)%rs_grid%r(:, :, :) + rs_rho_temp%r(:, :, :)
                END IF
              END IF
-             PRINT *, "complete iex", iex
+             ! PRINT *, "complete iex", iex
              END DO ! iex = 1, numexp
              END DO ! iatom = 1, natom
              DEALLOCATE (cores)
@@ -1158,16 +1158,17 @@ CONTAINS
                                               subpatch_pattern=subpatch_pattern)
 
                   rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
-                END DO
+                END DO ! j = 1, npme
 
                 CALL rs_pw_transfer(rho_dr_temp, pw_rho_temp%pw, rs2pw)
                 cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
 
-              END DO ! iatom = 1, natom
-            END DO ! ikind = 1, SIZE(atomic_kind_set)
-          END DO ! igroup = 1, SIZE(cdft_control%group)
+              END DO ! iex
+             DEALLOCATE (cores)
+           END DO ! ikind = 1, SIZE(atomic_kind_set)
+         END DO ! igroup = 1, SIZE(cdft_control%group)
           END IF ! (cdft_control%in_memory) THEN
 
            ! Calculate gradient if requested
