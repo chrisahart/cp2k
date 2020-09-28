@@ -889,7 +889,7 @@ CONTAINS
                      IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
                      IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
                      IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
-          IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size
+          IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size)
 
                      ! replicated realspace grid, split the atoms up between procs
                      IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
