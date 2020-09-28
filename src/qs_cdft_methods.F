@@ -869,7 +869,7 @@ CONTAINS
                ! Loop over each Gaussian
                DO iex = 1, hirshfeld_env%kind_shape_fn(ikind)%numexp
 
-                  PRINT *, "iex", iex
+                  ! PRINT *, "iex", iex
 
                  ! Get Gaussian exponent and coefficient
                  alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
@@ -884,28 +884,27 @@ CONTAINS
                    atom_a = atom_list(iatom)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
-        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%parallel", rs_rho_temp%desc%parallel
-        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
-        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
-        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
-        IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size)
+        ! IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%parallel", rs_rho_temp%desc%parallel
+        ! IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
+        ! IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
+        ! IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
+        ! IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size)
 
                    IF (rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed) THEN
                      ! replicated realspace grid, split the atoms up between procs
-                     ! if number of atoms divides evenly by number of cores
                      IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
                         npme = npme + 1
                         cores(npme) = iatom
-                        PRINT *, "MODULO npme", npme
-                        PRINT *, "MODULO cores", cores
-                        PRINT *, "MODULO iatom", iatom
+                        ! PRINT *, "MODULO npme", npme
+                        ! PRINT *, "MODULO cores", cores
+                        ! PRINT *, "MODULO iatom", iatom
                      ENDIF
                   ELSE
                      npme = npme + 1
                      cores(npme) = iatom
-                     PRINT *, "ELSE npme", npme
-                     PRINT *, "ELSE cores", cores
-                     PRINT *, "ELSE iatom", iatom
+                     ! PRINT *, "ELSE npme", npme
+                     ! PRINT *, "ELSE cores", cores
+                     ! PRINT *, "ELSE iatom", iatom
                   ENDIF
                END DO
 
@@ -918,11 +917,11 @@ CONTAINS
                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                  rs_rho_temp%r(:, :, :) = 0.0_dp
 
-                 PRINT *, "j", j
-                 PRINT *, "cores", cores
-                 PRINT *, "cores(j)", cores(j)
-                 PRINT *, "iatom", iatom
-                 PRINT *, "atom_a", atom_a
+                 ! PRINT *, "j", j
+                 ! PRINT *, "cores", cores
+                 ! PRINT *, "cores(j)", cores(j)
+                 ! PRINT *, "iatom", iatom
+                 ! PRINT *, "atom_a", atom_a
 
                   ! Calculate cutoff (Juerg Hutter code)
                   IF (hirshfeld_control%use_atomic_cutoff) THEN
@@ -1116,7 +1115,7 @@ CONTAINS
                   alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                   coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
 
-                  npme = 0
+                npme = 0
                 cores = 0
 
                 ! Loop over each atom of atom type (natom from get_atomic_kind overrides )
