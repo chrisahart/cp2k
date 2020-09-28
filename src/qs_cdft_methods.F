@@ -1048,7 +1048,7 @@ CONTAINS
          !    DEALLOCATE (rs_single)
          !    DEALLOCATE (compute_charge)
          ! END IF
-      END DO
+      ! END DO
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
          ! CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
