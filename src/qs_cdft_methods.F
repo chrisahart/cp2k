@@ -889,23 +889,26 @@ CONTAINS
                      IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
                      IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
                      IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
+          IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size
+
                      ! replicated realspace grid, split the atoms up between procs
                      IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
                         npme = npme + 1
                         cores(npme) = iatom
-                        PRINT *, "npme", npme
+                        PRINT *, "MODULO npme", npme
+                        PRINT *, "MODULO cores", cores
+                        PRINT *, "MODULO iatom", iatom
                      ENDIF
                   ELSE
                      npme = npme + 1
                      cores(npme) = iatom
+                     PRINT *, "MODULO npme", npme
+                     PRINT *, "MODULO cores", cores
+                     PRINT *, "MODULO iatom", iatom
                   ENDIF
                END DO
 
                DO j = 1, npme
-
-                 PRINT *, "j", j
-                 IF (para_env%ionode) PRINT *, "cores", cores
-                 IF (para_env%ionode) PRINT *, "npme", npme
 
                  iatom = cores(j)
                  atom_a = atom_list(iatom)
@@ -913,6 +916,12 @@ CONTAINS
                  subpatch_pattern = 0
                  pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                  rs_rho_temp%r(:, :, :) = 0.0_dp
+
+                 PRINT *, "j", j
+                 PRINT *, "cores", cores
+                 PRINT *, "cores(j)", cores(j)
+                 PRINT *, "iatom", iatom
+                 PRINT *, "atom_a", atom_a
 
                   ! Calculate cutoff (Juerg Hutter code)
                   IF (hirshfeld_control%use_atomic_cutoff) THEN
