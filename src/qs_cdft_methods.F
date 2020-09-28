@@ -1262,7 +1262,7 @@ CONTAINS
            !   CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
            ! END IF
            !
-           ! CALL rs_grid_release(rs_rho_temp)
+           CALL rs_grid_release(rs_rho_temp)
            ! CALL rs_grid_release(rs_rho_all)
            ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
            ! DEALLOCATE (pab)
