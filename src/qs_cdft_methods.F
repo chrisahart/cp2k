@@ -884,14 +884,15 @@ CONTAINS
                    atom_a = atom_list(iatom)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
-                   IF (rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed) THEN
-                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%parallel", rs_rho_temp%desc%parallel
-                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
-                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
-                     IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
-          IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size)
+        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%parallel", rs_rho_temp%desc%parallel
+        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%distributed", rs_rho_temp%desc%distributed
+        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%group_size", rs_rho_temp%desc%group_size
+        IF (para_env%ionode) PRINT *, "rs_rho_temp%desc%my_pos", rs_rho_temp%desc%my_pos
+        IF (para_env%ionode) PRINT *, "MODULO(iatom, rs_rho_temp%desc%group_size", MODULO(iatom, rs_rho_temp%desc%group_size)
 
+                   IF (rs_rho_temp%desc%parallel .AND. .NOT. rs_rho_temp%desc%distributed) THEN
                      ! replicated realspace grid, split the atoms up between procs
+                     ! if number of atoms divides evenly by number of cores
                      IF (MODULO(iatom, rs_rho_temp%desc%group_size) == rs_rho_temp%desc%my_pos) THEN
                         npme = npme + 1
                         cores(npme) = iatom
@@ -902,9 +903,9 @@ CONTAINS
                   ELSE
                      npme = npme + 1
                      cores(npme) = iatom
-                     PRINT *, "MODULO npme", npme
-                     PRINT *, "MODULO cores", cores
-                     PRINT *, "MODULO iatom", iatom
+                     PRINT *, "ELSE npme", npme
+                     PRINT *, "ELSE cores", cores
+                     PRINT *, "ELSE iatom", iatom
                   ENDIF
                END DO
 
