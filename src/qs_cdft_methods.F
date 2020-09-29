@@ -646,7 +646,8 @@ CONTAINS
             CALL hirshfeld_constraint_init(qs_env)
             ! Calculate the Hirshfeld weight function and possibly the gradients
             ! PRINT *, "CALL hirshfeld_constraint_low(qs_env, calculate_forces)"
-            CALL hirshfeld_constraint_low(qs_env, calculate_forces)
+            CALL hirshfeld_constraint_low(qs_env)
+            !CALL hirshfeld_constraint_low(qs_env, calculate_forces)
          END IF
          ! Integrate the Hirshfeld constraint
          ! PRINT *, "cdft_constraint_integrate(qs_env)"
