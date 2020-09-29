@@ -669,8 +669,8 @@ CONTAINS
    SUBROUTINE hirshfeld_constraint_low(qs_env)
     ! SUBROUTINE hirshfeld_constraint_low(qs_env, calculate_forces, just_gradients)
   TYPE(qs_environment_type), POINTER                 :: qs_env
-  LOGICAL, OPTIONAL                                  :: just_gradients
-  LOGICAL                                            :: calculate_forces
+  ! LOGICAL, OPTIONAL                                  :: just_gradients
+  ! LOGICAL                                            :: calculate_forces
 
   CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
      routineP = moduleN//':'//routineN
