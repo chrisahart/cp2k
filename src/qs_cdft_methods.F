@@ -681,7 +681,7 @@ CONTAINS
   INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
   TYPE(cube_info_type)                               :: cube_info
   LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
-  REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
+  REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, t1, t2, &
                                                         radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
                                                         r_squared_pbc
   REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
@@ -828,16 +828,12 @@ CONTAINS
                                              rs_rho_all, cell, cube_info, radius=radius, &
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
+
                   IF (is_constraint(atom_a)) THEN
-                     radius_constr = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                              ra=ra, rb=ra, rp=ra, &
-                                                              zetp=alpha, eps=eps_rho_rspace, &
-                                                              pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                              prefactor=coefficients(atom_a), cutoff=0.0_dp)
 
                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
-                                                pab, 0, 0, rs_rho_constr, cell, cube_info, &
+                                                pab, 0, 0, radius, cell, cube_info, &
                                                 radius=radius_constr, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
