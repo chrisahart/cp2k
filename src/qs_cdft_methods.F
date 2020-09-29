@@ -1001,7 +1001,7 @@ CONTAINS
           ! CALL rs_grid_release(rs_rho_constr)
           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
 
-          Release grids that require looping over atoms
+          ! Release grids that require looping over atoms
           DO i = 1, cdft_control%natoms
             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
               CALL rs_grid_release(rs_single(i)%rs_grid)
