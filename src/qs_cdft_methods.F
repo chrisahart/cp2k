@@ -691,6 +691,7 @@ CONTAINS
       TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
       TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
+      TYPE(cp_para_env_type), POINTER                    :: para_env
       TYPE(pw_env_type), POINTER                         :: pw_env
       TYPE(pw_p_type)                                    :: tmp
       TYPE(pw_p_type), POINTER                           :: fnorm
@@ -701,7 +702,7 @@ CONTAINS
 
       NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
                hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
-               auxbas_rs_desc, rs_rho_all, rs_rho_constr, cdft_control, &
+               auxbas_rs_desc, rs_rho_all, rs_rho_constr, para_env, cdft_control, &
                hirshfeld_control, rs_single)
 
       CALL timeset(routineN, handle)
@@ -711,6 +712,7 @@ CONTAINS
                       particle_set=particle_set, &
                       natom=natom, &
                       dft_control=dft_control, &
+                      para_env=para_env, &
                       pw_env=pw_env)
 
       t1 = m_walltime()
