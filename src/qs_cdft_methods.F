@@ -916,7 +916,6 @@ CONTAINS
                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   subpatch_pattern = 0
-                  rs_rho_temp%r(:, :, :) = 0.0_dp
 
                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                     ra=ra, rb=ra, rp=ra, &
@@ -924,23 +923,15 @@ CONTAINS
                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
                                                     prefactor=1.0_dp, cutoff=0.0_dp)
 
+                 ! Calculate total density rs_rho_all
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
                                              rs_rho_all, cell, cube_info, radius=radius, &
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
 
-                ! rs_rho_all%r(:, :, :) = &
-                ! rs_rho_all%r(:, :, :) + rs_rho_temp%r(:, :, :)
-
+                  ! Calculate constraint density rs_rho_all
                   IF (is_constraint(atom_a)) THEN
-
-                    radius_constr = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                             ra=ra, rb=ra, rp=ra, &
-                                                             zetp=alpha, eps=eps_rho_rspace, &
-                                                             pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                             prefactor=coefficients(atom_a), cutoff=0.0_dp)
-
                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
                                                 pab, 0, 0, rs_rho_constr, cell, cube_info, &
@@ -948,19 +939,36 @@ CONTAINS
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
                   END IF
-                  ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-                  !    IF (compute_charge(atom_a)) THEN
-                  !       DO iatom = 1, cdft_control%natoms
-                  !          IF (atom_a == cdft_control%atoms(iatom)) EXIT
-                  !       END DO
-                  !       CPASSERT(iatom <= cdft_control%natoms)
-                  !       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                  !                                  (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                  !                                  rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
-                  !                                  ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                  !                                  subpatch_pattern=subpatch_pattern)
-                  !    END IF
-                  ! END IF
+
+                  ! Calculate atomic density rs_single for printing density
+                  IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+                    IF (is_constraint(atom_a)) THEN
+                    DO iatom = 1, cdft_control%natoms
+                              IF (atom_a == cdft_control%atoms(jatom)) EXIT
+                           END DO
+                           CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                                      (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
+                                                      pab, 0, 0, rs_single(iatom)%rs_grid, cell, cube_info, &
+                                                      radius=radius, &
+                                                      ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                                      subpatch_pattern=subpatch_pattern)
+                 END IF
+               END IF
+
+               ! Calculate atomic density rs_single for calculating charges
+                  IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
+                     IF (compute_charge(atom_a)) THEN
+                        DO iatom = 1, cdft_control%natoms
+                           IF (atom_a == cdft_control%atoms(iatom)) EXIT
+                        END DO
+                        CPASSERT(iatom <= cdft_control%natoms)
+                        CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                                   (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                                   rs_single_charge(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                                                   ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                                   subpatch_pattern=subpatch_pattern)
+                     END IF
+                  END IF
                END DO
             END DO
             DEALLOCATE (cores)
