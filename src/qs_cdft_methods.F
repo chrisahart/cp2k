@@ -991,6 +991,12 @@ CONTAINS
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
 
+                 radius_constr = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                              ra=ra, rb=ra, rp=ra, &
+                                                              zetp=alpha, eps=eps_rho_rspace, &
+                                                              pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                              prefactor=coefficients(atom_a), cutoff=0.0_dp)
+
                  CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
                                                pab, 0, 0, rs_rho_constr, cell, cube_info, &
