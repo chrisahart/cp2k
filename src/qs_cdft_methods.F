@@ -730,7 +730,7 @@ CONTAINS
                     pw_env=pw_env)
    CALL qs_rho_get(rho, rho_r=rho_r)
 
-      t1 = m_walltime()
+      ! t1 = m_walltime()
 
 
       ! IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
@@ -759,8 +759,8 @@ CONTAINS
            CALL rs_grid_zero(rs_rho_all)
          END IF
 
-     t2 = m_walltime()
-     IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+     ! t2 = m_walltime()
+     ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
        ! Get size of rs and pw grids
        npts = rho_r(1)%pw%pw_grid%npts
@@ -798,8 +798,8 @@ CONTAINS
          END DO
        END DO
 
-       t2 = m_walltime()
-       IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+       ! t2 = m_walltime()
+       ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
@@ -824,8 +824,8 @@ CONTAINS
          END IF
          END DO
 
-         t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         ! t2 = m_walltime()
+         ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
          DO igroup = 1, SIZE(cdft_control%group)
 
@@ -855,8 +855,8 @@ CONTAINS
            cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
          END DO
 
-         t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         ! t2 = m_walltime()
+         ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
           ! Charges
           IF (cdft_control%atomic_charges) THEN
@@ -871,7 +871,7 @@ CONTAINS
             END DO
           END IF
 
-          IF (para_env%ionode) PRINT *, "Finished allocation", t1-t2
+          ! IF (para_env%ionode) PRINT *, "Finished allocation", t1-t2
 
           ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
@@ -879,8 +879,8 @@ CONTAINS
          nthread = 1
          ithread = 0
 
-         t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         ! t2 = m_walltime()
+         ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
          DO ikind = 1, SIZE(atomic_kind_set)
             numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -977,9 +977,9 @@ CONTAINS
          END DO
        END DO
 
-         t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
-         IF (para_env%ionode) PRINT *,  "eps_rho_rspace", eps_rho_rspace
+         ! t2 = m_walltime()
+         ! IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
+         ! IF (para_env%ionode) PRINT *,  "eps_rho_rspace", eps_rho_rspace
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
          CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
@@ -991,8 +991,8 @@ CONTAINS
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
         END DO
-        t2 = m_walltime()
-        IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
+        ! t2 = m_walltime()
+        ! IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
 
         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
           DO i = 1, cdft_control%natoms
@@ -1014,15 +1014,15 @@ CONTAINS
                                   cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
            END DO
          END IF
-         t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "Finished calculating charges", t1-t2
+         ! t2 = m_walltime()
+         ! IF (para_env%ionode) PRINT *, "Finished calculating charges", t1-t2
 
            ! Print atomic densities if requested
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              CALL cdft_print_hirshfeld_density(qs_env)
             END IF
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Finished calculating printing density"
+            ! t2 = m_walltime()
+            ! IF (para_env%ionode) PRINT *, "Finished calculating printing density"
 
           ! Clear memory before allocating gradient (very memory expensive)
           CALL rs_grid_release(rs_rho_constr)
@@ -1138,8 +1138,8 @@ CONTAINS
 
       CALL timestop(handle)
 
-      t2 = m_walltime()
-      IF (para_env%ionode) PRINT *, "Finished deallocation", t1-t2
+      ! t2 = m_walltime()
+      ! IF (para_env%ionode) PRINT *, "Finished deallocation", t1-t2
 
    END SUBROUTINE hirshfeld_constraint_low
 
