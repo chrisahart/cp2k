@@ -874,6 +874,8 @@ CONTAINS
             END DO
           END IF
 
+          IF (para_env%ionode) PRINT *, "Finished allocation", t1-t2
+
           ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
 
@@ -881,7 +883,7 @@ CONTAINS
          ithread = 0
 
          t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+
 
          DO ikind = 1, SIZE(atomic_kind_set)
             numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -966,7 +968,7 @@ CONTAINS
          DEALLOCATE (pab)
 
          t2 = m_walltime()
-         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
 
          ! Transfer rs_rho_all to the correct grid and save it
          CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
@@ -1006,7 +1008,7 @@ CONTAINS
       END DO
 
       t2 = m_walltime()
-      IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+      IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
 
       ! Clear memory before allocating gradient (very memory expensive)
           ! CALL rs_grid_release(rs_rho_constr)
@@ -1051,7 +1053,7 @@ CONTAINS
       CALL timestop(handle)
 
       t2 = m_walltime()
-      IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+      IF (para_env%ionode) PRINT *, "Finished deallocation", t1-t2
 
    END SUBROUTINE hirshfeld_constraint_low
 
