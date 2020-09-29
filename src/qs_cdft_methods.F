@@ -1001,9 +1001,9 @@ CONTAINS
            END IF
 
         ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-          IF (.NOT. cdft_control%in_memory) THEN
-             CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
-           END IF
+          ! IF (.NOT. cdft_control%in_memory) THEN
+          !    CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
+          !  END IF
         END IF
 
         ! PRINT *, "calculating integrated"
