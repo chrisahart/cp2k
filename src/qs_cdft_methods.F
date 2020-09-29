@@ -914,6 +914,8 @@ CONTAINS
                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   subpatch_pattern = 0
+                   rs_rho_temp%r(:, :, :) = 0.0_dp
+
                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                     ra=ra, rb=ra, rp=ra, &
                                                     zetp=alpha, eps=eps_rho_rspace, &
@@ -922,32 +924,41 @@ CONTAINS
 
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                             rs_rho_all, cell, cube_info, radius=radius, &
+                                             rs_rho_temp, cell, cube_info, radius=radius, &
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
 
-                  IF (is_constraint(atom_a)) THEN
+                    rs_rho_all%r(:, :, :) = &
+                    rs_rho_all%r(:, :, :) + rs_rho_temp%r(:, :, :)
 
-                     CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
-                                                pab, 0, 0, rs_rho_constr, cell, cube_info, &
-                                                radius=radius, &
-                                                ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                subpatch_pattern=subpatch_pattern)
-                  END IF
-                  IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-                     IF (compute_charge(atom_a)) THEN
-                        DO iatom = 1, cdft_control%natoms
-                           IF (atom_a == cdft_control%atoms(iatom)) EXIT
-                        END DO
-                        CPASSERT(iatom <= cdft_control%natoms)
-                        CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                   (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                                   rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
-                                                   ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                   subpatch_pattern=subpatch_pattern)
-                     END IF
-                  END IF
+
+              IF (is_constraint(atom_a)) THEN
+                     rs_rho_constr%r(:, :, :) = &
+                     rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rs_rho_temp%r(:, :, :)
+               END IF
+
+                  ! IF (is_constraint(atom_a)) THEN
+                  !
+                  !    CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                  !                               (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
+                  !                               pab, 0, 0, rs_rho_constr, cell, cube_info, &
+                  !                               radius=radius, &
+                  !                               ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                  !                               subpatch_pattern=subpatch_pattern)
+
+                  ! END IF
+                  IF (cdft_control%atomic_charges) THEN
+              IF (compute_charge(atom_a)) THEN
+                ! PRINT *, "compute_charge", atom_a
+            !
+                DO jatom = 1, cdft_control%natoms
+                          IF (atom_a == cdft_control%atoms(jatom)) EXIT
+                       END DO
+
+                     rs_single_charge(jatom)%rs_grid%r(:, :, :) = &
+                     rs_single_charge(jatom)%rs_grid%r(:, :, :) + rs_rho_temp%r(:, :, :)
+              END IF
+            END IF
                END DO
             END DO
             DEALLOCATE (cores)
@@ -1032,7 +1043,7 @@ CONTAINS
            CALL rs_grid_release(rs_rho_temp)
            ! CALL rs_grid_release(rs_rho_all)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
-           DEALLOCATE (pab)
+           ! DEALLOCATE (pab)
            DEALLOCATE (coefficients)
 
       DEALLOCATE (is_constraint)
