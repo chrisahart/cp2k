@@ -666,54 +666,68 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-   SUBROUTINE hirshfeld_constraint_low(qs_env)
-      TYPE(qs_environment_type), POINTER                 :: qs_env
+   SUBROUTINE hirshfeld_constraint_low(qs_env, calculate_forces, just_gradients)
+  TYPE(qs_environment_type), POINTER                 :: qs_env
+  LOGICAL, OPTIONAL                                  :: just_gradients
+  LOGICAL                                            :: calculate_forces
 
-      CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
-         routineP = moduleN//':'//routineN
+  CHARACTER(len=*), PARAMETER :: routineN = 'hirshfeld_constraint_low', &
+     routineP = moduleN//':'//routineN
 
-      INTEGER                                            :: atom_a, handle, i, iatom, iex, igroup, &
-                                                            ikind, ithread, j, natom, npme, &
-                                                            nthread, numexp
-      INTEGER(KIND=int_8)                                :: subpatch_pattern
-      INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
-      LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
-      REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
-                                                            radius, radius_constr, t1, t2
-      REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
-      REAL(kind=dp), DIMENSION(3)                        :: ra
-      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
-      TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
-      TYPE(cdft_control_type), POINTER                   :: cdft_control
-      TYPE(cell_type), POINTER                           :: cell
-      TYPE(cube_info_type)                               :: cube_info
-      TYPE(dft_control_type), POINTER                    :: dft_control
-      TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
-      TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
-      TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
-      TYPE(cp_para_env_type), POINTER                    :: para_env
-      TYPE(pw_env_type), POINTER                         :: pw_env
-      TYPE(pw_p_type)                                    :: tmp
-      TYPE(pw_p_type), POINTER                           :: fnorm
-      TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
-      TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
-      TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single
-      TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr
+  LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
+  INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
+                                                        ikind, ithread, j, natom, npme, num_species, &
+                                                        nthread, numexp, k, i2, j2, k2, jatom,  im, jm, km
+  INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
+  TYPE(cube_info_type)                               :: cube_info
+  LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
+  REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, &
+                                                        radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
+                                                        r_squared_pbc
+  REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
+  TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
+  TYPE(cdft_control_type), POINTER                   :: cdft_control
+  TYPE(dft_control_type), POINTER                    :: dft_control
+  TYPE(hirshfeld_constraint_type), POINTER           :: hirshfeld_control
+  TYPE(hirshfeld_type), POINTER                      :: hirshfeld_env
+  TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
+  TYPE(pw_p_type)                                    :: tmp
+  TYPE(pw_p_type), POINTER                           :: fnorm
+  TYPE(pw_env_type), POINTER                         :: pw_env
+  INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf, gridbounds
+  TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
+  TYPE(realspace_grid_desc_type), POINTER            :: auxbas_rs_desc
+  INTEGER, DIMENSION(3)                              :: lb, ub, npts, ng, lb_rs, ub_rs, lb_pw, ub_pw
+    TYPE(pw_p_type), DIMENSION(:), POINTER             :: rho_r
+    TYPE(qs_rho_type), POINTER                         :: rho
+    TYPE(pw_p_type)                                    :: pw_rho_temp
+    REAL(KIND=dp), DIMENSION(3)              :: dr, dr_rs, dr_pw, r2, r_pbc, r_rs
+    TYPE(cell_type), POINTER                           :: cell
+    TYPE(cp_para_env_type), POINTER                    :: para_env
+    REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
+    REAL(KIND=dp), POINTER, DIMENSION(:, :, :)             :: rho_temp!, rho_dr_temp
+    REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
+    INTEGER(KIND=int_8)                                :: subpatch_pattern
+    TYPE(realspace_grid_type)                :: rsgrid
+    TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
+   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rho_dr_temp
 
-      NULLIFY (atom_list, cores, pab, atomic_kind_set, cell, dft_control, &
-               hirshfeld_env, particle_set, pw_env, fnorm, auxbas_pw_pool, &
-               auxbas_rs_desc, rs_rho_all, rs_rho_constr, para_env, cdft_control, &
-               hirshfeld_control, rs_single)
+    NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, &
+             hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
+             auxbas_rs_desc, cdft_control, pab, rs_rho_temp, rho_dr_temp, &
+             hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
 
-      CALL timeset(routineN, handle)
-      CALL get_qs_env(qs_env, &
-                      atomic_kind_set=atomic_kind_set, &
-                      cell=cell, &
-                      particle_set=particle_set, &
-                      natom=natom, &
-                      dft_control=dft_control, &
-                      para_env=para_env, &
-                      pw_env=pw_env)
+    CALL timeset(routineN, handle)
+    CALL get_qs_env(qs_env, &
+                    atomic_kind_set=atomic_kind_set, &
+                    particle_set=particle_set, &
+                    natom=natom, &
+                    cell=cell, &
+                    rho=rho, &
+                    dft_control=dft_control, &
+                    para_env=para_env, &
+                    pw_env=pw_env)
+   CALL qs_rho_get(rho, rho_r=rho_r)
 
       t1 = m_walltime()
 
