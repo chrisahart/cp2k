@@ -935,7 +935,7 @@ CONTAINS
 
                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
-                                                pab, 0, 0, radius, cell, cube_info, &
+                                                pab, 0, 0, rs_rho_constr, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
@@ -961,6 +961,7 @@ CONTAINS
 
          t2 = m_walltime()
          IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
+         IF (para_env%ionode) PRINT *,  "eps_rho_rspace", eps_rho_rspace
 
          ! Transfer rs_rho_all to the correct grid and save it
          CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
