@@ -711,12 +711,12 @@ CONTAINS
     INTEGER(KIND=int_8)                                :: subpatch_pattern
     TYPE(realspace_grid_type)                :: rsgrid
     TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
-   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_all, rho_dr_temp
+   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rho_dr_temp
 
     NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, &
              hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
              auxbas_rs_desc, cdft_control, pab, rs_rho_all, rho_dr_temp, &
-             hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
+             hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_constr, rs_single_charge)
 
     CALL timeset(routineN, handle)
     CALL get_qs_env(qs_env, &
@@ -757,6 +757,7 @@ CONTAINS
            cube_info = pw_env%cube_info(1)
            CALL rs_grid_retain(rs_rho_all)
            CALL rs_grid_zero(rs_rho_all)
+         END IF 
 
      t2 = m_walltime()
      IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
@@ -913,11 +914,15 @@ CONTAINS
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   subpatch_pattern = 0
 
-                  radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                    ra=ra, rb=ra, rp=ra, &
-                                                    zetp=alpha, eps=eps_rho_rspace, &
-                                                    pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                    prefactor=1.0_dp, cutoff=0.0_dp)
+                  ! Calculate cutoff (Juerg Hutter code)
+                 IF (hirshfeld_control%use_atomic_cutoff) THEN
+                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                     ra=ra, rb=ra, rp=ra, &
+                                                     zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
+                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                     prefactor=1.0_dp, cutoff=0.0_dp)
+                   ! IF (para_env%ionode) PRINT *, "radius", radius
+                 END IF
 
                  ! Calculate total density rs_rho_all
                   CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
