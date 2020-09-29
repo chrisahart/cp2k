@@ -1040,7 +1040,7 @@ CONTAINS
            CALL rs_grid_release(rs_rho_temp)
            ! CALL rs_grid_release(rs_rho_all)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
-           DEALLOCATE (pab)
+           ! DEALLOCATE (pab)
 
       DEALLOCATE (is_constraint)
       DEALLOCATE (coefficients)
