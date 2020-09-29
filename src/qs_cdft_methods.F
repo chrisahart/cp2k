@@ -711,11 +711,11 @@ CONTAINS
     INTEGER(KIND=int_8)                                :: subpatch_pattern
     TYPE(realspace_grid_type)                :: rsgrid
     TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
-   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_temp, rho_dr_temp
+   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rs_rho_all, rho_dr_temp
 
     NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, &
              hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-             auxbas_rs_desc, cdft_control, pab, rs_rho_temp, rho_dr_temp, &
+             auxbas_rs_desc, cdft_control, pab, rs_rho_all, rho_dr_temp, &
              hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_all, rs_rho_constr, rs_single_charge)
 
     CALL timeset(routineN, handle)
@@ -751,12 +751,12 @@ CONTAINS
         hirshfeld_control%print_density = .FALSE.
       END IF
 
-      IF (.NOT. ASSOCIATED(rs_rho_temp)) THEN
-        CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_temp, &
-                      auxbas_pw_pool=auxbas_pw_pool)
-      CALL rs_grid_retain(rs_rho_temp)
-       CALL rs_grid_zero(rs_rho_temp)
-     END IF
+      IF (.NOT. ASSOCIATED(rs_rho_all)) THEN
+           CALL pw_env_get(pw_env, auxbas_rs_desc=auxbas_rs_desc, auxbas_rs_grid=rs_rho_all, &
+                           auxbas_pw_pool=auxbas_pw_pool)
+           cube_info = pw_env%cube_info(1)
+           CALL rs_grid_retain(rs_rho_all)
+           CALL rs_grid_zero(rs_rho_all)
 
      t2 = m_walltime()
      IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
@@ -764,18 +764,18 @@ CONTAINS
        ! Get size of rs and pw grids
        npts = rho_r(1)%pw%pw_grid%npts
        dr_pw = rho_r(1)%pw%pw_grid%dr
-       dr_rs(1) = rs_rho_temp%desc%dh(1, 1)
-       dr_rs(2) = rs_rho_temp%desc%dh(2, 2)
-       dr_rs(3) = rs_rho_temp%desc%dh(3, 3)
+       dr_rs(1) = rs_rho_all%desc%dh(1, 1)
+       dr_rs(2) = rs_rho_all%desc%dh(2, 2)
+       dr_rs(3) = rs_rho_all%desc%dh(3, 3)
        origin(:) = (dr_pw(:) * npts(:)) * 0.5_dp
        lb_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(1, 1:3)
        ub_pw(1:3) = rho_r(1)%pw%pw_grid%bounds_local(2, 1:3)
-       lb_rs(1) = LBOUND(rs_rho_temp%r(:, :, :), 1)
-       lb_rs(2) = LBOUND(rs_rho_temp%r(:, :, :), 2)
-       lb_rs(3) = LBOUND(rs_rho_temp%r(:, :, :), 3)
-       ub_rs(1) = UBOUND(rs_rho_temp%r(:, :, :), 1)
-       ub_rs(2) = UBOUND(rs_rho_temp%r(:, :, :), 2)
-       ub_rs(3) = UBOUND(rs_rho_temp%r(:, :, :), 3)
+       lb_rs(1) = LBOUND(rs_rho_all%r(:, :, :), 1)
+       lb_rs(2) = LBOUND(rs_rho_all%r(:, :, :), 2)
+       lb_rs(3) = LBOUND(rs_rho_all%r(:, :, :), 3)
+       ub_rs(1) = UBOUND(rs_rho_all%r(:, :, :), 1)
+       ub_rs(2) = UBOUND(rs_rho_all%r(:, :, :), 2)
+       ub_rs(3) = UBOUND(rs_rho_all%r(:, :, :), 3)
        bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
        ! Neccessary for collocate_pgf_product
@@ -799,10 +799,6 @@ CONTAINS
 
        t2 = m_walltime()
        IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
-
-       ! rs_rho_all: Superposition of isolated Gaussian densities over all atoms in system
-          CALL rs_grid_create(rs_rho_all, auxbas_rs_desc)
-           CALL rs_grid_zero(rs_rho_all)
 
         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
@@ -975,7 +971,7 @@ CONTAINS
             DEALLOCATE (cores)
          END DO
          DEALLOCATE (pab)
-       END DO 
+       END DO
 
          t2 = m_walltime()
          IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
@@ -1048,6 +1044,15 @@ CONTAINS
             DEALLOCATE (rs_single_charge)
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
           END IF
+
+          ! IF (cdft_control%in_memory) THEN
+          !    CALL rs_grid_release(rho_dr_temp)
+          !    CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
+          !  END IF
+           !
+           CALL rs_grid_release(rs_rho_all)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
+           DEALLOCATE (coefficients)
 
           ! Deallocate if allocated
           IF (ALLOCATED(is_constraint)) &
@@ -1122,18 +1127,8 @@ CONTAINS
           !   DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
           ! END IF
 
-          IF (cdft_control%in_memory) THEN
-             CALL rs_grid_release(rho_dr_temp)
-             CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
-           END IF
-           !
-           CALL rs_grid_release(rs_rho_temp)
-           ! CALL rs_grid_release(rs_rho_all)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
-           ! DEALLOCATE (pab)
 
-      ! DEALLOCATE (is_constraint)
-      DEALLOCATE (coefficients)
+
       CALL timestop(handle)
 
       t2 = m_walltime()
@@ -1232,10 +1227,10 @@ CONTAINS
           ! PRINT *, "ub from pw", ub
 
           ! Get size of rs grid
-          ! dr(1) = rs_rho_temp%desc%dh(1, 1)
-          ! dr(2) = rs_rho_temp%desc%dh(2, 2)
-          ! dr(3) = rs_rho_temp%desc%dh(3, 3)
-          ! ng(:) = rs_rho_temp%desc%npts(:)
+          ! dr(1) = rs_rho_all%desc%dh(1, 1)
+          ! dr(2) = rs_rho_all%desc%dh(2, 2)
+          ! dr(3) = rs_rho_all%desc%dh(3, 3)
+          ! ng(:) = rs_rho_all%desc%npts(:)
           ! lb(1) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 1)
           ! lb(2) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 2)
           ! lb(3) = LBOUND(cdft_control%group(1)%gradients(1, :, :, :), 3)
