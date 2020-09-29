@@ -61,6 +61,8 @@ MODULE qs_cdft_methods
                                              RECIPROCALSPACE,&
                                              pw_p_type,&
                                               pw_type
+  USE machine,                         ONLY: m_flush,&
+                                             m_walltime
    ! USE pw_types,                        ONLY: REALDATA3D,&
    !                                            REALSPACE,&
    !                                            pw_type,&
@@ -677,7 +679,7 @@ CONTAINS
       INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
       LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
       REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, &
-                                                            radius, radius_constr
+                                                            radius, radius_constr, t1, t2
       REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: coefficients
       REAL(kind=dp), DIMENSION(3)                        :: ra
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
@@ -710,6 +712,9 @@ CONTAINS
                       natom=natom, &
                       dft_control=dft_control, &
                       pw_env=pw_env)
+
+      t1 = m_walltime()
+
 
       cdft_control => dft_control%qs_control%cdft_control
       hirshfeld_control => cdft_control%hirshfeld_control
@@ -755,6 +760,9 @@ CONTAINS
                compute_charge(cdft_control%atoms(i)) = .TRUE.
             END DO
          END IF
+
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
          ! Collocate Gaussians
          eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
@@ -837,6 +845,9 @@ CONTAINS
          END DO
          DEALLOCATE (pab)
 
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+
          ! Transfer rs_rho_all to the correct grid and save it
          CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
          IF (igroup == 1) THEN
@@ -873,6 +884,9 @@ CONTAINS
             DEALLOCATE (compute_charge)
          END IF
       END DO
+
+      t2 = m_walltime()
+      IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
       DEALLOCATE (is_constraint)
       DEALLOCATE (coefficients)
