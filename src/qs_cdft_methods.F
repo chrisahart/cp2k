@@ -757,7 +757,7 @@ CONTAINS
            cube_info = pw_env%cube_info(1)
            CALL rs_grid_retain(rs_rho_all)
            CALL rs_grid_zero(rs_rho_all)
-         END IF 
+         END IF
 
      t2 = m_walltime()
      IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
@@ -945,14 +945,14 @@ CONTAINS
                   IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                     IF (is_constraint(atom_a)) THEN
                     DO iatom = 1, cdft_control%natoms
-                              IF (atom_a == cdft_control%atoms(jatom)) EXIT
+                      IF (atom_a == cdft_control%atoms(iatom)) EXIT
                     END DO
-                           CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                      (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
-                                                      pab, 0, 0, rs_single(iatom)%rs_grid, cell, cube_info, &
-                                                      radius=radius, &
-                                                      ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                      subpatch_pattern=subpatch_pattern)
+                    CPASSERT(iatom <= cdft_control%natoms)
+                    ALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                               rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                                               ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                               subpatch_pattern=subpatch_pattern)
                  END IF
                END IF
 
@@ -975,7 +975,6 @@ CONTAINS
             END DO
             DEALLOCATE (cores)
          END DO
-         DEALLOCATE (pab)
        END DO
 
          t2 = m_walltime()
@@ -986,16 +985,6 @@ CONTAINS
          CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
          CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
 
-         DO i = 1, cdft_control%natoms
-           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-           CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
-         END IF
-
-           IF (cdft_control%atomic_charges) THEN
-             CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
-           END IF
-            END DO
-
          ! Calculate weight function
          DO igroup = 1, SIZE(cdft_control%group)
            CALL hfun_scale2(cdft_control%group(igroup)%weight%pw%cr3d, &
@@ -1004,6 +993,18 @@ CONTAINS
         END DO
         t2 = m_walltime()
         IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
+
+        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+          DO i = 1, cdft_control%natoms
+          CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
+        END DO
+        END IF
+
+          IF (cdft_control%atomic_charges) THEN
+            DO i = 1, cdft_control%natoms
+            CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
+          END DO
+        END IF
 
            ! Calculate atomic charges if requested
            IF (cdft_control%atomic_charges) THEN
@@ -1049,6 +1050,7 @@ CONTAINS
             DEALLOCATE (rs_single_charge)
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
           END IF
+          DEALLOCATE (pab)
 
           ! IF (cdft_control%in_memory) THEN
           !    CALL rs_grid_release(rho_dr_temp)
