@@ -666,7 +666,8 @@ CONTAINS
    !> \param qs_env the qs_env where to build the constraint
    !> \author  Nico Holmberg (09.2018)
    ! **************************************************************************************************
-   SUBROUTINE hirshfeld_constraint_low(qs_env, calculate_forces, just_gradients)
+   SUBROUTINE hirshfeld_constraint_low(qs_env)
+    ! SUBROUTINE hirshfeld_constraint_low(qs_env, calculate_forces, just_gradients)
   TYPE(qs_environment_type), POINTER                 :: qs_env
   LOGICAL, OPTIONAL                                  :: just_gradients
   LOGICAL                                            :: calculate_forces
@@ -833,8 +834,8 @@ CONTAINS
 
                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
-                                                pab, 0, 0, radius, cell, cube_info, &
-                                                radius=radius_constr, &
+                                                pab, 0, 0, rs_rho_constr, cell, cube_info, &
+                                                radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
                   END IF
