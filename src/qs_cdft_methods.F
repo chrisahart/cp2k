@@ -726,7 +726,7 @@ CONTAINS
                          pw_env=pw_env)
         CALL qs_rho_get(rho, rho_r=rho_r)
 
-        ! IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
+        IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
 
         ! Pointers
         cdft_control => dft_control%qs_control%cdft_control
@@ -824,39 +824,41 @@ CONTAINS
              use_data=REALDATA3D, in_space=REALSPACE)
              cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
 
-             DO iatom = 1, cdft_control%natoms
-
-               IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-               CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
-               use_data=REALDATA3D, in_space=REALSPACE)
-               cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
-             END IF
-
-               IF (cdft_control%atomic_charges) THEN
-                 CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
-               use_data=REALDATA3D, in_space=REALSPACE)
-               cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
-             END IF
-
-             END DO
+             ! DO iatom = 1, cdft_control%natoms
+             !
+             !   IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+             !   CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
+             !   use_data=REALDATA3D, in_space=REALSPACE)
+             !   cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+             ! END IF
+             !
+             !   IF (cdft_control%atomic_charges) THEN
+             !     CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
+             !   use_data=REALDATA3D, in_space=REALSPACE)
+             !   cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
+             ! END IF
+             !
+             ! END DO
              cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
            END DO
 
             ! Charges
-            IF (cdft_control%atomic_charges) THEN
-              ALLOCATE (rs_single_charge(cdft_control%natoms))
-              ALLOCATE (compute_charge(natom))
-              compute_charge = .FALSE.
-              DO i = 1, cdft_control%natoms
-                 NULLIFY (rs_single_charge(i)%rs_grid)
-                 CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
-                 CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
-                 compute_charge(cdft_control%atoms(i)) = .TRUE.
-              END DO
-            END IF
+            ! IF (cdft_control%atomic_charges) THEN
+            !   ALLOCATE (rs_single_charge(cdft_control%natoms))
+            !   ALLOCATE (compute_charge(natom))
+            !   compute_charge = .FALSE.
+            !   DO i = 1, cdft_control%natoms
+            !      NULLIFY (rs_single_charge(i)%rs_grid)
+            !      CALL rs_grid_create(rs_single_charge(i)%rs_grid, auxbas_rs_desc)
+            !      CALL rs_grid_zero(rs_single_charge(i)%rs_grid)
+            !      compute_charge(cdft_control%atoms(i)) = .TRUE.
+            !   END DO
+            ! END IF
 
          ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
+
+           IF (para_env%ionode) PRINT *, "igroup", igroup
 
            nthread = 1
            ithread = 0
@@ -1009,11 +1011,10 @@ CONTAINS
              END DO ! iatom = 1, natom
              DEALLOCATE (cores)
            END DO ! ikind = 1, SIZE(atomic_kind_set)
-
-         END DO ! igroup = 1, SIZE(cdft_control%group)
-
+           DEALLOCATE (pab)
 
          ! Transfer rs_rho_all to the correct grid and save it
+         IF (para_env%ionode) PRINT *, "Transfer rs_rho_all to the correct grid and save it"
          CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
          IF (igroup == 1) THEN
             IF (ASSOCIATED(fnorm)) THEN
@@ -1027,6 +1028,7 @@ CONTAINS
             CALL rs_grid_release(rs_rho_all)
          END IF
          ! Compute CDFT weight function
+         IF (para_env%ionode) PRINT *, "Compute CDFT weight function"
          CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
                                 in_space=REALSPACE)
          CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
@@ -1034,6 +1036,7 @@ CONTAINS
          CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, tmp%pw%cr3d, &
                          fnorm%pw%cr3d, divide=.TRUE.)
          CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+         END DO ! igroup = 1, SIZE(cdft_control%group)
          ! Compute atomic weight functions if charges are needed
          ! IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
          !    CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
@@ -1087,7 +1090,7 @@ CONTAINS
 
           ! Clear memory before allocating gradient (very memory expensive)
           ! CALL rs_grid_release(rs_rho_constr)
-          ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
+          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
 
           ! Release grids that require looping over atoms
           ! DO i = 1, cdft_control%natoms
@@ -1113,10 +1116,10 @@ CONTAINS
           ! END IF
 
           ! Deallocate if allocated
-          ! IF (ALLOCATED(is_constraint)) &
-          ! DEALLOCATE (is_constraint)
-          ! IF (ALLOCATED(compute_charge)) &
-          ! DEALLOCATE (compute_charge)
+          IF (ALLOCATED(is_constraint)) &
+          DEALLOCATE (is_constraint)
+          IF (ALLOCATED(compute_charge)) &
+          DEALLOCATE (compute_charge)
 
           ! Set up gradient
           ! IF (cdft_control%in_memory) THEN
@@ -1264,9 +1267,9 @@ CONTAINS
            !
            CALL rs_grid_release(rs_rho_temp)
            ! CALL rs_grid_release(rs_rho_all)
-           ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
+           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
            ! DEALLOCATE (pab)
-           ! DEALLOCATE (coefficients)
+           DEALLOCATE (coefficients)
 
            CALL timestop(handle)
 
