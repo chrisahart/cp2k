@@ -916,7 +916,7 @@ CONTAINS
                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   subpatch_pattern = 0
-                  ! rs_rho_temp%r(:, :, :) = 0.0_dp
+                  rs_rho_temp%r(:, :, :) = 0.0_dp
 
                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                     ra=ra, rb=ra, rp=ra, &
