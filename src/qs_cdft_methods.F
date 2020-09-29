@@ -883,7 +883,7 @@ CONTAINS
          ithread = 0
 
          t2 = m_walltime()
-
+         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
          DO ikind = 1, SIZE(atomic_kind_set)
             numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -916,7 +916,7 @@ CONTAINS
                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   subpatch_pattern = 0
-                  rs_rho_temp%r(:, :, :) = 0.0_dp
+                  ! rs_rho_temp%r(:, :, :) = 0.0_dp
 
                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
                                                     ra=ra, rb=ra, rp=ra, &
@@ -934,6 +934,12 @@ CONTAINS
                 ! rs_rho_all%r(:, :, :) + rs_rho_temp%r(:, :, :)
 
                   IF (is_constraint(atom_a)) THEN
+
+                    radius_constr = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                             ra=ra, rb=ra, rp=ra, &
+                                                             zetp=alpha, eps=eps_rho_rspace, &
+                                                             pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                             prefactor=coefficients(atom_a), cutoff=0.0_dp)
 
                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
