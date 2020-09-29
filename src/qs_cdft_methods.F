@@ -945,7 +945,7 @@ CONTAINS
                     IF (is_constraint(atom_a)) THEN
                     DO iatom = 1, cdft_control%natoms
                               IF (atom_a == cdft_control%atoms(jatom)) EXIT
-                           END DO
+                    END DO
                            CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                       (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
                                                       pab, 0, 0, rs_single(iatom)%rs_grid, cell, cube_info, &
@@ -969,11 +969,13 @@ CONTAINS
                                                    subpatch_pattern=subpatch_pattern)
                      END IF
                   END IF
+
                END DO
             END DO
             DEALLOCATE (cores)
          END DO
          DEALLOCATE (pab)
+       END DO 
 
          t2 = m_walltime()
          IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
