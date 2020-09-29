@@ -868,6 +868,7 @@ CONTAINS
 
              ! Get list of atom kind, number of exponentials
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
+              IF (hirshfeld_env%kind_shape_fn(ikind)%numexp <= 0) CYCLE
              ALLOCATE (cores(num_species))
 
                ! Loop over each Gaussian
@@ -927,22 +928,34 @@ CONTAINS
                  ! PRINT *, "iatom", iatom
                  ! PRINT *, "atom_a", atom_a
 
+                 radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                    ra=ra, rb=ra, rp=ra, &
+                                                    zetp=alpha, eps=eps_rho_rspace, &
+                                                    pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                    prefactor=1.0_dp, cutoff=0.0_dp)
+
+                 CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                                    (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                                    rs_rho_all, cell, cube_info, radius=radius, &
+                                                    ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                                    subpatch_pattern=subpatch_pattern)
+
                   ! Calculate cutoff (Juerg Hutter code)
-                  IF (hirshfeld_control%use_atomic_cutoff) THEN
-                    radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                      ra=ra, rb=ra, rp=ra, &
-                                                      zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
-                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                      prefactor=1.0_dp, cutoff=0.0_dp)
+                  ! IF (hirshfeld_control%use_atomic_cutoff) THEN
+                    ! radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                    !                                   ra=ra, rb=ra, rp=ra, &
+                    !                                   zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
+                    !                                   pab=pab, o1=0, o2=0, &  ! without map_consistent
+                    !                                   prefactor=1.0_dp, cutoff=0.0_dp)
                     ! IF (para_env%ionode) PRINT *, "radius", radius
-                  END IF
+                  ! END IF
 
                 ! Calculate atomic density (Juerg Hutter code)
-                  CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                             (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                             rs_rho_temp, cell, cube_info, radius=radius, &
-                                             ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                             subpatch_pattern=subpatch_pattern)
+                  ! CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                  !                            (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                  !                            rs_rho_temp, cell, cube_info, radius=radius, &
+                  !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                  !                            subpatch_pattern=subpatch_pattern)
 
 
 
@@ -977,8 +990,16 @@ CONTAINS
 
                ! Save sum over constraint atoms, sum over all atoms
                IF (is_constraint(atom_a)) THEN
-                     rs_rho_constr%r(:, :, :) = &
-                     rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rs_rho_temp%r(:, :, :)
+
+                 CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                               (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
+                                               pab, 0, 0, rs_rho_constr, cell, cube_info, &
+                                               radius=radius_constr, &
+                                               ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                               subpatch_pattern=subpatch_pattern)
+
+                     ! rs_rho_constr%r(:, :, :) = &
+                     ! rs_rho_constr%r(:, :, :) + coefficients(atom_a) * rs_rho_temp%r(:, :, :)
 
                     !  IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
                     !    DO jatom = 1, cdft_control%natoms
@@ -990,8 +1011,8 @@ CONTAINS
                     ! END IF
                END IF
 
-               rs_rho_all%r(:, :, :) = &
-               rs_rho_all%r(:, :, :) + rs_rho_temp%r(:, :, :)
+               ! rs_rho_all%r(:, :, :) = &
+               ! rs_rho_all%r(:, :, :) + rs_rho_temp%r(:, :, :)
 
                ! Save atomic density
              !   IF (cdft_control%atomic_charges) THEN
@@ -1270,6 +1291,7 @@ CONTAINS
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
            ! DEALLOCATE (pab)
            DEALLOCATE (coefficients)
+           IF (para_env%ionode) PRINT *, "END SUBROUTINE hirshfeld_constraint_low"
 
            CALL timestop(handle)
 
