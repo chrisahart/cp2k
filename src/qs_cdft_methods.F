@@ -1120,7 +1120,7 @@ CONTAINS
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
 
-                    rs_single_dr(iatom)%rs_grid = 2.0_dp * alpha * rs_single_dr(iatom)%rs_grid
+                    rs_single_dr(iatom)%rs_grid(:, :, :) = 2.0_dp * alpha * rs_single_dr(iatom)%rs_grid(:, :, :)
 
                 END DO
              END DO
@@ -1190,10 +1190,8 @@ CONTAINS
             END DO ! igroup = 1, SIZE(cdft_control%group)
           END IF ! (cdft_control%in_memory) THEN
 
-
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
-
 
            IF (cdft_control%in_memory) THEN
              CALL rs_grid_release(rho_dr_temp)
@@ -1343,9 +1341,9 @@ CONTAINS
            END IF
 
         ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
-          ! IF (.NOT. cdft_control%in_memory) THEN
-          !    CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
-          !  END IF
+          IF (.NOT. cdft_control%in_memory) THEN
+             CALL hirshfeld_constraint_low(qs_env, calculate_forces=.TRUE., just_gradients=.TRUE.)
+           END IF
         END IF
 
         ! PRINT *, "calculating integrated"
