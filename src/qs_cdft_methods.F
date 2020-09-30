@@ -710,7 +710,7 @@ CONTAINS
     REAL(KIND=dp), DIMENSION(:, :), POINTER            :: pab
     INTEGER(KIND=int_8)                                :: subpatch_pattern
     TYPE(realspace_grid_type)                :: rsgrid
-    TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr
+    TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr, rs_single_gradient
    TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rho_dr_temp
 
     NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, &
@@ -730,7 +730,7 @@ CONTAINS
                     pw_env=pw_env)
    CALL qs_rho_get(rho, rho_r=rho_r)
 
-      ! t1 = m_walltime()
+      t1 = m_walltime()
 
 
       ! IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
@@ -759,8 +759,8 @@ CONTAINS
            CALL rs_grid_zero(rs_rho_all)
          END IF
 
-     ! t2 = m_walltime()
-     ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+     t2 = m_walltime()
+     IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
        ! Get size of rs and pw grids
        npts = rho_r(1)%pw%pw_grid%npts
@@ -798,8 +798,8 @@ CONTAINS
          END DO
        END DO
 
-       ! t2 = m_walltime()
-       ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+       t2 = m_walltime()
+       IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
         ! rs_rho_constr: Sum of isolated Gaussian densities over constraint atoms in this constraint group
         CALL rs_grid_create(rs_rho_constr, auxbas_rs_desc)
@@ -815,6 +815,15 @@ CONTAINS
              END DO
       END IF
 
+      IF (cdft_control%in_memory) THEN
+        ALLOCATE (rs_single_dr(natom))
+        DO i = 1, cdft_control%natoms
+           NULLIFY (rs_single_dr(i)%rs_grid)
+           CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+           CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+        END DO
+      END IF
+
          DO igroup = 1, SIZE(cdft_control%group)
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
            ALLOCATE (cdft_control%group(igroup)%hw_rho_atomic(cdft_control%natoms))
@@ -824,8 +833,8 @@ CONTAINS
          END IF
          END DO
 
-         ! t2 = m_walltime()
-         ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
          DO igroup = 1, SIZE(cdft_control%group)
 
@@ -855,8 +864,8 @@ CONTAINS
            cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
          END DO
 
-         ! t2 = m_walltime()
-         ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
           ! Charges
           IF (cdft_control%atomic_charges) THEN
@@ -879,8 +888,8 @@ CONTAINS
          nthread = 1
          ithread = 0
 
-         ! t2 = m_walltime()
-         ! IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "t1-t2", t1-t2
 
          DO ikind = 1, SIZE(atomic_kind_set)
             numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -977,8 +986,8 @@ CONTAINS
          END DO
        END DO
 
-         ! t2 = m_walltime()
-         ! IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
          ! IF (para_env%ionode) PRINT *,  "eps_rho_rspace", eps_rho_rspace
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
@@ -991,8 +1000,8 @@ CONTAINS
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
         END DO
-        ! t2 = m_walltime()
-        ! IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
+        t2 = m_walltime()
+        IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
 
         IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
           DO i = 1, cdft_control%natoms
@@ -1013,16 +1022,18 @@ CONTAINS
                                   cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
                                   cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
            END DO
+           t2 = m_walltime()
+           IF (para_env%ionode) PRINT *, "Finished calculating charges", t1-t2
          END IF
-         ! t2 = m_walltime()
-         ! IF (para_env%ionode) PRINT *, "Finished calculating charges", t1-t2
+
 
            ! Print atomic densities if requested
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
              CALL cdft_print_hirshfeld_density(qs_env)
+             t2 = m_walltime()
+             IF (para_env%ionode) PRINT *, "Finished calculating printing density", t1-t2
             END IF
-            ! t2 = m_walltime()
-            ! IF (para_env%ionode) PRINT *, "Finished calculating printing density"
+
 
           ! Clear memory before allocating gradient (very memory expensive)
           CALL rs_grid_release(rs_rho_constr)
@@ -1050,13 +1061,150 @@ CONTAINS
             DEALLOCATE (rs_single_charge)
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
           END IF
-          DEALLOCATE (pab)
 
-          ! IF (cdft_control%in_memory) THEN
-          !    CALL rs_grid_release(rho_dr_temp)
-          !    CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
-          !  END IF
-           !
+
+          t2 = m_walltime()
+          IF (para_env%ionode) PRINT *, "Cleared memory before allocating gradient", t1-t2
+
+           IF (cdft_control%in_memory) THEN
+
+             DO igroup = 1, SIZE(cdft_control%group)
+
+            nthread = 1
+            ithread = 0
+             DO ikind = 1, SIZE(atomic_kind_set)
+             numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
+             IF (numexp <= 0) CYCLE
+             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+             ALLOCATE (cores(natom))
+
+             DO iex = 1, numexp
+                alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                npme = 0
+                cores = 0
+                DO iatom = 1, natom
+                   atom_a = atom_list(iatom)
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
+                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+                      ! replicated realspace grid, split the atoms up between procs
+                      IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+                         npme = npme + 1
+                         cores(npme) = iatom
+                      ENDIF
+                   ELSE
+                      npme = npme + 1
+                      cores(npme) = iatom
+                   ENDIF
+                END DO
+                DO j = 1, npme
+                   iatom = cores(j)
+                   atom_a = atom_list(iatom)
+                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
+                   subpatch_pattern = 0
+
+                   ! Calculate cutoff (Juerg Hutter code)
+                  IF (hirshfeld_control%use_atomic_cutoff) THEN
+                    radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
+                                                      ra=ra, rb=ra, rp=ra, &
+                                                      zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
+                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
+                                                      prefactor=1.0_dp, cutoff=0.0_dp)
+                    ! IF (para_env%ionode) PRINT *, "radius", radius
+                  END IF
+
+                     CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                                rs_single_dr(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                                                ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                                subpatch_pattern=subpatch_pattern)
+
+                    rs_single_dr(iatom)%rs_grid = 2.0_dp * alpha * rs_single_dr(iatom)%rs_grid
+
+                END DO
+             END DO
+             DEALLOCATE (cores)
+          END DO
+        END DO
+      END IF
+
+      t2 = m_walltime()
+      IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
+
+         IF (cdft_control%in_memory) THEN
+           DO i = 1, cdft_control%natoms
+            CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
+            cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+            cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+            cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+        END DO
+      END IF
+
+      t2 = m_walltime()
+      IF (para_env%ionode) PRINT *, "Finished transferring rs_single_dr to gradients", t1-t2
+
+      ! Calculate gradient if requested
+          IF (cdft_control%in_memory) THEN
+            ! PRINT *, "Calculate gradient"
+
+            DO igroup = 1, SIZE(cdft_control%group)
+                DO iatom = 1, natom
+
+                  ra(:) = particle_set(iatom)%r
+
+                  DO k = lb_pw(3), ub_pw(3)
+                    DO j = lb_pw(2), ub_pw(2)
+                      DO i = lb_pw(1), ub_pw(1)
+
+                        IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
+
+                                      exp_eval =  (coefficients(iatom) - &
+                                                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                                  cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+
+
+                         r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
+                         r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
+
+                             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
+                                         r_pbc(1) * exp_eval
+
+                             ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
+                                          r_pbc(2) * exp_eval
+
+                             ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
+                                          r_pbc(3) * exp_eval
+                           END IF
+                      END DO ! i = lb(1), ub(1)
+                    END DO ! j = lb(2), ub(2)
+                  END DO ! k = lb(3), ub(3)
+
+                END DO ! iatom = 1, natom
+              ! END DO ! ikind = 1, SIZE(atomic_kind_set)
+            END DO ! igroup = 1, SIZE(cdft_control%group)
+          END IF ! (cdft_control%in_memory) THEN
+
+
+          t2 = m_walltime()
+          IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
+
+
+           IF (cdft_control%in_memory) THEN
+             CALL rs_grid_release(rho_dr_temp)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
+             DO i = 1, cdft_control%natoms
+                 CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+             END DO
+           END IF
+
+           DEALLOCATE (pab)
+
            CALL rs_grid_release(rs_rho_all)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
            DEALLOCATE (coefficients)
@@ -1067,79 +1215,10 @@ CONTAINS
           IF (ALLOCATED(compute_charge)) &
           DEALLOCATE (compute_charge)
 
-
-      !    ! Transfer rs_rho_all to the correct grid and save it
-      !    CALL get_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-      !    IF (igroup == 1) THEN
-      !       IF (ASSOCIATED(fnorm)) THEN
-      !          CALL pw_pool_give_back_pw(auxbas_pw_pool, fnorm%pw)
-      !       END IF
-      !       ALLOCATE (fnorm)
-      !       CALL pw_pool_create_pw(auxbas_pw_pool, fnorm%pw, use_data=REALDATA3D, &
-      !                              in_space=REALSPACE)
-      !       CALL set_hirshfeld_info(hirshfeld_env, fnorm=fnorm)
-      !       CALL rs_pw_transfer(rs_rho_all, fnorm%pw, rs2pw)
-      !       CALL rs_grid_release(rs_rho_all)
-      !    END IF
-      !    ! Compute CDFT weight function
-      !    CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-      !                           in_space=REALSPACE)
-      !    CALL rs_pw_transfer(rs_rho_constr, tmp%pw, rs2pw)
-      !    CALL rs_grid_release(rs_rho_constr)
-      !    CALL hfun_scale(cdft_control%group(igroup)%weight%pw%cr3d, tmp%pw%cr3d, &
-      !                    fnorm%pw%cr3d, divide=.TRUE.)
-      !    CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-      !    ! Compute atomic weight functions if charges are needed
-      !    IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
-      !       CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, &
-      !                              in_space=REALSPACE)
-      !       DO i = 1, cdft_control%natoms
-      !          CALL rs_pw_transfer(rs_single(i)%rs_grid, tmp%pw, rs2pw)
-      !          CALL rs_grid_release(rs_single(i)%rs_grid)
-      !          CALL hfun_scale(cdft_control%charge(i)%pw%cr3d, tmp%pw%cr3d, &
-      !                          fnorm%pw%cr3d, divide=.TRUE.)
-      !       END DO
-      !       CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
-      !       DEALLOCATE (rs_single)
-      !       DEALLOCATE (compute_charge)
-      !    END IF
-      ! END DO
-
-
-
-      ! Clear memory before allocating gradient (very memory expensive)
-          ! CALL rs_grid_release(rs_rho_constr)
-          ! CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
-          !
-          ! ! Release grids that require looping over atoms
-          ! DO i = 1, cdft_control%natoms
-          !   IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-          !     CALL rs_grid_release(rs_single(i)%rs_grid)
-          !     CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
-          !   END IF
-          !
-          !   IF (cdft_control%atomic_charges) THEN
-          !     CALL rs_grid_release(rs_single_charge(i)%rs_grid)
-          !     CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
-          !   END IF
-          ! END DO
-          !
-          ! ! Deallocate
-          ! IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-          !   DEALLOCATE (rs_single)
-          !   DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
-          ! END IF
-          ! IF (cdft_control%atomic_charges) THEN
-          !   DEALLOCATE (rs_single_charge)
-          !   DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
-          ! END IF
-
-
-
       CALL timestop(handle)
 
-      ! t2 = m_walltime()
-      ! IF (para_env%ionode) PRINT *, "Finished deallocation", t1-t2
+      t2 = m_walltime()
+      IF (para_env%ionode) PRINT *, "Finished deallocation", t1-t2
 
    END SUBROUTINE hirshfeld_constraint_low
 
