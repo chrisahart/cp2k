@@ -827,7 +827,7 @@ CONTAINS
            END DO
 
         ALLOCATE (rs_single_dr(natom))
-        DO i = 1, cdft_control%natoms
+        DO i = 1, natom
            NULLIFY (rs_single_dr(i)%rs_grid)
            CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
            CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
@@ -835,7 +835,7 @@ CONTAINS
       END IF
 
       IF (para_env%ionode) PRINT *, "natom", natom
-      IF (para_env%ionode) PRINT *, "num_atom", num_atom
+      IF (para_env%ionode) PRINT *, "num_atoms", num_atoms
       IF (para_env%ionode) PRINT *, "cdft_control%natoms", cdft_control%natoms
 
          DO igroup = 1, SIZE(cdft_control%group)
