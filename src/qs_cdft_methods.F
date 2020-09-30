@@ -676,7 +676,7 @@ CONTAINS
      routineP = moduleN//':'//routineN
 
   LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
-  INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, &
+  INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, num_atoms &
                                                         ikind, ithread, j, natom, npme, num_species, &
                                                         nthread, numexp, k, i2, j2, k2, jatom,  im, jm, km
   INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
@@ -731,6 +731,7 @@ CONTAINS
    CALL qs_rho_get(rho, rho_r=rho_r)
 
       t1 = m_walltime()
+      num_atoms = natom
 
 
       ! IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
@@ -832,6 +833,10 @@ CONTAINS
            CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
         END DO
       END IF
+
+      IF (para_env%ionode) PRINT *, "natom", natom
+      IF (para_env%ionode) PRINT *, "num_atom", num_atom
+      IF (para_env%ionode) PRINT *, "cdft_control%natoms", cdft_control%natoms
 
          DO igroup = 1, SIZE(cdft_control%group)
            IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
@@ -1129,7 +1134,7 @@ CONTAINS
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
 
-                    rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
+                    ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
 
                 END DO
              END DO
@@ -1139,7 +1144,7 @@ CONTAINS
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
 
-          DO iatom = 1, cdft_control%natoms
+          DO iatom = 1, num_atoms
            CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
            cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
            cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
@@ -1152,90 +1157,90 @@ CONTAINS
       END IF
 
       ! Calculate gradient if requested
-          IF (cdft_control%in_memory) THEN
-            ! PRINT *, "Calculate gradient"
-
-            DO igroup = 1, SIZE(cdft_control%group)
-
-
-              ! nthread = 1
-              ! ithread = 0
-              !  DO ikind = 1, SIZE(atomic_kind_set)
-              !  numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
-              !  IF (numexp <= 0) CYCLE
-              !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-              !  ALLOCATE (cores(natom))
-              !
-              !  DO iex = 1, numexp
-              !     alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-              !     coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-              !     npme = 0
-              !     cores = 0
-              !     DO iatom = 1, natom
-              !        atom_a = atom_list(iatom)
-              !        ra(:) = pbc(particle_set(atom_a)%r, cell)
-              !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
-              !           ! replicated realspace grid, split the atoms up between procs
-              !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
-              !              npme = npme + 1
-              !              cores(npme) = iatom
-              !           ENDIF
-              !        ELSE
-              !           npme = npme + 1
-              !           cores(npme) = iatom
-              !        ENDIF
-              !     END DO
-              !     DO j = 1, npme
-              !        iatom = cores(j)
-                      ! atom_a = atom_list(iatom)
-
-
-                DO iatom = 1, natom
-
-                  ra(:) = particle_set(iatom)%r
-
-                  DO k = lb_pw(3), ub_pw(3)
-                    DO j = lb_pw(2), ub_pw(2)
-                      DO i = lb_pw(1), ub_pw(1)
-
-                        IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
-
-                                      exp_eval =  (coefficients(iatom) - &
-                                                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                                  cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
-
-
-                         r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
-                         r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
-
-                             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-                                         cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
-                                         r_pbc(1) * exp_eval
-
-                             ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-                                         cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
-                                          r_pbc(2) * exp_eval
-
-                             ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-                                         cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
-                                          r_pbc(3) * exp_eval
-                           END IF
-                      END DO ! i = lb(1), ub(1)
-                    END DO ! j = lb(2), ub(2)
-                  END DO ! k = lb(3), ub(3)
-
-             !    END DO
-             ! END DO
-             ! DEALLOCATE (cores)
-
-                END DO ! iatom = 1, natom
-              ! END DO ! ikind = 1, SIZE(atomic_kind_set)
-            END DO ! igroup = 1, SIZE(cdft_control%group)
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
-          END IF ! (cdft_control%in_memory) THEN
+          ! IF (cdft_control%in_memory) THEN
+          !   ! PRINT *, "Calculate gradient"
+          !
+          !   DO igroup = 1, SIZE(cdft_control%group)
+          !
+          !
+          !     ! nthread = 1
+          !     ! ithread = 0
+          !     !  DO ikind = 1, SIZE(atomic_kind_set)
+          !     !  numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
+          !     !  IF (numexp <= 0) CYCLE
+          !     !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+          !     !  ALLOCATE (cores(natom))
+          !     !
+          !     !  DO iex = 1, numexp
+          !     !     alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+          !     !     coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+          !     !     npme = 0
+          !     !     cores = 0
+          !     !     DO iatom = 1, natom
+          !     !        atom_a = atom_list(iatom)
+          !     !        ra(:) = pbc(particle_set(atom_a)%r, cell)
+          !     !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+          !     !           ! replicated realspace grid, split the atoms up between procs
+          !     !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+          !     !              npme = npme + 1
+          !     !              cores(npme) = iatom
+          !     !           ENDIF
+          !     !        ELSE
+          !     !           npme = npme + 1
+          !     !           cores(npme) = iatom
+          !     !        ENDIF
+          !     !     END DO
+          !     !     DO j = 1, npme
+          !     !        iatom = cores(j)
+          !             ! atom_a = atom_list(iatom)
+          !
+          !
+          !       DO iatom = 1, natom
+          !
+          !         ra(:) = particle_set(iatom)%r
+          !
+          !         DO k = lb_pw(3), ub_pw(3)
+          !           DO j = lb_pw(2), ub_pw(2)
+          !             DO i = lb_pw(1), ub_pw(1)
+          !
+          !               IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
+          !
+          !                             exp_eval =  (coefficients(iatom) - &
+          !                                          cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+          !                                         cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+          !
+          !
+          !                r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
+          !                r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
+          !
+          !                    cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+          !                                cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
+          !                                r_pbc(1) * exp_eval
+          !
+          !                    ! Store gradient d/dR_y w, including term: (r_y - R_y)
+          !                    cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+          !                                cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
+          !                                 r_pbc(2) * exp_eval
+          !
+          !                    ! Store gradient d/dR_z w, including term:(r_z - R_z)
+          !                    cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+          !                                cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
+          !                                 r_pbc(3) * exp_eval
+          !                  END IF
+          !             END DO ! i = lb(1), ub(1)
+          !           END DO ! j = lb(2), ub(2)
+          !         END DO ! k = lb(3), ub(3)
+          !
+          !    !    END DO
+          !    ! END DO
+          !    ! DEALLOCATE (cores)
+          !
+          !       END DO ! iatom = 1, natom
+          !     ! END DO ! ikind = 1, SIZE(atomic_kind_set)
+          !   END DO ! igroup = 1, SIZE(cdft_control%group)
+          !   t2 = m_walltime()
+          !   IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
+          ! END IF ! (cdft_control%in_memory) THEN
 
 
 
