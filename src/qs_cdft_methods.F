@@ -1099,7 +1099,7 @@ CONTAINS
              DO ikind = 1, SIZE(atomic_kind_set)
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
             !  IF (numexp <= 0) CYCLE
-            !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
             !  ALLOCATE (cores(natom))
             !
              DO iex = 1, numexp
@@ -1107,9 +1107,9 @@ CONTAINS
                 coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
             !     npme = 0
             !     cores = 0
-            !     DO iatom = 1, natom
-            !        atom_a = atom_list(iatom)
-            !        ra(:) = pbc(particle_set(atom_a)%r, cell)
+                DO iatom = 1, natom
+                   atom_a = atom_list(iatom)
+                   ! ra(:) = pbc(particle_set(atom_a)%r, cell)
             !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
             !           ! replicated realspace grid, split the atoms up between procs
             !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
@@ -1123,7 +1123,7 @@ CONTAINS
             !     END DO
             !     DO j = 1, npme
             !        iatom = cores(j)
-                   atom_a = atom_list(iatom)
+                   ! atom_a = atom_list(iatom)
                     rho_dr_temp%r(:, :, :) = 0.0_dp
                    pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
@@ -1153,6 +1153,7 @@ CONTAINS
 
                 END DO
              END DO
+           END DO
              ! DEALLOCATE (cores)
           END DO
 
