@@ -1259,9 +1259,9 @@ CONTAINS
            IF (cdft_control%in_memory) THEN
              CALL rs_grid_release(rho_dr_temp)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
-             DO i = 1, cdft_control%natoms
-                 CALL rs_grid_release(rs_single_dr(i)%rs_grid)
-             END DO
+             ! DO i = 1, cdft_control%natoms
+             !     CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+             ! END DO
            END IF
 
            DEALLOCATE (pab)
