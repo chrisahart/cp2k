@@ -1134,12 +1134,12 @@ CONTAINS
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
 
-          DO i = 1, cdft_control%natoms
+          DO iatom = 1, cdft_control%natoms
            CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-           cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-           cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-           cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-       END DO
+           cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+           cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+           cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+         END DO
 
        t2 = m_walltime()
        IF (para_env%ionode) PRINT *, "Finished transferring rs_single_dr to gradients", t1-t2
