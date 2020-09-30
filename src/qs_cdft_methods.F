@@ -1131,22 +1131,21 @@ CONTAINS
              DEALLOCATE (cores)
           END DO
         END DO
+
+        t2 = m_walltime()
+        IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
+
+        DO i = 1, cdft_control%natoms
+         CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
+         cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+         cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+         cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+     END DO
+
+     t2 = m_walltime()
+     IF (para_env%ionode) PRINT *, "Finished transferring rs_single_dr to gradients", t1-t2
+
       END IF
-
-      t2 = m_walltime()
-      IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
-
-         IF (cdft_control%in_memory) THEN
-           DO i = 1, cdft_control%natoms
-            CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-            cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-            cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-            cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-        END DO
-      END IF
-
-      t2 = m_walltime()
-      IF (para_env%ionode) PRINT *, "Finished transferring rs_single_dr to gradients", t1-t2
 
       ! Calculate gradient if requested
           IF (cdft_control%in_memory) THEN
@@ -1192,10 +1191,11 @@ CONTAINS
                 END DO ! iatom = 1, natom
               ! END DO ! ikind = 1, SIZE(atomic_kind_set)
             END DO ! igroup = 1, SIZE(cdft_control%group)
+            t2 = m_walltime()
+            IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
           END IF ! (cdft_control%in_memory) THEN
 
-          t2 = m_walltime()
-          IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
+
 
            IF (cdft_control%in_memory) THEN
              CALL rs_grid_release(rho_dr_temp)
