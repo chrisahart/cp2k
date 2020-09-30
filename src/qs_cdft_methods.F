@@ -1058,6 +1058,9 @@ CONTAINS
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
           END IF
 
+          t2 = m_walltime()
+          IF (para_env%ionode) PRINT *, "Cleared memory before allocating gradient", t1-t2
+
 
            ! Set up gradient
           IF (cdft_control%in_memory) THEN
@@ -1085,41 +1088,41 @@ CONTAINS
 
 
           t2 = m_walltime()
-          IF (para_env%ionode) PRINT *, "Cleared memory before allocating gradient", t1-t2
+          IF (para_env%ionode) PRINT *, "Set up gradient", t1-t2
 
            IF (cdft_control%in_memory) THEN
 
              DO igroup = 1, SIZE(cdft_control%group)
 
-            nthread = 1
-            ithread = 0
+            ! nthread = 1
+            ! ithread = 0
              DO ikind = 1, SIZE(atomic_kind_set)
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
-             IF (numexp <= 0) CYCLE
-             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-             ALLOCATE (cores(natom))
-
+            !  IF (numexp <= 0) CYCLE
+            !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+            !  ALLOCATE (cores(natom))
+            !
              DO iex = 1, numexp
                 alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                 coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-                npme = 0
-                cores = 0
-                DO iatom = 1, natom
-                   atom_a = atom_list(iatom)
-                   ra(:) = pbc(particle_set(atom_a)%r, cell)
-                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
-                      ! replicated realspace grid, split the atoms up between procs
-                      IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
-                         npme = npme + 1
-                         cores(npme) = iatom
-                      ENDIF
-                   ELSE
-                      npme = npme + 1
-                      cores(npme) = iatom
-                   ENDIF
-                END DO
-                DO j = 1, npme
-                   iatom = cores(j)
+            !     npme = 0
+            !     cores = 0
+            !     DO iatom = 1, natom
+            !        atom_a = atom_list(iatom)
+            !        ra(:) = pbc(particle_set(atom_a)%r, cell)
+            !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+            !           ! replicated realspace grid, split the atoms up between procs
+            !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+            !              npme = npme + 1
+            !              cores(npme) = iatom
+            !           ENDIF
+            !        ELSE
+            !           npme = npme + 1
+            !           cores(npme) = iatom
+            !        ENDIF
+            !     END DO
+            !     DO j = 1, npme
+            !        iatom = cores(j)
                    atom_a = atom_list(iatom)
                     rho_dr_temp%r(:, :, :) = 0.0_dp
                    pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
@@ -1150,7 +1153,7 @@ CONTAINS
 
                 END DO
              END DO
-             DEALLOCATE (cores)
+             ! DEALLOCATE (cores)
           END DO
 
          !  t2 = m_walltime()
@@ -1169,90 +1172,90 @@ CONTAINS
       END IF
 
       ! Calculate gradient if requested
-          ! IF (cdft_control%in_memory) THEN
-          !   ! PRINT *, "Calculate gradient"
-          !
-          !   DO igroup = 1, SIZE(cdft_control%group)
-          !
-          !
-          !     ! nthread = 1
-          !     ! ithread = 0
-          !     !  DO ikind = 1, SIZE(atomic_kind_set)
-          !     !  numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
-          !     !  IF (numexp <= 0) CYCLE
-          !     !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-          !     !  ALLOCATE (cores(natom))
-          !     !
-          !     !  DO iex = 1, numexp
-          !     !     alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-          !     !     coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-          !     !     npme = 0
-          !     !     cores = 0
-          !     !     DO iatom = 1, natom
-          !     !        atom_a = atom_list(iatom)
-          !     !        ra(:) = pbc(particle_set(atom_a)%r, cell)
-          !     !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
-          !     !           ! replicated realspace grid, split the atoms up between procs
-          !     !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
-          !     !              npme = npme + 1
-          !     !              cores(npme) = iatom
-          !     !           ENDIF
-          !     !        ELSE
-          !     !           npme = npme + 1
-          !     !           cores(npme) = iatom
-          !     !        ENDIF
-          !     !     END DO
-          !     !     DO j = 1, npme
-          !     !        iatom = cores(j)
-          !             ! atom_a = atom_list(iatom)
-          !
-          !
-          !       DO iatom = 1, natom
-          !
-          !         ra(:) = particle_set(iatom)%r
-          !
-          !         DO k = lb_pw(3), ub_pw(3)
-          !           DO j = lb_pw(2), ub_pw(2)
-          !             DO i = lb_pw(1), ub_pw(1)
-          !
-          !               IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
-          !
-          !                             exp_eval =  (coefficients(iatom) - &
-          !                                          cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-          !                                         cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
-          !
-          !
-          !                r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
-          !                r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
-          !
-          !                    cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
-          !                                cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
-          !                                r_pbc(1) * exp_eval
-          !
-          !                    ! Store gradient d/dR_y w, including term: (r_y - R_y)
-          !                    cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
-          !                                cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
-          !                                 r_pbc(2) * exp_eval
-          !
-          !                    ! Store gradient d/dR_z w, including term:(r_z - R_z)
-          !                    cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
-          !                                cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
-          !                                 r_pbc(3) * exp_eval
-          !                  END IF
-          !             END DO ! i = lb(1), ub(1)
-          !           END DO ! j = lb(2), ub(2)
-          !         END DO ! k = lb(3), ub(3)
-          !
-          !    !    END DO
-          !    ! END DO
-          !    ! DEALLOCATE (cores)
-          !
-          !       END DO ! iatom = 1, natom
-          !     ! END DO ! ikind = 1, SIZE(atomic_kind_set)
-          !   END DO ! igroup = 1, SIZE(cdft_control%group)
-          !   t2 = m_walltime()
-          !   IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
-          ! END IF ! (cdft_control%in_memory) THEN
+          IF (cdft_control%in_memory) THEN
+            ! PRINT *, "Calculate gradient"
+
+            DO igroup = 1, SIZE(cdft_control%group)
+
+
+              ! nthread = 1
+              ! ithread = 0
+              !  DO ikind = 1, SIZE(atomic_kind_set)
+              !  numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
+              !  IF (numexp <= 0) CYCLE
+              !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+              !  ALLOCATE (cores(natom))
+              !
+              !  DO iex = 1, numexp
+              !     alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+              !     coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+              !     npme = 0
+              !     cores = 0
+              !     DO iatom = 1, natom
+              !        atom_a = atom_list(iatom)
+              !        ra(:) = pbc(particle_set(atom_a)%r, cell)
+              !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+              !           ! replicated realspace grid, split the atoms up between procs
+              !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+              !              npme = npme + 1
+              !              cores(npme) = iatom
+              !           ENDIF
+              !        ELSE
+              !           npme = npme + 1
+              !           cores(npme) = iatom
+              !        ENDIF
+              !     END DO
+              !     DO j = 1, npme
+              !        iatom = cores(j)
+                      ! atom_a = atom_list(iatom)
+
+
+                DO iatom = 1, natom
+
+                  ra(:) = particle_set(iatom)%r
+
+                  DO k = lb_pw(3), ub_pw(3)
+                    DO j = lb_pw(2), ub_pw(2)
+                      DO i = lb_pw(1), ub_pw(1)
+
+                        IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
+
+                                      exp_eval =  (coefficients(iatom) - &
+                                                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                                                  cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+
+
+                         r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
+                         r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
+
+                             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
+                                         r_pbc(1) * exp_eval
+
+                             ! Store gradient d/dR_y w, including term: (r_y - R_y)
+                             cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(2+((iatom-1)*3), i, j, k) * &
+                                          r_pbc(2) * exp_eval
+
+                             ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) = &
+                                         cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
+                                          r_pbc(3) * exp_eval
+                           END IF
+                      END DO ! i = lb(1), ub(1)
+                    END DO ! j = lb(2), ub(2)
+                  END DO ! k = lb(3), ub(3)
+
+             !    END DO
+             ! END DO
+             ! DEALLOCATE (cores)
+
+                END DO ! iatom = 1, natom
+              ! END DO ! ikind = 1, SIZE(atomic_kind_set)
+            END DO ! igroup = 1, SIZE(cdft_control%group)
+            t2 = m_walltime()
+            IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
+          END IF ! (cdft_control%in_memory) THEN
 
 
 
@@ -1508,8 +1511,8 @@ CONTAINS
              END DO
           END IF
 
-             ! PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-             ! PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+             PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+             PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
 
           IF (.NOT. cdft_control%transfer_pot) THEN
