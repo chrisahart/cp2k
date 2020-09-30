@@ -816,6 +816,10 @@ CONTAINS
       END IF
 
       IF (cdft_control%in_memory) THEN
+        CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
+                                in_space=REALSPACE)
+            pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
+
         ALLOCATE (rs_single_dr(natom))
         DO i = 1, cdft_control%natoms
            NULLIFY (rs_single_dr(i)%rs_grid)
@@ -1120,7 +1124,7 @@ CONTAINS
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
 
-                    rs_single_dr(iatom)%rs_grid(:, :, :) = 2.0_dp * alpha * rs_single_dr(iatom)%rs_grid(:, :, :)
+                    rs_single_dr(iatom)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(iatom)%rs_grid%r(:, :, :)
 
                 END DO
              END DO
