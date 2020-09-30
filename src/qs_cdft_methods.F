@@ -1066,7 +1066,7 @@ CONTAINS
                 pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
 
                 DO igroup = 1, SIZE(cdft_control%group)
-                 ALLOCATE (cdft_control%group(igroup)%gradients(3*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+                 ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
                  cdft_control%group(igroup)%gradients = 0.0_dp
                END DO
 
