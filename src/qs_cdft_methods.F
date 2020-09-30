@@ -711,11 +711,11 @@ CONTAINS
     INTEGER(KIND=int_8)                                :: subpatch_pattern
     TYPE(realspace_grid_type)                :: rsgrid
     TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr, rs_single_gradient
-   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rho_dr_temp
+   TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rho_dr_temp, rs_rho_temp
 
     NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, &
              hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
-             auxbas_rs_desc, cdft_control, pab, rs_rho_all, rho_dr_temp, &
+             auxbas_rs_desc, cdft_control, pab, rs_rho_all, rho_dr_temp,rs_rho_temp, &
              hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_constr, rs_single_charge)
 
     CALL timeset(routineN, handle)
@@ -1084,6 +1084,9 @@ CONTAINS
             CALL rs_grid_zero(rho_dr_temp)
             rho_dr_temp%r(:, :, :) = 0.0_dp
 
+            CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+            CALL rs_grid_zero(rs_rho_temp)
+            rs_rho_temp%r(:, :, :) = 0.0_dp
           END IF
 
 
@@ -1102,13 +1105,15 @@ CONTAINS
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
             !  ALLOCATE (cores(natom))
             !
-             DO iex = 1, numexp
-                alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+
             !     npme = 0
             !     cores = 0
                 DO iatom = 1, natom
                    atom_a = atom_list(iatom)
+
+                   DO iex = 1, numexp
+                      alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                      coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
             !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
             !           ! replicated realspace grid, split the atoms up between procs
@@ -1124,7 +1129,8 @@ CONTAINS
             !     DO j = 1, npme
             !        iatom = cores(j)
                    ! atom_a = atom_list(iatom)
-                    rho_dr_temp%r(:, :, :) = 0.0_dp
+
+                    rs_rho_temp%r(:, :, :) = 0.0_dp
                    pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
                    subpatch_pattern = 0
@@ -1141,17 +1147,20 @@ CONTAINS
 
                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                                rho_dr_temp, cell, cube_info, radius=radius, &
+                                                rs_rho_temp, cell, cube_info, radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
 
-                    ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
+                     rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
+                   END DO
+                     ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
                     CALL rs_pw_transfer(rho_dr_temp, pw_rho_temp%pw, rs2pw)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                    rho_dr_temp%r(:, :, :) = 0.0_dp
 
-                END DO
+                ! END DO
              END DO
            END DO
              ! DEALLOCATE (cores)
@@ -1261,6 +1270,7 @@ CONTAINS
 
 
            IF (cdft_control%in_memory) THEN
+             CALL rs_grid_release(rs_rho_temp)
              CALL rs_grid_release(rho_dr_temp)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
              ! DO i = 1, cdft_control%natoms
