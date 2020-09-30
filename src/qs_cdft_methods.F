@@ -1168,7 +1168,7 @@ CONTAINS
 
        t2 = m_walltime()
        IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
-        END DO
+        ! END DO
       END IF
 
       ! Calculate gradient if requested
