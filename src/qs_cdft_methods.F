@@ -1064,22 +1064,21 @@ CONTAINS
 
            ! Set up gradient
           IF (cdft_control%in_memory) THEN
-            CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
-                                    in_space=REALSPACE)
-                pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
 
                 ALLOCATE (rs_single_dr(natom))
+                IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+
                 DO i = 1, natom
                    NULLIFY (rs_single_dr(i)%rs_grid)
                    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                 END DO
-                IF (para_env%ionode) PRINT *, "Allocated gradient rs_single_dr", t1-t2
+                IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
                 DO igroup = 1, SIZE(cdft_control%group)
                  ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
                  ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-                 cdft_control%group(igroup)%gradients_x = 0.0_dp
+                 cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
                END DO
 
           IF (para_env%ionode) PRINT *, "Allocated gradient", t1-t2
@@ -1091,6 +1090,10 @@ CONTAINS
             CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
             CALL rs_grid_zero(rs_rho_temp)
             rs_rho_temp%r(:, :, :) = 0.0_dp
+
+            CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
+                                    in_space=REALSPACE)
+                pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
           END IF
 
 
@@ -1174,7 +1177,7 @@ CONTAINS
 
              DO iatom = 1, num_atoms
               CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-              cdft_control%group(igroup)%gradients_x(atom_a, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+              cdft_control%group(igroup)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
               ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
               ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
               ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
@@ -1191,6 +1194,7 @@ CONTAINS
         DO i = 1, natom
             CALL rs_grid_release(rs_single_dr(i)%rs_grid)
         END DO
+        DEALLOCATE (rs_single_dr)
       END IF
 
       IF (cdft_control%in_memory) THEN
@@ -1209,18 +1213,18 @@ CONTAINS
       DO igroup = 1, SIZE(cdft_control%group)
        ALLOCATE (cdft_control%group(igroup)%gradients_y(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
        ALLOCATE (cdft_control%group(igroup)%gradients_z(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-       cdft_control%group(igroup)%gradients_y = 0.0_dp
-       cdft_control%group(igroup)%gradients_z = 0.0_dp
+       cdft_control%group(igroup)%gradients_y(:, :, :, :) = cdft_control%group(igroup)%gradients_x(:, :, :, :) !0.0_dp
+       cdft_control%group(igroup)%gradients_z(:, :, :, :) = cdft_control%group(igroup)%gradients_x(:, :, :, :) !0.0_dp
      END DO
 
      ! t2 = m_walltime()
      ! IF (para_env%ionode) PRINT *, "Finished allocating gradient y and z", t1-t2
 
       ! Calculate gradient if requested
-          IF (cdft_control%in_memory) THEN
+          ! IF (cdft_control%in_memory) THEN
             ! PRINT *, "Calculate gradient"
 
-            DO igroup = 1, SIZE(cdft_control%group)
+            ! DO igroup = 1, SIZE(cdft_control%group)
 
 
               ! nthread = 1
@@ -1255,23 +1259,23 @@ CONTAINS
                       ! atom_a = atom_list(iatom)
 
 
-                DO iatom = 1, num_atoms
-
-                  ra(:) = particle_set(iatom)%r
-
-                  DO k = lb_pw(3), ub_pw(3)
-                    DO j = lb_pw(2), ub_pw(2)
-                      DO i = lb_pw(1), ub_pw(1)
-
-                        IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
-
-                                      exp_eval =  (coefficients(iatom) - &
-                                                   cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
-                                                  cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
-
-
-                         r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
-                         r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
+                ! DO iatom = 1, num_atoms
+                !
+                !   ra(:) = particle_set(iatom)%r
+                !
+                !   DO k = lb_pw(3), ub_pw(3)
+                !     DO j = lb_pw(2), ub_pw(2)
+                !       DO i = lb_pw(1), ub_pw(1)
+                !
+                !         IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
+                !
+                !                       exp_eval =  (coefficients(iatom) - &
+                !                                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
+                !                                   cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k)
+                !
+                !
+                !          r2 = (/i * dr_pw(1), j * dr_pw(2), k * dr_pw(3)/) + origin
+                !          r_pbc = pbc(ra, r2, cell) ! Periodic distance (rs)
 
                              ! cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) = &
                              !             cdft_control%group(igroup)%gradients(1+((iatom-1)*3), i, j, k) * &
@@ -1288,31 +1292,31 @@ CONTAINS
                              !              r_pbc(3) * exp_eval
 
                                           ! Store gradient d/dR_y w, including term: (r_y - R_y)
-                                          cdft_control%group(igroup)%gradients_y(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
-                                                       r_pbc(2) * exp_eval
-
-                                          ! Store gradient d/dR_z w, including term:(r_z - R_z)
-                                          cdft_control%group(igroup)%gradients_z(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
-                                                       r_pbc(3) * exp_eval
-
-                                          cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
-                                                      r_pbc(1) * exp_eval                                                       
-
-                           END IF
-                      END DO ! i = lb(1), ub(1)
-                    END DO ! j = lb(2), ub(2)
-                  END DO ! k = lb(3), ub(3)
+                  !                         cdft_control%group(igroup)%gradients_y(iatom, i, j, k) = &
+                  !                                     cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                  !                                      r_pbc(2) * exp_eval
+                  !
+                  !                         ! Store gradient d/dR_z w, including term:(r_z - R_z)
+                  !                         cdft_control%group(igroup)%gradients_z(iatom, i, j, k) = &
+                  !                                     cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                  !                                      r_pbc(3) * exp_eval
+                  !
+                  !                         cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
+                  !                                     cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                  !                                     r_pbc(1) * exp_eval
+                  !
+                  !          END IF
+                  !     END DO ! i = lb(1), ub(1)
+                  !   END DO ! j = lb(2), ub(2)
+                  ! END DO ! k = lb(3), ub(3)
 
              !    END DO
              ! END DO
              ! DEALLOCATE (cores)
 
-                END DO ! iatom = 1, natom
+                ! END DO ! iatom = 1, natom
               ! END DO ! ikind = 1, SIZE(atomic_kind_set)
-            END DO ! igroup = 1, SIZE(cdft_control%group)
+            ! END DO ! igroup = 1, SIZE(cdft_control%group)
             t2 = m_walltime()
             IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
           END IF ! (cdft_control%in_memory) THEN
