@@ -1078,6 +1078,7 @@ CONTAINS
 
                 DO igroup = 1, SIZE(cdft_control%group)
                  ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+                 ! ALLOCATE (cdft_control%group(igroup)%gradients(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
                  cdft_control%group(igroup)%gradients = 0.0_dp
                END DO
 
@@ -1159,8 +1160,9 @@ CONTAINS
                                                 subpatch_pattern=subpatch_pattern)
 
                      rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
-                   END DO
                      ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
+
+                   END DO
                     CALL rs_pw_transfer(rho_dr_temp, pw_rho_temp%pw, rs2pw)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
@@ -1175,7 +1177,8 @@ CONTAINS
          !  IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
          !
          !  DO iatom = 1, num_atoms
-         !   CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
+           ! CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
+           ! cdft_control%group(igroup)%gradients(atom_a, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
          !   cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
          !   cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
          !   cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
@@ -1185,6 +1188,24 @@ CONTAINS
        IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
         ! END DO
       END IF
+
+      ! IF (cdft_control%in_memory) THEN
+      !   DO i = 1, natom
+      !       CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+      !   END DO
+      ! END IF
+
+      ! t2 = m_walltime()
+      ! IF (para_env%ionode) PRINT *, "Deallocate rs_single_dr", t1-t2
+
+     !  DO igroup = 1, SIZE(cdft_control%group)
+     !   ALLOCATE (cdft_control%group(igroup)%gradients_y(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+     !   ALLOCATE (cdft_control%group(igroup)%gradients_z(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+     !   cdft_control%group(igroup)%gradients = 0.0_dp
+     ! END DO
+
+     ! t2 = m_walltime()
+     ! IF (para_env%ionode) PRINT *, "Finished allocating gradient y and z", t1-t2
 
       ! Calculate gradient if requested
           IF (cdft_control%in_memory) THEN
@@ -1429,11 +1450,11 @@ CONTAINS
         END IF
 
         ! PRINT *, "calculating integrated"
-        DO igroup = 1, SIZE(cdft_control%group)
-        IF (cdft_control%zero_force) THEN
-          cdft_control%group(igroup)%gradients = 0.0_dp
-        END IF
-      END DO
+      !   DO igroup = 1, SIZE(cdft_control%group)
+      !   IF (cdft_control%zero_force) THEN
+      !     cdft_control%group(igroup)%gradients = 0.0_dp
+      !   END IF
+      ! END DO
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
@@ -1540,6 +1561,10 @@ CONTAINS
           DO igroup = 1, SIZE(group)
              CALL mp_sum(group(igroup)%integrated, para_env%group)
           END DO
+
+          IF (para_env%ionode) PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+          IF (para_env%ionode) PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+
 
           ! Update force only on master process. Otherwise force due to constraint becomes multiplied
           ! by the number of processes when the final force%rho_elec is constructed in qs_force
