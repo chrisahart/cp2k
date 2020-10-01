@@ -1225,12 +1225,12 @@ CONTAINS
      END DO
 
      IF (para_env%ionode) THEN
-       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(1, 10, 10, 10)
-       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(1, 10, 10, 10)
-       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(1, 10, 10, 10)
-       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(2, 50, 50, 50)
-       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(2, 50, 50, 50)
-       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(2, 50, 50, 50)
+       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(1, 10, 10, 10), cdft_control%group(1)%gradients_x(2, 10, 10, 10)
+       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(1, 10, 10, 10), cdft_control%group(1)%gradients_y(2, 10, 10, 10)
+       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(1, 10, 10, 10), cdft_control%group(1)%gradients_z(2, 10, 10, 10)
+       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(1, 40, 40, 40), cdft_control%group(1)%gradients_x(2, 40, 40, 40)
+       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(1, 40, 40, 40), cdft_control%group(1)%gradients_y(2, 40, 40, 40)
+       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(1, 40, 40, 40), cdft_control%group(1)%gradients_z(2, 40, 40, 40)
    END IF
 
      ! t2 = m_walltime()
