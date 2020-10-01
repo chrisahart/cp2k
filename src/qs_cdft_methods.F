@@ -1184,7 +1184,7 @@ CONTAINS
             DO iatom = 1, num_atoms
               pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
              CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-             cdft_control%group(igroup)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+             cdft_control%group(1)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
              ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
              ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
              ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
@@ -1225,9 +1225,9 @@ CONTAINS
      END DO
 
      IF (para_env%ionode) THEN
-       PRINT *, "gradients_x", cdft_control%group(igroup)%gradients_x(10, 10, 10, 10)
-       PRINT *, "gradients_y", cdft_control%group(igroup)%gradients_y(10, 10, 10, 10)
-       PRINT *, "gradients_z", cdft_control%group(igroup)%gradients_z(10, 10, 10, 10)
+       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(10, 10, 10, 10)
+       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(10, 10, 10, 10)
+       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(10, 10, 10, 10)
    END IF
 
      ! t2 = m_walltime()
@@ -1616,9 +1616,9 @@ CONTAINS
 
           IF (.NOT. cdft_control%transfer_pot) THEN
              DO igroup = 1, SIZE(group)
-                DEALLOCATE (cdft_control%group(igroup)%gradients_x)
-                DEALLOCATE (cdft_control%group(igroup)%gradients_y)
-                DEALLOCATE (cdft_control%group(igroup)%gradients_z)
+                DEALLOCATE (cdft_control%group(1)%gradients_x)
+                DEALLOCATE (cdft_control%group(1)%gradients_y)
+                DEALLOCATE (cdft_control%group(1)%gradients_z)
 
              END DO
           END IF
