@@ -1281,7 +1281,7 @@ CONTAINS
 
                 DO iatom = 1, natom
 
-                  IF (para_env%ionode) PRINT *, "iatom", iatom
+                  ! IF (para_env%ionode) PRINT *, "iatom", iatom
 
 
                   ra(:) = particle_set(iatom)%r
@@ -1316,17 +1316,17 @@ CONTAINS
 
                                           ! Store gradient d/dR_y w, including term: (r_y - R_y)
                                           cdft_control%group(igroup)%gradients_y(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                                                      cdft_control%group(igroup)%gradients_y(iatom, i, j, k) * &
                                                        r_pbc(2) * exp_eval
 
                                           ! Store gradient d/dR_z w, including term:(r_z - R_z)
                                           cdft_control%group(igroup)%gradients_z(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                                                      cdft_control%group(igroup)%gradients_z(iatom, i, j, k) * &
                                                        r_pbc(3) * exp_eval
 
-                                          ! cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
-                                          !             cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
-                                          !             r_pbc(1) * exp_eval
+                                          cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
+                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                                                      r_pbc(1) * exp_eval
 
                            END IF
                       END DO ! i = lb(1), ub(1)
@@ -1541,7 +1541,7 @@ CONTAINS
                                !   * rho_r(ispin)%pw%cr3d(i, j, k) &
                                !   * dvol
 
-                               IF (para_env%ionode) PRINT *, "iatom", iatom
+                               ! IF (para_env%ionode) PRINT *, "iatom", iatom
 
                                  cdft_control%group(igroup)%integrated(1, iatom) = &
                                    cdft_control%group(igroup)%integrated(1, iatom) &
