@@ -1171,18 +1171,16 @@ CONTAINS
              END DO
            END DO
              ! DEALLOCATE (cores)
-          END DO
 
-         !  t2 = m_walltime()
-         !  IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
-         !
-          DO iatom = 1, num_atoms
-           CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-           cdft_control%group(igroup)%gradients_x(atom_a, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-           ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-           ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-           ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-         END DO
+             DO iatom = 1, num_atoms
+              CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
+              cdft_control%group(igroup)%gradients_x(atom_a, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+              ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+              ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+              ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+            END DO
+
+          END DO
 
        t2 = m_walltime()
        IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
@@ -1265,7 +1263,7 @@ CONTAINS
                     DO j = lb_pw(2), ub_pw(2)
                       DO i = lb_pw(1), ub_pw(1)
 
-                        IF (cdft_control%group(1)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
+                        IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
 
                                       exp_eval =  (coefficients(iatom) - &
                                                    cdft_control%group(igroup)%weight%pw%cr3d(i, j, k)) / &
