@@ -1319,7 +1319,7 @@ CONTAINS
             ! END DO ! igroup = 1, SIZE(cdft_control%group)
             t2 = m_walltime()
             IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
-          END IF ! (cdft_control%in_memory) THEN
+          ! END IF ! (cdft_control%in_memory) THEN
 
            DEALLOCATE (pab)
 
