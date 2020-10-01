@@ -1225,9 +1225,12 @@ CONTAINS
      END DO
 
      IF (para_env%ionode) THEN
-       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(10, 10, 10, 10)
-       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(10, 10, 10, 10)
-       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(10, 10, 10, 10)
+       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(1, 10, 10, 10)
+       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(1, 10, 10, 10)
+       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(1, 10, 10, 10)
+       PRINT *, "gradients_x", cdft_control%group(1)%gradients_x(2, 50, 50, 50)
+       PRINT *, "gradients_y", cdft_control%group(1)%gradients_y(2, 50, 50, 50)
+       PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(2, 50, 50, 50)
    END IF
 
      ! t2 = m_walltime()
