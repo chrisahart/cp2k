@@ -1109,11 +1109,16 @@ CONTAINS
             !     npme = 0
             !     cores = 0
                 DO iatom = 1, natom
+
                    atom_a = atom_list(iatom)
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
+                   rho_dr_temp%r(:, :, :) = 0.0_dp
 
                    DO iex = 1, numexp
                       alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                       coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                      rs_rho_temp%r(:, :, :) = 0.0_dp
+                      pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
             !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
             !           ! replicated realspace grid, split the atoms up between procs
@@ -1130,10 +1135,9 @@ CONTAINS
             !        iatom = cores(j)
                    ! atom_a = atom_list(iatom)
 
-                    rs_rho_temp%r(:, :, :) = 0.0_dp
-                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-                   ra(:) = pbc(particle_set(atom_a)%r, cell)
-                   subpatch_pattern = 0
+
+                   ! ra(:) = pbc(particle_set(atom_a)%r, cell)
+
 
                    ! Calculate cutoff (Juerg Hutter code)
                   IF (hirshfeld_control%use_atomic_cutoff) THEN
@@ -1158,8 +1162,6 @@ CONTAINS
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                     cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-                    rho_dr_temp%r(:, :, :) = 0.0_dp
-
                 ! END DO
              END DO
            END DO
@@ -1220,7 +1222,7 @@ CONTAINS
                       ! atom_a = atom_list(iatom)
 
 
-                DO iatom = 1, natom
+                DO iatom = 1, num_atoms
 
                   ra(:) = particle_set(iatom)%r
 
