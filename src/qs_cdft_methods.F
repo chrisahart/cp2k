@@ -684,7 +684,7 @@ CONTAINS
   LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
   REAL(kind=dp)                                      :: alpha, coef, dvol, eps_rho_rspace, r, r0, sum_alpha, t1, t2, &
                                                         radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
-                                                        r_squared_pbc
+                                                        r_squared_pbc, prefactor
   REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
   TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
   TYPE(cdft_control_type), POINTER                   :: cdft_control
@@ -1126,6 +1126,7 @@ CONTAINS
                    DO iex = 1, numexp
                       alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                       coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                      prefactor = 2.0_dp * alpha
                       ! rs_rho_temp%r(:, :, :) = 0.0_dp
                       pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                    ! ra(:) = pbc(particle_set(atom_a)%r, cell)
@@ -1158,11 +1159,18 @@ CONTAINS
                     ! IF (para_env%ionode) PRINT *, "radius", radius
                   END IF
 
-                     CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
-                                                rs_single_dr(atom_a)%rs_grid, cell, cube_info, radius=radius, &
-                                                ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                subpatch_pattern=subpatch_pattern)
+                     ! CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                     !                            (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                     !                            rs_single_dr(atom_a)%rs_grid, cell, cube_info, radius=radius, &
+                     !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                     !                            subpatch_pattern=subpatch_pattern)
+
+                                                CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                                                           (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
+                                                                           pab, 0, 0, rs_rho_constr, cell, cube_info, &
+                                                                           radius=radius, &
+                                                                           ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                                                           subpatch_pattern=subpatch_pattern)
 
                      ! rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                      ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
@@ -1600,10 +1608,29 @@ CONTAINS
                                END SELECT
 
                                ! Integrate gradient of weight function
-                               cdft_control%group(igroup)%integrated(:, iatom) = &
-                                 cdft_control%group(igroup)%integrated(:, iatom) + &
-                                 cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
-                                 * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+                               ! cdft_control%group(igroup)%integrated(:, iatom) = &
+                               !   cdft_control%group(igroup)%integrated(:, iatom) + &
+                               !   cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                               !   * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+
+
+                                 cdft_control%group(igroup)%integrated(1, iatom) = &
+                                   cdft_control%group(igroup)%integrated(1, iatom) &
+                                   + cdft_control%group(igroup)%gradients_x(iatom, i, j, k) &
+                                   * rho_r(ispin)%pw%cr3d(i, j, k) &
+                                   * dvol
+
+                                   cdft_control%group(igroup)%integrated(2, iatom) = &
+                                     cdft_control%group(igroup)%integrated(2, iatom) &
+                                     + cdft_control%group(igroup)%gradients_y(iatom, i, j, k) &
+                                     * rho_r(ispin)%pw%cr3d(i, j, k) &
+                                     * dvol
+
+                                     cdft_control%group(igroup)%integrated(3, iatom) = &
+                                       cdft_control%group(igroup)%integrated(3, iatom) &
+                                       + cdft_control%group(igroup)%gradients_z(iatom, i, j, k) &
+                                       * rho_r(ispin)%pw%cr3d(i, j, k) &
+                                       * dvol
                             END DO
                          END DO
                       END DO
