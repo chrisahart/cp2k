@@ -1081,6 +1081,8 @@ CONTAINS
                  cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
                END DO
 
+               IF (para_env%ionode) PRINT *, "lb_pw(1:3) ub_pw(1:3)", lb_pw(1:3), ub_pw(1:3)
+
           IF (para_env%ionode) PRINT *, "Allocated gradient", t1-t2
 
             CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
@@ -1233,25 +1235,25 @@ CONTAINS
        PRINT *, "gradients_z", cdft_control%group(1)%gradients_z(1, 40, 40, 40), cdft_control%group(1)%gradients_z(2, 40, 40, 40)
    END IF
 
-     ! t2 = m_walltime()
-     ! IF (para_env%ionode) PRINT *, "Finished allocating gradient y and z", t1-t2
+     t2 = m_walltime()
+     IF (para_env%ionode) PRINT *, "Finished allocating gradient y and z", t1-t2
 
       ! Calculate gradient if requested
-          ! IF (cdft_control%in_memory) THEN
+          IF (cdft_control%in_memory) THEN
             ! PRINT *, "Calculate gradient"
 
-            ! DO igroup = 1, SIZE(cdft_control%group)
+            DO igroup = 1, SIZE(cdft_control%group)
 
 
               ! nthread = 1
               ! ithread = 0
-              !  DO ikind = 1, SIZE(atomic_kind_set)
+               DO ikind = 1, SIZE(atomic_kind_set)
               !  numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
               !  IF (numexp <= 0) CYCLE
               !  CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
               !  ALLOCATE (cores(natom))
               !
-              !  DO iex = 1, numexp
+               DO iex = 1, numexp
               !     alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
               !     coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
               !     npme = 0
@@ -1275,7 +1277,7 @@ CONTAINS
                       ! atom_a = atom_list(iatom)
 
 
-                ! DO iatom = 1, num_atoms
+                DO iatom = 1, num_atoms
                 !
                 !   ra(:) = particle_set(iatom)%r
                 !
@@ -1321,21 +1323,21 @@ CONTAINS
                   !                                     cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
                   !                                     r_pbc(1) * exp_eval
                   !
-                  !          END IF
-                  !     END DO ! i = lb(1), ub(1)
-                  !   END DO ! j = lb(2), ub(2)
+                           ! END IF
+                      ! END DO ! i = lb(1), ub(1)
+                    ! END DO ! j = lb(2), ub(2)
                   ! END DO ! k = lb(3), ub(3)
 
              !    END DO
-             ! END DO
+             END DO
              ! DEALLOCATE (cores)
 
-                ! END DO ! iatom = 1, natom
-              ! END DO ! ikind = 1, SIZE(atomic_kind_set)
-            ! END DO ! igroup = 1, SIZE(cdft_control%group)
+                END DO ! iatom = 1, natom
+              END DO ! ikind = 1, SIZE(atomic_kind_set)
+            END DO ! igroup = 1, SIZE(cdft_control%group)
             t2 = m_walltime()
             IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
-          ! END IF ! (cdft_control%in_memory) THEN
+          END IF ! (cdft_control%in_memory) THEN
 
            DEALLOCATE (pab)
 
