@@ -1289,17 +1289,17 @@ CONTAINS
 
 
                                           cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(1+((iatom-1)*3), i, j, k) * &
+                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
                                                       r_pbc(1) * exp_eval
 
                                           ! Store gradient d/dR_y w, including term: (r_y - R_y)
                                           cdft_control%group(igroup)%gradients_y(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_y(2+((iatom-1)*3), i, j, k) * &
+                                                      cdft_control%group(igroup)%gradients_y(iatom, i, j, k) * &
                                                        r_pbc(2) * exp_eval
 
                                           ! Store gradient d/dR_z w, including term:(r_z - R_z)
                                           cdft_control%group(igroup)%gradients_z(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(3+((iatom-1)*3), i, j, k) * &
+                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
                                                        r_pbc(3) * exp_eval
 
                            END IF
@@ -1317,9 +1317,6 @@ CONTAINS
             t2 = m_walltime()
             IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
           END IF ! (cdft_control%in_memory) THEN
-
-
-
 
            DEALLOCATE (pab)
 
@@ -1357,7 +1354,7 @@ CONTAINS
                                                                 ispin, j, k, natom, nvar
           INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, kind_of
           INTEGER, DIMENSION(2, 3)                           :: bo
-          REAL(kind=dp)                                      :: dvol, eps_cavity, sign
+          REAL(kind=dp)                                      :: dvol, eps_cavity, sign, t1, t2
           REAL(kind=dp), ALLOCATABLE, DIMENSION(:)           :: strength
           REAL(KIND=dp), DIMENSION(:), POINTER               :: cutoffs
           TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -1398,6 +1395,10 @@ CONTAINS
           eps_cavity = cdft_control%becke_control%eps_cavity
           ALLOCATE (atom_of_kind(natom))
           ALLOCATE (kind_of(natom))
+
+          IF (para_env%ionode) PRINT *, "Calculating force"
+          t1 = m_walltime()
+
 
           CALL get_atomic_kind_set(atomic_kind_set=atomic_kind_set, &
                                    atom_of_kind=atom_of_kind, &
@@ -1583,6 +1584,10 @@ CONTAINS
              END DO
           END IF
 
+          t2 = m_walltime()
+          IF (para_env%ionode) PRINT *, "Finished calcuating integrated", t1-t2
+
+
              IF (para_env%ionode) PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
              IF (para_env%ionode) PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
@@ -1640,6 +1645,9 @@ CONTAINS
              END DO
           END IF
         END IF
+
+        t2 = m_walltime()
+        IF (para_env%ionode) PRINT *, "Finished calcuating forces", t1-t2
 
           ! print_force, zero_force
 
