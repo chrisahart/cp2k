@@ -1068,17 +1068,20 @@ CONTAINS
                                     in_space=REALSPACE)
                 pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
 
+                ALLOCATE (rs_single_dr(cdft_control%natoms))
+                DO i = 1, cdft_control%natoms
+                   NULLIFY (rs_single_dr(i)%rs_grid)
+                   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+                   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+                END DO
+                IF (para_env%ionode) PRINT *, "Allocated gradient rs_single_dr", t1-t2
+
                 DO igroup = 1, SIZE(cdft_control%group)
                  ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
                  cdft_control%group(igroup)%gradients = 0.0_dp
                END DO
 
-            ! ALLOCATE (rs_single_dr(natom))
-            ! DO i = 1, natom
-            !    NULLIFY (rs_single_dr(i)%rs_grid)
-            !    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-            !    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-            ! END DO
+          IF (para_env%ionode) PRINT *, "Allocated gradient", t1-t2
 
             CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
             CALL rs_grid_zero(rho_dr_temp)
@@ -1524,8 +1527,8 @@ CONTAINS
              END DO
           END IF
 
-             PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
-             PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
+             IF (para_env%ionode) PRINT *, "cdft_control%group(1)%integrated(:, 1)", cdft_control%group(1)%integrated(:, 1)
+             IF (para_env%ionode) PRINT *, "cdft_control%group(1)%integrated(:, 2)", cdft_control%group(1)%integrated(:, 2)
 
 
           IF (.NOT. cdft_control%transfer_pot) THEN
