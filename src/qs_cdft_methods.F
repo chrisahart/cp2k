@@ -1165,12 +1165,12 @@ CONTAINS
                      !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                      !                            subpatch_pattern=subpatch_pattern)
 
-                                                CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                                           (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
-                                                                           pab, 0, 0, rs_rho_constr, cell, cube_info, &
-                                                                           radius=radius, &
-                                                                           ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
-                                                                           subpatch_pattern=subpatch_pattern)
+                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                                                (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
+                                                pab, 0, 0, rs_single_dr(atom_a)%rs_grid,, cell, cube_info, &
+                                                radius=radius, &
+                                                ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
+                                                subpatch_pattern=subpatch_pattern)
 
                      ! rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
                      ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
@@ -1322,6 +1322,11 @@ CONTAINS
                              !             cdft_control%group(igroup)%gradients(3+((iatom-1)*3), i, j, k) * &
                              !              r_pbc(3) * exp_eval
 
+                                           ! Store gradient d/dR_x w, including term: (r_x - R_x)
+                                           cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
+                                                       cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
+                                                       r_pbc(1) * exp_eval
+
                                           ! Store gradient d/dR_y w, including term: (r_y - R_y)
                                           cdft_control%group(igroup)%gradients_y(iatom, i, j, k) = &
                                                       cdft_control%group(igroup)%gradients_y(iatom, i, j, k) * &
@@ -1332,9 +1337,7 @@ CONTAINS
                                                       cdft_control%group(igroup)%gradients_z(iatom, i, j, k) * &
                                                        r_pbc(3) * exp_eval
 
-                                          cdft_control%group(igroup)%gradients_x(iatom, i, j, k) = &
-                                                      cdft_control%group(igroup)%gradients_x(iatom, i, j, k) * &
-                                                      r_pbc(1) * exp_eval
+
 
                            END IF
                       END DO ! i = lb(1), ub(1)
