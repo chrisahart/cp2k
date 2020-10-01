@@ -890,15 +890,15 @@ CONTAINS
          DO ikind = 1, SIZE(atomic_kind_set)
             numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
             IF (numexp <= 0) CYCLE
-            CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
-            ALLOCATE (cores(natom))
+            CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
+            ALLOCATE (cores(num_species))
 
             DO iex = 1, numexp
                alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
                coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
                npme = 0
                cores = 0
-               DO iatom = 1, natom
+               DO iatom = 1, num_species
                   atom_a = atom_list(iatom)
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
@@ -1105,13 +1105,13 @@ CONTAINS
              DO ikind = 1, SIZE(atomic_kind_set)
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
             !  IF (numexp <= 0) CYCLE
-             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
+             CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
             !  ALLOCATE (cores(natom))
             !
 
             !     npme = 0
             !     cores = 0
-                DO iatom = 1, natom
+                DO iatom = 1, num_species
 
                    atom_a = atom_list(iatom)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
@@ -1554,22 +1554,22 @@ CONTAINS
              END DO
           END IF
 
-        !   IF (cdft_control%print_force) THEN
-        !      IF (para_env%ionode) THEN
-        !      DO igroup = 1, SIZE(group)
-        !         DO iatom = 1, natom
-        !           ikind = kind_of(iatom)
-        !           i = atom_of_kind(iatom)
-        !            PRINT *, "cdft_constraint_force"
-        !            PRINT *, "iatom i", iatom, i
-        !            PRINT *, "group(igroup)%integrated(:, iatom)", group(igroup)%integrated(:, iatom)
-        !            PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
-        !            PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
-        !            PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
-        !         END DO
-        !      END DO
-        !   END IF
-        ! END IF
+          IF (cdft_control%print_force) THEN
+             IF (para_env%ionode) THEN
+             DO igroup = 1, SIZE(group)
+                DO iatom = 1, natom
+                  ikind = kind_of(iatom)
+                  i = atom_of_kind(iatom)
+                   PRINT *, "cdft_constraint_force"
+                   PRINT *, "iatom i", iatom, i
+                   PRINT *, "group(igroup)%integrated(:, iatom)", group(igroup)%integrated(:, iatom)
+                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                   PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
+                   PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
+                END DO
+             END DO
+          END IF
+        END IF
 
           ! print_force, zero_force
 
