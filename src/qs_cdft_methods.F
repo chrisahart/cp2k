@@ -676,9 +676,9 @@ CONTAINS
      routineP = moduleN//':'//routineN
 
   LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
-  INTEGER                                            :: atom_a, handle, i, iatom, iatom2, iex, igroup, num_atoms, &
+  INTEGER                                            :: atom_a, handle, i, iatom, jatom, iatom2, iex, igroup, num_atoms, &
                                                         ikind, ithread, j, natom, npme, num_species, &
-                                                        nthread, numexp, k, i2, j2, k2, jatom,  im, jm, km
+                                                        nthread, numexp, k, i2, j2, k2,  im, jm, km
   INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
   TYPE(cube_info_type)                               :: cube_info
   LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -1141,16 +1141,24 @@ CONTAINS
              IF (numexp <= 0) CYCLE
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
              ALLOCATE (cores(num_species))
+             ! test = num_species
+             !
+             ! IF (num_species > 20) THEN
+             !   test = 1, num_species, 20
+             ! END IF
+             !
+             !   DO j = 1, SIZE(test)
+             !     num_species = test(j)
 
-             ALLOCATE (rs_single_dr(num_species))
-             IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
+                 ALLOCATE (rs_single_dr(num_species))
+                 IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
 
-             DO i = 1, num_species
-                NULLIFY (rs_single_dr(i)%rs_grid)
-                CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-                CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-             END DO
-             IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+                 DO i = 1, num_species
+                    NULLIFY (rs_single_dr(i)%rs_grid)
+                    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+                    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+                 END DO
+                 IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
              DO iex = 1, numexp
 
@@ -1200,9 +1208,12 @@ CONTAINS
                      !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                      !                            subpatch_pattern=subpatch_pattern)
 
+                     DO jatom = 1, cdft_control%natoms
+                         IF (atom_a == cdft_control%atoms(jatom)) EXIT
+                      END DO
                       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
-                                                pab, 0, 0, rs_single_dr(atom_a)%rs_grid, cell, cube_info, &
+                                                pab, 0, 0, rs_single_dr(jatom)%rs_grid, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
@@ -1212,6 +1223,7 @@ CONTAINS
 
                    END DO
              END DO
+           ! END DO
              DEALLOCATE (cores)
 
              t2 = m_walltime()
