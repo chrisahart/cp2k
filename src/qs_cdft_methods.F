@@ -781,7 +781,6 @@ CONTAINS
        bo = cdft_control%group(1)%weight%pw%pw_grid%bounds_local
 
        ! Neccessary for collocate_pgf_product
-       ALLOCATE (pab(1, 1))
        subpatch_pattern = 0
        eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
        cube_info = pw_env%cube_info(1)
@@ -881,6 +880,7 @@ CONTAINS
           ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
 
+         ALLOCATE (pab(1, 1))
          nthread = 1
          ithread = 0
 
@@ -980,6 +980,7 @@ CONTAINS
             END DO
             DEALLOCATE (cores)
          END DO
+         DEALLOCATE (pab)
        END DO
 
          t2 = m_walltime()
@@ -1083,19 +1084,29 @@ CONTAINS
 
                ! IF (para_env%ionode) PRINT *, "lb_pw(1:3) ub_pw(1:3)", lb_pw(1:3), ub_pw(1:3)
 
-          IF (para_env%ionode) PRINT *, "Allocated gradient", t1-t2
+               t2 = m_walltime()
+               IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
 
             CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
             CALL rs_grid_zero(rho_dr_temp)
             rho_dr_temp%r(:, :, :) = 0.0_dp
 
+            t2 = m_walltime()
+            IF (para_env%ionode) PRINT *, "Allocated rho_dr_temp", t1-t2
+
             CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
             CALL rs_grid_zero(rs_rho_temp)
             rs_rho_temp%r(:, :, :) = 0.0_dp
 
+            t2 = m_walltime()
+            IF (para_env%ionode) PRINT *, "Allocated rs_rho_temp", t1-t2
+
             CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
                                     in_space=REALSPACE)
                 pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
+
+                t2 = m_walltime()
+                IF (para_env%ionode) PRINT *, "Allocated pw_rho_temp", t1-t2
           END IF
 
 
@@ -1106,7 +1117,8 @@ CONTAINS
 
              DO igroup = 1, SIZE(cdft_control%group)
 
-            ! nthread = 1
+             ALLOCATE (pab(1, 1))
+             ! nthread = 1
             ! ithread = 0
              DO ikind = 1, SIZE(atomic_kind_set)
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
@@ -1184,6 +1196,7 @@ CONTAINS
              END DO
            END DO
              ! DEALLOCATE (cores)
+             DEALLOCATE (pab)
           END DO
 
           t2 = m_walltime()
@@ -1252,6 +1265,10 @@ CONTAINS
           IF (cdft_control%in_memory) THEN
             ! PRINT *, "Calculate gradient"
 
+            DO k = lb_pw(3), ub_pw(3)
+              DO j = lb_pw(2), ub_pw(2)
+                DO i = lb_pw(1), ub_pw(1)
+
             DO igroup = 1, SIZE(cdft_control%group)
 
 
@@ -1294,9 +1311,7 @@ CONTAINS
 
                   ra(:) = particle_set(iatom)%r
 
-                  DO k = lb_pw(3), ub_pw(3)
-                    DO j = lb_pw(2), ub_pw(2)
-                      DO i = lb_pw(1), ub_pw(1)
+
 
                         IF (cdft_control%group(igroup)%hw_rho_total%pw%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
 
@@ -1355,7 +1370,7 @@ CONTAINS
             IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
           END IF ! (cdft_control%in_memory) THEN
 
-           DEALLOCATE (pab)
+           ! DEALLOCATE (pab)
 
            CALL rs_grid_release(rs_rho_all)
            CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
