@@ -1138,7 +1138,7 @@ CONTAINS
                 DO iatom = 1, num_species
 
                    atom_a = atom_list(iatom)
-                   ra(:) = pbc(particle_set(atom_a)%r, cell)=
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)
 
 
                    IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
