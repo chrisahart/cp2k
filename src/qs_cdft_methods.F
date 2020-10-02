@@ -1066,6 +1066,15 @@ CONTAINS
            ! Set up gradient
           IF (cdft_control%in_memory) THEN
 
+            DO igroup = 1, SIZE(cdft_control%group)
+             ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+             ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+             cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
+           END DO
+
+           t2 = m_walltime()
+           IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
+
                 ALLOCATE (rs_single_dr(natom))
                 IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
 
@@ -1075,17 +1084,6 @@ CONTAINS
                    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
                 END DO
                 IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
-
-                DO igroup = 1, SIZE(cdft_control%group)
-                 ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-                 ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-                 cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
-               END DO
-
-               ! IF (para_env%ionode) PRINT *, "lb_pw(1:3) ub_pw(1:3)", lb_pw(1:3), ub_pw(1:3)
-
-               t2 = m_walltime()
-               IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
 
             CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
             CALL rs_grid_zero(rho_dr_temp)
