@@ -1118,48 +1118,46 @@ CONTAINS
              DO igroup = 1, SIZE(cdft_control%group)
 
              ALLOCATE (pab(1, 1))
-             ! nthread = 1
-            ! ithread = 0
+             nthread = 1
+            ithread = 0
+
              DO ikind = 1, SIZE(atomic_kind_set)
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
-            !  IF (numexp <= 0) CYCLE
+             IF (numexp <= 0) CYCLE
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
-            !  ALLOCATE (cores(natom))
-            !
+             ALLOCATE (cores(num_species))
 
-            !     npme = 0
-            !     cores = 0
+             DO iex = 1, numexp
+
+                alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
+                coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
+                prefactor = 2.0_dp * alpha
+                npme = 0
+                cores = 0
+
                 DO iatom = 1, num_species
 
                    atom_a = atom_list(iatom)
-                   ra(:) = pbc(particle_set(atom_a)%r, cell)
-                   ! rho_dr_temp%r(:, :, :) = 0.0_dp
-
-                   DO iex = 1, numexp
-                      alpha = hirshfeld_env%kind_shape_fn(ikind)%zet(iex)
-                      coef = hirshfeld_env%kind_shape_fn(ikind)%coef(iex)
-                      prefactor = 2.0_dp * alpha
-                      ! rs_rho_temp%r(:, :, :) = 0.0_dp
-                      pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
-                   ! ra(:) = pbc(particle_set(atom_a)%r, cell)
-            !        IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
-            !           ! replicated realspace grid, split the atoms up between procs
-            !           IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
-            !              npme = npme + 1
-            !              cores(npme) = iatom
-            !           ENDIF
-            !        ELSE
-            !           npme = npme + 1
-            !           cores(npme) = iatom
-            !        ENDIF
-            !     END DO
-            !     DO j = 1, npme
-            !        iatom = cores(j)
-                   ! atom_a = atom_list(iatom)
+                   ra(:) = pbc(particle_set(atom_a)%r, cell)=
 
 
-                   ! ra(:) = pbc(particle_set(atom_a)%r, cell)
-
+                   IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
+                  ! replicated realspace grid, split the atoms up between procs
+                  IF (MODULO(iatom, rs_rho_all%desc%group_size) == rs_rho_all%desc%my_pos) THEN
+                     npme = npme + 1
+                     cores(npme) = iatom
+                  ENDIF
+               ELSE
+                  npme = npme + 1
+                  cores(npme) = iatom
+               ENDIF
+            END DO
+            DO j = 1, npme
+               iatom = cores(j)
+               atom_a = atom_list(iatom)
+               pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
+               ra(:) = pbc(particle_set(atom_a)%r, cell)
+               subpatch_pattern = 0
 
                    ! Calculate cutoff (Juerg Hutter code)
                   IF (hirshfeld_control%use_atomic_cutoff) THEN
@@ -1188,14 +1186,10 @@ CONTAINS
                      ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
 
                    END DO
-                    ! CALL rs_pw_transfer(rho_dr_temp, pw_rho_temp%pw, rs2pw)
-                    ! cdft_control%group(igroup)%gradients(3*(atom_a - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-                    ! cdft_control%group(igroup)%gradients(3*(atom_a - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-                    ! cdft_control%group(igroup)%gradients(3*(atom_a - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-                ! END DO
              END DO
+             DEALLOCATE (cores)
            END DO
-             ! DEALLOCATE (cores)
+
              DEALLOCATE (pab)
           END DO
 
@@ -1204,10 +1198,9 @@ CONTAINS
             END IF
 
 
-
           IF (cdft_control%in_memory) THEN
             DO iatom = 1, num_atoms
-              pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
+              ! pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
              CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
              cdft_control%group(1)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
              ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
@@ -1245,6 +1238,9 @@ CONTAINS
       DO igroup = 1, SIZE(cdft_control%group)
        ALLOCATE (cdft_control%group(igroup)%gradients_y(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
        ALLOCATE (cdft_control%group(igroup)%gradients_z(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+
+       t2 = m_walltime()
+       IF (para_env%ionode) PRINT *, "Finished allocating gradient y and z", t1-t2
        cdft_control%group(igroup)%gradients_y(:, :, :, :) = cdft_control%group(igroup)%gradients_x(:, :, :, :) !0.0_dp
        cdft_control%group(igroup)%gradients_z(:, :, :, :) = cdft_control%group(igroup)%gradients_x(:, :, :, :) !0.0_dp
      END DO
@@ -1259,7 +1255,7 @@ CONTAINS
    ! END IF
 
      t2 = m_walltime()
-     IF (para_env%ionode) PRINT *, "Finished allocating gradient y and z", t1-t2
+     IF (para_env%ionode) PRINT *, "Finished copying gradient y and z", t1-t2
 
       ! Calculate gradient if requested
           IF (cdft_control%in_memory) THEN
