@@ -1233,7 +1233,7 @@ CONTAINS
                  ! pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
                 CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
                 cdft_control%group(1)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-                CALL rs_grid_release(rs_single_dr(i)%rs_grid)
+                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
                 ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
