@@ -106,7 +106,7 @@ MODULE qs_cdft_types
 !> \param hirshfeld_env   auxiliary type storing information about the Gaussians
 ! **************************************************************************************************
    TYPE hirshfeld_constraint_type
-      INTEGER                              :: gaussian_shape, shape_function
+      INTEGER                              :: gaussian_shape, shape_function, atoms_memory
       LOGICAL                              :: use_bohr, print_density, use_atomic_cutoff
       REAL(KIND=dp)                        :: radius, eps_cutoff, atomic_cutoff
       REAL(KIND=dp), DIMENSION(:), POINTER :: radii
@@ -631,6 +631,7 @@ CONTAINS
       hirshfeld_control%eps_cutoff = 1.0e-12_dp
       hirshfeld_control%atomic_cutoff = 1.0e-12_dp
       hirshfeld_control%shape_function = shape_function_gaussian
+      hirshfeld_control%atoms_memory = 20
       hirshfeld_control%gaussian_shape = radius_single
       NULLIFY (hirshfeld_control%hirshfeld_env)
       NULLIFY (hirshfeld_control%radii)

@@ -1232,13 +1232,12 @@ CONTAINS
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
 
 
-             atoms_memory = 20
-             atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
+             atoms_memory_num = SIZE((/ (j, j = 1, num_species, hirshfeld_control%atoms_memory)/))
 
-             IF (num_species > atoms_memory) THEN
-               ALLOCATE (num_species_small(atoms_memory_num+1))
-               num_species_small(1:atoms_memory_num) = (/ (j, j = 1, num_species, atoms_memory) /)
-               num_species_small(atoms_memory_num+1) = num_species
+             IF (num_species > hirshfeld_control%atoms_memory) THEN
+               ALLOCATE (num_species_small(hirshfeld_control%atoms_memory+1))
+               num_species_small(1:hirshfeld_control%atoms_memory) = (/ (j, j = 1, num_species, hirshfeld_control%atoms_memory) /)
+               num_species_small(hirshfeld_control%atoms_memory+1) = num_species
              ELSE
                ALLOCATE (num_species_small(2))
                num_species_small(:) = (/ 1, num_species /)
@@ -1253,8 +1252,8 @@ CONTAINS
                  IF (para_env%ionode) PRINT *, "k num_species_small", k, num_species_small
 
 
-                 IF (num_species > atoms_memory) THEN
-                   ALLOCATE (cores(atoms_memory))
+                 IF (num_species > hirshfeld_control%atoms_memory) THEN
+                   ALLOCATE (cores(hirshfeld_control%atoms_memory))
                  ELSE
                    ALLOCATE (cores(num_species))
                  END IF
@@ -1296,7 +1295,7 @@ CONTAINS
                 npme = 0
                 cores = 0
 
-                 DO iatom = 1, atoms_memory
+                 DO iatom = 1, hirshfeld_control%atoms_memory
                   ! DO iatom = num_species_small(k), num_species_small(k+1)
 
                    atom_a = atom_list(iatom+(num_species_small(k)-1))
@@ -1362,7 +1361,7 @@ CONTAINS
                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
             END DO
 
-            DEALLOCATE (rs_single_dr)
+
 
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
@@ -1371,6 +1370,8 @@ CONTAINS
            ! END DO
              DEALLOCATE (cores)
            END DO
+
+           DEALLOCATE (rs_single_dr)
 
              ! t2 = m_walltime()
              ! IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind

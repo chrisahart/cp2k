@@ -4464,6 +4464,14 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="atoms_memory", &
+                          description=" maximal number of Krylov space vectors", &
+                          usage="MAX_KV someInteger>0", &
+                          n_var=1, type_of_var=integer_t, &
+                          default_i_val=20)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="ATOMIC_CHARGES", &
                           description="Calculate atomic CDFT charges with selected weight function"// &
                           " (Z = Z_core - Z_CDFT). With fragment based constraints, charges are"// &
