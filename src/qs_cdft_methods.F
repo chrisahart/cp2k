@@ -1178,6 +1178,10 @@ CONTAINS
             ! t2 = m_walltime()
             ! IF (para_env%ionode) PRINT *, "Allocated rs_rho_temp", t1-t2
 
+            ALLOCATE (rs_single_dr(num_species))
+            t2 = m_walltime()
+            IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+
             ALLOCATE (pw_single_dr(natom))
             t2 = m_walltime()
             IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
@@ -1229,24 +1233,32 @@ CONTAINS
 
 
              atoms_memory = 20
-             IF (para_env%ionode) PRINT *, "vals", (/ (j, j = atoms_memory, num_species, atoms_memory) /)
+             atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
 
              IF (num_species > atoms_memory) THEN
-               ALLOCATE (num_species_small(SIZE((/ (j, j = atoms_memory, num_species, atoms_memory) /))))
-               num_species_small(:) = (/ (j, j = atoms_memory, num_species, atoms_memory) /)
+               ALLOCATE (num_species_small(atoms_memory_num+1))
+               num_species_small(1:atoms_memory_num) = (/ (j, j = 1, num_species, atoms_memory) /)
+               num_species_small(atoms_memory_num) = num_species
              ELSE
-               ALLOCATE (num_species_small(1))
-               num_species_small(:) = num_species
+               ALLOCATE (num_species_small(2))
+               num_species_small(:) = (/ 1, num_species /)
              END IF
 
              IF (para_env%ionode) PRINT *, "num_species, num_species", num_species, num_species_small
 
 
 
-               DO k = 1, SIZE(num_species_small)
-                 num_species = num_species_small(k)
+               DO k = 1, SIZE(num_species_small-1)
 
-                 ALLOCATE (cores(num_species))
+                 IF (num_species > atoms_memory) THEN
+                   ALLOCATE (cores(atoms_memory))
+                 ELSE
+                   ALLOCATE (cores(num_species))
+                 END IF
+
+                 num_species = num_species_small(k+1)
+
+
 
              ! ALLOCATE (pw_single_dr(num_species))
              ! t2 = m_walltime()
@@ -1260,11 +1272,12 @@ CONTAINS
              !  t2 = m_walltime()
              !  IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
 
-                 !
-                 ALLOCATE (rs_single_dr(num_species))
+                 t2 = m_walltime()
                  IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
+                 IF (para_env%ionode) PRINT *, "i = num_species(k), num_species(k+1)", i = num_species(k), num_species(k+1)
 
-                 DO i = 1, num_species
+
+                 DO i = num_species_small(k), num_species_small(k+1)
                     NULLIFY (rs_single_dr(i)%rs_grid)
                     CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                     CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
@@ -1280,9 +1293,9 @@ CONTAINS
                 cores = 0
 
                 ! DO iatom = 1, 50
-                  DO iatom = 1, num_species
+                  DO iatom = num_species_small(k), num_species_small(k+1)
 
-                   atom_a = atom_list(iatom)
+                   atom_a = atom_list(iatom+atoms_memory*(k-1))
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
 
 
@@ -1299,7 +1312,7 @@ CONTAINS
             END DO
             DO j = 1, npme
                iatom = cores(j)
-               atom_a = atom_list(iatom)
+               atom_a = atom_list(iatom+atoms_memory*(k-1))
                pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                ra(:) = pbc(particle_set(atom_a)%r, cell)
                subpatch_pattern = 0
@@ -1340,7 +1353,7 @@ CONTAINS
              END DO
 
              DO iatom = 1, num_species
-               atom_a = atom_list(iatom)
+               atom_a = atom_list(iatom+atoms_memory*(k-1))
                CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
             END DO
