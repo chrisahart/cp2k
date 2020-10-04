@@ -694,6 +694,7 @@ CONTAINS
   TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
   TYPE(pw_p_type)                                    :: tmp
   TYPE(pw_p_type), POINTER                           :: fnorm
+  TYPE(pw_p_type), DIMENSION(:), POINTER :: pw_single_dr
   TYPE(pw_env_type), POINTER                         :: pw_env
   INTEGER, DIMENSION(2, 3)                           :: bo, bo_conf, gridbounds
   TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
@@ -713,7 +714,7 @@ CONTAINS
     TYPE(realspace_grid_p_type), DIMENSION(:), POINTER :: rs_single, rs_single_charge, rs_single_dr, rs_single_gradient
    TYPE(realspace_grid_type), POINTER                 :: rs_rho_all, rs_rho_constr, rho_dr_temp, rs_rho_temp
 
-    NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, &
+    NULLIFY (atom_list, atomic_kind_set, dft_control, fnorm, pw_single_dr, &
              hirshfeld_env, particle_set, pw_env, auxbas_pw_pool, para_env, &
              auxbas_rs_desc, cdft_control, pab, rs_rho_all, rho_dr_temp,rs_rho_temp, &
              hirshfeld_control, cell, rho_r, rho, rs_single, rs_single_dr, rs_rho_constr, rs_single_charge)
@@ -1066,24 +1067,32 @@ CONTAINS
            ! Set up gradient
           IF (cdft_control%in_memory) THEN
 
-            DO igroup = 1, SIZE(cdft_control%group)
-             ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-             ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
-             cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
-           END DO
-
            t2 = m_walltime()
            IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
 
-                ! ALLOCATE (rs_single_dr(natom))
-                ! IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
-                !
-                ! DO i = 1, natom
-                !    NULLIFY (rs_single_dr(i)%rs_grid)
-                !    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-                !    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-                ! END DO
-                ! IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+                ALLOCATE (rs_single_dr(natom))
+
+                t2 = m_walltime()
+                IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+
+                DO i = 1, natom
+                   NULLIFY (rs_single_dr(i)%rs_grid)
+                   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+                   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+                END DO
+                t2 = m_walltime()
+                IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+
+
+
+                ALLOCATE (pw_single_dr(natom))
+                DO i = 1, natom
+                CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
+                                   in_space=REALSPACE)
+                 END DO
+                 t2 = m_walltime()
+                 IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
+
 
             CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
             CALL rs_grid_zero(rho_dr_temp)
@@ -1149,16 +1158,16 @@ CONTAINS
              !
              !   DO j = 1, SIZE(test)
              !     num_species = test(j)
-
-                 ALLOCATE (rs_single_dr(num_species))
-                 IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
-
-                 DO i = 1, num_species
-                    NULLIFY (rs_single_dr(i)%rs_grid)
-                    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-                    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-                 END DO
-                 IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+                 !
+                 ! ALLOCATE (rs_single_dr(num_species))
+                 ! IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
+                 !
+                 ! DO i = 1, num_species
+                 !    NULLIFY (rs_single_dr(i)%rs_grid)
+                 !    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+                 !    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+                 ! END DO
+                 ! IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
              DO iex = 1, numexp
 
@@ -1213,13 +1222,14 @@ CONTAINS
                       END DO
                       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
-                                                pab, 0, 0, rs_single_dr(jatom)%rs_grid, cell, cube_info, &
+                                                pab, 0, 0, rs_single_dr(atom_a)%rs_grid, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
 
+                      ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
+                      CALL rs_pw_transfer(rs_single_dr(atom_a)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
                      ! rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
-                     ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
 
                    END DO
              END DO
@@ -1229,26 +1239,45 @@ CONTAINS
              t2 = m_walltime()
              IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind
 
-               DO iatom = 1, num_species
+               ! DO iatom = 1, num_species
                  ! pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
-                CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-                cdft_control%group(1)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
+                ! CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
+                ! cdft_control%group(1)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+                ! CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
                 ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
                 ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-            END DO
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
+            ! END DO
+            ! t2 = m_walltime()
+            ! IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
 
-              DEALLOCATE (rs_single_dr)
+              ! DEALLOCATE (rs_single_dr)
            END DO
 
              DEALLOCATE (pab)
           END DO
 
           t2 = m_walltime()
-          IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
+          IF (para_env%ionode) PRINT *, "Finished calculating pw_single_dr", t1-t2
+            END IF
+
+          DO igroup = 1, SIZE(cdft_control%group)
+           ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+           ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
+           cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
+         END DO
+
+         t2 = m_walltime()
+         IF (para_env%ionode) PRINT *, "Finished allocating gradients_x", t1-t2
+
+          DO igroup = 1, SIZE(cdft_control%group)
+            DO iatom = 1, num_species
+              cdft_control%group(igroup)%gradients_x(iatom, :, :, :) = pw_single_dr(atom_a)%pw%cr3d(:, :, :)
+            END DO
+          END DO
+
+          t2 = m_walltime()
+          IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
             END IF
 
 
@@ -1261,9 +1290,6 @@ CONTAINS
         ! END DO
       END IF
 
-
-      t2 = m_walltime()
-      IF (para_env%ionode) PRINT *, "Deallocate rs_single_dr", t1-t2
 
       DO igroup = 1, SIZE(cdft_control%group)
        ALLOCATE (cdft_control%group(igroup)%gradients_y(1*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
