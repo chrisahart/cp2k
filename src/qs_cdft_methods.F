@@ -1256,7 +1256,7 @@ CONTAINS
                    ALLOCATE (cores(num_species))
                  END IF
 
-                 num_species = num_species_small(k+1)
+                 ! num_species = num_species_small(k+1)
 
 
 
