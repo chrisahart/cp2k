@@ -1336,7 +1336,7 @@ CONTAINS
                       ! END DO
                       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
-                                      pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1)%rs_grid, cell, cube_info, &
+                                      pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1))%rs_grid, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
