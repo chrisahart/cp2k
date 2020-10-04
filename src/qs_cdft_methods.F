@@ -1227,19 +1227,21 @@ CONTAINS
              IF (numexp <= 0) CYCLE
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
 
-             ! test = num_species
-             !
+
+             IF (para_env%ionode) PRINT *, (/ (j, j = 50, num_species, 50) /)
 
              IF (num_species > 50) THEN
-               ALLOCATE (num_species_small(1))
-               num_species_small(:) = 1 !1, num_species, 50
+               ALLOCATE (num_species_small(SIZE((/ (j, j = 50, num_species, 50) /))))
+               num_species_small(:) = (/ (j, j = 50, num_species, 50) /)
              ELSE
                ALLOCATE (num_species_small(1))
-               num_species_small(:) = 1
+               num_species_small(:) = num_species
              END IF
 
-               ! DO j = 1, SIZE(test)
-               !   num_species = test(j)
+
+
+               DO j = 1, SIZE(num_species_small)
+                 num_species = num_species_small(j)
 
                  ALLOCATE (cores(num_species))
 
@@ -1349,7 +1351,7 @@ CONTAINS
 
            ! END DO
              DEALLOCATE (cores)
-           ! END DO
+           END DO
 
              ! t2 = m_walltime()
              ! IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind
