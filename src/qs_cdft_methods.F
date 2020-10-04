@@ -677,7 +677,7 @@ CONTAINS
 
   LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
   INTEGER                                            :: atom_a, handle, i, iatom, jatom, iatom2, iex, igroup, num_atoms, &
-                                                        ikind, ithread, j, natom, npme, num_species, &
+                                                        ikind, ithread, j, natom, npme, num_species, atoms_memory_num, &
                                                         nthread, numexp, k, i2, j2, k2,  im, jm, km, atoms_memory
   INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
   TYPE(cube_info_type)                               :: cube_info
@@ -686,7 +686,7 @@ CONTAINS
                                                         radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
                                                         r_squared_pbc, prefactor
   REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
-  INTEGER, ALLOCATABLE, DIMENSION(:)                 :: num_species_small
+  INTEGER, ALLOCATABLE, DIMENSION(:)                 :: num_species_small, test
   TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
   TYPE(cdft_control_type), POINTER                   :: cdft_control
   TYPE(dft_control_type), POINTER                    :: dft_control
@@ -1235,6 +1235,7 @@ CONTAINS
              atoms_memory = 20
              atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
 
+
              IF (num_species > atoms_memory) THEN
                ALLOCATE (num_species_small(atoms_memory_num+1))
                num_species_small(1:atoms_memory_num) = (/ (j, j = 1, num_species, atoms_memory) /)
@@ -1274,8 +1275,7 @@ CONTAINS
 
                  t2 = m_walltime()
                  IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
-                 IF (para_env%ionode) PRINT *, "i = num_species(k), num_species(k+1)", i = num_species(k), num_species(k+1)
-
+                 IF (para_env%ionode) PRINT *, "num_species_small", num_species_small(k), num_species_small(k+1)
 
                  DO i = num_species_small(k), num_species_small(k+1)
                     NULLIFY (rs_single_dr(i)%rs_grid)
