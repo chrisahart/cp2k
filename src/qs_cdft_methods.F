@@ -1225,6 +1225,7 @@ CONTAINS
              ALLOCATE (pab(1, 1))
              nthread = 1
             ithread = 0
+            atoms_memory = 20
 
              DO ikind = 1, SIZE(atomic_kind_set)
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
