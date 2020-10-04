@@ -1070,76 +1070,96 @@ CONTAINS
            ! t2 = m_walltime()
            ! IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
 
-           ALLOCATE (pw_single_dr(50))
-           t2 = m_walltime()
-           IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
+           ! ALLOCATE (pw_single_dr(50))
+           ! t2 = m_walltime()
+           ! IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
+           !
+           ! DO i = 1, 50
+           ! CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
+           !                    in_space=REALSPACE)
+           !   pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
+           !  END DO
+           !  t2 = m_walltime()
+           !  IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
+           !
+           !
+           !      ALLOCATE (rs_single_dr(50))
+           !      t2 = m_walltime()
+           !      IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+           !
+           !      DO i = 1, 50
+           !         NULLIFY (rs_single_dr(i)%rs_grid)
+           !         CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+           !         CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+           !      END DO
+           !      t2 = m_walltime()
+           !      IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+           !
+           !
+           !      DO iatom = 1, 50
+           !        CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
+           !      END DO
+           !      DEALLOCATE (pw_single_dr)
+           !
+           !      t2 = m_walltime()
+           !      IF (para_env%ionode) PRINT *, "Finished deallocating pw_single_dr", t1-t2
+           !
+           !      DO iatom = 1, 50
+           !        CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
+           !    END DO
+           !      DEALLOCATE (rs_single_dr)
+           !
+           !    t2 = m_walltime()
+           !    IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
+           !
+           !
+           !
+           !
+           !    ALLOCATE (rs_single_dr(natom))
+           !    t2 = m_walltime()
+           !    IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+           !
+           !    DO i = 1, natom
+           !       NULLIFY (rs_single_dr(i)%rs_grid)
+           !       CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+           !       CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+           !       CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
+           !    END DO
+           !    t2 = m_walltime()
+           !    IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+           !
+           !    DEALLOCATE (rs_single_dr)
+           !  t2 = m_walltime()
+           !  IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
 
-           DO i = 1, 50
-           CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
-                              in_space=REALSPACE)
-             pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
-            END DO
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
-
-
-                ALLOCATE (rs_single_dr(natom))
-                t2 = m_walltime()
-                IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
-
-                DO i = 1, 50
-                   NULLIFY (rs_single_dr(i)%rs_grid)
-                   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-                   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-                END DO
-                t2 = m_walltime()
-                IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
-
-
-                DO iatom = 1, 50
-                  CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
-                END DO
-                DEALLOCATE (pw_single_dr)
-
-                t2 = m_walltime()
-                IF (para_env%ionode) PRINT *, "Finished deallocating pw_single_dr", t1-t2
-
-                DO iatom = 1, 50
-                  CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
-              END DO
-                DEALLOCATE (rs_single_dr)
-
-              t2 = m_walltime()
-              IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
 
 
 
 
 
-
-           ALLOCATE (pw_single_dr(natom))
-           t2 = m_walltime()
-           IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
-
-           DO i = 1, natom
-           CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
-                              in_space=REALSPACE)
-             pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
-            END DO
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
-
-                ALLOCATE (rs_single_dr(natom))
-                t2 = m_walltime()
-                IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
-
-                DO i = 1, natom
-                   NULLIFY (rs_single_dr(i)%rs_grid)
-                   CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-                   CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-                END DO
-                t2 = m_walltime()
-                IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+           ! ALLOCATE (pw_single_dr(natom))
+           ! t2 = m_walltime()
+           ! IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
+           !
+           ! DO i = 1, natom
+           ! CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
+           !                    in_space=REALSPACE)
+           !   pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
+           !  END DO
+           !  t2 = m_walltime()
+           !  IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
+           !
+           !      ALLOCATE (rs_single_dr(natom))
+           !      t2 = m_walltime()
+           !      IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+           !
+           !      DO i = 1, natom
+           !         NULLIFY (rs_single_dr(i)%rs_grid)
+           !         CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+           !         CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+           !      END DO
+           !      t2 = m_walltime()
+           !      IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
 
 
@@ -1209,16 +1229,29 @@ CONTAINS
              !
              !   DO j = 1, SIZE(test)
              !     num_species = test(j)
+
+             ALLOCATE (pw_single_dr(num_species))
+             t2 = m_walltime()
+             IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
+
+             DO i = 1, num_species
+             CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
+                                in_space=REALSPACE)
+               pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
+              END DO
+              t2 = m_walltime()
+              IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
+
                  !
-                 ! ALLOCATE (rs_single_dr(num_species))
-                 ! IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
-                 !
-                 ! DO i = 1, num_species
-                 !    NULLIFY (rs_single_dr(i)%rs_grid)
-                 !    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
-                 !    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
-                 ! END DO
-                 ! IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+                 ALLOCATE (rs_single_dr(num_species))
+                 IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
+
+                 DO i = 1, num_species
+                    NULLIFY (rs_single_dr(i)%rs_grid)
+                    CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
+                    CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+                 END DO
+                 IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
              DO iex = 1, numexp
 
@@ -1228,7 +1261,8 @@ CONTAINS
                 npme = 0
                 cores = 0
 
-                DO iatom = 1, num_species
+                ! DO iatom = 1, 50
+                  DO iatom = 1, num_species
 
                    atom_a = atom_list(iatom)
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
@@ -1283,9 +1317,12 @@ CONTAINS
                      ! rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
 
                    END DO
+
+
              END DO
            ! END DO
              DEALLOCATE (cores)
+           ! END DO
 
              ! t2 = m_walltime()
              ! IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind
