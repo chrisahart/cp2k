@@ -1083,15 +1083,6 @@ CONTAINS
             IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
 
 
-            DO iatom = 1, 50
-              CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
-            END DO
-            DEALLOCATE (pw_single_dr)
-
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Finished deallocating pw_single_dr", t1-t2
-
-
                 ALLOCATE (rs_single_dr(natom))
                 t2 = m_walltime()
                 IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
@@ -1103,6 +1094,15 @@ CONTAINS
                 END DO
                 t2 = m_walltime()
                 IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
+
+
+                DO iatom = 1, 50
+                  CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
+                END DO
+                DEALLOCATE (pw_single_dr)
+
+                t2 = m_walltime()
+                IF (para_env%ionode) PRINT *, "Finished deallocating pw_single_dr", t1-t2
 
                 DO iatom = 1, 50
                   CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
