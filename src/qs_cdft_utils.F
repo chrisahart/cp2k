@@ -841,7 +841,6 @@ CONTAINS
     CALL section_vals_val_get(hirshfeld_section, "SHAPE_FUNCTION", i_val=hirshfeld_control%shape_function)
     CALL section_vals_val_get(hirshfeld_section, "GAUSSIAN_SHAPE", i_val=hirshfeld_control%gaussian_shape)
     CALL section_vals_val_get(hirshfeld_section, "ATOMS_MEMORY", i_val=hirshfeld_control%atoms_memory)
-    CALL section_vals_val_get(cdft_control_section, "PRINT_FORCE", l_val=cdft_control%atoms_memory)
     CALL section_vals_val_get(hirshfeld_section, "GAUSSIAN_RADIUS", r_val=hirshfeld_control%radius)
     CALL section_vals_val_get(hirshfeld_section, "USE_BOHR", l_val=hirshfeld_control%use_bohr)
     CALL section_vals_val_get(hirshfeld_section, "USE_ATOMIC_CUTOFF", l_val=hirshfeld_control%use_atomic_cutoff)

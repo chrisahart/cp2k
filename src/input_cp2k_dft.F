@@ -4465,8 +4465,8 @@ CONTAINS
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="atoms_memory", &
-                          description=" maximal number of Krylov space vectors", &
-                          usage="MAX_KV someInteger>0", &
+                          description=" atoms_memory", &
+                          usage="atoms_memory", &
                           n_var=1, type_of_var=integer_t, &
                           default_i_val=20)
       CALL section_add_keyword(section, keyword)
