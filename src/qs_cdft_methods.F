@@ -1363,7 +1363,6 @@ CONTAINS
             END DO
 
             DEALLOCATE (rs_single_dr)
-            DEALLOCATE (num_species_small)
 
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
