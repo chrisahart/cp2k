@@ -4464,13 +4464,13 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
-      CALL keyword_create(keyword, __LOCATION__, name="ATOMS_MEMORY", &
-                          description="atoms_memory", &
-                          usage="ATOMS_MEMORY", &
-                          n_var=1, type_of_var=integer_t, &
-                          default_i_val=20)
-      CALL section_add_keyword(section, keyword)
-      CALL keyword_release(keyword)
+      ! CALL keyword_create(keyword, __LOCATION__, name="ATOMS_MEMORY", &
+      !                     description="atoms_memory", &
+      !                     usage="ATOMS_MEMORY", &
+      !                     n_var=1, type_of_var=integer_t, &
+      !                     default_i_val=20)
+      ! CALL section_add_keyword(section, keyword)
+      ! CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, name="ATOMIC_CHARGES", &
                           description="Calculate atomic CDFT charges with selected weight function"// &
