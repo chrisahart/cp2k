@@ -1235,18 +1235,17 @@ CONTAINS
              atoms_memory = 20
              atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
 
-
              IF (num_species > atoms_memory) THEN
                ALLOCATE (num_species_small(atoms_memory_num+1))
                num_species_small(1:atoms_memory_num) = (/ (j, j = 1, num_species, atoms_memory) /)
-               num_species_small(atoms_memory_num) = num_species
+               num_species_small(atoms_memory_num+1) = num_species
              ELSE
                ALLOCATE (num_species_small(2))
                num_species_small(:) = (/ 1, num_species /)
              END IF
 
-             IF (para_env%ionode) PRINT *, "num_species, num_species", num_species, num_species_small
-
+             IF (para_env%ionode) PRINT *, "atoms_memory_num", atoms_memory_num
+             IF (para_env%ionode) PRINT *, "num_species, num_species_small", num_species, num_species_small
 
 
                DO k = 1, SIZE(num_species_small-1)
@@ -1292,12 +1291,11 @@ CONTAINS
                 npme = 0
                 cores = 0
 
-                ! DO iatom = 1, 50
-                  DO iatom = num_species_small(k), num_species_small(k+1)
+                 DO iatom = 1, atoms_memory
+                  ! DO iatom = num_species_small(k), num_species_small(k+1)
 
-                   atom_a = atom_list(iatom+atoms_memory*(k-1))
+                   atom_a = atom_list(iatom+(num_species_small(k)-1))
                    ra(:) = pbc(particle_set(atom_a)%r, cell)
-
 
                    IF (rs_rho_all%desc%parallel .AND. .NOT. rs_rho_all%desc%distributed) THEN
                   ! replicated realspace grid, split the atoms up between procs
@@ -1312,7 +1310,7 @@ CONTAINS
             END DO
             DO j = 1, npme
                iatom = cores(j)
-               atom_a = atom_list(iatom+atoms_memory*(k-1))
+               atom_a = atom_list(iatom+(num_species_small(k)-1))
                pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                ra(:) = pbc(particle_set(atom_a)%r, cell)
                subpatch_pattern = 0
@@ -1353,7 +1351,7 @@ CONTAINS
              END DO
 
              DO iatom = 1, num_species
-               atom_a = atom_list(iatom+atoms_memory*(k-1))
+               atom_a = atom_list(iatom+(num_species_small(k)-1))
                CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
             END DO
