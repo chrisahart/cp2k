@@ -1232,10 +1232,10 @@ CONTAINS
 
              IF (num_species > 50) THEN
                ALLOCATE (num_species_small(1))
-               test(:) = 1 !1, num_species, 50
+               num_species_small(:) = 1 !1, num_species, 50
              ELSE
                ALLOCATE (num_species_small(1))
-               test(;) = 1
+               num_species_small(:) = 1
              END IF
 
                ! DO j = 1, SIZE(test)
@@ -1341,6 +1341,7 @@ CONTAINS
             END DO
 
             DEALLOCATE (rs_single_dr)
+            DEALLOCATE (num_species_small)
 
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
