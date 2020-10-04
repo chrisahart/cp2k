@@ -1177,12 +1177,17 @@ CONTAINS
             ! t2 = m_walltime()
             ! IF (para_env%ionode) PRINT *, "Allocated rs_rho_temp", t1-t2
 
-            ! CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
-            !                         in_space=REALSPACE)
-            !     pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
-            !
-            !     t2 = m_walltime()
-            !     IF (para_env%ionode) PRINT *, "Allocated pw_rho_temp", t1-t2
+            ALLOCATE (pw_single_dr(natom))
+            t2 = m_walltime()
+            IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
+
+            DO i = 1, natom
+            CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
+                               in_space=REALSPACE)
+              pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
+             END DO
+             t2 = m_walltime()
+             IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
 
 
           t2 = m_walltime()
@@ -1230,17 +1235,17 @@ CONTAINS
              !   DO j = 1, SIZE(test)
              !     num_species = test(j)
 
-             ALLOCATE (pw_single_dr(num_species))
-             t2 = m_walltime()
-             IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
-
-             DO i = 1, num_species
-             CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
-                                in_space=REALSPACE)
-               pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
-              END DO
-              t2 = m_walltime()
-              IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
+             ! ALLOCATE (pw_single_dr(num_species))
+             ! t2 = m_walltime()
+             ! IF (para_env%ionode) PRINT *, "Allocated pw_single_dr", t1-t2
+             !
+             ! DO i = 1, num_species
+             ! CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
+             !                    in_space=REALSPACE)
+             !   pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
+             !  END DO
+             !  t2 = m_walltime()
+             !  IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
 
                  !
                  ALLOCATE (rs_single_dr(num_species))
@@ -1307,7 +1312,7 @@ CONTAINS
                       ! END DO
                       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
-                                                pab, 0, 0, rs_single_dr(atom_a)%rs_grid, cell, cube_info, &
+                                                pab, 0, 0, rs_single_dr(iatom)%rs_grid, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
@@ -1320,6 +1325,14 @@ CONTAINS
 
 
              END DO
+
+             DO iatom = 1, num_species
+               atom_a = atom_list(iatom)
+               CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
+            END DO
+
+
+
            ! END DO
              DEALLOCATE (cores)
            ! END DO
@@ -1349,7 +1362,6 @@ CONTAINS
           IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
 
           DO iatom = 1, natom
-            CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(iatom)%pw, rs2pw)
         END DO
 
         t2 = m_walltime()
