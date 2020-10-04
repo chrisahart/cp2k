@@ -1229,7 +1229,7 @@ CONTAINS
                                                 subpatch_pattern=subpatch_pattern)
 
                       ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
-                      ! CALL rs_pw_transfer(rs_single_dr(atom_a)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
+                      CALL rs_pw_transfer(rs_single_dr(atom_a)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
                      ! rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
 
                    END DO
