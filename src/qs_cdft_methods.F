@@ -1240,8 +1240,8 @@ CONTAINS
 
 
 
-               DO j = 1, SIZE(num_species_small)
-                 num_species = num_species_small(j)
+               DO k = 1, SIZE(num_species_small)
+                 num_species = num_species_small(k)
 
                  ALLOCATE (cores(num_species))
 
