@@ -1263,8 +1263,8 @@ CONTAINS
 
           DO iatom = 1, natom
             CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
-            DEALLOCATE (rs_single_dr)
         END DO
+          DEALLOCATE (rs_single_dr)
 
         t2 = m_walltime()
         IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
