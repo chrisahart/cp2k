@@ -1089,6 +1089,7 @@ CONTAINS
                 DO i = 1, natom
                 CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
                                    in_space=REALSPACE)
+                  pw_single_dr(i)%pw%cr3d(:, :, :) = 0.0_dp
                  END DO
                  t2 = m_walltime()
                  IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
@@ -1217,9 +1218,9 @@ CONTAINS
                      !                            ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
                      !                            subpatch_pattern=subpatch_pattern)
 
-                     DO jatom = 1, cdft_control%natoms
-                         IF (atom_a == cdft_control%atoms(jatom)) EXIT
-                      END DO
+                     ! DO jatom = 1, cdft_control%natoms
+                         ! IF (atom_a == cdft_control%atoms(jatom)) EXIT
+                      ! END DO
                       CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
                                                 pab, 0, 0, rs_single_dr(atom_a)%rs_grid, cell, cube_info, &
@@ -1228,7 +1229,7 @@ CONTAINS
                                                 subpatch_pattern=subpatch_pattern)
 
                       ! rs_single_dr(atom_a)%rs_grid%r(:, :, :) = 2.0_dp * alpha * rs_single_dr(atom_a)%rs_grid%r(:, :, :)
-                      CALL rs_pw_transfer(rs_single_dr(atom_a)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
+                      ! CALL rs_pw_transfer(rs_single_dr(atom_a)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
                      ! rho_dr_temp%r(:, :, :) = rho_dr_temp%r(:, :, :) + 2.0_dp * alpha * rs_rho_temp%r(:, :, :)
 
                    END DO
@@ -1236,8 +1237,8 @@ CONTAINS
            ! END DO
              DEALLOCATE (cores)
 
-             t2 = m_walltime()
-             IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind
+             ! t2 = m_walltime()
+             ! IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind
 
                ! DO iatom = 1, num_species
                  ! pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
@@ -1251,7 +1252,7 @@ CONTAINS
             ! t2 = m_walltime()
             ! IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
 
-              ! DEALLOCATE (rs_single_dr)
+
            END DO
 
              DEALLOCATE (pab)
@@ -1259,6 +1260,16 @@ CONTAINS
 
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished calculating pw_single_dr", t1-t2
+
+          DO iatom = 1, natom
+            CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
+            DEALLOCATE (rs_single_dr)
+        END DO
+
+        t2 = m_walltime()
+        IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
+
+
             ! END IF
 
           DO igroup = 1, SIZE(cdft_control%group)
@@ -1272,7 +1283,7 @@ CONTAINS
 
           DO igroup = 1, SIZE(cdft_control%group)
             DO iatom = 1, num_species
-              cdft_control%group(igroup)%gradients_x(iatom, :, :, :) = pw_single_dr(atom_a)%pw%cr3d(:, :, :)
+              cdft_control%group(igroup)%gradients_x(iatom, :, :, :) = pw_single_dr(iatom)%pw%cr3d(:, :, :)
             END DO
           END DO
 
