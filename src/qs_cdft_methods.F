@@ -678,7 +678,7 @@ CONTAINS
   LOGICAL                                            :: plot_hirshfeld_density, in_memory, my_just_gradients
   INTEGER                                            :: atom_a, handle, i, iatom, jatom, iatom2, iex, igroup, num_atoms, &
                                                         ikind, ithread, j, natom, npme, num_species, &
-                                                        nthread, numexp, k, i2, j2, k2,  im, jm, km
+                                                        nthread, numexp, k, i2, j2, k2,  im, jm, km, atoms_memory
   INTEGER, DIMENSION(:), POINTER                     :: atom_list, cores
   TYPE(cube_info_type)                               :: cube_info
   LOGICAL, ALLOCATABLE, DIMENSION(:)                 :: compute_charge, is_constraint
@@ -1228,15 +1228,18 @@ CONTAINS
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
 
 
-             IF (para_env%ionode) PRINT *, (/ (j, j = 50, num_species, 50) /)
+             atoms_memory = 20
+             IF (para_env%ionode) PRINT *, "vals", (/ (j, j = atoms_memory, num_species, atoms_memory) /)
 
-             IF (num_species > 50) THEN
-               ALLOCATE (num_species_small(SIZE((/ (j, j = 50, num_species, 50) /))))
-               num_species_small(:) = (/ (j, j = 50, num_species, 50) /)
+             IF (num_species > atoms_memory) THEN
+               ALLOCATE (num_species_small(SIZE((/ (j, j = atoms_memory, num_species, atoms_memory) /))))
+               num_species_small(:) = (/ (j, j = atoms_memory, num_species, atoms_memory) /)
              ELSE
                ALLOCATE (num_species_small(1))
                num_species_small(:) = num_species
              END IF
+
+             IF (para_env%ionode) PRINT *, "num_species, num_species", num_species, num_species_small
 
 
 
