@@ -686,6 +686,7 @@ CONTAINS
                                                         radius, radius_constr, r_squared, exp_eval, sign, eps_weight, &
                                                         r_squared_pbc, prefactor
   REAL(kind=dp), DIMENSION(3)                        :: ra, origin, sign_val, temp_val, ra_pbc
+  INTEGER, ALLOCATABLE, DIMENSION(:)                 :: num_species_small
   TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
   TYPE(cdft_control_type), POINTER                   :: cdft_control
   TYPE(dft_control_type), POINTER                    :: dft_control
@@ -1225,15 +1226,22 @@ CONTAINS
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
              IF (numexp <= 0) CYCLE
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
-             ALLOCATE (cores(num_species))
+
              ! test = num_species
              !
-             ! IF (num_species > 20) THEN
-             !   test = 1, num_species, 20
-             ! END IF
-             !
-             !   DO j = 1, SIZE(test)
-             !     num_species = test(j)
+
+             IF (num_species > 50) THEN
+               ALLOCATE (num_species_small(1))
+               test(:) = 1 !1, num_species, 50
+             ELSE
+               ALLOCATE (num_species_small(1))
+               test(;) = 1
+             END IF
+
+               ! DO j = 1, SIZE(test)
+               !   num_species = test(j)
+
+                 ALLOCATE (cores(num_species))
 
              ! ALLOCATE (pw_single_dr(num_species))
              ! t2 = m_walltime()
@@ -1329,8 +1337,13 @@ CONTAINS
              DO iatom = 1, num_species
                atom_a = atom_list(iatom)
                CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
+               CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
             END DO
 
+            DEALLOCATE (rs_single_dr)
+
+          t2 = m_walltime()
+          IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
 
 
            ! END DO
@@ -1367,13 +1380,7 @@ CONTAINS
         t2 = m_walltime()
         IF (para_env%ionode) PRINT *, "Finished calculating pw_single_dr", t1-t2
 
-          DO iatom = 1, natom
-            CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
-        END DO
-          DEALLOCATE (rs_single_dr)
 
-        t2 = m_walltime()
-        IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
 
 
             ! END IF
