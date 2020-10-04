@@ -1259,7 +1259,7 @@ CONTAINS
 
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished calculating pw_single_dr", t1-t2
-            END IF
+            ! END IF
 
           DO igroup = 1, SIZE(cdft_control%group)
            ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
