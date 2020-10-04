@@ -1067,8 +1067,8 @@ CONTAINS
            ! Set up gradient
           IF (cdft_control%in_memory) THEN
 
-           t2 = m_walltime()
-           IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
+           ! t2 = m_walltime()
+           ! IF (para_env%ionode) PRINT *, "Allocated gradients_x", t1-t2
 
                 ALLOCATE (rs_single_dr(natom))
 
@@ -1083,8 +1083,6 @@ CONTAINS
                 t2 = m_walltime()
                 IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
-
-
                 ALLOCATE (pw_single_dr(natom))
                 DO i = 1, natom
                 CALL pw_pool_create_pw(auxbas_pw_pool, pw_single_dr(i)%pw, use_data=REALDATA3D, &
@@ -1094,27 +1092,26 @@ CONTAINS
                  t2 = m_walltime()
                  IF (para_env%ionode) PRINT *, "Created pw_single_dr", t1-t2
 
+            ! CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
+            ! CALL rs_grid_zero(rho_dr_temp)
+            ! rho_dr_temp%r(:, :, :) = 0.0_dp
+            !
+            ! t2 = m_walltime()
+            ! IF (para_env%ionode) PRINT *, "Allocated rho_dr_temp", t1-t2
+            !
+            ! CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
+            ! CALL rs_grid_zero(rs_rho_temp)
+            ! rs_rho_temp%r(:, :, :) = 0.0_dp
+            !
+            ! t2 = m_walltime()
+            ! IF (para_env%ionode) PRINT *, "Allocated rs_rho_temp", t1-t2
 
-            CALL rs_grid_create(rho_dr_temp, auxbas_rs_desc)
-            CALL rs_grid_zero(rho_dr_temp)
-            rho_dr_temp%r(:, :, :) = 0.0_dp
-
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Allocated rho_dr_temp", t1-t2
-
-            CALL rs_grid_create(rs_rho_temp, auxbas_rs_desc)
-            CALL rs_grid_zero(rs_rho_temp)
-            rs_rho_temp%r(:, :, :) = 0.0_dp
-
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Allocated rs_rho_temp", t1-t2
-
-            CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
-                                    in_space=REALSPACE)
-                pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
-
-                t2 = m_walltime()
-                IF (para_env%ionode) PRINT *, "Allocated pw_rho_temp", t1-t2
+            ! CALL pw_pool_create_pw(auxbas_pw_pool, pw_rho_temp%pw, use_data=REALDATA3D, &
+            !                         in_space=REALSPACE)
+            !     pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
+            !
+            !     t2 = m_walltime()
+            !     IF (para_env%ionode) PRINT *, "Allocated pw_rho_temp", t1-t2
           END IF
 
           t2 = m_walltime()
@@ -1289,7 +1286,7 @@ CONTAINS
          IF (para_env%ionode) PRINT *, "Finished allocating gradients_x", t1-t2
 
           DO igroup = 1, SIZE(cdft_control%group)
-            DO iatom = 1, num_species
+            DO iatom = 1, natom
               cdft_control%group(igroup)%gradients_x(iatom, :, :, :) = pw_single_dr(iatom)%pw%cr3d(:, :, :)
             END DO
           END DO
@@ -1300,9 +1297,19 @@ CONTAINS
 
 
       IF (cdft_control%in_memory) THEN
-        CALL rs_grid_release(rs_rho_temp)
-        CALL rs_grid_release(rho_dr_temp)
-        CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
+
+        DO iatom = 1, natom
+          CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
+        END DO
+        DEALLOCATE (pw_single_dr)
+
+        t2 = m_walltime()
+        IF (para_env%ionode) PRINT *, "Finished deallocating pw_single_dr", t1-t2
+
+
+        ! CALL rs_grid_release(rs_rho_temp)
+        ! CALL rs_grid_release(rho_dr_temp)
+        ! CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_rho_temp%pw)
         ! DO i = 1, cdft_control%natoms
         !     CALL rs_grid_release(rs_single_dr(i)%rs_grid)
         ! END DO
