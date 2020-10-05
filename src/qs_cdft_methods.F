@@ -1279,6 +1279,9 @@ CONTAINS
                  IF (para_env%ionode) PRINT *, "Allocated rs_single_dr num_species", t1-t2, num_species
                  IF (para_env%ionode) PRINT *, "num_species_small", num_species_small(k)
                  IF (para_env%ionode) PRINT *, "num_species_small", num_species_small(k+1)
+                 IF (para_env%ionode) PRINT *, "num_species_small(k+1)-num_species_small(k)", &
+                                                num_species_small(k+1)-num_species_small(k)
+
 
 
                  DO i = num_species_small(k), num_species_small(k+1)
@@ -1297,7 +1300,7 @@ CONTAINS
                 npme = 0
                 cores = 0
 
-                 DO iatom = 1, atoms_memory
+                 DO iatom = 1, (num_species_small(k+1)-num_species_small(k))
                   ! DO iatom = num_species_small(k), num_species_small(k+1)
 
                    atom_a = atom_list(iatom+(num_species_small(k)-1))
