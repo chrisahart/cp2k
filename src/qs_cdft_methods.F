@@ -1395,7 +1395,7 @@ CONTAINS
 
             DO iatom = 1, num_species
               atom_a = atom_list(iatom)
-             cdft_control%group(1)%gradients_x(atom_a, :, :, :) = atom_a(iatom)%pw%cr3d(:, :, :)
+             cdft_control%group(1)%gradients_x(atom_a, :, :, :) = pw_single_dr(atom_a)%pw%cr3d(:, :, :)
          END DO
          t2 = m_walltime()
          IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
