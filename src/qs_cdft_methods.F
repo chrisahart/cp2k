@@ -1178,9 +1178,7 @@ CONTAINS
             ! t2 = m_walltime()
             ! IF (para_env%ionode) PRINT *, "Allocated rs_rho_temp", t1-t2
 
-            ALLOCATE (rs_single_dr(num_species))
-            t2 = m_walltime()
-            IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
+
 
             ALLOCATE (pw_single_dr(natom))
             t2 = m_walltime()
@@ -1231,6 +1229,10 @@ CONTAINS
              numexp = hirshfeld_env%kind_shape_fn(ikind)%numexp
              IF (numexp <= 0) CYCLE
              CALL get_atomic_kind(atomic_kind_set(ikind), natom=num_species, atom_list=atom_list)
+
+             ALLOCATE (rs_single_dr(num_species))
+             t2 = m_walltime()
+             IF (para_env%ionode) PRINT *, "Allocated rs_single_dr", t1-t2
 
 
              atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
@@ -1366,9 +1368,10 @@ CONTAINS
 
            ! END DO
              DEALLOCATE (cores)
+             DEALLOCATE (rs_single_dr)
            END DO
 
-           DEALLOCATE (rs_single_dr)
+
 
              ! t2 = m_walltime()
              ! IF (para_env%ionode) PRINT *, "Finishing calculating species ikind", t1-t2, ikind
