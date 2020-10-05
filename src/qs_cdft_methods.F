@@ -1407,7 +1407,7 @@ CONTAINS
 
          DEALLOCATE (rs_single_dr)
          DEALLOCATE(num_species_small)
-         DEALLOCATE(pw_rho_temp)
+         DEALLOCATE(pw_single_dr)
 
           END DO
 
