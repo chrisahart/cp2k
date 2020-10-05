@@ -1404,7 +1404,7 @@ CONTAINS
 
            END DO
             DEALLOCATE (rs_single_dr)
-
+            DEALLOCATE(num_species_small)
              DEALLOCATE (pab)
           END DO
 
