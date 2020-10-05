@@ -1259,7 +1259,7 @@ CONTAINS
 
              IF (para_env%ionode) PRINT *, "num_species, num_species_small", num_species, num_species_small
 
-               DO k = 1, SIZE(num_species_small-1)
+               DO k = 1, SIZE(num_species_small)-1
 
                  IF (para_env%ionode) PRINT *, "k num_species_small", k, num_species_small
 
