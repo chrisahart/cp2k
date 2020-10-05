@@ -1234,6 +1234,7 @@ CONTAINS
 
 
              atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
+             IF (para_env%ionode) PRINT *, "atoms_memory_num", atoms_memory_num
 
              IF (num_species > atoms_memory) THEN
                ALLOCATE (num_species_small(atoms_memory_num+1))
@@ -1244,14 +1245,11 @@ CONTAINS
                num_species_small(:) = (/ 1, num_species /)
              END IF
 
-             IF (para_env%ionode) PRINT *, "atoms_memory_num", atoms_memory_num
              IF (para_env%ionode) PRINT *, "num_species, num_species_small", num_species, num_species_small
-
 
                DO k = 1, SIZE(num_species_small)
 
                  IF (para_env%ionode) PRINT *, "k num_species_small", k, num_species_small
-
 
                  IF (num_species > atoms_memory) THEN
                    ALLOCATE (cores(atoms_memory))
@@ -1285,6 +1283,7 @@ CONTAINS
                     NULLIFY (rs_single_dr(i)%rs_grid)
                     CALL rs_grid_create(rs_single_dr(i)%rs_grid, auxbas_rs_desc)
                     CALL rs_grid_zero(rs_single_dr(i)%rs_grid)
+                    ! rs_single_dr(i)%rs_grid%rs%r(:, :, :) = 0.0_dp
                  END DO
                  IF (para_env%ionode) PRINT *, "Created rs_single_dr", t1-t2
 
@@ -1357,16 +1356,13 @@ CONTAINS
 
              ! DO iatom = 1, num_species
             DO iatom = num_species_small(k), num_species_small(k+1)
-               atom_a = atom_list(iatom+(num_species_small(k)-1))
+               atom_a = atom_list(iatom)
                CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
             END DO
 
-
-
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Finished deallocating rs_single_dr", t1-t2
-
 
            ! END DO
              DEALLOCATE (cores)
