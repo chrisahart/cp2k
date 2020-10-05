@@ -1394,13 +1394,8 @@ CONTAINS
 
 
             DO iatom = 1, num_species
-              ! pw_rho_temp%pw%cr3d(:, :, :) = 0.0_dp
-             ! CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_rho_temp%pw, rs2pw)
-             cdft_control%group(1)%gradients_x(iatom, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-             ! CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
-             ! cdft_control%group(1)%gradients(3*(iatom - 1)+1, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-             ! cdft_control%group(1)%gradients(3*(iatom - 1)+2, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
-             ! cdft_control%group(1)%gradients(3*(iatom - 1)+3, :, :, :) = pw_rho_temp%pw%cr3d(:, :, :)
+              atom_a = atom_list(iatom)
+             cdft_control%group(1)%gradients_x(atom_a, :, :, :) = atom_a(iatom)%pw%cr3d(:, :, :)
          END DO
          t2 = m_walltime()
          IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
