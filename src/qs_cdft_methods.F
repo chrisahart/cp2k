@@ -1368,7 +1368,7 @@ CONTAINS
 
            ! END DO
              DEALLOCATE (cores)
-             DEALLOCATE (rs_single_dr)
+
            END DO
 
 
@@ -1390,6 +1390,7 @@ CONTAINS
 
 
            END DO
+            DEALLOCATE (rs_single_dr)
 
              DEALLOCATE (pab)
           END DO
