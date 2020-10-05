@@ -835,6 +835,8 @@ CONTAINS
 
          DO igroup = 1, SIZE(cdft_control%group)
 
+           cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+
            CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
            use_data=REALDATA3D, in_space=REALSPACE)
            cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
@@ -843,22 +845,22 @@ CONTAINS
            use_data=REALDATA3D, in_space=REALSPACE)
            cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
 
-           DO iatom = 1, cdft_control%natoms
-
              IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+
+               DO iatom = 1, cdft_control%natoms
              CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
              use_data=REALDATA3D, in_space=REALSPACE)
              cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw%cr3d = 1.0_dp
+           END DO
            END IF
 
              IF (cdft_control%atomic_charges) THEN
+               DO iatom = 1, cdft_control%natoms
                CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw, &
              use_data=REALDATA3D, in_space=REALSPACE)
              cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d = 1.0_dp
-           END IF
-
            END DO
-           cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
+           END IF
          END DO
 
          t2 = m_walltime()
@@ -1039,27 +1041,25 @@ CONTAINS
           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
 
           ! Release grids that require looping over atoms
-          DO i = 1, cdft_control%natoms
+
             IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+              DO i = 1, cdft_control%natoms
               CALL rs_grid_release(rs_single(i)%rs_grid)
               CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic(i)%pw)
+              END DO
+              DEALLOCATE (rs_single)
+              DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
             END IF
 
             IF (cdft_control%atomic_charges) THEN
+              DO i = 1, cdft_control%natoms
               CALL rs_grid_release(rs_single_charge(i)%rs_grid)
               CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw)
-            END IF
-          END DO
-
-          ! Deallocate
-          IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-            DEALLOCATE (rs_single)
-            DEALLOCATE (cdft_control%group(1)%hw_rho_atomic)
-          END IF
-          IF (cdft_control%atomic_charges) THEN
+            END DO
             DEALLOCATE (rs_single_charge)
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
-          END IF
+            END IF
+
 
           t2 = m_walltime()
           IF (para_env%ionode) PRINT *, "Cleared memory before allocating gradient", t1-t2
@@ -1236,9 +1236,9 @@ CONTAINS
              atoms_memory_num = SIZE((/ (j, j = 1, num_species, atoms_memory)/))
 
              IF (num_species > atoms_memory) THEN
-               ALLOCATE (num_species_small(atoms_memory+1))
-               num_species_small(1:atoms_memory) = (/ (j, j = 1, num_species, atoms_memory) /)
-               num_species_small(atoms_memory+1) = num_species
+               ALLOCATE (num_species_small(atoms_memory_num+1))
+               num_species_small(1:atoms_memory_num) = (/ (j, j = 1, num_species, atoms_memory) /)
+               num_species_small(atoms_memory_num+1) = num_species
              ELSE
                ALLOCATE (num_species_small(2))
                num_species_small(:) = (/ 1, num_species /)
