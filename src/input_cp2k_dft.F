@@ -4464,14 +4464,6 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
-      ! CALL keyword_create(keyword, __LOCATION__, name="ATOMS_MEMORY", &
-      !                     description="atoms_memory", &
-      !                     usage="ATOMS_MEMORY", &
-      !                     n_var=1, type_of_var=integer_t, &
-      !                     default_i_val=20)
-      ! CALL section_add_keyword(section, keyword)
-      ! CALL keyword_release(keyword)
-
       CALL keyword_create(keyword, __LOCATION__, name="ATOMIC_CHARGES", &
                           description="Calculate atomic CDFT charges with selected weight function"// &
                           " (Z = Z_core - Z_CDFT). With fragment based constraints, charges are"// &
@@ -4516,7 +4508,6 @@ CONTAINS
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
-      !
 
       CALL keyword_create(keyword, __LOCATION__, name="FRAGMENT_A_FILE_NAME", variants=(/"FRAGMENT_A_FILE"/), &
                           description="Name of the reference total electron density cube file for fragment A."// &
@@ -4797,6 +4788,14 @@ CONTAINS
                           description="PRINT_DENSITY", &
                           usage="PRINT_DENSITY TRUE", &
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="ATOMS_MEMORY", &
+                          description="atoms_memory", &
+                          usage="ATOMS_MEMORY", &
+                          n_var=1, type_of_var=integer_t, &
+                          default_i_val=20)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
