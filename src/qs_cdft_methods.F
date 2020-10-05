@@ -1402,25 +1402,16 @@ CONTAINS
             ! IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
 
 
-           END DO
             DEALLOCATE (rs_single_dr)
             DEALLOCATE(num_species_small)
+
+          END DO
+
              DEALLOCATE (pab)
           END DO
 
           t2 = m_walltime()
-          IF (para_env%ionode) PRINT *, "Finished calculating rs_single_dr", t1-t2
-
-          DO iatom = 1, natom
-        END DO
-
-        t2 = m_walltime()
-        IF (para_env%ionode) PRINT *, "Finished calculating pw_single_dr", t1-t2
-
-
-
-
-            ! END IF
+          IF (para_env%ionode) PRINT *, "Finished calculating pw_single_dr", t1-t2
 
           DO igroup = 1, SIZE(cdft_control%group)
            ! ALLOCATE (cdft_control%group(igroup)%gradients(3*num_atoms, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
