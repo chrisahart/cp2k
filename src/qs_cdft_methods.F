@@ -1373,8 +1373,7 @@ CONTAINS
 
              ! DO iatom = 1, num_species
             DO iatom = num_species_small(k), num_species_small(k+1)
-               atom_a = atom_list(iatom)
-               CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(atom_a)%pw, rs2pw)
+               CALL rs_pw_transfer(rs_single_dr(iatom)%rs_grid, pw_single_dr(iatom)%pw, rs2pw)
                CALL rs_grid_release(rs_single_dr(iatom)%rs_grid)
             END DO
 
@@ -1395,7 +1394,8 @@ CONTAINS
 
             DO iatom = 1, num_species
               atom_a = atom_list(iatom)
-             cdft_control%group(1)%gradients_x(atom_a, :, :, :) = pw_single_dr(atom_a)%pw%cr3d(:, :, :)
+             cdft_control%group(1)%gradients_x(atom_a, :, :, :) = pw_single_dr(iatom)%pw%cr3d(:, :, :)
+             CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
          END DO
          t2 = m_walltime()
          IF (para_env%ionode) PRINT *, "Finished calculating gradients_x", t1-t2
@@ -1434,10 +1434,10 @@ CONTAINS
 
       IF (cdft_control%in_memory) THEN
 
-        DO iatom = 1, natom
-          CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
-        END DO
-        DEALLOCATE (pw_single_dr)
+        ! DO iatom = 1, natom
+        !   CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
+        ! END DO
+        ! DEALLOCATE (pw_single_dr)
 
         t2 = m_walltime()
         IF (para_env%ionode) PRINT *, "Finished deallocating pw_single_dr", t1-t2
