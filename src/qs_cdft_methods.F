@@ -1312,7 +1312,7 @@ CONTAINS
                 npme = 0
                 cores = 0
 
-                 DO iatom = 1, (num_species_small(k+1)-num_species_small(k))
+                 DO iatom = 1, SIZE(cores(num_species))
                   ! DO iatom = num_species_small(k), num_species_small(k+1)
 
                    atom_a = atom_list(iatom+(num_species_small(k)-1))
