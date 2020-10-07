@@ -2028,6 +2028,9 @@ CONTAINS
       CALL dbcsr_create(e_vectors, template=density_matrix_diff(1, 1)%matrix)
       DO ispin = 1, nspins
          ALLOCATE (evals(ncol_mo(ispin)))
+         IF (dft_control%qs_control%cdft_control%print_p .AND. force_env%para_env%ionode) PRINT *, "ncol_mo", ncol_mo
+
+         IF (force_env%para_env%ionode)
          DO ipermutation = 1, npermutations
             ! Take into account doubly occupied orbitals without LSD
             IF (nspins == 1) &
@@ -2037,7 +2040,7 @@ CONTAINS
                                 para_env=force_env%para_env, blacs_env=mixed_cdft%blacs_env)
             CALL dbcsr_release_p(density_matrix_diff(ipermutation, ispin)%matrix)
             DO j = 1, ncol_mo(ispin)
-              IF (force_env%para_env%ionode) PRINT *, "ispin j evals(j)", ispin, j, evals(j)
+              IF (dft_control%qs_control%cdft_control%print_p .AND. force_env%para_env%ionode ) PRINT *, evals(j)
                metric(ipermutation, ispin) = metric(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
             END DO
          END DO

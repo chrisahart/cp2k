@@ -4501,8 +4501,16 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="PRINT_P", &
+                          description="Print eigenvalues of density difference. Must be used in mixed CDFT. "// &
+                          "Useful for debugging.", &
+                          usage="PRINT_FORCE", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="ZERO_FORCE", &
-                          description="Set force equal zero. "// &
+                          description="Print p. "// &
                           "Useful for debugging.", &
                           usage="ZERO_FORCE", &
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
