@@ -631,7 +631,7 @@ CONTAINS
       hirshfeld_control%eps_cutoff = 1.0e-12_dp
       hirshfeld_control%atomic_cutoff = 1.0e-12_dp
       hirshfeld_control%shape_function = shape_function_gaussian
-      hirshfeld_control%atoms_memory = 20
+      hirshfeld_control%atoms_memory = 100
       hirshfeld_control%gaussian_shape = radius_single
       NULLIFY (hirshfeld_control%hirshfeld_env)
       NULLIFY (hirshfeld_control%radii)

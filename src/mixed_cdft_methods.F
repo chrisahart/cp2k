@@ -1518,6 +1518,7 @@ CONTAINS
             !
             CALL mp_sum(a(ispin, :, ipermutation), force_env%para_env%group)
             CALL mp_sum(b(ispin, :, ipermutation), force_env%para_env%group)
+
          END DO
          ! Release work
          CALL cp_fm_release(tmp2)
@@ -2036,6 +2037,7 @@ CONTAINS
                                 para_env=force_env%para_env, blacs_env=mixed_cdft%blacs_env)
             CALL dbcsr_release_p(density_matrix_diff(ipermutation, ispin)%matrix)
             DO j = 1, ncol_mo(ispin)
+              IF (force_env%para_env%ionode) PRINT *, "ispin j evals(j)", ispin, j, evals(j)
                metric(ipermutation, ispin) = metric(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
             END DO
          END DO
