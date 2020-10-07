@@ -286,6 +286,7 @@ CONTAINS
             END IF
             ! Metric/Wavefunction overlap method/Lowdin orthogonalization/CDFT-CI
             mixed_cdft%calculate_metric = .FALSE.
+            mixed_cdft%print_p = .FALSE.
             mixed_cdft%wfn_overlap_method = .FALSE.
             mixed_cdft%use_lowdin = .FALSE.
             mixed_cdft%do_ci = .FALSE.
@@ -295,6 +296,8 @@ CONTAINS
             IF (mixed_env%do_mixed_et) THEN
                CALL section_vals_val_get(mixed_section, "MIXED_CDFT%METRIC", &
                                          l_val=mixed_cdft%calculate_metric)
+              CALL section_vals_val_get(mixed_section, "MIXED_CDFT%PRINT_P", &
+                                        l_val=mixed_cdft%print_p)
                CALL section_vals_val_get(mixed_section, "MIXED_CDFT%WFN_OVERLAP", &
                                          l_val=mixed_cdft%wfn_overlap_method)
                CALL section_vals_val_get(mixed_section, "MIXED_CDFT%LOWDIN", &
@@ -2028,9 +2031,8 @@ CONTAINS
       CALL dbcsr_create(e_vectors, template=density_matrix_diff(1, 1)%matrix)
       DO ispin = 1, nspins
          ALLOCATE (evals(ncol_mo(ispin)))
-         IF (dft_control%qs_control%cdft_control%print_p .AND. force_env%para_env%ionode) PRINT *, "ncol_mo", ncol_mo
+         IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, "ncol_mo", ncol_mo
 
-         IF (force_env%para_env%ionode)
          DO ipermutation = 1, npermutations
             ! Take into account doubly occupied orbitals without LSD
             IF (nspins == 1) &
@@ -2040,7 +2042,7 @@ CONTAINS
                                 para_env=force_env%para_env, blacs_env=mixed_cdft%blacs_env)
             CALL dbcsr_release_p(density_matrix_diff(ipermutation, ispin)%matrix)
             DO j = 1, ncol_mo(ispin)
-              IF (dft_control%qs_control%cdft_control%print_p .AND. force_env%para_env%ionode ) PRINT *, evals(j)
+              IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, evals(j)
                metric(ipermutation, ispin) = metric(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
             END DO
          END DO

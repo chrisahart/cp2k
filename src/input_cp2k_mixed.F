@@ -195,6 +195,15 @@ CONTAINS
       CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="PRINT_P", &
+                          description="Print eigenvalues of density difference matrix. "// &
+                          "Useful for debugging.", &
+                          usage="PRINT_P", type_of_var=logical_t, &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE., &
+                          citations=(/Mavros2015/))
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="WFN_OVERLAP", &
                           description="Compute the CDFT electronic coupling element using the wavefunction overlap "// &
                           "method in addition to the standard method defined by the keyword COUPLING. "// &

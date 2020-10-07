@@ -212,6 +212,7 @@ MODULE mixed_cdft_types
       LOGICAL                                          :: is_pencil, dlb, &
                                                           is_special, first_iteration, &
                                                           calculate_metric, &
+                                                          print_p, &
                                                           wfn_overlap_method, &
                                                           has_unit_metric, &
                                                           use_lowdin, &

@@ -636,7 +636,6 @@ CONTAINS
     CALL section_vals_val_get(cdft_control_section, "IN_MEMORY", &
                               l_val=cdft_control%in_memory)
     CALL section_vals_val_get(cdft_control_section, "PRINT_FORCE", l_val=cdft_control%print_force)
-    CALL section_vals_val_get(cdft_control_section, "PRINT_P", l_val=cdft_control%print_p)
     CALL section_vals_val_get(cdft_control_section, "ZERO_FORCE", l_val=cdft_control%zero_force)
     CALL section_vals_val_get(cdft_control_section, "DEBUG", l_val=cdft_control%debug)
     ! Parse any dummy atoms (no constraint, just charges)

@@ -261,7 +261,7 @@ MODULE qs_cdft_types
                                               fragments_integrated, flip_fragment(2), &
                                               transfer_pot, external_control, &
                                               first_iteration, print_weight, in_memory, &
-                                              print_force, zero_force, debug, print_p
+                                              print_force, zero_force, debug
       LOGICAL, POINTER, DIMENSION(:)       :: is_constraint
       REAL(KIND=dp), DIMENSION(:), POINTER :: strength, TARGET, value
       REAL(KIND=dp), POINTER, &
@@ -431,7 +431,6 @@ CONTAINS
       cdft_control%print_force = .FALSE.
       cdft_control%zero_force = .FALSE.
       cdft_control%debug = .FALSE.
-      cdft_control%print_p = .FALSE.
       cdft_control%purge_freq = 0
       cdft_control%nbad_conv = 0
       cdft_control%purge_offset = 0
