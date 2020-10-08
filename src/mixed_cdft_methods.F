@@ -2018,6 +2018,7 @@ CONTAINS
 
       INTEGER                                            :: handle, ipermutation, ispin, j, &
                                                             nforce_eval, npermutations, nspins
+      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: total_eigenvalue
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: evals
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: metric
       TYPE(dbcsr_type)                                   :: e_vectors
@@ -2027,6 +2028,7 @@ CONTAINS
       npermutations = nforce_eval*(nforce_eval - 1)/2
       nspins = SIZE(density_matrix_diff, 2)
       ALLOCATE (metric(npermutations, nspins))
+      ALLOCATE (total_eigenvalue(nspins))
       metric = 0.0_dp
       CALL dbcsr_create(e_vectors, template=density_matrix_diff(1, 1)%matrix)
       DO ispin = 1, nspins
@@ -2043,13 +2045,16 @@ CONTAINS
             CALL dbcsr_release_p(density_matrix_diff(ipermutation, ispin)%matrix)
             DO j = 1, ncol_mo(ispin)
               IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, evals(j)
+              IF (mixed_cdft%print_p) total_eigenvalue(ispin) = total_eigenvalue(ispin) + evals(j)
                metric(ipermutation, ispin) = metric(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
             END DO
+            IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'total_eigenvalue', total_eigenvalue(ispin)
          END DO
          DEALLOCATE (evals)
       END DO
       CALL dbcsr_release(e_vectors)
       DEALLOCATE (density_matrix_diff)
+      DEALLOCATE (total_eigenvalue)
       metric(:, :) = metric(:, :)/4.0_dp
       CALL mixed_cdft_result_type_set(mixed_cdft%results, metric=metric)
       DEALLOCATE (metric)
