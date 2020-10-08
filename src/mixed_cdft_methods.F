@@ -2020,7 +2020,7 @@ CONTAINS
                                                             nforce_eval, npermutations, nspins
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: total_eigenvalue
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: evals
-      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: metric
+      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: metric, metric2
       TYPE(dbcsr_type)                                   :: e_vectors
 
       CALL timeset(routineN, handle)
@@ -2028,8 +2028,10 @@ CONTAINS
       npermutations = nforce_eval*(nforce_eval - 1)/2
       nspins = SIZE(density_matrix_diff, 2)
       ALLOCATE (metric(npermutations, nspins))
+      ALLOCATE (metric2(npermutations, nspins))
       ALLOCATE (total_eigenvalue(nspins))
       metric = 0.0_dp
+      metric2 = 0.0_dp
       CALL dbcsr_create(e_vectors, template=density_matrix_diff(1, 1)%matrix)
       DO ispin = 1, nspins
          ALLOCATE (evals(ncol_mo(ispin)))
@@ -2043,12 +2045,22 @@ CONTAINS
             CALL cp_dbcsr_syevd(density_matrix_diff(ipermutation, ispin)%matrix, e_vectors, evals, &
                                 para_env=force_env%para_env, blacs_env=mixed_cdft%blacs_env)
             CALL dbcsr_release_p(density_matrix_diff(ipermutation, ispin)%matrix)
+
             DO j = 1, ncol_mo(ispin)
-              IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, evals(j)
-              IF (mixed_cdft%print_p) total_eigenvalue(ispin) = total_eigenvalue(ispin) + evals(j)
                metric(ipermutation, ispin) = metric(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
             END DO
-            IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'total_eigenvalue', total_eigenvalue(ispin)
+
+            IF (mixed_cdft%print_p) THEN
+              DO j = 1, ncol_mo(ispin)
+                IF (force_env%para_env%ionode) PRINT *, evals(j)
+                total_eigenvalue(ispin) = total_eigenvalue(ispin) + evals(j)
+                 IF ((evals(j)**2 - evals(j)**4) < 1.0_dp) THEN
+                   metric2(ipermutation, ispin) = metric2(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
+                 END IF
+              END DO
+            IF (force_env%para_env%ionode) PRINT *, 'total_eigenvalue', total_eigenvalue(ispin)
+            END IF
+
          END DO
          DEALLOCATE (evals)
       END DO
@@ -2056,8 +2068,12 @@ CONTAINS
       DEALLOCATE (density_matrix_diff)
       DEALLOCATE (total_eigenvalue)
       metric(:, :) = metric(:, :)/4.0_dp
+      metric2(:, :) = metric2(:, :)/4.0_dp
+      IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'metric', metric
+      IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'metric2', metric2
       CALL mixed_cdft_result_type_set(mixed_cdft%results, metric=metric)
       DEALLOCATE (metric)
+      DEALLOCATE (metric2)
       CALL timestop(handle)
 
    END SUBROUTINE mixed_cdft_calculate_metric
