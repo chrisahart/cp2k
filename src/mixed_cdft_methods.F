@@ -2054,7 +2054,7 @@ CONTAINS
               DO j = 1, ncol_mo(ispin)
                 IF (force_env%para_env%ionode) PRINT *, evals(j)
                 total_eigenvalue(ispin) = total_eigenvalue(ispin) + evals(j)
-                 IF (evals(j) < 1.0_dp) THEN
+                 IF (ABS(evals(j)) < 1.0_dp) THEN
                    metric2(ipermutation, ispin) = metric2(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
                  END IF
               END DO
