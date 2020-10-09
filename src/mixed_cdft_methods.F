@@ -2048,13 +2048,13 @@ CONTAINS
             CALL cp_dbcsr_syevd(density_matrix_diff(ipermutation, ispin)%matrix, e_vectors, evals, &
                                 para_env=force_env%para_env, blacs_env=mixed_cdft%blacs_env)
             CALL dbcsr_release_p(density_matrix_diff(ipermutation, ispin)%matrix)
-            evals2 = evals / (evals(1) / 1)
 
             DO j = 1, ncol_mo(ispin)
                metric(ipermutation, ispin) = metric(ipermutation, ispin) + (evals(j)**2 - evals(j)**4)
             END DO
 
             IF (mixed_cdft%print_p) THEN
+              evals2 = evals / (evals(1) / 1)
               DO j = 1, ncol_mo(ispin)
                 IF (force_env%para_env%ionode) PRINT *, evals(j)
                 total_eigenvalue(ispin) = total_eigenvalue(ispin) + evals(j)
@@ -2067,23 +2067,23 @@ CONTAINS
             END IF
 
          END DO
-         DEALLOCATE (evals)
-         DEALLOCATE (evals2)
+         IF (mixed_cdft%print_p) DEALLOCATE (evals)
+         IF (mixed_cdft%print_p) DEALLOCATE (evals2)
       END DO
       CALL dbcsr_release(e_vectors)
       DEALLOCATE (density_matrix_diff)
       DEALLOCATE (total_eigenvalue)
       metric(:, :) = metric(:, :)/4.0_dp
-      metric2(:, :) = metric2(:, :)/4.0_dp
-      metric3(:, :) = metric3(:, :)/4.0_dp
+      IF (mixed_cdft%print_p) metric2(:, :) = metric2(:, :)/4.0_dp
+      IF (mixed_cdft%print_p) metric3(:, :) = metric3(:, :)/4.0_dp
 
       IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'metric', metric
       IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'metric2', metric2
       IF (mixed_cdft%print_p .AND. force_env%para_env%ionode) PRINT *, 'metric2', metric3
       CALL mixed_cdft_result_type_set(mixed_cdft%results, metric=metric)
       DEALLOCATE (metric)
-      DEALLOCATE (metric2)
-      DEALLOCATE (metric3)
+      IF (mixed_cdft%print_p) DEALLOCATE (metric2)
+      IF (mixed_cdft%print_p) DEALLOCATE (metric3)
       CALL timestop(handle)
 
    END SUBROUTINE mixed_cdft_calculate_metric
