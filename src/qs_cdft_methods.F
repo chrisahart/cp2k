@@ -884,6 +884,9 @@ CONTAINS
           ! Loop over each CDFT group
          DO igroup = 1, SIZE(cdft_control%group)
 
+           CALL rs_grid_zero(rs_rho_all)
+           CALL rs_grid_zero(rs_rho_constr)
+
          ALLOCATE (pab(1, 1))
          nthread = 1
          ithread = 0
@@ -987,8 +990,8 @@ CONTAINS
          DEALLOCATE (pab)
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
-         CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
-         CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
+         CALL rs_pw_transfer(rs_rho_all, cdft_control%group(igroup)%hw_rho_total%pw, rs2pw)
+         CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(igroup)%hw_rho_total_constraint%pw, rs2pw)
 
          ! Calculate weight function
            CALL hfun_scale2(cdft_control%group(igroup)%weight%pw%cr3d, &
@@ -1001,8 +1004,8 @@ CONTAINS
             DO i = 1, cdft_control%natoms
             CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
             CALL hfun_scale2(cdft_control%charge(iatom)%pw%cr3d, &
-                               cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
-                               cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
+                               cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
+                               cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
           END DO
         END IF
 
@@ -1018,7 +1021,6 @@ CONTAINS
         END IF
 
           ! Clear memory before allocating gradient (very memory expensive)
-          CALL rs_grid_release(rs_rho_constr)
           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
 
           ! Release grids that require looping over atoms
