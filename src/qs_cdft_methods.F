@@ -951,7 +951,7 @@ CONTAINS
                   END IF
 
                   ! Calculate atomic density rs_single for printing density
-                  IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+                  IF (hirshfeld_control%print_density .AND. igroup == 1) THEN
                     IF (is_constraint(atom_a)) THEN
                     DO iatom = 1, cdft_control%natoms
                       IF (atom_a == cdft_control%atoms(iatom)) EXIT
@@ -985,56 +985,37 @@ CONTAINS
             DEALLOCATE (cores)
          END DO
          DEALLOCATE (pab)
-       END DO
-
-         ! t2 = m_walltime()
-         ! IF (para_env%ionode) PRINT *, "Finished calculating density", t1-t2
-         ! IF (para_env%ionode) PRINT *,  "eps_rho_rspace", eps_rho_rspace
 
          ! Transfer rs to pw (annoying but necessary as electroc density is stored on pw grid)
          CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total%pw, rs2pw)
          CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(1)%hw_rho_total_constraint%pw, rs2pw)
 
          ! Calculate weight function
-         DO igroup = 1, SIZE(cdft_control%group)
            CALL hfun_scale2(cdft_control%group(igroup)%weight%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
-        END DO
         ! t2 = m_walltime()
         ! IF (para_env%ionode) PRINT *, "Finished calculating weight function", t1-t2
 
-        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-          DO i = 1, cdft_control%natoms
-          CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic(i)%pw, rs2pw)
-        END DO
-        END IF
-
-          IF (cdft_control%atomic_charges) THEN
+         IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             DO i = 1, cdft_control%natoms
             CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
+            CALL hfun_scale2(cdft_control%charge(iatom)%pw%cr3d, &
+                               cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
+                               cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
           END DO
         END IF
 
-           ! Calculate atomic charges if requested
-           IF (cdft_control%atomic_charges) THEN
-             DO iatom = 1, cdft_control%natoms
-               CALL hfun_scale2(cdft_control%charge(iatom)%pw%cr3d, &
-                                  cdft_control%group(1)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
-                                  cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
-           END DO
-           ! t2 = m_walltime()
-           ! IF (para_env%ionode) PRINT *, "Finished calculating charges", t1-t2
-         END IF
+       END DO
 
+        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+          DO i = 1, cdft_control%natoms
+          CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(igroup)%hw_rho_atomic(i)%pw, rs2pw)
+        END DO
 
-           ! Print atomic densities if requested
-           IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
-             CALL cdft_print_hirshfeld_density(qs_env)
-             ! t2 = m_walltime()
-             ! IF (para_env%ionode) PRINT *, "Finished calculating printing density", t1-t2
-            END IF
-
+        ! Print atomic densities if requested
+          CALL cdft_print_hirshfeld_density(qs_env)
+        END IF
 
           ! Clear memory before allocating gradient (very memory expensive)
           CALL rs_grid_release(rs_rho_constr)
