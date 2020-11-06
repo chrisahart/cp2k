@@ -1014,11 +1014,11 @@ CONTAINS
           CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(igroup)%hw_rho_atomic(i)%pw, rs2pw)
         END DO
 
-       END DO
-
         ! Print atomic densities if requested
           CALL cdft_print_hirshfeld_density(qs_env)
         END IF
+
+       END DO
 
           ! Clear memory before allocating gradient (very memory expensive)
           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total_constraint%pw)
