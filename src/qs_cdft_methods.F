@@ -1009,12 +1009,12 @@ CONTAINS
           END DO
         END IF
 
-       END DO
-
-        IF (hirshfeld_control%print_density .eqv. .TRUE.) THEN
+        IF (hirshfeld_control%print_density .AND. igroup == 1) THEN
           DO i = 1, cdft_control%natoms
           CALL rs_pw_transfer(rs_single(i)%rs_grid, cdft_control%group(igroup)%hw_rho_atomic(i)%pw, rs2pw)
         END DO
+
+       END DO
 
         ! Print atomic densities if requested
           CALL cdft_print_hirshfeld_density(qs_env)
