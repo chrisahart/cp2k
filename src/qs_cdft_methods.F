@@ -1003,8 +1003,8 @@ CONTAINS
          IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
             DO i = 1, cdft_control%natoms
             CALL rs_pw_transfer(rs_single_charge(i)%rs_grid, cdft_control%group(1)%hw_rho_atomic_charge(i)%pw, rs2pw)
-            CALL hfun_scale2(cdft_control%charge(iatom)%pw%cr3d, &
-                               cdft_control%group(igroup)%hw_rho_atomic_charge(iatom)%pw%cr3d, &
+            CALL hfun_scale2(cdft_control%charge(i)%pw%cr3d, &
+                               cdft_control%group(igroup)%hw_rho_atomic_charge(i)%pw%cr3d, &
                                cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
           END DO
         END IF
