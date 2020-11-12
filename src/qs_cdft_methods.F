@@ -1616,14 +1616,15 @@ CONTAINS
                                   CPABORT("Unknown constraint type.")
                                END SELECT
 
-                               ! Integrate gradient of weight function
-                               ! cdft_control%group(igroup)%integrated(:, iatom) = &
-                               !   cdft_control%group(igroup)%integrated(:, iatom) + &
-                               !   cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
-                               !   * rho_r(ispin)%pw%cr3d(i, j, k) &
-                               !   * dvol
+                               IF (cdft_control%type == outer_scf_becke_constraint) THEN
 
-                               ! IF (para_env%ionode) PRINT *, "iatom", iatom
+                                 cdft_control%group(igroup)%integrated(:, iatom) = &
+                                   cdft_control%group(igroup)%integrated(:, iatom) + &
+                                   cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                                   * rho_r(ispin)%pw%cr3d(i, j, k) &
+                                   * dvol
+
+                               ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
 
                                  cdft_control%group(igroup)%integrated(1, iatom) = &
                                    cdft_control%group(igroup)%integrated(1, iatom) &
@@ -1643,6 +1644,8 @@ CONTAINS
                                        * rho_r(ispin)%pw%cr3d(i, j, k) &
                                        * dvol
 
+                               END IF
+                               
                             END DO
                          END DO
                       END DO
@@ -1682,11 +1685,14 @@ CONTAINS
                                END SELECT
 
                                ! Integrate gradient of weight function
-                               ! cdft_control%group(igroup)%integrated(:, iatom) = &
-                               !   cdft_control%group(igroup)%integrated(:, iatom) + &
-                               !   cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
-                               !   * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+                               IF (cdft_control%type == outer_scf_becke_constraint) THEN
 
+                                 cdft_control%group(igroup)%integrated(:, iatom) = &
+                                   cdft_control%group(igroup)%integrated(:, iatom) + &
+                                   cdft_control%group(igroup)%gradients(3*(iatom - 1)+1:3*(iatom - 1) + 3, i, j, k) &
+                                   * rho_r(ispin)%pw%cr3d(i, j, k) * dvol
+
+                               ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
 
                                  cdft_control%group(igroup)%integrated(1, iatom) = &
                                    cdft_control%group(igroup)%integrated(1, iatom) &
@@ -1705,6 +1711,9 @@ CONTAINS
                                        + cdft_control%group(igroup)%gradients_z(iatom, i, j, k) &
                                        * rho_r(ispin)%pw%cr3d(i, j, k) &
                                        * dvol
+
+                               END IF
+
                             END DO
                          END DO
                       END DO
@@ -1732,7 +1741,6 @@ CONTAINS
                 DEALLOCATE (cdft_control%group(1)%gradients_x)
                 DEALLOCATE (cdft_control%group(1)%gradients_y)
                 DEALLOCATE (cdft_control%group(1)%gradients_z)
-
              END DO
           END IF
 
