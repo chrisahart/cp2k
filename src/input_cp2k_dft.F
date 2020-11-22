@@ -4501,10 +4501,10 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
-      CALL keyword_create(keyword, __LOCATION__, name="ZERO_FORCE", &
-                          description="Print p. "// &
+      CALL keyword_create(keyword, __LOCATION__, name="ENERGY_ONLY", &
+                          description="Do not calculate CDFT forces. "// &
                           "Useful for debugging.", &
-                          usage="ZERO_FORCE", &
+                          usage="ENERGY_ONLY", &
                           default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)

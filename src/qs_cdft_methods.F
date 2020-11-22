@@ -735,7 +735,6 @@ CONTAINS
       t1 = m_walltime()
       num_atoms = natom
 
-
       ! IF (para_env%ionode) PRINT *, "start hirshfeld_constraint_low"
 
       ! Pointers
@@ -1043,9 +1042,8 @@ CONTAINS
             DEALLOCATE (cdft_control%group(1)%hw_rho_atomic_charge)
             END IF
 
-           ! Set up gradient
-          IF (cdft_control%in_memory) THEN
-
+           ! Allocate gradient
+          IF (cdft_control%in_memory ) THEN
              DO igroup = 1, SIZE(cdft_control%group)
               ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
               cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
@@ -1056,7 +1054,7 @@ CONTAINS
 
           END IF
 
-          IF (cdft_control%in_memory) THEN
+          IF (cdft_control%in_memory .AND. .NOT. cdft_control%energy_only) THEN
 
              DO igroup = 1, SIZE(cdft_control%group)
 
@@ -1318,7 +1316,7 @@ CONTAINS
      END IF
 
       ! Calculate gradient if requested
-          IF (cdft_control%in_memory) THEN
+      IF (cdft_control%in_memory .AND. .NOT. cdft_control%energy_only) THEN
             ! PRINT *, "Calculate gradient"
 
             DO k = lb_pw(3), ub_pw(3)
@@ -1421,6 +1419,7 @@ CONTAINS
 
                 END DO ! iatom = 1, natom
               ! END DO ! ikind = 1, SIZE(atomic_kind_set)
+              CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw)
             END DO ! igroup = 1, SIZE(cdft_control%group)
             t2 = m_walltime()
             ! IF (para_env%ionode) PRINT *, "Finished calculating gradients", t1-t2
@@ -1429,7 +1428,7 @@ CONTAINS
            ! DEALLOCATE (pab)
 
            CALL rs_grid_release(rs_rho_all)
-           CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
+
            DEALLOCATE (coefficients)
 
           ! Deallocate if allocated
@@ -1645,7 +1644,7 @@ CONTAINS
                                        * dvol
 
                                END IF
-                               
+
                             END DO
                          END DO
                       END DO
