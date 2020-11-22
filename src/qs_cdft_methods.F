@@ -1429,6 +1429,12 @@ CONTAINS
 
            CALL rs_grid_release(rs_rho_all)
 
+           IF (cdft_control%energy_only) THEN
+            DO igroup = 1, SIZE(cdft_control%group)
+              CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw)
+            END DO
+          END IF
+
            DEALLOCATE (coefficients)
 
           ! Deallocate if allocated
