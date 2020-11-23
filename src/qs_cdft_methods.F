@@ -886,6 +886,10 @@ CONTAINS
            CALL rs_grid_zero(rs_rho_all)
            CALL rs_grid_zero(rs_rho_constr)
 
+           DO i = 1, cdft_control%natoms
+              CALL rs_grid_zero(rs_single(i)%rs_grid)
+              END DO
+
          ALLOCATE (pab(1, 1))
          nthread = 1
          ithread = 0
@@ -1043,7 +1047,7 @@ CONTAINS
             END IF
 
            ! Allocate gradient
-          IF (cdft_control%in_memory ) THEN
+          IF (cdft_control%in_memory) THEN
              DO igroup = 1, SIZE(cdft_control%group)
               ALLOCATE (cdft_control%group(igroup)%gradients_x(1*natom, lb_pw(1):ub_pw(1), lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
               cdft_control%group(igroup)%gradients_x(:, :, :, :) = 0.0_dp
@@ -1233,7 +1237,7 @@ CONTAINS
 
             DO iatom = 1, num_species
               atom_a = atom_list(iatom)
-             cdft_control%group(1)%gradients_x(atom_a, :, :, :) = pw_single_dr(iatom)%pw%cr3d(:, :, :)
+             cdft_control%group(igroup)%gradients_x(atom_a, :, :, :) = pw_single_dr(iatom)%pw%cr3d(:, :, :)
              CALL pw_pool_give_back_pw(auxbas_pw_pool, pw_single_dr(iatom)%pw)
          END DO
          ! t2 = m_walltime()
@@ -1580,12 +1584,22 @@ CONTAINS
            END IF
         END IF
 
-        ! PRINT *, "calculating integrated"
-      !   DO igroup = 1, SIZE(cdft_control%group)
-      !   IF (cdft_control%zero_force) THEN
-      !     cdft_control%group(igroup)%gradients = 0.0_dp
-      !   END IF
-      ! END DO
+
+      ! Zero gradient if ENERGY_ONLY
+      IF (cdft_control%energy_only) THEN
+        IF (cdft_control%type == outer_scf_becke_constraint) THEN
+          DO igroup = 1, SIZE(group)
+             cdft_control%group(igroup)%gradients = 0.0_dp
+          END DO
+
+        ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
+         DO igroup = 1, SIZE(group)
+           cdft_control%group(igroup)%gradients_x = 0.0_dp
+           cdft_control%group(igroup)%gradients_y = 0.0_dp
+           cdft_control%group(igroup)%gradients_z = 0.0_dp
+         END DO
+       END IF
+      END IF
 
           ! If no Becke Gaussian confinement
           IF (.NOT. ASSOCIATED(cdft_control%becke_control%cavity_mat)) THEN
@@ -1742,13 +1756,18 @@ CONTAINS
           ! END IF
 
           IF (.NOT. cdft_control%transfer_pot) THEN
+            IF (cdft_control%type == outer_scf_becke_constraint) THEN
+              DO igroup = 1, SIZE(group)
+                 DEALLOCATE (cdft_control%group(igroup)%gradients)
+              END DO
+            ELSE IF (cdft_control%type == outer_scf_hirshfeld_constraint) THEN
              DO igroup = 1, SIZE(group)
-                DEALLOCATE (cdft_control%group(1)%gradients_x)
-                DEALLOCATE (cdft_control%group(1)%gradients_y)
-                DEALLOCATE (cdft_control%group(1)%gradients_z)
+                DEALLOCATE (cdft_control%group(igroup)%gradients_x)
+                DEALLOCATE (cdft_control%group(igroup)%gradients_y)
+                DEALLOCATE (cdft_control%group(igroup)%gradients_z)
              END DO
+           END IF
           END IF
-
 
           DO igroup = 1, SIZE(group)
              CALL mp_sum(group(igroup)%integrated, para_env%group)
