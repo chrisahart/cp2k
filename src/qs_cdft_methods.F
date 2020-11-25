@@ -998,7 +998,7 @@ CONTAINS
       DO igroup = 1, SIZE(cdft_control%group)
 
         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw)
-        IF (.NOT. cdft_control%in_memory) CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw)
+        IF (.NOT. cdft_control%in_memory) CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
 
           IF (hirshfeld_control%print_density .AND. igroup == 1) THEN
             DO i = 1, cdft_control%natoms
