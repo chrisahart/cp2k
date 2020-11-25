@@ -1000,7 +1000,7 @@ CONTAINS
         CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw)
 
         IF (.NOT. cdft_control%in_memory .AND. igroup == 1) THEN
-          pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
+          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
         END IF
 
           IF (hirshfeld_control%print_density .AND. igroup == 1) THEN
