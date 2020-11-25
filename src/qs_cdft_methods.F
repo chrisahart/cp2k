@@ -1173,11 +1173,10 @@ CONTAINS
       IF (cdft_control%in_memory .AND. .NOT. cdft_control%energy_only) THEN
             ! PRINT *, "Calculate gradient"
 
+          DO igroup = 1, SIZE(cdft_control%group)
             DO k = lb_pw(3), ub_pw(3)
               DO j = lb_pw(2), ub_pw(2)
                 DO i = lb_pw(1), ub_pw(1)
-
-            DO igroup = 1, SIZE(cdft_control%group)
                 DO iatom = 1, natom
 
                   ra(:) = particle_set(iatom)%r
