@@ -1212,7 +1212,9 @@ CONTAINS
                   END DO ! k = lb(3), ub(3)
                 END DO ! iatom = 1, natom
 
-              CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw)
+                IF (igroup == 1) THEN
+                  CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total%pw)
+                END IF
               CALL rs_grid_release(rs_rho_all)
             END DO ! igroup = 1, SIZE(cdft_control%group)
             ! t2 = m_walltime()
