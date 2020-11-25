@@ -816,14 +816,14 @@ CONTAINS
       ! Setup pw
       cdft_control%group(igroup)%weight%pw%cr3d = 0.0_dp
 
-      CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw, &
-      use_data=REALDATA3D, in_space=REALSPACE)
-      cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
+      CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
+       use_data=REALDATA3D, in_space=REALSPACE)
+       cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
 
       IF (igroup == 1) THEN
-          CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
-           use_data=REALDATA3D, in_space=REALSPACE)
-           cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d = 1.0_dp
+        CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total%pw, &
+        use_data=REALDATA3D, in_space=REALSPACE)
+        cdft_control%group(igroup)%hw_rho_total%pw%cr3d = 1.0_dp
 
         IF (hirshfeld_control%print_density) THEN
           DO iatom = 1, cdft_control%natoms
@@ -972,7 +972,7 @@ CONTAINS
          ! Calculate weight function
            CALL hfun_scale2(cdft_control%group(igroup)%weight%pw%cr3d, &
                               cdft_control%group(igroup)%hw_rho_total_constraint%pw%cr3d, &
-                              cdft_control%group(igroup)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
+                              cdft_control%group(1)%hw_rho_total%pw%cr3d, divide=.TRUE., small=hirshfeld_control%eps_cutoff)
 
          ! Calculate charges
          IF (cdft_control%atomic_charges .AND. igroup == 1) THEN
