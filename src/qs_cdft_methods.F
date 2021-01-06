@@ -898,7 +898,7 @@ CONTAINS
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
                                              rs_rho_all, cell, cube_info, eps_rho_rspace, &
                                              ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
-                                             subpatch_pattern=subpatch_pattern)
+                                             subpatch_pattern=subpatch_pattern, lmax_global=0)
                  END IF
 
                   ! Calculate constraint density rs_rho_constr
@@ -908,7 +908,7 @@ CONTAINS
                                                 pab, 0, 0, rs_rho_constr, cell, cube_info, &
                                                 eps_rho_rspace, &
                                                 ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
-                                                subpatch_pattern=subpatch_pattern)
+                                                subpatch_pattern=subpatch_pattern, lmax_global=0)
                   END IF
 
                   ! Calculate atomic density rs_single for printing density
@@ -922,7 +922,7 @@ CONTAINS
                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
                                                rs_single(iatom)%rs_grid, cell, cube_info, eps_rho_rspace, &
                                                ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
-                                               subpatch_pattern=subpatch_pattern)
+                                               subpatch_pattern=subpatch_pattern, lmax_global=0)
                  END IF
                END IF
 
@@ -937,7 +937,7 @@ CONTAINS
                                                    (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
                                                    rs_single_charge(iatom)%rs_grid, cell, cube_info, eps_rho_rspace, &
                                                    ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
-                                                   subpatch_pattern=subpatch_pattern)
+                                                   subpatch_pattern=subpatch_pattern, lmax_global=0)
                      END IF
                   END IF
 
@@ -1104,21 +1104,12 @@ CONTAINS
                ra(:) = pbc(particle_set(atom_a)%r, cell)
                subpatch_pattern = 0
 
-                   ! Calculate cutoff (Juerg Hutter code)
-                  IF (hirshfeld_control%use_atomic_cutoff) THEN
-                    radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                      ra=ra, rb=ra, rp=ra, &
-                                                      zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
-                                                      pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                      prefactor=1.0_dp, cutoff=0.0_dp)
-                  END IF
-
                       CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, prefactor, &
                                                 pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1))%rs_grid, &
                                                 cell, cube_info, eps_rho_rspace, &
                                                 ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
-                                                subpatch_pattern=subpatch_pattern)
+                                                subpatch_pattern=subpatch_pattern, lmax_global=0)
 
                    END DO
              END DO
