@@ -1557,7 +1557,8 @@ CONTAINS
                    PRINT *, "cdft_constraint_force"
                    PRINT *, "iatom i", iatom, i
                    PRINT *, "group(igroup)%integrated(:, iatom)", group(igroup)%integrated(:, iatom)
-                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", group(igroup)%integrated(:, iatom)*strength(igroup)
+                   PRINT *, "group(igroup)%integrated(:, iatom)*strength(igroup)", &
+                            group(igroup)%integrated(:, iatom)*strength(igroup)
                    PRINT *, "force(ikind)%rho_elec(:, i)", force(ikind)%rho_elec(:, i)
                    PRINT *, "force(ikind)%total(:, i) i", force(ikind)%total(:, i)
                 END DO
