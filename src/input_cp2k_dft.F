@@ -4551,6 +4551,40 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="PRINT_DENSITY", &
+                          description="PRINT_DENSITY", &
+                          usage="PRINT_DENSITY TRUE", &
+                          default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="ATOMS_MEMORY", &
+                          description="atoms_memory", &
+                          usage="ATOMS_MEMORY", &
+                          n_var=1, type_of_var=integer_t, &
+                          default_i_val=20)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="USE_ATOMIC_CUTOFF", &
+                          description="USE_ATOMIC_CUTOFF", &
+                          usage="USE_ATOMIC_CUTOFF TRUE", &
+                          default_l_val=.TRUE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="EPS_CUTOFF", &
+                          description="Density threshold for constraint.", &
+                          usage="EPS_CUTOFF {real} ", default_r_val=1.0e-12_dp)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="ATOMIC_CUTOFF", &
+                          description="Density threshold for constraint.", &
+                          usage="ATOMIC_CUTOFF {real} ", default_r_val=1.0e-12_dp)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
    END SUBROUTINE create_hirshfeld_constraint_section
 
 ! **************************************************************************************************

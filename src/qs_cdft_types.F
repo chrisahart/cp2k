@@ -1,6 +1,6 @@
 !--------------------------------------------------------------------------------------------------!
 !   CP2K: A general program to perform molecular dynamics simulations                              !
-!   Copyright (C) 2000 - 2019  CP2K developers group                                               !
+!   Copyright (C) 2000 - 2020  CP2K developers group                                               !
 !--------------------------------------------------------------------------------------------------!
 
 ! **************************************************************************************************
@@ -25,6 +25,9 @@ MODULE qs_cdft_types
                                               qs_outer_scf_type
    USE pw_types,                        ONLY: pw_p_type
    USE qs_cdft_opt_types,               ONLY: cdft_opt_type_release
+   USE realspace_grid_types,            ONLY: &
+        realspace_grid_desc_type, realspace_grid_p_type, realspace_grid_type, rs2pw, &
+        rs_grid_create, rs_grid_release, rs_grid_retain, rs_grid_zero, pw2rs, rs_pw_transfer
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -96,12 +99,16 @@ MODULE qs_cdft_types
 !> \param radius          Gaussian radius parameter
 !> \param shape_function  the constraint type: atomic density or single Gaussian
 !> \param use_bohr        determines whether to use angstrom or bohr units for the radii of Gaussians
+!> \param atomic_cutoff        cutoff for Hirshfeld constraint atomic density
+!> \param eps_cutoff       cutoff for Hirshfeld constraint weight function
+!> \param print_density    logical to decide if Hirshfeld densities should be printed
+!> \param use_atomic_cutoff    logical to decide if cutoff for Hirshfeld constraint atomic density
 !> \param hirshfeld_env   auxiliary type storing information about the Gaussians
 ! **************************************************************************************************
    TYPE hirshfeld_constraint_type
-      INTEGER                              :: gaussian_shape, shape_function
-      LOGICAL                              :: use_bohr
-      REAL(KIND=dp)                        :: radius
+      INTEGER                              :: gaussian_shape, shape_function, atoms_memory
+      LOGICAL                              :: use_bohr, print_density, use_atomic_cutoff
+      REAL(KIND=dp)                        :: radius, eps_cutoff, atomic_cutoff
       REAL(KIND=dp), DIMENSION(:), POINTER :: radii
       TYPE(hirshfeld_type), POINTER        :: hirshfeld_env
    END TYPE hirshfeld_constraint_type
@@ -143,7 +150,7 @@ MODULE qs_cdft_types
 !> \param reuse_precond         logical which determines if a preconditioner can be reused
 !> \param purge_history         logical which determines if the wfn/constraint history can be purged
 !> \param should_purge          logical which determines if purging should take place after this CDFT SCF loop
-!> \param calculate_metric      logical which determines if the ET coupling reliablity metric is computed
+!> \param calculate_metric      logical which determines if the ET coupling reliability metric is computed
 !> \param fragment_density      use isolated fragment densities as a reference for the constraint
 !> \param fragments_integrated  logical to determine if the fragment densities have been integrated
 !> \param flip_fragment         should the spin difference density of the either fragment be flipped
@@ -152,6 +159,7 @@ MODULE qs_cdft_types
 !>                              in a mixed_env that holds multiple CDFT states
 !> \param first_iteration       a flag to mark the first iteration for printing of additional data
 !> \param print_weight          logical which determines if CDFT weight functions should be saved to a file
+!> \param in_memory       logical which determines if the gradients of the Becke potential should be
 !> \param is_constraint         list of logicals which determines if an atom is included in a constraint group
 !> \param strength              Lagrangian multipliers of the constraints
 !> \param target                target values of the constraints
@@ -192,9 +200,49 @@ MODULE qs_cdft_types
       ! Atomic gradients of the weight function at every grid point
       REAL(KIND=dp), POINTER, &
          DIMENSION(:, :, :, :)             :: gradients
+         REAL(KIND=dp), POINTER, &
+            DIMENSION(:, :, :, :)             :: gradients_x
+            REAL(KIND=dp), POINTER, &
+               DIMENSION(:, :, :, :)             :: gradients_y
+
+               REAL(KIND=dp), POINTER, &
+                  DIMENSION(:, :, :, :)             :: gradients_z
       ! The weight function of this constraint group
       TYPE(pw_p_type)                      :: weight
-   END TYPE cdft_group_type
+      ! Hirshfeld promolecular density
+      ! TYPE(pw_p_type)             :: hirsh_rho_promolecular
+      ! Hirshfeld promolecular density
+      ! TYPE(pw_p_type)             :: hirsh_rho_total
+      ! Hirshfeld atomic density
+      ! TYPE(pw_p_type), DIMENSION(:), POINTER  :: hirsh_rho_atomic
+
+      ! REAL(KIND=dp), POINTER, &
+      !    DIMENSION(:, :, :, :)             :: hw_rho_atomic
+      !    REAL(KIND=dp), POINTER, &
+      !       DIMENSION(:, :, :, :)             :: hw_rho_atomic_charge
+      !    REAL(KIND=dp), POINTER, &
+      !       DIMENSION(:, :, :)             :: hw_rho_total_constraint
+      !
+      !       REAL(KIND=dp), POINTER, &
+      !          DIMENSION(:, :, :)             :: hw_rho_total
+
+
+
+
+               ! TYPE(realspace_grid_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic
+               !    TYPE(realspace_grid_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_charge
+               !    TYPE(realspace_grid_type), POINTER             :: hw_rho_total_constraint
+               !       TYPE(realspace_grid_type), POINTER          :: hw_rho_total
+
+
+                     TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic
+                     TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_dr
+                     ! TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_gradient
+                        TYPE(pw_p_type), DIMENSION(:), POINTER             :: hw_rho_atomic_charge
+                        TYPE(pw_p_type)             :: hw_rho_total_constraint
+                           TYPE(pw_p_type)          :: hw_rho_total
+
+    END TYPE cdft_group_type
 
    TYPE cdft_control_type
       CHARACTER(LEN=default_path_length)   :: fragment_a_fname, &
@@ -212,7 +260,8 @@ MODULE qs_cdft_types
                                               atomic_charges, fragment_density, &
                                               fragments_integrated, flip_fragment(2), &
                                               transfer_pot, external_control, &
-                                              first_iteration, print_weight
+                                              first_iteration, print_weight, in_memory, &
+                                              print_force, energy_only, debug
       LOGICAL, POINTER, DIMENSION(:)       :: is_constraint
       REAL(KIND=dp), DIMENSION(:), POINTER :: strength, TARGET, value
       REAL(KIND=dp), POINTER, &
@@ -378,6 +427,10 @@ CONTAINS
       cdft_control%should_purge = .FALSE.
       cdft_control%purge_history = .FALSE.
       cdft_control%calculate_metric = .FALSE.
+      cdft_control%in_memory = .FALSE.
+      cdft_control%print_force = .FALSE.
+      cdft_control%energy_only = .FALSE.
+      cdft_control%debug = .FALSE.
       cdft_control%purge_freq = 0
       cdft_control%nbad_conv = 0
       cdft_control%purge_offset = 0
@@ -455,6 +508,10 @@ CONTAINS
          ! Constraint atom groups
          IF (ASSOCIATED(cdft_control%group)) THEN
             DO i = 1, SIZE(cdft_control%group)
+
+              ! PRINT *, "attempting to DEALLOCATE cdft_control%group"
+
+              ! PRINT *, "cdft_control_release"
                IF (ASSOCIATED(cdft_control%group(i)%atoms)) &
                   DEALLOCATE (cdft_control%group(i)%atoms)
                IF (ASSOCIATED(cdft_control%group(i)%coeff)) &
@@ -463,8 +520,42 @@ CONTAINS
                   DEALLOCATE (cdft_control%group(i)%d_sum_const_dR)
                IF (ASSOCIATED(cdft_control%group(i)%gradients)) &
                   DEALLOCATE (cdft_control%group(i)%gradients)
+                  IF (ASSOCIATED(cdft_control%group(i)%gradients_x)) &
+                     DEALLOCATE (cdft_control%group(i)%gradients_x)
+                     IF (ASSOCIATED(cdft_control%group(i)%gradients_y)) &
+                        DEALLOCATE (cdft_control%group(i)%gradients_y)
+                        IF (ASSOCIATED(cdft_control%group(i)%gradients_z)) &
+                           DEALLOCATE (cdft_control%group(i)%gradients_z)
                IF (ASSOCIATED(cdft_control%group(i)%integrated)) &
                   DEALLOCATE (cdft_control%group(i)%integrated)
+
+                  ! PRINT *, "DEALLOCATE cdft_control%group"
+
+
+
+                  ! IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_charge)) &
+                  !    DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_charge)
+                  !    IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic)) &
+                  !       DEALLOCATE (cdft_control%group(i)%hw_rho_atomic)
+                  !       IF (ASSOCIATED(cdft_control%group(i)%hw_rho_atomic_dr)) &
+                  !          DEALLOCATE (cdft_control%group(i)%hw_rho_atomic_dr)
+                  !
+                  !       PRINT *, "DEALLOCATED hirsh_rho_atomic"
+
+
+
+
+                  ! IF (ALLOCATED(cdft_control%group(i)%hirsh_rho_atomic)) THEN
+                  !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+                  ! END IF
+                  ! PRINT *, "DEALLOCATE hirsh_rho_atomic"
+
+               ! PRINT *, "attempting to DEALLOCATE hirsh_rho_atomic"
+               ! PRINT *, "ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic", &
+               ! ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic
+               ! IF (ASSOCIATED(cdft_control%group(i)%hirsh_rho_atomic)) &
+               !    DEALLOCATE (cdft_control%group(i)%hirsh_rho_atomic)
+
             END DO
             DEALLOCATE (cdft_control%group)
          END IF
@@ -534,8 +625,13 @@ CONTAINS
       ALLOCATE (hirshfeld_control)
 
       hirshfeld_control%use_bohr = .FALSE.
+      hirshfeld_control%print_density = .FALSE.
+      hirshfeld_control%use_atomic_cutoff = .TRUE.
       hirshfeld_control%radius = 3.0_dp
+      hirshfeld_control%eps_cutoff = 1.0e-12_dp
+      hirshfeld_control%atomic_cutoff = 1.0e-12_dp
       hirshfeld_control%shape_function = shape_function_gaussian
+      hirshfeld_control%atoms_memory = 100
       hirshfeld_control%gaussian_shape = radius_single
       NULLIFY (hirshfeld_control%hirshfeld_env)
       NULLIFY (hirshfeld_control%radii)

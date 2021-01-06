@@ -820,6 +820,10 @@ CONTAINS
       CALL section_vals_val_get(hirshfeld_section, "GAUSSIAN_SHAPE", i_val=hirshfeld_control%gaussian_shape)
       CALL section_vals_val_get(hirshfeld_section, "GAUSSIAN_RADIUS", r_val=hirshfeld_control%radius)
       CALL section_vals_val_get(hirshfeld_section, "USE_BOHR", l_val=hirshfeld_control%use_bohr)
+      CALL section_vals_val_get(hirshfeld_section, "USE_ATOMIC_CUTOFF", l_val=hirshfeld_control%use_atomic_cutoff)
+      CALL section_vals_val_get(hirshfeld_section, "PRINT_DENSITY", l_val=hirshfeld_control%print_density)
+      CALL section_vals_val_get(hirshfeld_section, "EPS_CUTOFF", r_val=hirshfeld_control%eps_cutoff)
+      CALL section_vals_val_get(hirshfeld_section, "ATOMIC_CUTOFF", r_val=hirshfeld_control%atomic_cutoff)
       IF (.NOT. hirshfeld_control%use_bohr) THEN
          hirshfeld_control%radius = cp_unit_from_cp2k(hirshfeld_control%radius, "angstrom")
       END IF
@@ -893,6 +897,57 @@ CONTAINS
       END IF
 
    END SUBROUTINE hfun_scale
+
+   ! **************************************************************************************************
+ !> \brief Calculate fout = fun1/fun2 or fout = fun1*fun2
+ !> \param fout the output 3D potential
+ !> \param fun1 the first input 3D potential
+ !> \param fun2 the second input 3D potential
+ !> \param divide logical that decides whether to divide or multiply the input potentials
+ ! **************************************************************************************************
+  SUBROUTINE hfun_scale2(fout, fun1, fun2, divide, small)
+     REAL(KIND=dp), DIMENSION(:, :, :), INTENT(OUT)     :: fout
+     REAL(KIND=dp), DIMENSION(:, :, :), INTENT(IN)      :: fun1, fun2
+     LOGICAL, INTENT(IN)                                :: divide
+     REAL(KIND=dp), INTENT(IN)                        :: small
+
+     CHARACTER(len=*), PARAMETER :: routineN = 'hfun_scale', routineP = moduleN//':'//routineN
+
+     INTEGER                                            :: i1, i2, i3, n1, n2, n3
+
+     n1 = SIZE(fout, 1)
+     n2 = SIZE(fout, 2)
+     n3 = SIZE(fout, 3)
+     CPASSERT(n1 == SIZE(fun1, 1))
+     CPASSERT(n2 == SIZE(fun1, 2))
+     CPASSERT(n3 == SIZE(fun1, 3))
+     CPASSERT(n1 == SIZE(fun2, 1))
+     CPASSERT(n2 == SIZE(fun2, 2))
+     CPASSERT(n3 == SIZE(fun2, 3))
+
+     IF (divide) THEN
+        DO i3 = 1, n3
+           DO i2 = 1, n2
+              DO i1 = 1, n1
+                 IF (fun2(i1, i2, i3) > small) THEN
+                    fout(i1, i2, i3) = fun1(i1, i2, i3)/fun2(i1, i2, i3)
+                 ELSE
+                    fout(i1, i2, i3) = 0.0_dp
+                 END IF
+              END DO
+           END DO
+        END DO
+     ELSE
+        DO i3 = 1, n3
+           DO i2 = 1, n2
+              DO i1 = 1, n1
+                 fout(i1, i2, i3) = fun1(i1, i2, i3)*fun2(i1, i2, i3)
+              END DO
+           END DO
+        END DO
+     END IF
+
+  END SUBROUTINE hfun_scale2
 
 ! **************************************************************************************************
 !> \brief Determine confinement bounds along confinement dir (hardcoded to be z)
@@ -1261,59 +1316,188 @@ CONTAINS
 
    END SUBROUTINE cdft_constraint_print
 
-! **************************************************************************************************
-!> \brief Prints CDFT weight functions to cube files
-!> \param qs_env the qs_env where to build the constraint
-!> \par   History
-!>        Created 9.2018 [Nico Holmberg]
-! **************************************************************************************************
-   SUBROUTINE cdft_print_weight_function(qs_env)
-      TYPE(qs_environment_type), POINTER                 :: qs_env
+   ! **************************************************************************************************
+   !> \brief Prints CDFT weight functions to cube files
+   !> \param qs_env the qs_env where to build the constraint
+   !> \par   History
+   !>        Created 9.2018 [Nico Holmberg]
+   ! **************************************************************************************************
+    SUBROUTINE cdft_print_weight_function(qs_env)
+       TYPE(qs_environment_type), POINTER                 :: qs_env
 
-      CHARACTER(len=*), PARAMETER :: routineN = 'cdft_print_weight_function', &
-         routineP = moduleN//':'//routineN
+       CHARACTER(len=*), PARAMETER :: routineN = 'cdft_print_weight_function', &
+          routineP = moduleN//':'//routineN
 
-      CHARACTER(LEN=default_path_length)                 :: middle_name
-      INTEGER                                            :: igroup, unit_nr
-      LOGICAL                                            :: mpi_io
-      TYPE(cdft_control_type), POINTER                   :: cdft_control
-      TYPE(cp_logger_type), POINTER                      :: logger
-      TYPE(cp_para_env_type), POINTER                    :: para_env
-      TYPE(dft_control_type), POINTER                    :: dft_control
-      TYPE(particle_list_type), POINTER                  :: particles
-      TYPE(qs_subsys_type), POINTER                      :: subsys
-      TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
+       CHARACTER(LEN=default_path_length)                 :: middle_name
+       INTEGER                                            :: igroup, unit_nr
+       LOGICAL                                            :: mpi_io
+       TYPE(cdft_control_type), POINTER                   :: cdft_control
+       TYPE(cp_logger_type), POINTER                      :: logger
+       TYPE(cp_para_env_type), POINTER                    :: para_env
+       TYPE(dft_control_type), POINTER                    :: dft_control
+       TYPE(particle_list_type), POINTER                  :: particles
+       TYPE(qs_subsys_type), POINTER                      :: subsys
+       TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
 
-      NULLIFY (cdft_constraint_section, logger, particles, dft_control, &
-               para_env, subsys, cdft_control)
-      logger => cp_get_default_logger()
+       NULLIFY (cdft_constraint_section, logger, particles, dft_control, &
+                para_env, subsys, cdft_control)
+       logger => cp_get_default_logger()
 
-      CALL get_qs_env(qs_env, subsys=subsys, para_env=para_env, dft_control=dft_control)
-      CALL qs_subsys_get(subsys, particles=particles)
-      cdft_control => dft_control%qs_control%cdft_control
-      cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+       CALL get_qs_env(qs_env, subsys=subsys, para_env=para_env, dft_control=dft_control)
+       CALL qs_subsys_get(subsys, particles=particles)
+       cdft_control => dft_control%qs_control%cdft_control
+       cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
 
-      DO igroup = 1, SIZE(cdft_control%group)
-         mpi_io = .TRUE.
-         middle_name = "cdft_weight_"//TRIM(ADJUSTL(cp_to_string(igroup)))
-         unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
-                                        middle_name=middle_name, &
-                                        extension=".cube", file_position="REWIND", &
-                                        log_filename=.FALSE., mpi_io=mpi_io)
-         ! Note PROGRAM_RUN_INFO section neeeds to be active!
-         IF (para_env%ionode .AND. unit_nr .LT. 1) &
-            CALL cp_abort(__LOCATION__, &
-                          "Please turn on PROGRAM_RUN_INFO to print CDFT weight function.")
+       ! PRINT *, "start cdft_print_weight_function"
 
-         CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, &
-                            unit_nr, &
-                            "CDFT Weight Function", &
-                            particles=particles, &
-                            stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"), &
-                            mpi_io=mpi_io)
-         CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
-      END DO
+       DO igroup = 1, SIZE(cdft_control%group)
+          mpi_io = .TRUE.
+          middle_name = "cdft_weight_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+          unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", &
+                                         middle_name=middle_name, &
+                                         extension=".cube", file_position="REWIND", &
+                                         log_filename=.FALSE., mpi_io=mpi_io)
+          ! Note PROGRAM_RUN_INFO section neeeds to be active!
+          IF (para_env%ionode .AND. unit_nr .LT. 1) &
+             CALL cp_abort(__LOCATION__, &
+                           "Please turn on PROGRAM_RUN_INFO to print CDFT weight function.")
 
-   END SUBROUTINE cdft_print_weight_function
+          CALL cp_pw_to_cube(cdft_control%group(igroup)%weight%pw, &
+                             unit_nr, &
+                             "CDFT Weight Function", &
+                             particles=particles, &
+                             stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"), &
+                             mpi_io=mpi_io)
+          CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
+       END DO
 
-END MODULE qs_cdft_utils
+       ! PRINT *, "finished cdft_print_weight_function"
+
+    END SUBROUTINE cdft_print_weight_function
+
+
+    ! **************************************************************************************************
+    !> \brief Prints CDFT weight functions to cube files
+    !> \param qs_env the qs_env where to build the constraint
+    !> \par   History
+    !>        Created 9.2018 [Nico Holmberg]
+    ! **************************************************************************************************
+       SUBROUTINE cdft_print_hirshfeld_density(qs_env)
+          TYPE(qs_environment_type), POINTER                 :: qs_env
+
+          CHARACTER(len=*), PARAMETER :: routineN = 'cdft_print_hirshfeld_density', &
+             routineP = moduleN//':'//routineN
+
+          CHARACTER(LEN=default_path_length)                 :: middle_name
+          REAL(kind=dp)                                      :: dvol, eps_cavity, sign, th
+          INTEGER                                            :: igroup, unit_nr, iatom, i, j, k
+          LOGICAL                                            :: mpi_io
+          TYPE(cdft_control_type), POINTER                   :: cdft_control
+          TYPE(cp_logger_type), POINTER                      :: logger
+          TYPE(cp_para_env_type), POINTER                    :: para_env
+          TYPE(dft_control_type), POINTER                    :: dft_control
+          TYPE(particle_list_type), POINTER                  :: particles
+          TYPE(qs_subsys_type), POINTER                      :: subsys
+          TYPE(section_vals_type), POINTER                   :: cdft_constraint_section
+          TYPE(pw_p_type)                                    :: tmp
+          INTEGER, DIMENSION(2, 3)                           :: bo
+          TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
+          TYPE(pw_env_type), POINTER                         :: pw_env
+
+          NULLIFY (cdft_constraint_section, logger, particles, dft_control, auxbas_pw_pool, &
+                   para_env, subsys, cdft_control, pw_env)
+          logger => cp_get_default_logger()
+
+          ! PRINT *, "start cdft_print_hirshfeld_density"
+
+          CALL get_qs_env(qs_env, subsys=subsys, para_env=para_env, dft_control=dft_control, pw_env=pw_env)
+          CALL qs_subsys_get(subsys, particles=particles)
+          cdft_control => dft_control%qs_control%cdft_control
+          cdft_constraint_section => section_vals_get_subs_vals(qs_env%input, "DFT%QS%CDFT")
+          ! CALL pw_env_get(pw_env, auxbas_pw_pool=auxbas_pw_pool)
+
+          ! CALL pw_pool_create_pw(auxbas_pw_pool, tmp%pw, use_data=REALDATA3D, in_space=REALSPACE)
+          ! tmp%pw%cr3d = 0.0_dp
+          mpi_io = .TRUE.
+
+          ! Loop over CDFT control groups printing hw_rho_total
+           ! IF (para_env%ionode) THEN
+              DO igroup = 1, SIZE(cdft_control%group)
+
+                ! tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total(:, :, :)
+
+                middle_name = "hw_rho_total"//TRIM(ADJUSTL(cp_to_string(igroup)))
+                unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
+                                               file_position="REWIND", middle_name=middle_name, extension=".cube")
+
+                 ! PRINT *, "igroup", igroup
+                CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_total%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
+                 particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+                ! PRINT *, "igroup", igroup
+
+               CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
+
+           END DO ! igroup = 1, SIZE(cdft_control%group)
+         ! END IF
+
+           ! PRINT *, "printing constraint density"
+           ! tmp%pw%cr3d = 0.0_dp
+
+           ! Loop over CDFT control groups printing promolecular density
+            ! IF (para_env%ionode) THEN
+               DO igroup = 1, SIZE(cdft_control%group)
+
+                 ! tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_total_constraint(:, :, :)
+
+                 middle_name = "hw_rho_total_constraint_"//TRIM(ADJUSTL(cp_to_string(igroup)))
+                 unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
+                                                file_position="REWIND", middle_name=middle_name, extension=".cube")
+
+                  ! PRINT *, "igroup", igroup
+                 CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_total_constraint%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
+                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+                 ! PRINT *, "igroup", igroup
+
+                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
+
+            END DO ! igroup = 1, SIZE(cdft_control%group)
+          ! END IF
+
+           ! PRINT *, "printing atomic density"
+           ! tmp%pw%cr3d = 0.0_dp
+
+           ! Loop over CDFT control groups printing atomic density
+            ! IF (para_env%ionode) THEN
+           DO igroup = 1, SIZE(cdft_control%group)
+               DO iatom  = 1, (cdft_control%natoms)
+
+                 ! PRINT *, "iatom", iatom
+
+                 ! tmp%pw%cr3d(:, :, :) = cdft_control%group(igroup)%hw_rho_atomic(iatom, :, :, :)
+
+                 ! PRINT *, "iatom", iatom
+
+                 middle_name = "hw_rho_atomic_"//TRIM(ADJUSTL(cp_to_string(iatom)))
+                 unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
+                                                file_position="REWIND", middle_name=middle_name, extension=".cube")
+
+                 CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
+                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+
+                CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
+
+
+
+            END DO ! igroup = 1, SIZE(cdft_control%group)
+          END DO
+        ! END IF
+
+          ! CALL pw_pool_give_back_pw(auxbas_pw_pool, tmp%pw)
+
+            ! PRINT *, "end cdft_print_hirshfeld_density"
+
+       END SUBROUTINE cdft_print_hirshfeld_density
+
+   END MODULE qs_cdft_utils
