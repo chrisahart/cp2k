@@ -906,7 +906,7 @@ CONTAINS
                  ! Calculate total density rs_rho_all for first igroup only
                  IF (igroup == 1) THEN
                   CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                             (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                             (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
                                              rs_rho_all, cell, cube_info, radius=radius, &
                                              ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
@@ -915,7 +915,7 @@ CONTAINS
                   ! Calculate constraint density rs_rho_constr
                   IF (is_constraint(atom_a)) THEN
                      CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
+                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, coefficients(atom_a), &
                                                 pab, 0, 0, rs_rho_constr, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
@@ -930,7 +930,7 @@ CONTAINS
                     END DO
                     CPASSERT(iatom <= cdft_control%natoms)
                     CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                               (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
                                                rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
                                                ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                                subpatch_pattern=subpatch_pattern)
@@ -945,7 +945,7 @@ CONTAINS
                         END DO
                         CPASSERT(iatom <= cdft_control%natoms)
                         CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                   (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
+                                                   (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
                                                    rs_single_charge(iatom)%rs_grid, cell, cube_info, radius=radius, &
                                                    ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                                    subpatch_pattern=subpatch_pattern)
@@ -1125,7 +1125,7 @@ CONTAINS
                   END IF
 
                       CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
-                                                (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
+                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, prefactor, &
                                                 pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1))%rs_grid, cell, cube_info, &
                                                 radius=radius, &
                                                 ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
