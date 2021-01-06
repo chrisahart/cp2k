@@ -891,23 +891,12 @@ CONTAINS
                   atom_a = atom_list(iatom)
                   pab(1, 1) = coef*hirshfeld_env%charges(atom_a)
                   ra(:) = pbc(particle_set(atom_a)%r, cell)
-                  ! subpatch_pattern = 0
-
-                  ! Calculate cutoff (Juerg Hutter code)
-                 IF (hirshfeld_control%use_atomic_cutoff) THEN
-                   radius = exp_radius_very_extended(la_min=0, la_max=0, lb_min=0, lb_max=0, &
-                                                     ra=ra, rb=ra, rp=ra, &
-                                                     zetp=alpha, eps=hirshfeld_control%atomic_cutoff, &
-                                                     pab=pab, o1=0, o2=0, &  ! without map_consistent
-                                                     prefactor=1.0_dp, cutoff=0.0_dp)
-                   ! IF (para_env%ionode) PRINT *, "radius", radius
-                 END IF
 
                  ! Calculate total density rs_rho_all for first igroup only
                  IF (igroup == 1) THEN
                   CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
-                                             rs_rho_all, cell, cube_info, radius=radius, &
+                                             rs_rho_all, cell, cube_info, eps_rho_rspace, &
                                              ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                              subpatch_pattern=subpatch_pattern)
                  END IF
@@ -917,7 +906,7 @@ CONTAINS
                      CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, coefficients(atom_a), &
                                                 pab, 0, 0, rs_rho_constr, cell, cube_info, &
-                                                radius=radius, &
+                                                eps_rho_rspace, &
                                                 ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
                   END IF
@@ -931,7 +920,7 @@ CONTAINS
                     CPASSERT(iatom <= cdft_control%natoms)
                     CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
-                                               rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                                               rs_single(iatom)%rs_grid, cell, cube_info, eps_rho_rspace, &
                                                ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                                subpatch_pattern=subpatch_pattern)
                  END IF
@@ -946,7 +935,7 @@ CONTAINS
                         CPASSERT(iatom <= cdft_control%natoms)
                         CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                    (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, 1.0_dp, pab, 0, 0, &
-                                                   rs_single_charge(iatom)%rs_grid, cell, cube_info, radius=radius, &
+                                                   rs_single_charge(iatom)%rs_grid, cell, cube_info, eps_rho_rspace, &
                                                    ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                                    subpatch_pattern=subpatch_pattern)
                      END IF
@@ -1126,8 +1115,8 @@ CONTAINS
 
                       CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), 0.0_dp, prefactor, &
-                                                pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1))%rs_grid, cell, cube_info, &
-                                                radius=radius, &
+                                                pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1))%rs_grid, &
+                                                cell, cube_info, eps_rho_rspace, &
                                                 ga_gb_function=FUNC_AB, use_subpatch=.TRUE., &
                                                 subpatch_pattern=subpatch_pattern)
 
