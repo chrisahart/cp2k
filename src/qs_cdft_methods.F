@@ -26,8 +26,7 @@ MODULE qs_cdft_methods
    USE cp_para_types,                   ONLY: cp_para_env_type
    USE cp_realspace_grid_cube,          ONLY: cp_cube_to_pw
    USE cube_utils,                      ONLY: cube_info_type
-   USE grid_api,                        ONLY: GRID_FUNC_AB,&
-                                              collocate_pgf_product
+  USE qs_collocate_density,            ONLY: collocate_pgf_product_rspace
    USE hirshfeld_types,                 ONLY: get_hirshfeld_info,&
                                               hirshfeld_type,&
                                               set_hirshfeld_info
@@ -905,7 +904,7 @@ CONTAINS
 
                  ! Calculate total density rs_rho_all for first igroup only
                  IF (igroup == 1) THEN
-                  CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                  CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                              (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
                                              rs_rho_all, cell, cube_info, radius=radius, &
                                              ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
@@ -914,7 +913,7 @@ CONTAINS
 
                   ! Calculate constraint density rs_rho_constr
                   IF (is_constraint(atom_a)) THEN
-                     CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                     CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), coefficients(atom_a), &
                                                 pab, 0, 0, rs_rho_constr, cell, cube_info, &
                                                 radius=radius, &
@@ -929,7 +928,7 @@ CONTAINS
                       IF (atom_a == cdft_control%atoms(iatom)) EXIT
                     END DO
                     CPASSERT(iatom <= cdft_control%natoms)
-                    CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                    CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
                                                rs_single(iatom)%rs_grid, cell, cube_info, radius=radius, &
                                                ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
@@ -944,7 +943,7 @@ CONTAINS
                            IF (atom_a == cdft_control%atoms(iatom)) EXIT
                         END DO
                         CPASSERT(iatom <= cdft_control%natoms)
-                        CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                        CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                    (/0.0_dp, 0.0_dp, 0.0_dp/), 1.0_dp, pab, 0, 0, &
                                                    rs_single_charge(iatom)%rs_grid, cell, cube_info, radius=radius, &
                                                    ga_gb_function=GRID_FUNC_AB, use_subpatch=.TRUE., &
@@ -1124,7 +1123,7 @@ CONTAINS
                                                       prefactor=1.0_dp, cutoff=0.0_dp)
                   END IF
 
-                      CALL collocate_pgf_product(0, alpha, 0, 0, 0.0_dp, 0, ra, &
+                      CALL collocate_pgf_product_rspace(0, alpha, 0, 0, 0.0_dp, 0, ra, &
                                                 (/0.0_dp, 0.0_dp, 0.0_dp/), prefactor, &
                                                 pab, 0, 0, rs_single_dr(iatom+(num_species_small(k)-1))%rs_grid, cell, cube_info, &
                                                 radius=radius, &
