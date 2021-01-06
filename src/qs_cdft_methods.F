@@ -1116,7 +1116,7 @@ CONTAINS
 !> \param calc_pot if the potential needs to be recalculated or just integrated
 !> \param calculate_forces logical if potential has to be calculated or only_energy
 !> \par   History
-!>        Created 09.2018 [Nico Holmberg]
+!>        Created 09.2018 [Nico Holmberg] CHANGES
 ! **************************************************************************************************
    SUBROUTINE hirshfeld_constraint(qs_env, calc_pot, calculate_forces)
       TYPE(qs_environment_type), POINTER                 :: qs_env
