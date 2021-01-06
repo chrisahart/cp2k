@@ -1456,8 +1456,9 @@ CONTAINS
                                                 file_position="REWIND", middle_name=middle_name, extension=".cube")
 
                   ! PRINT *, "igroup", igroup
-                 CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_total_constraint%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
-                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+                  CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_total_constraint%pw, &
+                  unit_nr, "CDFT Weight Function", mpi_io=mpi_io, particles=particles, &
+                  stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
                  ! PRINT *, "igroup", igroup
 
@@ -1484,8 +1485,9 @@ CONTAINS
                  unit_nr = cp_print_key_unit_nr(logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io, &
                                                 file_position="REWIND", middle_name=middle_name, extension=".cube")
 
-                 CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, unit_nr, "CDFT Weight Function", mpi_io=mpi_io, &
-                  particles=particles, stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
+                 CALL cp_pw_to_cube(cdft_control%group(igroup)%hw_rho_atomic(iatom)%pw, &
+                 unit_nr, "CDFT Weight Function", mpi_io=mpi_io, particles=particles, &
+                 stride=section_get_ivals(cdft_constraint_section, "PROGRAM_RUN_INFO%WEIGHT_FUNCTION%STRIDE"))
 
                 CALL cp_print_key_finished_output(unit_nr, logger, cdft_constraint_section, "PROGRAM_RUN_INFO", mpi_io=mpi_io)
 
