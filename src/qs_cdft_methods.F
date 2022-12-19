@@ -1096,6 +1096,15 @@ CONTAINS
 
          DO igroup = 1, SIZE(cdft_control%group)
 
+        ! Coefficients
+         coefficients(:) = 0.0_dp
+         is_constraint = .FALSE.
+         DO i = 1, SIZE(cdft_control%group(igroup)%atoms)
+            coefficients(cdft_control%group(igroup)%atoms(i))=cdft_control%group(igroup)%coeff(i)
+            is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
+         END DO
+
+
                 IF (para_env%ionode) PRINT *, "line 1098 igroup", igroup
 
             DO k = lb_pw(3), ub_pw(3)
@@ -1135,9 +1144,7 @@ CONTAINS
                END DO
             END DO
          END DO
-          IF (igroup == 1) THEN
             CALL pw_pool_give_back_pw(auxbas_pw_pool,cdft_control%group(1)%hw_rho_total)
-          END IF
       END IF
 
       CALL rs_grid_release(rs_rho_all)
