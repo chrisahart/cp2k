@@ -759,10 +759,11 @@ CONTAINS
                                 use_data=REALDATA3D, in_space=REALSPACE)
          cdft_control%group(igroup)%hw_rho_total_constraint%cr3d = 1.0_dp
 
-         IF (igroup == 1) THEN
-            CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total, &
+        ! hw_rho_total is identical for all groups, calculate only once 
+        IF (igroup == 1) THEN
+            CALL pw_pool_create_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total, &
                                    use_data=REALDATA3D, in_space=REALSPACE)
-            cdft_control%group(igroup)%hw_rho_total%cr3d = 1.0_dp
+            cdft_control%group(1)%hw_rho_total%cr3d = 1.0_dp
 
             IF (hirshfeld_control%print_density) THEN
                DO iatom = 1, cdft_control%natoms
@@ -887,7 +888,7 @@ CONTAINS
          DEALLOCATE (pab)
 
          IF (igroup == 1) THEN
-            CALL rs_pw_transfer(rs_rho_all, cdft_control%group(igroup)%hw_rho_total, rs2pw)
+            CALL rs_pw_transfer(rs_rho_all, cdft_control%group(1)%hw_rho_total, rs2pw)
          END IF
 
          CALL rs_pw_transfer(rs_rho_constr, cdft_control%group(igroup)%hw_rho_total_constraint, rs2pw)
@@ -905,7 +906,7 @@ CONTAINS
                CALL rs_pw_transfer(rs_single_charge(i), cdft_control%group(igroup)%hw_rho_atomic_charge(i), rs2pw)
                CALL hfun_scale(cdft_control%charge(i)%cr3d, &
                                cdft_control%group(igroup)%hw_rho_atomic_charge(i)%cr3d, &
-                               cdft_control%group(igroup)%hw_rho_total%cr3d, divide=.TRUE., &
+                               cdft_control%group(1)%hw_rho_total%cr3d, divide=.TRUE., &
                                small=hirshfeld_control%eps_cutoff)
             END DO
          END IF
@@ -921,6 +922,8 @@ CONTAINS
       END DO
 
       DO igroup = 1, SIZE(cdft_control%group)
+
+         IF (para_env%ionode) PRINT *, "line 925 igroup", igroup
 
          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint)
 
@@ -959,6 +962,7 @@ CONTAINS
 
       IF (cdft_control%in_memory) THEN
          DO igroup = 1, SIZE(cdft_control%group)
+        IF (para_env%ionode) PRINT *, "line 964 igroup", igroup
 
             ALLOCATE (pab(1, 1))
             nthread = 1
@@ -1075,6 +1079,9 @@ CONTAINS
 
       IF (cdft_control%in_memory) THEN
          DO igroup = 1, SIZE(cdft_control%group)
+
+                IF (para_env%ionode) PRINT *, "line 1082 igroup", igroup
+
             ALLOCATE (cdft_control%group(igroup)%gradients_y(1*num_atoms, lb_pw(1):ub_pw(1), &
                                                              lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
             ALLOCATE (cdft_control%group(igroup)%gradients_z(1*num_atoms, lb_pw(1):ub_pw(1), &
@@ -1088,6 +1095,9 @@ CONTAINS
       IF (cdft_control%in_memory) THEN
 
          DO igroup = 1, SIZE(cdft_control%group)
+
+                IF (para_env%ionode) PRINT *, "line 1098 igroup", igroup
+
             DO k = lb_pw(3), ub_pw(3)
                DO j = lb_pw(2), ub_pw(2)
                   DO i = lb_pw(1), ub_pw(1)
@@ -1095,11 +1105,11 @@ CONTAINS
 
                      ra(:) = particle_set(iatom)%r
 
-                     IF (cdft_control%group(igroup)%hw_rho_total%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
+                     IF (cdft_control%group(1)%hw_rho_total%cr3d(i, j, k) > hirshfeld_control%eps_cutoff) THEN
 
                         exp_eval = (coefficients(iatom) - &
                                     cdft_control%group(igroup)%weight%cr3d(i, j, k))/ &
-                                   cdft_control%group(igroup)%hw_rho_total%cr3d(i, j, k)
+                                   cdft_control%group(1)%hw_rho_total%cr3d(i, j, k)
 
                         r2 = (/i*dr_pw(1), j*dr_pw(2), k*dr_pw(3)/) + origin
                         r_pbc = pbc(ra, r2, cell)
@@ -1124,11 +1134,10 @@ CONTAINS
                   END DO
                END DO
             END DO
-
-            IF (igroup == 1) THEN
-               CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(1)%hw_rho_total)
-            END IF
          END DO
+          IF (igroup == 1) THEN
+            CALL pw_pool_give_back_pw(auxbas_pw_pool,cdft_control%group(1)%hw_rho_total)
+          END IF
       END IF
 
       CALL rs_grid_release(rs_rho_all)
