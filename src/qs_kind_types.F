@@ -3113,13 +3113,15 @@ CONTAINS
    END SUBROUTINE write_gto_basis_sets
 
 ! **************************************************************************************************
-!> \brief ...
+!> \brief Change occupation number of the orbitals to break symmetry 
 !> \param atomic_kind ...
 !> \param qs_kind ...
 !> \param ncalc ...
 !> \param ncore ...
 !> \param nelem ...
 !> \param edelta ...
+!> \par History
+!>      Updated by Christian Ahart to allow for &BS float NEL (13/1/2023)
 ! **************************************************************************************************
    SUBROUTINE init_atom_electronic_state(atomic_kind, qs_kind, ncalc, ncore, nelem, edelta)
 
@@ -3176,6 +3178,8 @@ CONTAINS
          ncalc = nelem - ncore
       END IF
 
+      PRINT *, "edelta", edelta
+
       ! readjust the occupation number of the orbitals as requested by user
       ! this is done to break symmetry (bs) and bias the initial guess
       ! to the pre-defined multiplicity/charge state of the atom
@@ -3185,6 +3189,13 @@ CONTAINS
                ne = addel(i, is)
                l = laddel(i, is)
                nn = naddel(i, is) - l
+               PRINT *, "hello world bs_occupation"
+               PRINT *, "ne", ne
+               PRINT *, "l", l
+               PRINT *, "nn", nn
+               PRINT *, "addel", nn
+               PRINT *, "nn", nn
+               PRINT *, "nn", nn
                IF (ne /= 0) THEN
                   IF (nn == 0) THEN
                      DO ii = SIZE(nelem, 2), 1, -1
@@ -3211,7 +3222,9 @@ CONTAINS
                END IF
             END DO
          END DO
+         PRINT *, "edelta", edelta
          edelta = 0.5_dp*edelta
+         PRINT *, "edelta", edelta
       ELSE IF (magnetization /= 0.0_dp) THEN
          dmag = 0.5_dp*ABS(magnetization)
          DO l = 0, MIN(lmat, UBOUND(ptable(z)%e_conv, 1))
@@ -3225,9 +3238,20 @@ CONTAINS
                   EXIT
                END IF
             END DO
+            PRINT *, "hello world magnetization"
+            PRINT *, "ll", ll
+            PRINT *, "l", l
+            PRINT *, "ii", ii
+            PRINT *, "dmag", dmag
+            PRINT *, "ncalc(l, i)", ncalc(l, i)
+            PRINT *, "lmat", lmat
+            PRINT *, "ptable(z)%e_conv", ptable(z)%e_conv
+            PRINT *, "UBOUND(ptable(z)%e_conv, 1)", UBOUND(ptable(z)%e_conv, 1)
             IF (ii /= 0) THEN
+            PRINT *, "ii /= 0"
                edelta(l, ii, 1) = magnetization*0.5_dp
                edelta(l, ii, 2) = -magnetization*0.5_dp
+               PRINT *, "edelta", edelta
                EXIT
             END IF
          END DO
@@ -3243,6 +3267,8 @@ CONTAINS
          ncalc = 0
          edelta = 0.0_dp
       END IF
+
+      PRINT *, "edelta", edelta
 
    END SUBROUTINE init_atom_electronic_state
 
