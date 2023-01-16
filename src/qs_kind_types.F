@@ -1838,8 +1838,9 @@ CONTAINS
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
-              PRINT *, "add_el", add_el
-              ! CPASSERT(ASSOCIATED(add_el))
+                                         
+               PRINT *, "add_el", add_el
+               CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
