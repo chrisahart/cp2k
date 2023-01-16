@@ -202,6 +202,8 @@ MODULE qs_kind_types
       INTEGER                                :: lmax_dftb = -1
       REAL(KIND=dp)                          :: dudq_dftb3 = 0.0_dp
       REAL(KIND=dp)                          :: magnetization = 0.0_dp
+      INTEGER                                :: magnetization_n = 0
+      INTEGER                                :: magnetization_l = 0
       REAL(KIND=dp), DIMENSION(:, :), POINTER  :: addel => Null()
       INTEGER, DIMENSION(:, :), POINTER      :: laddel => Null()
       INTEGER, DIMENSION(:, :), POINTER      :: naddel => Null()
@@ -457,8 +459,8 @@ CONTAINS
                           dft_plus_u_atom, l_of_dft_plus_u, n_of_dft_plus_u, &
                           u_minus_j, U_of_dft_plus_u, J_of_dft_plus_u, &
                           alpha_of_dft_plus_u, beta_of_dft_plus_u, J0_of_dft_plus_u, occupation_of_dft_plus_u, dispersion, &
-                          bs_occupation, magnetization, no_optimize, addel, laddel, naddel, orbitals, &
-                          max_scf, eps_scf, smear, u_ramping, u_minus_j_target, eps_u_ramping, &
+                          bs_occupation, magnetization, magnetization_n, magnetization_l, no_optimize, addel, laddel, naddel,&
+                           orbitals, max_scf, eps_scf, smear, u_ramping, u_minus_j_target, eps_u_ramping, &
                           init_u_ramping_each_scf, reltmat, ghost, floating, name, element_symbol, &
                           pao_basis_size, pao_potentials, pao_descriptors, nelec)
 
@@ -498,6 +500,7 @@ CONTAINS
       TYPE(qs_atom_dispersion_type), OPTIONAL, POINTER   :: dispersion
       LOGICAL, INTENT(OUT), OPTIONAL                     :: bs_occupation
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: magnetization
+      INTEGER, INTENT(OUT), OPTIONAL               :: magnetization_n, magnetization_l
       LOGICAL, INTENT(OUT), OPTIONAL                     :: no_optimize
       REAL(KIND=dp), DIMENSION(:, :), OPTIONAL, POINTER  :: addel
       INTEGER, DIMENSION(:, :), OPTIONAL, POINTER        :: laddel, naddel
@@ -830,6 +833,8 @@ CONTAINS
       IF (PRESENT(naddel)) naddel => qs_kind%naddel
 
       IF (PRESENT(magnetization)) magnetization = qs_kind%magnetization
+      IF (PRESENT(magnetization_n)) magnetization_n = qs_kind%magnetization_n
+      IF (PRESENT(magnetization_l)) magnetization_l = qs_kind%magnetization_l
 
       IF (PRESENT(no_optimize)) no_optimize = qs_kind%no_optimize
 
@@ -1801,6 +1806,10 @@ CONTAINS
          ! Magnetization
          CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
                                    keyword_name="MAGNETIZATION", r_val=qs_kind%magnetization)
+         CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
+                                   keyword_name="MAGNETIZATION_L", r_val=qs_kind%magnetization_l)
+         CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
+                                   keyword_name="MAGNETIZATION_N", r_val=qs_kind%magnetization_n)
          ! DFTB3 param
          CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
                                    keyword_name="DFTB3_PARAM", r_val=qs_kind%dudq_dftb3)
@@ -1832,7 +1841,7 @@ CONTAINS
             CALL section_vals_get(spin_section, explicit=explicit)
             IF (explicit) THEN
 
-               ! &BS NEL
+               ! &BS NEL (float)
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
@@ -1841,7 +1850,7 @@ CONTAINS
                qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
 
-               ! &BS L
+               ! &BS L (integer)
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
@@ -1851,7 +1860,7 @@ CONTAINS
                qs_kind%laddel = 0
                qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
                
-               ! &BS N
+               ! &BS N (integer)
                ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
                qs_kind%naddel = 0
                NULLIFY (add_el_n)
@@ -1872,14 +1881,14 @@ CONTAINS
             CALL section_vals_get(spin_section, explicit=explicit)
             IF (explicit) THEN
 
-               ! &BS NEL
+               ! &BS NEL (float)
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
                CPASSERT(ASSOCIATED(add_el))
                qs_kind%addel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
 
-               ! &BS L
+               ! &BS L (integer)
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
@@ -1887,7 +1896,7 @@ CONTAINS
                CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
                qs_kind%laddel(1:SIZE(add_el_l), 2) = add_el_l(1:SIZE(add_el_l))
                
-               ! &BS N
+               ! &BS N (integer)
                NULLIFY (add_el_n)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="N", n_rep_val=i)
@@ -1901,9 +1910,7 @@ CONTAINS
             END IF
          END IF
          
-
          ! Read the DFT+U subsection of the current atomic kind, if enabled
-
          NULLIFY (dft_plus_u_section)
          dft_plus_u_section => section_vals_get_subs_vals(kind_section, &
                                                           subsection_name="DFT_PLUS_U", &
@@ -3153,6 +3160,7 @@ CONTAINS
       INTEGER, DIMENSION(:, :), POINTER                  :: laddel, naddel
       LOGICAL                                            :: bs_occupation
       REAL(KIND=dp)                                      :: dmag, magnetization, ne
+      INTEGER                                            :: magnetization_n, magnetization_l
       TYPE(gth_potential_type), POINTER                  :: gth_potential
       TYPE(sgp_potential_type), POINTER                  :: sgp_potential
 
@@ -3162,6 +3170,8 @@ CONTAINS
                        gth_potential=gth_potential, &
                        sgp_potential=sgp_potential, &
                        magnetization=magnetization, &
+                       magnetization_n=magnetization_n, &
+                       magnetization_l=magnetization_l, &
                        bs_occupation=bs_occupation, &
                        addel=addel, laddel=laddel, naddel=naddel)
 
@@ -3206,9 +3216,9 @@ CONTAINS
       IF (bs_occupation) THEN
          DO is = 1, 2 ! Iterate over spin channels
             DO i = 1, SIZE(addel, 1) ! Iterate over all &BS
-               ne = addel(i, is) !&BS NEL
-               l = laddel(i, is) !&BS L
-               nn = naddel(i, is) - l ! &BS N - &BS L
+               ne = addel(i, is) !&BS NEL (float)
+               l = laddel(i, is) !&BS L (integer)
+               nn = naddel(i, is) - l ! &BS N - &BS L (integer)
 
              !  PRINT *, "hello world bs_occupation"
              !  PRINT *, "addel", addel
@@ -3247,45 +3257,43 @@ CONTAINS
                END IF
             END DO
          END DO
-        ! PRINT *, "edelta", edelta
          edelta = 0.5_dp*edelta
-        ! PRINT *, "edelta", edelta
+
       ELSE IF (magnetization /= 0.0_dp) THEN
          dmag = 0.5_dp*ABS(magnetization)
-         DO l = 0, MIN(lmat, UBOUND(ptable(z)%e_conv, 1))
-            ll = 2*(2*l + 1)
-            ii = 0
-            DO i = 1, SIZE(ncalc, 2)
-               IF (ncalc(l, i) == 0) CYCLE
-               IF (ncalc(l, i) == ll) CYCLE
-               IF (ncalc(l, i) > dmag .AND. (ll - ncalc(l, i)) > dmag) THEN
-                  ii = i
+         l = magnetization_l !&BS L (integer)
+         nn = magnetization_n - l ! &BS N - &BS L (integer)
+
+         ! If user specified orbitals
+         IF (l /= 0) THEN
+               edelta(l, nn, 1) = magnetization*0.5_dp
+               edelta(l, nn, 2) = -magnetization*0.5_dp
+         
+         ! Detect unfilled orbitals
+         ELSE
+            DO l = 0, MIN(lmat, UBOUND(ptable(z)%e_conv, 1))
+               ll = 2*(2*l + 1)
+               ii = 0
+               DO i = 1, SIZE(ncalc, 2)
+                  IF (ncalc(l, i) == 0) CYCLE
+                  IF (ncalc(l, i) == ll) CYCLE
+                  IF (ncalc(l, i) > dmag .AND. (ll - ncalc(l, i)) > dmag) THEN
+                     ii = i
+                     EXIT
+                  END IF
+               END DO
+               IF (ii /= 0) THEN
+                  edelta(l, ii, 1) = magnetization*0.5_dp
+                  edelta(l, ii, 2) = -magnetization*0.5_dp
                   EXIT
                END IF
             END DO
-           ! PRINT *, "hello world magnetization"
-           ! PRINT *, "ll", ll
-           ! PRINT *, "l", l
-           ! PRINT *, "ii", ii
-           ! PRINT *, "dmag", dmag
-           ! PRINT *, "ncalc(l, i)", ncalc(l, i)
-           ! PRINT *, "lmat", lmat
-           ! PRINT *, "ptable(z)%e_conv", ptable(z)%e_conv
-           ! PRINT *, "UBOUND(ptable(z)%e_conv, 1)", UBOUND(ptable(z)%e_conv, 1)
-            IF (ii /= 0) THEN
-            !PRINT *, "ii /= 0"
-               edelta(l, ii, 1) = magnetization*0.5_dp
-               edelta(l, ii, 2) = -magnetization*0.5_dp
-               !PRINT *, "edelta", edelta
-               EXIT
-            END IF
-         END DO
          IF (ii == 0) THEN
             CALL cp_abort(__LOCATION__, &
                           "Magnetization value cannot be imposed for this atom type")
          END IF
       END IF
-
+      
       IF (qs_kind%ghost .OR. qs_kind%floating) THEN
          nelem = 0
          ncore = 0

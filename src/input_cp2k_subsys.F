@@ -1123,6 +1123,22 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="MAGNETIZATION_N", &
+                          description="The magnetization N used in the atomic initial guess. "// &
+                          "Adds magnetization/2 spin-alpha electrons and removes magnetization/2 spin-beta electrons.", &
+                          usage="MAGNETIZATION_N 1", n_var=1, &
+                          default_i_val=-1)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="MAGNETIZATION_L", &
+                          description="The magnetization L used in the atomic initial guess. "// &
+                          "Adds magnetization/2 spin-alpha electrons and removes magnetization/2 spin-beta electrons.", &
+                          usage="MAGNETIZATION_L 1", n_var=1, &
+                          default_i_val=-1)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="ELEMENT", &
                           variants=(/"ELEMENT_SYMBOL"/), &
                           description="The element of the actual kind "// &
