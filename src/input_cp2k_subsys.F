@@ -1478,7 +1478,7 @@ CONTAINS
                           n_var=-1, &
                           type_of_var=real_t, &
                           repeats=.FALSE., &
-                          default_r_val=-1.0_dp, &
+                          default_r_val=-1.0_dp)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
@@ -1519,7 +1519,7 @@ CONTAINS
                           description="Orbital ccupation change per angular momentum quantum number. "// &
                           "In unrestricted calculations applied to spin beta.", &
                           usage="NEL 1.0", &
-                          default_r_val=-1.0_dp, &
+                          default_r_val=-1.0_dp)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
