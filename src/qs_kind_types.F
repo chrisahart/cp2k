@@ -1905,7 +1905,7 @@ CONTAINS
                
                ! &BS N
                ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
-               qs_kind%naddel = 0
+             !  qs_kind%naddel = 0
                PRINT *, "qs_kind%laddel", qs_kind%laddel
                NULLIFY (add_el_n)
                CALL section_vals_val_get(spin_section, &
