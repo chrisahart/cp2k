@@ -3153,6 +3153,10 @@ CONTAINS
       ncore = 0
       ncalc = 0
       edelta = 0.0_dp
+
+      PRINT *, "start init_atom_electronic_state"
+      PRINT *, "edelta start", edelta
+
       IF (ASSOCIATED(gth_potential)) THEN
          CALL get_potential(gth_potential, elec_conf=econf)
          CALL set_pseudo_state(econf, z, ncalc, ncore, nelem)
@@ -3178,8 +3182,6 @@ CONTAINS
          ncalc = nelem - ncore
       END IF
 
-      PRINT *, "edelta", edelta
-
       ! readjust the occupation number of the orbitals as requested by user
       ! this is done to break symmetry (bs) and bias the initial guess
       ! to the pre-defined multiplicity/charge state of the atom
@@ -3189,12 +3191,20 @@ CONTAINS
                ne = addel(i, is)
                l = laddel(i, is)
                nn = naddel(i, is) - l
+
                PRINT *, "hello world bs_occupation"
-               PRINT *, "ne", ne
-               PRINT *, "l", l
-               PRINT *, "nn", nn
-               PRINT *, "addel", nn
-               PRINT *, "nn", nn
+               PRINT *, "addel", add_el
+               PRINT *, "laddel", laddel
+               PRINT *, "naddel ", naddel
+
+               PRINT *, "addel(i, is)", addel(i, is)
+               PRINT *, "laddel(i, is)", laddel(i, is)
+               PRINT *, "naddel(i, is) ", naddel(i, is) 
+
+               PRINT *, "ne", ne !&BS NEL
+               PRINT *, "l", l   !&BS L
+               PRINT *, "nn", nn !
+
                IF (ne /= 0) THEN
                   IF (nn == 0) THEN
                      DO ii = SIZE(nelem, 2), 1, -1
@@ -3221,7 +3231,7 @@ CONTAINS
                END IF
             END DO
          END DO
-        ! PRINT *, "edelta", edelta
+         PRINT *, "edelta", edelta
          edelta = 0.5_dp*edelta
         ! PRINT *, "edelta", edelta
       ELSE IF (magnetization /= 0.0_dp) THEN
@@ -3267,7 +3277,8 @@ CONTAINS
          edelta = 0.0_dp
       END IF
 
-    !  PRINT *, "edelta", edelta
+    PRINT *, "end init_atom_electronic_state"
+    PRINT *, "edelta end", edelta
 
    END SUBROUTINE init_atom_electronic_state
 
