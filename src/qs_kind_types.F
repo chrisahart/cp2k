@@ -3189,12 +3189,11 @@ CONTAINS
                ne = addel(i, is)
                l = laddel(i, is)
                nn = naddel(i, is) - l
-               PRINT *, "hello world bs_occupation"
+               PRINT *, "hello world bs_occupation"q
                PRINT *, "ne", ne
                PRINT *, "l", l
                PRINT *, "nn", nn
                PRINT *, "addel", nn
-               PRINT *, "nn", nn
                PRINT *, "nn", nn
                IF (ne /= 0) THEN
                   IF (nn == 0) THEN
@@ -3222,9 +3221,9 @@ CONTAINS
                END IF
             END DO
          END DO
-         PRINT *, "edelta", edelta
+        ! PRINT *, "edelta", edelta
          edelta = 0.5_dp*edelta
-         PRINT *, "edelta", edelta
+        ! PRINT *, "edelta", edelta
       ELSE IF (magnetization /= 0.0_dp) THEN
          dmag = 0.5_dp*ABS(magnetization)
          DO l = 0, MIN(lmat, UBOUND(ptable(z)%e_conv, 1))
@@ -3251,7 +3250,7 @@ CONTAINS
             PRINT *, "ii /= 0"
                edelta(l, ii, 1) = magnetization*0.5_dp
                edelta(l, ii, 2) = -magnetization*0.5_dp
-               PRINT *, "edelta", edelta
+               !PRINT *, "edelta", edelta
                EXIT
             END IF
          END DO
@@ -3268,7 +3267,7 @@ CONTAINS
          edelta = 0.0_dp
       END IF
 
-      PRINT *, "edelta", edelta
+    !  PRINT *, "edelta", edelta
 
    END SUBROUTINE init_atom_electronic_state
 
