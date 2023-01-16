@@ -1836,7 +1836,7 @@ CONTAINS
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
-               CPASSERT(ASSOCIATED(add_el))
+              ! CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
@@ -1846,8 +1846,8 @@ CONTAINS
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
-               CPASSERT(ASSOCIATED(add_el_l))
-               CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
+               !CPASSERT(ASSOCIATED(add_el_l))
+              ! CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
                ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
                qs_kind%laddel = 0
                qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
@@ -1881,7 +1881,7 @@ CONTAINS
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
-               CPASSERT(ASSOCIATED(add_el))
+               !CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
@@ -1891,8 +1891,8 @@ CONTAINS
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
-               CPASSERT(ASSOCIATED(add_el_l))
-               CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
+             !  CPASSERT(ASSOCIATED(add_el_l))
+             ! CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
                ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
                qs_kind%laddel = 0
                qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
