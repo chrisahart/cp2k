@@ -1825,43 +1825,35 @@ CONTAINS
                              "for this atom kind.")
             END IF
             qs_kind%bs_occupation = .TRUE.
+
             !Alpha spin
-            PRINT *, "Alpha spin"
             NULLIFY (spin_section)
             spin_section => section_vals_get_subs_vals(bs_section, "ALPHA")
             CALL section_vals_get(spin_section, explicit=explicit)
             IF (explicit) THEN
 
                ! &BS NEL
-               PRINT *, "BS NEL"
-               PRINT *, "ASSOCIATED(add_el)", ASSOCIATED(add_el)
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
-                                         
-               !PRINT *, "add_el", add_el
                CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
-               PRINT *, "qs_kind%addel", qs_kind%addel
 
                ! &BS L
-               PRINT *, "BS L"
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
-               !CPASSERT(ASSOCIATED(add_el_l))
-              ! CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
+               CPASSERT(ASSOCIATED(add_el_l))
+               CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
                ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
                qs_kind%laddel = 0
                qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
                
                ! &BS N
-               PRINT *, "BS N"
                ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
                qs_kind%naddel = 0
-               PRINT *, "qs_kind%laddel", qs_kind%laddel
                NULLIFY (add_el_n)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="N", n_rep_val=i)
@@ -1872,12 +1864,9 @@ CONTAINS
                      qs_kind%naddel(1:SIZE(add_el_n), 1) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
-               PRINT *, "qs_kind%naddel", qs_kind%naddel
             END IF
             
-
             !Beta spin
-            PRINT *, "Beta spin"
             NULLIFY (spin_section)
             spin_section => section_vals_get_subs_vals(bs_section, "BETA")
             CALL section_vals_get(spin_section, explicit=explicit)
@@ -1887,26 +1876,18 @@ CONTAINS
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
-               !CPASSERT(ASSOCIATED(add_el))
-              ! ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
-              ! qs_kind%addel = 0
+               CPASSERT(ASSOCIATED(add_el))
                qs_kind%addel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
-               PRINT *, "qs_kind%addel", qs_kind%addel
 
                ! &BS L
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
-             !  CPASSERT(ASSOCIATED(add_el_l))
-             ! CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
-              ! ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
-              ! qs_kind%laddel = 0
+               CPASSERT(ASSOCIATED(add_el_l))
+               CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
                qs_kind%laddel(1:SIZE(add_el_l), 2) = add_el_l(1:SIZE(add_el_l))
                
                ! &BS N
-               !ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
-             !  qs_kind%naddel = 0
-               PRINT *, "qs_kind%laddel", qs_kind%laddel
                NULLIFY (add_el_n)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="N", n_rep_val=i)
@@ -1917,7 +1898,6 @@ CONTAINS
                      qs_kind%naddel(1:SIZE(add_el_n), 2) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
-               PRINT *, "qs_kind%naddel", qs_kind%naddel
             END IF
          END IF
          
@@ -3191,8 +3171,8 @@ CONTAINS
       ncalc = 0
       edelta = 0.0_dp
 
-      PRINT *, "start init_atom_electronic_state"
-      PRINT *, "edelta start", edelta
+   !   PRINT *, "start init_atom_electronic_state"
+    !  PRINT *, "edelta start", edelta
 
       IF (ASSOCIATED(gth_potential)) THEN
          CALL get_potential(gth_potential, elec_conf=econf)
@@ -3230,18 +3210,16 @@ CONTAINS
                l = laddel(i, is) !&BS L
                nn = naddel(i, is) - l ! &BS N - &BS L
 
-               PRINT *, "hello world bs_occupation"
-               PRINT *, "addel", addel
-               PRINT *, "laddel", laddel
-               PRINT *, "naddel ", naddel
-
-               PRINT *, "addel(i, is)", addel(i, is)
-               PRINT *, "laddel(i, is)", laddel(i, is)
-               PRINT *, "naddel(i, is) ", naddel(i, is) 
-
-                PRINT *, "nn", nn ! N - L ?
-                PRINT *, "l", l   !&BS L
-                PRINT *, "ne", ne !&BS NEL
+             !  PRINT *, "hello world bs_occupation"
+             !  PRINT *, "addel", addel
+              ! PRINT *, "laddel", laddel
+              ! PRINT *, "naddel ", naddel
+              ! PRINT *, "addel(i, is)", addel(i, is)
+              ! PRINT *, "laddel(i, is)", laddel(i, is)
+              ! PRINT *, "naddel(i, is) ", naddel(i, is) 
+              !  PRINT *, "nn", nn ! N - L ?
+              !  PRINT *, "l", l   !&BS L
+              !  PRINT *, "ne", ne !&BS NEL
               
                IF (ne /= 0) THEN
                   IF (nn == 0) THEN
@@ -3269,7 +3247,7 @@ CONTAINS
                END IF
             END DO
          END DO
-         PRINT *, "edelta", edelta
+        ! PRINT *, "edelta", edelta
          edelta = 0.5_dp*edelta
         ! PRINT *, "edelta", edelta
       ELSE IF (magnetization /= 0.0_dp) THEN
@@ -3285,17 +3263,17 @@ CONTAINS
                   EXIT
                END IF
             END DO
-            PRINT *, "hello world magnetization"
-            PRINT *, "ll", ll
-            PRINT *, "l", l
-            PRINT *, "ii", ii
-            PRINT *, "dmag", dmag
-            PRINT *, "ncalc(l, i)", ncalc(l, i)
-            PRINT *, "lmat", lmat
-            PRINT *, "ptable(z)%e_conv", ptable(z)%e_conv
-            PRINT *, "UBOUND(ptable(z)%e_conv, 1)", UBOUND(ptable(z)%e_conv, 1)
+           ! PRINT *, "hello world magnetization"
+           ! PRINT *, "ll", ll
+           ! PRINT *, "l", l
+           ! PRINT *, "ii", ii
+           ! PRINT *, "dmag", dmag
+           ! PRINT *, "ncalc(l, i)", ncalc(l, i)
+           ! PRINT *, "lmat", lmat
+           ! PRINT *, "ptable(z)%e_conv", ptable(z)%e_conv
+           ! PRINT *, "UBOUND(ptable(z)%e_conv, 1)", UBOUND(ptable(z)%e_conv, 1)
             IF (ii /= 0) THEN
-            PRINT *, "ii /= 0"
+            !PRINT *, "ii /= 0"
                edelta(l, ii, 1) = magnetization*0.5_dp
                edelta(l, ii, 2) = -magnetization*0.5_dp
                !PRINT *, "edelta", edelta
@@ -3315,8 +3293,8 @@ CONTAINS
          edelta = 0.0_dp
       END IF
 
-    PRINT *, "end init_atom_electronic_state"
-    PRINT *, "edelta end", edelta
+  !  PRINT *, "end init_atom_electronic_state"
+   ! PRINT *, "edelta end", edelta
 
    END SUBROUTINE init_atom_electronic_state
 
