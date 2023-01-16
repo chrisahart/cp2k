@@ -3189,7 +3189,7 @@ CONTAINS
                ne = addel(i, is)
                l = laddel(i, is)
                nn = naddel(i, is) - l
-               PRINT *, "hello world bs_occupation"q
+               PRINT *, "hello world bs_occupation"
                PRINT *, "ne", ne
                PRINT *, "l", l
                PRINT *, "nn", nn
