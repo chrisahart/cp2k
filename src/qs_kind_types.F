@@ -202,7 +202,7 @@ MODULE qs_kind_types
       INTEGER                                :: lmax_dftb = -1
       REAL(KIND=dp)                          :: dudq_dftb3 = 0.0_dp
       REAL(KIND=dp)                          :: magnetization = 0.0_dp
-      INTEGER, DIMENSION(:, :), POINTER      :: addel => Null()
+      REAL(KIND=dp), DIMENSION(:, :), POINTER  :: addel => Null()
       INTEGER, DIMENSION(:, :), POINTER      :: laddel => Null()
       INTEGER, DIMENSION(:, :), POINTER      :: naddel => Null()
       TYPE(harmonics_atom_type), POINTER     :: harmonics => Null()
@@ -1913,6 +1913,7 @@ CONTAINS
                PRINT *, "qs_kind%naddel", qs_kind%naddel
             END IF
          END IF
+         
 
          ! Read the DFT+U subsection of the current atomic kind, if enabled
 
