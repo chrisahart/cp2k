@@ -1478,7 +1478,7 @@ CONTAINS
                           n_var=-1, &
                           repeats=.FALSE., &
                           default_r_val=-1.0_dp)
-      CALL section_add_keyword(section, keyword)
+      CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, &
