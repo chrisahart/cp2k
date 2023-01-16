@@ -1862,7 +1862,7 @@ CONTAINS
                   CALL section_vals_val_get(spin_section, &
                                             keyword_name="N", i_vals=add_el_n)
                   IF (SIZE(add_el_n) == SIZE(qs_kind%addel, 1)) THEN
-                     qs_kind%naddel(1:SIZE(add_add_el_nel), 1) = add_el_n(1:SIZE(add_el_n))
+                     qs_kind%naddel(1:SIZE(add_el_n), 1) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
                PRINT *, "qs_kind%naddel", qs_kind%naddel
@@ -1907,7 +1907,7 @@ CONTAINS
                   CALL section_vals_val_get(spin_section, &
                                             keyword_name="N", i_vals=add_el_n)
                   IF (SIZE(add_el_n) == SIZE(qs_kind%addel, 1)) THEN
-                     qs_kind%naddel(1:SIZE(add_add_el_nel), 1) = add_el_n(1:SIZE(add_el_n))
+                     qs_kind%naddel(1:SIZE(add_el_n), 1) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
                PRINT *, "qs_kind%naddel", qs_kind%naddel
