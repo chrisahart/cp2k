@@ -1904,7 +1904,7 @@ CONTAINS
                qs_kind%laddel(1:SIZE(add_el_l), 2) = add_el_l(1:SIZE(add_el_l))
                
                ! &BS N
-               c ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
+               !ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
              !  qs_kind%naddel = 0
                PRINT *, "qs_kind%laddel", qs_kind%laddel
                NULLIFY (add_el_n)
