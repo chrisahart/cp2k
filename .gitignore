@@ -364,3 +364,4 @@ tags
 
 # End of https://www.gitignore.io/api/python,fortran,c,c++,cuda,emacs,vim,cmake
 .vscode/settings.json
+src/qs_kind_types.F

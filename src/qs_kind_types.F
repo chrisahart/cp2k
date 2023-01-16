@@ -499,7 +499,8 @@ CONTAINS
       LOGICAL, INTENT(OUT), OPTIONAL                     :: bs_occupation
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: magnetization
       LOGICAL, INTENT(OUT), OPTIONAL                     :: no_optimize
-      INTEGER, DIMENSION(:, :), OPTIONAL, POINTER        :: addel, laddel, naddel
+      REAL(KIND=dp), DIMENSION(:, :), OPTIONAL, POINTER  :: addel
+      INTEGER, DIMENSION(:, :), OPTIONAL, POINTER        :: laddel, naddel
       INTEGER, DIMENSION(:), OPTIONAL, POINTER           :: orbitals
       INTEGER, OPTIONAL                                  :: max_scf
       REAL(KIND=dp), OPTIONAL                            :: eps_scf
@@ -3211,6 +3212,7 @@ CONTAINS
          END DO
          ncalc = nelem - ncore
       END IF
+      
 
       ! readjust the occupation number of the orbitals as requested by user
       ! this is done to break symmetry (bs) and bias the initial guess
