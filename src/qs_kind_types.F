@@ -1888,8 +1888,8 @@ CONTAINS
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
                !CPASSERT(ASSOCIATED(add_el))
-               ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
-               qs_kind%addel = 0
+              ! ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
+              ! qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
                PRINT *, "qs_kind%addel", qs_kind%addel
 
@@ -1899,12 +1899,12 @@ CONTAINS
                                          keyword_name="L", i_vals=add_el_l)
              !  CPASSERT(ASSOCIATED(add_el_l))
              ! CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
-               ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
-               qs_kind%laddel = 0
+              ! ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
+              ! qs_kind%laddel = 0
                qs_kind%laddel(1:SIZE(add_el_l), 2) = add_el_l(1:SIZE(add_el_l))
                
                ! &BS N
-               ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
+               c ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
              !  qs_kind%naddel = 0
                PRINT *, "qs_kind%laddel", qs_kind%laddel
                NULLIFY (add_el_n)
