@@ -1833,9 +1833,12 @@ CONTAINS
             IF (explicit) THEN
 
                ! &BS NEL
+               PRINT *, "BS NEL"
+               PRINT *, "ASSOCIATED(add_el)", ASSOCIATED(add_el)
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="NEL", r_vals=add_el)
+              PRINT *, "add_el", add_el
               ! CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
@@ -1843,6 +1846,7 @@ CONTAINS
                PRINT *, "qs_kind%addel", qs_kind%addel
 
                ! &BS L
+               PRINT *, "BS L"
                NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="L", i_vals=add_el_l)
@@ -1853,6 +1857,7 @@ CONTAINS
                qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
                
                ! &BS N
+               PRINT *, "BS N"
                ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
                qs_kind%naddel = 0
                PRINT *, "qs_kind%laddel", qs_kind%laddel
