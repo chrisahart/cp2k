@@ -500,7 +500,7 @@ CONTAINS
       TYPE(qs_atom_dispersion_type), OPTIONAL, POINTER   :: dispersion
       LOGICAL, INTENT(OUT), OPTIONAL                     :: bs_occupation
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: magnetization
-      INTEGER, INTENT(OUT), OPTIONAL               :: magnetization_n, magnetization_l
+      INTEGER, INTENT(OUT), OPTIONAL                     :: magnetization_n, magnetization_l
       LOGICAL, INTENT(OUT), OPTIONAL                     :: no_optimize
       REAL(KIND=dp), DIMENSION(:, :), OPTIONAL, POINTER  :: addel
       INTEGER, DIMENSION(:, :), OPTIONAL, POINTER        :: laddel, naddel
@@ -1807,9 +1807,9 @@ CONTAINS
          CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
                                    keyword_name="MAGNETIZATION", r_val=qs_kind%magnetization)
          CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
-                                   keyword_name="MAGNETIZATION_L", r_val=qs_kind%magnetization_l)
+                                   keyword_name="MAGNETIZATION_L", i_val=qs_kind%magnetization_l)
          CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
-                                   keyword_name="MAGNETIZATION_N", r_val=qs_kind%magnetization_n)
+                                   keyword_name="MAGNETIZATION_N", i_val=qs_kind%magnetization_n)
          ! DFTB3 param
          CALL section_vals_val_get(kind_section, i_rep_section=k_rep, &
                                    keyword_name="DFTB3_PARAM", r_val=qs_kind%dudq_dftb3)
