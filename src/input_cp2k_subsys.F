@@ -1509,20 +1509,20 @@ CONTAINS
       CALL section_release(subsection)
 
       CALL section_create(subsection, __LOCATION__, name="BETA", description="beta spin", &
-                          n_keywords=3, &
+                          n_keywords=2, &
                           n_subsections=0, &
                           repeats=.FALSE.)
 
-      CALL keyword_create(keyword, __LOCATION__, & 
-                          name="NEL", &
-                          description="Orbital ccupation change per angular momentum quantum number. "// &
-                          "In unrestricted calculations applied to spin beta.", &
-                          usage="NEL 1.0", &
-                          n_var=-1, &
-                          repeats=.FALSE., &
-                          default_r_val=-1.0_dp)
-      CALL section_add_keyword(section, keyword)
-      CALL keyword_release(keyword)
+    !  CALL keyword_create(keyword, __LOCATION__, & 
+    !                      name="NEL", &
+    !                      description="Orbital ccupation change per angular momentum quantum number. "// &
+    !                      "In unrestricted calculations applied to spin beta.", &
+    !                      usage="NEL 1.0", &
+    !                      n_var=-1, &
+    !                      repeats=.FALSE., &
+    !                      default_r_val=-1.0_dp)
+    !  CALL section_add_keyword(section, keyword)
+    !  CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, &
                           name="L", &
