@@ -1890,7 +1890,7 @@ CONTAINS
                !CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
-               qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
+               qs_kind%addel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
                PRINT *, "qs_kind%addel", qs_kind%addel
 
                ! &BS L
@@ -1901,7 +1901,7 @@ CONTAINS
              ! CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
                ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
                qs_kind%laddel = 0
-               qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
+               qs_kind%laddel(1:SIZE(add_el_l), 2) = add_el_l(1:SIZE(add_el_l))
                
                ! &BS N
                ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
@@ -1914,7 +1914,7 @@ CONTAINS
                   CALL section_vals_val_get(spin_section, &
                                             keyword_name="N", i_vals=add_el_n)
                   IF (SIZE(add_el_n) == SIZE(qs_kind%addel, 1)) THEN
-                     qs_kind%naddel(1:SIZE(add_el_n), 1) = add_el_n(1:SIZE(add_el_n))
+                     qs_kind%naddel(1:SIZE(add_el_n), 2) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
                PRINT *, "qs_kind%naddel", qs_kind%naddel
