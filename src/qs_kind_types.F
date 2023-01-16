@@ -1509,7 +1509,8 @@ CONTAINS
                                                             basis_set_type
       INTEGER :: handle, i, i_rep, iounit, ipaodesc, ipaopot, ipos, j, jj, k_rep, l, m, n_rep, &
          nb_rep, nexp, ngauss, nlcc, nloc, nnl, norbitals, npaodesc, npaopot, nppnl, nspin, nu, z
-      INTEGER, DIMENSION(:), POINTER                     :: add_el, elec_conf, orbitals
+      REAL(KIND=dp)  , DIMENSION(:), POINTER             :: add_el
+      INTEGER, DIMENSION(:), POINTER                     :: add_el_l, add_el_n, elec_conf, orbitals
       LOGICAL :: check, explicit, explicit_basis, explicit_J, explicit_kgpot, explicit_potential, &
          explicit_U, explicit_u_m_j, nobasis, section_enabled, subsection_enabled, update_input
       REAL(KIND=dp)                                      :: alpha, ccore, r, rc, zeff_correction
@@ -1824,65 +1825,92 @@ CONTAINS
             END IF
             qs_kind%bs_occupation = .TRUE.
             !Alpha spin
+            PRINT *, "Alpha spin"
             NULLIFY (spin_section)
             spin_section => section_vals_get_subs_vals(bs_section, "ALPHA")
             CALL section_vals_get(spin_section, explicit=explicit)
             IF (explicit) THEN
+
+               ! &BS NEL
                NULLIFY (add_el)
                CALL section_vals_val_get(spin_section, &
-                                         keyword_name="NEL", i_vals=add_el)
+                                         keyword_name="NEL", r_vals=add_el)
                CPASSERT(ASSOCIATED(add_el))
                ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
                qs_kind%addel = 0
                qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
-               NULLIFY (add_el)
+               PRINT *, "qs_kind%addel", qs_kind%addel
+
+               ! &BS L
+               NULLIFY (add_el_l)
                CALL section_vals_val_get(spin_section, &
-                                         keyword_name="L", i_vals=add_el)
-               CPASSERT(ASSOCIATED(add_el))
-               CPASSERT(SIZE(add_el) == SIZE(qs_kind%addel, 1))
-               ALLOCATE (qs_kind%laddel(SIZE(add_el), 2))
+                                         keyword_name="L", i_vals=add_el_l)
+               CPASSERT(ASSOCIATED(add_el_l))
+               CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
+               ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
                qs_kind%laddel = 0
-               qs_kind%laddel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
-               ALLOCATE (qs_kind%naddel(SIZE(add_el), 2))
+               qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
+               
+               ! &BS N
+               ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
                qs_kind%naddel = 0
-               NULLIFY (add_el)
+               PRINT *, "qs_kind%laddel", qs_kind%laddel
+               NULLIFY (add_el_n)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="N", n_rep_val=i)
                IF (i > 0) THEN
                   CALL section_vals_val_get(spin_section, &
-                                            keyword_name="N", i_vals=add_el)
-                  IF (SIZE(add_el) == SIZE(qs_kind%addel, 1)) THEN
-                     qs_kind%naddel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
+                                            keyword_name="N", i_vals=add_el_n)
+                  IF (SIZE(add_el_n) == SIZE(qs_kind%addel, 1)) THEN
+                     qs_kind%naddel(1:SIZE(add_add_el_nel), 1) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
+               PRINT *, "qs_kind%naddel", qs_kind%naddel
             END IF
+            
+
             !Beta spin
+            PRINT *, "Beta spin"
             NULLIFY (spin_section)
             spin_section => section_vals_get_subs_vals(bs_section, "BETA")
             CALL section_vals_get(spin_section, explicit=explicit)
             IF (explicit) THEN
-               NULLIFY (add_el)
-               CALL section_vals_val_get(spin_section, &
-                                         keyword_name="NEL", i_vals=add_el)
-               CPASSERT(SIZE(add_el) == SIZE(qs_kind%addel, 1))
-               qs_kind%addel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
-               qs_kind%addel(:, :) = qs_kind%addel(:, :)
-               NULLIFY (add_el)
-               CALL section_vals_val_get(spin_section, &
-                                         keyword_name="L", i_vals=add_el)
-               CPASSERT(SIZE(add_el) == SIZE(qs_kind%addel, 1))
-               qs_kind%laddel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
 
+               ! &BS NEL
+               NULLIFY (add_el)
+               CALL section_vals_val_get(spin_section, &
+                                         keyword_name="NEL", r_vals=add_el)
+               CPASSERT(ASSOCIATED(add_el))
+               ALLOCATE (qs_kind%addel(SIZE(add_el), 2))
+               qs_kind%addel = 0
+               qs_kind%addel(1:SIZE(add_el), 1) = add_el(1:SIZE(add_el))
+               PRINT *, "qs_kind%addel", qs_kind%addel
+
+               ! &BS L
+               NULLIFY (add_el_l)
+               CALL section_vals_val_get(spin_section, &
+                                         keyword_name="L", i_vals=add_el_l)
+               CPASSERT(ASSOCIATED(add_el_l))
+               CPASSERT(SIZE(add_el_l) == SIZE(qs_kind%addel, 1))
+               ALLOCATE (qs_kind%laddel(SIZE(add_el_l), 2))
+               qs_kind%laddel = 0
+               qs_kind%laddel(1:SIZE(add_el_l), 1) = add_el_l(1:SIZE(add_el_l))
+               
+               ! &BS N
+               ALLOCATE (qs_kind%naddel(SIZE(add_el_l), 2))
+               qs_kind%naddel = 0
+               PRINT *, "qs_kind%laddel", qs_kind%laddel
+               NULLIFY (add_el_n)
                CALL section_vals_val_get(spin_section, &
                                          keyword_name="N", n_rep_val=i)
                IF (i > 0) THEN
-                  NULLIFY (add_el)
                   CALL section_vals_val_get(spin_section, &
-                                            keyword_name="N", i_vals=add_el)
-                  IF (SIZE(add_el) == SIZE(qs_kind%addel, 1)) THEN
-                     qs_kind%naddel(1:SIZE(add_el), 2) = add_el(1:SIZE(add_el))
+                                            keyword_name="N", i_vals=add_el_n)
+                  IF (SIZE(add_el_n) == SIZE(qs_kind%addel, 1)) THEN
+                     qs_kind%naddel(1:SIZE(add_add_el_nel), 1) = add_el_n(1:SIZE(add_el_n))
                   END IF
                END IF
+               PRINT *, "qs_kind%naddel", qs_kind%naddel
             END IF
          END IF
 
@@ -3131,11 +3159,12 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(0:lmat, 10, 2), &
          INTENT(OUT)                                     :: edelta
 
-      INTEGER                                            :: i, ii, is, l, ll, ne, nn, z
+      INTEGER                                            :: i, ii, is, l, ll, nn, z
       INTEGER, DIMENSION(:), POINTER                     :: econf
-      INTEGER, DIMENSION(:, :), POINTER                  :: addel, laddel, naddel
+      REAL(KIND=dp), DIMENSION(:, :), POINTER            :: addel
+      INTEGER, DIMENSION(:, :), POINTER                  :: laddel, naddel
       LOGICAL                                            :: bs_occupation
-      REAL(KIND=dp)                                      :: dmag, magnetization
+      REAL(KIND=dp)                                      :: dmag, magnetization, ne
       TYPE(gth_potential_type), POINTER                  :: gth_potential
       TYPE(sgp_potential_type), POINTER                  :: sgp_potential
 
@@ -3186,11 +3215,11 @@ CONTAINS
       ! this is done to break symmetry (bs) and bias the initial guess
       ! to the pre-defined multiplicity/charge state of the atom
       IF (bs_occupation) THEN
-         DO is = 1, 2
-            DO i = 1, SIZE(addel, 1)
-               ne = addel(i, is)
-               l = laddel(i, is)
-               nn = naddel(i, is) - l
+         DO is = 1, 2 ! Iterate over spin channels
+            DO i = 1, SIZE(addel, 1) ! Iterate over all &BS
+               ne = addel(i, is) !&BS NEL
+               l = laddel(i, is) !&BS L
+               nn = naddel(i, is) - l ! &BS N - &BS L
 
                PRINT *, "hello world bs_occupation"
                PRINT *, "addel", addel
@@ -3201,10 +3230,10 @@ CONTAINS
                PRINT *, "laddel(i, is)", laddel(i, is)
                PRINT *, "naddel(i, is) ", naddel(i, is) 
 
-               PRINT *, "ne", ne !&BS NEL
-               PRINT *, "l", l   !&BS L
-               PRINT *, "nn", nn !
-
+                PRINT *, "nn", nn ! N - L ?
+                PRINT *, "l", l   !&BS L
+                PRINT *, "ne", ne !&BS NEL
+              
                IF (ne /= 0) THEN
                   IF (nn == 0) THEN
                      DO ii = SIZE(nelem, 2), 1, -1

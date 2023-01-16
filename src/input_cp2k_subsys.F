@@ -1470,15 +1470,13 @@ CONTAINS
                           n_subsections=0, &
                           repeats=.FALSE.)
 
-      CALL keyword_create(keyword, __LOCATION__, &
+      CALL keyword_create(keyword, __LOCATION__, & 
                           name="NEL", &
                           description="Orbital ccupation change per angular momentum quantum number. "// &
                           "In unrestricted calculations applied to spin alpha.", &
-                          repeats=.FALSE., &
-                          n_var=-1, &
-                          default_i_val=-1, &
-                          usage="NEL 2")
-      CALL section_add_keyword(subsection, keyword)
+                          usage="NEL 1.0", &
+                          default_r_val=-1.0_dp, &
+      CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, &
@@ -1513,15 +1511,13 @@ CONTAINS
                           n_subsections=0, &
                           repeats=.FALSE.)
 
-      CALL keyword_create(keyword, __LOCATION__, &
+      CALL keyword_create(keyword, __LOCATION__, & 
                           name="NEL", &
                           description="Orbital ccupation change per angular momentum quantum number. "// &
-                          "Applied to spin beta and active only in unrestricted calculations.", &
-                          repeats=.FALSE., &
-                          n_var=-1, &
-                          default_i_val=-1, &
-                          usage="NEL 2")
-      CALL section_add_keyword(subsection, keyword)
+                          "In unrestricted calculations applied to spin beta.", &
+                          usage="NEL 1.0", &
+                          default_r_val=-1.0_dp, &
+      CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
       CALL keyword_create(keyword, __LOCATION__, &
