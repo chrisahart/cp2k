@@ -3193,7 +3193,7 @@ CONTAINS
                nn = naddel(i, is) - l
 
                PRINT *, "hello world bs_occupation"
-               PRINT *, "addel", add_el
+               PRINT *, "addel", addel
                PRINT *, "laddel", laddel
                PRINT *, "naddel ", naddel
 
