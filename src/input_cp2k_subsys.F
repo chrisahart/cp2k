@@ -1476,6 +1476,7 @@ CONTAINS
                           "In unrestricted calculations applied to spin alpha.", &
                           usage="NEL 1.0", &
                           n_var=-1, &
+                          type_of_var=real_t, &
                           repeats=.FALSE., &
                           default_r_val=-1.0_dp, &
       CALL section_add_keyword(section, keyword)
