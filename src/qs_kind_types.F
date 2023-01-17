@@ -3181,9 +3181,6 @@ CONTAINS
       ncalc = 0
       edelta = 0.0_dp
 
-   !   PRINT *, "start init_atom_electronic_state"
-    !  PRINT *, "edelta start", edelta
-
       IF (ASSOCIATED(gth_potential)) THEN
          CALL get_potential(gth_potential, elec_conf=econf)
          CALL set_pseudo_state(econf, z, ncalc, ncore, nelem)
@@ -3209,7 +3206,6 @@ CONTAINS
          ncalc = nelem - ncore
       END IF
       
-
       ! readjust the occupation number of the orbitals as requested by user
       ! this is done to break symmetry (bs) and bias the initial guess
       ! to the pre-defined multiplicity/charge state of the atom
@@ -3220,17 +3216,6 @@ CONTAINS
                l = laddel(i, is) !&BS L (integer)
                nn = naddel(i, is) - l ! &BS N - &BS L (integer)
 
-             !  PRINT *, "hello world bs_occupation"
-             !  PRINT *, "addel", addel
-              ! PRINT *, "laddel", laddel
-              ! PRINT *, "naddel ", naddel
-              ! PRINT *, "addel(i, is)", addel(i, is)
-              ! PRINT *, "laddel(i, is)", laddel(i, is)
-              ! PRINT *, "naddel(i, is) ", naddel(i, is) 
-              !  PRINT *, "nn", nn ! N - L ?
-              !  PRINT *, "l", l   !&BS L
-              !  PRINT *, "ne", ne !&BS NEL
-              
                IF (ne /= 0) THEN
                   IF (nn == 0) THEN
                      DO ii = SIZE(nelem, 2), 1, -1
@@ -3301,9 +3286,6 @@ CONTAINS
          ncalc = 0
          edelta = 0.0_dp
    END IF
-
-  !  PRINT *, "end init_atom_electronic_state"
-   ! PRINT *, "edelta end", edelta
 
    END SUBROUTINE init_atom_electronic_state
 
