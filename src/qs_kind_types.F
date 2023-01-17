@@ -3270,7 +3270,7 @@ CONTAINS
                edelta(l, nn, 2) = -magnetization*0.5_dp
          
          ! Detect unfilled orbitals
-         ELSE
+         ELSE IF (l == 0) THEN
             DO l = 0, MIN(lmat, UBOUND(ptable(z)%e_conv, 1))
                ll = 2*(2*l + 1)
                ii = 0
@@ -3295,12 +3295,12 @@ CONTAINS
       END IF
    END IF 
       
-      IF (qs_kind%ghost .OR. qs_kind%floating) THEN
+   IF (qs_kind%ghost .OR. qs_kind%floating) THEN
          nelem = 0
          ncore = 0
          ncalc = 0
          edelta = 0.0_dp
-      END IF
+   END IF
 
   !  PRINT *, "end init_atom_electronic_state"
    ! PRINT *, "edelta end", edelta
