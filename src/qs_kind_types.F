@@ -3293,6 +3293,7 @@ CONTAINS
                           "Magnetization value cannot be imposed for this atom type")
          END IF
       END IF
+   END IF 
       
       IF (qs_kind%ghost .OR. qs_kind%floating) THEN
          nelem = 0
