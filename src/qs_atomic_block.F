@@ -138,7 +138,9 @@ CONTAINS
          IF (nelectron_spin(ispin) > 0) THEN
             rds = REAL(nelectron_spin(ispin), dp)/trps1
          END IF
-         CALL dbcsr_scale(matrix_p, rds)
+         
+         ! Rescale density matrix
+         !CALL dbcsr_scale(matrix_p, rds)
 
          IF (ounit > 0) THEN
             IF (nspin > 1) THEN
