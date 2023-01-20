@@ -540,7 +540,8 @@ CONTAINS
       ELSE
          CALL calculate_atomic_block_dm(rho_ao, matrix_s(1)%matrix, &
                                         particle_set, atomic_kind_set, qs_kind_set, &
-                                        nspin, nelectron_spin, unit_nr, para_env)
+                                        nspin, nelectron_spin, unit_nr, para_env, &
+                                        dft_control%density_rescale)
       END IF
 
       CALL qs_rho_update_rho(rho, qs_env=qs_env)
