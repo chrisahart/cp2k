@@ -150,8 +150,9 @@ CONTAINS
          ! Disable density rescaling
          IF (.NOT. density_rescale) THEN
             IF (ounit > 0) THEN
-               WRITE (UNIT=ounit, FMT="(T2, F14.3, T2, F14.3)") &
-                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 1.0_dp
+            PRINT *, "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 1.0_dp
+              ! WRITE (UNIT=ounit, FMT="(T2, F14.3, T2, F14.3)") &
+              !       "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 1.0_dp
             END IF
             rds = 1.0_dp
          END IF 
