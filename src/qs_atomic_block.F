@@ -181,12 +181,12 @@ CONTAINS
 
            IF (nelectron_spin(ispin) > nocc(ispin)) THEN
 
-           IF (ounit > 0) THEN
+            IF (.NOT. density_rescale) THEN
                   WRITE (UNIT=ounit, FMT="(T4,A,/,T4,A)") &
-                     "More MOs than initial guess orbitals detected"
-           END IF
-
-           CPASSERT(.NOT. density_rescale)
+                              "More MOs than initial guess orbitals detected", &
+                              "Not yet supported for DENSITY_RESCALE=FALSE"
+                     CPASSERT(.NOT. density_rescale)
+               END IF 
 
                rds = 0.99_dp
                CALL dbcsr_scale(matrix_p, rds)
@@ -194,9 +194,10 @@ CONTAINS
                CALL dbcsr_get_info(matrix_p, nfullcols_total=nc)
                rds = rds/REAL(nc, KIND=dp)
                CALL dbcsr_add_on_diag(matrix_p, rds)
-               
+
                IF (ounit > 0) THEN
-                  WRITE (UNIT=ounit, FMT="(T4,A,T59,F20.12)") &
+                  WRITE (UNIT=ounit, FMT="(T4,A,/,T4,A,T59,F20.12)") &
+                     "More MOs than initial guess orbitals detected", &
                      "Add constant to diagonal elements ", rds
                END IF
             END IF
