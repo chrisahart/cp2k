@@ -138,36 +138,36 @@ CONTAINS
          CALL dbcsr_dot(matrix_p, matrix_s, trps1)
          rds = 0.0_dp
 
-         ! Rescale density matrix according to multiplicity
+         ! Calculate scaling factor
          IF (density_rescale) THEN
              ! could be a ghost-atoms-only simulation
              IF (nelectron_spin(ispin) > 0) THEN
                   rds = REAL(nelectron_spin(ispin), dp)/trps1
              END IF
 
-       IF (ounit > 0) THEN
-            IF (nspin > 1) THEN
-               WRITE (UNIT=ounit, FMT="(T2,A,I1)") &
-                  "Re-scaling the density matrix to get the right number of electrons for spin ", ispin
-            ELSE
-               WRITE (UNIT=ounit, FMT="(T2,A)") &
-                  "Re-scaling the density matrix to get the right number of electrons"
+         IF (ounit > 0) THEN
+               IF (nspin > 1) THEN
+                  WRITE (UNIT=ounit, FMT="(T2,A,I1)") &
+                     "Re-scaling the density matrix to get the right number of electrons for spin ", ispin
+               ELSE
+                  WRITE (UNIT=ounit, FMT="(T2,A)") &
+                     "Re-scaling the density matrix to get the right number of electrons"
+               END IF
+               WRITE (ounit, '(T19,A,T44,A,T67,A)') "# Electrons", "Trace(P)", "Scaling factor"
+               WRITE (ounit, '(T20,I10,T40,F12.3,T67,F14.3)') nelectron_spin(ispin), trps1, rds
             END IF
-            WRITE (ounit, '(T19,A,T44,A,T67,A)') "# Electrons", "Trace(P)", "Scaling factor"
-            WRITE (ounit, '(T20,I10,T40,F12.3,T67,F14.3)') nelectron_spin(ispin), trps1, rds
-         END IF
 
-         ! Set rds to unity if DENSITY_RESCALE=FALSE
+         ! Set scaling factor to unity if DENSITY_RESCALE=FALSE
          ELSE IF (.NOT. density_rescale) THEN
               rds = 1.0_dp
               IF (ounit > 0) THEN
                   WRITE (UNIT=ounit, FMT="(T2, A)") &
                         "Re-scaling of density matrix is disabled due to DENSITY_RESCALE=FALSE"
               END IF
-            END IF 
          END IF 
 
          PRINT *, "rds", rds
+         ! Rescale density matrix 
          CALL dbcsr_scale(matrix_p, rds)
 
          IF (nspin > 1) THEN
