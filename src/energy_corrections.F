@@ -3359,7 +3359,8 @@ CONTAINS
 
          CALL calculate_atomic_block_dm(p_rmpv, matrix_s(1, 1)%matrix, &
                                         particle_set, atomic_kind_set, qs_kind_set, &
-                                        nspins, nelectron_spin, iounit, para_env)
+                                        nspins, nelectron_spin, iounit, para_env, &
+                                        dft_control%density_rescale)
 
       CASE (ec_ot_gs)
 
