@@ -138,7 +138,7 @@ CONTAINS
          CALL dbcsr_dot(matrix_p, matrix_s, trps1)
          rds = 0.0_dp
 
-         ! Calculate scaling factor
+         ! Calculate density matrix scaling factor rds
          IF (density_rescale) THEN
              ! could be a ghost-atoms-only simulation
              IF (nelectron_spin(ispin) > 0) THEN
@@ -160,14 +160,16 @@ CONTAINS
          ! Set scaling factor to unity if DENSITY_RESCALE=FALSE
          ELSE IF (.NOT. density_rescale) THEN
               rds = 1.0_dp
+
               IF (ounit > 0) THEN
-              WRITE (ounit, '(T19,A,T44,A)') "# Electrons", "Trace(P)"
-              WRITE (ounit, '(T20,I10,T40,F12.3)') nelectron_spin(ispin), trps1
-             WRITE (UNIT=ounit, FMT="(T2, A)") & 
-                    "Re-scaling of density matrix is disabled due to DENSITY_RESCALE=FALSE"
+                  WRITE (ounit, '(T19,A,T44,A)') "# Electrons", "Trace(P)"
+                  WRITE (ounit, '(T20,I10,T40,F12.3)') nelectron_spin(ispin), trps1
+                  WRITE (UNIT=ounit, FMT="(T2, A)") & 
+                        "Re-scaling of density matrix is disabled due to DENSITY_RESCALE=FALSE"
               END IF
          END IF 
 
+         PRINT *, "ispin", ispin
          PRINT *, "rds", rds
          ! Rescale density matrix 
          CALL dbcsr_scale(matrix_p, rds)
@@ -175,7 +177,9 @@ CONTAINS
          IF (nspin > 1) THEN
             group = para_env%group
             CALL mp_sum(nocc, group)
+
             IF (nelectron_spin(ispin) > nocc(ispin)) THEN
+                PRINT *, "nelectron_spin(ispin) > nocc(ispin)"
 
                 ! Set rds to unity if DENSITY_RESCALE=FALSE
                 IF (density_rescale) THEN
