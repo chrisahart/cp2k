@@ -171,6 +171,7 @@ CONTAINS
 
          IF (ounit > 0) PRINT *, "ispin", ispin
          IF (ounit > 0) PRINT *, "rds", rds
+
          ! Rescale density matrix 
          CALL dbcsr_scale(matrix_p, rds)
 
@@ -178,40 +179,24 @@ CONTAINS
             group = para_env%group
             CALL mp_sum(nocc, group)
 
-            IF (nelectron_spin(ispin) > nocc(ispin)) THEN
-                IF (ounit > 0) PRINT *, "nelectron_spin(ispin) > nocc(ispin)"
+           IF (nelectron_spin(ispin) > nocc(ispin)) THEN
 
-                ! Set rds to unity if DENSITY_RESCALE=FALSE
-                IF (density_rescale) THEN
-                  rds = 0.99_dp
-               ELSE IF (.NOT. density_rescale) THEN
-                  rds = 1.0_dp
-               END IF 
+           IF (ounit > 0) THEN
+                  WRITE (UNIT=ounit, FMT="(T4,A,/,T4,A)") &
+                     "More MOs than initial guess orbitals detected"
+           END IF
 
-               PRINT *, "rds", rds
+           CPASSERT(.NOT. density_rescale)
+
+               rds = 0.99_dp
                CALL dbcsr_scale(matrix_p, rds)
-
-                ! Set rds to unity if DENSITY_RESCALE=FALSE
-                IF (density_rescale) THEN
-                  rds = (1.0_dp - rds)*nelectron_spin(ispin)
-               ELSE IF (.NOT. density_rescale) THEN
-                  rds = 1.0_dp
-               END IF 
-
+               rds = (1.0_dp - rds)*nelectron_spin(ispin)
                CALL dbcsr_get_info(matrix_p, nfullcols_total=nc)
-
-               ! Set rds to unity if DENSITY_RESCALE=FALSE
-               IF (density_rescale) THEN
-                  rds = rds/REAL(nc, KIND=dp)
-               ELSE IF (.NOT. density_rescale) THEN
-                  rds = 1.0_dp
-               END IF 
-
+               rds = rds/REAL(nc, KIND=dp)
                CALL dbcsr_add_on_diag(matrix_p, rds)
-
+               
                IF (ounit > 0) THEN
-                  WRITE (UNIT=ounit, FMT="(T4,A,/,T4,A,T59,F20.12)") &
-                     "More MOs than initial guess orbitals detected", &
+                  WRITE (UNIT=ounit, FMT="(T4,A,T59,F20.12)") &
                      "Add constant to diagonal elements ", rds
                END IF
             END IF
