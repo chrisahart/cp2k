@@ -138,29 +138,14 @@ CONTAINS
          CALL dbcsr_dot(matrix_p, matrix_s, trps1)
          rds = 0.0_dp
 
-         ! Set rds to unity if DENSITY_RESCALE=FALSE
-                IF (density_rescale) THEN
-                  ! could be a ghost-atoms-only simulation
-                  IF (nelectron_spin(ispin) > 0) THEN
-                     rds = REAL(nelectron_spin(ispin), dp)/trps1
-                  END IF
-               ELSE IF (.NOT. density_rescale) THEN
-                  rds = 1.0_dp
-               END IF 
+         ! Rescale density matrix according to multiplicity
+         IF (density_rescale) THEN
+             ! could be a ghost-atoms-only simulation
+             IF (nelectron_spin(ispin) > 0) THEN
+                  rds = REAL(nelectron_spin(ispin), dp)/trps1
+             END IF
 
-         PRINT *, "rds", rds
-         CALL dbcsr_scale(matrix_p, rds)
-
-         ! Set rds to unity if DENSITY_RESCALE=FALSE
-         IF (.NOT. density_rescale) THEN
-            IF (ounit > 0) THEN
-               WRITE (UNIT=ounit, FMT="(T2, A, F14.3, A, F14.3)") &
-                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "   to", 1.0_dp
-            END IF
-            rds = 1.0_dp
-         END IF 
-
-         IF (ounit > 0) THEN
+       IF (ounit > 0) THEN
             IF (nspin > 1) THEN
                WRITE (UNIT=ounit, FMT="(T2,A,I1)") &
                   "Re-scaling the density matrix to get the right number of electrons for spin ", ispin
@@ -171,6 +156,19 @@ CONTAINS
             WRITE (ounit, '(T19,A,T44,A,T67,A)') "# Electrons", "Trace(P)", "Scaling factor"
             WRITE (ounit, '(T20,I10,T40,F12.3,T67,F14.3)') nelectron_spin(ispin), trps1, rds
          END IF
+
+         ! Set rds to unity if DENSITY_RESCALE=FALSE
+         ELSE IF (.NOT. density_rescale) THEN
+              rds = 1.0_dp
+              IF (ounit > 0) THEN
+                  WRITE (UNIT=ounit, FMT="(T2, A)") &
+                        "Re-scaling of density matrix is disabled due to DENSITY_RESCALE=FALSE"
+              END IF
+            END IF 
+         END IF 
+
+         PRINT *, "rds", rds
+         CALL dbcsr_scale(matrix_p, rds)
 
          IF (nspin > 1) THEN
             group = para_env%group
