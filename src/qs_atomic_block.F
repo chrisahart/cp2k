@@ -146,12 +146,13 @@ CONTAINS
          CALL dbcsr_scale(matrix_p, rds)
 
          PRINT *, "rds", rds
+         PRINT *, "density_rescale", density_rescale
 
          ! Disable density rescaling
-         IF (density_rescale == .FALSE.) THEN
+         IF (.NOT. density_rescale) THEN
             IF (ounit > 0) THEN
                WRITE (UNIT=ounit, FMT="(T2,A,I1)") &
-                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds "to", 0.0_dp
+                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 0.0_dp
             END IF
             rds = 0.0_dp
          END IF 
