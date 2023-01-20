@@ -161,8 +161,10 @@ CONTAINS
          ELSE IF (.NOT. density_rescale) THEN
               rds = 1.0_dp
               IF (ounit > 0) THEN
-                  WRITE (UNIT=ounit, FMT="(T2, A)") &
-                        "Re-scaling of density matrix is disabled due to DENSITY_RESCALE=FALSE"
+              WRITE (ounit, '(T19,A,T44,A)') "# Electrons", "Trace(P)"
+              WRITE (ounit, '(T20,I10,T40,F12.3)') nelectron_spin(ispin), trps1
+             WRITE (UNIT=ounit, FMT="(T2, A)") & 
+                    "Re-scaling of density matrix is disabled due to DENSITY_RESCALE=FALSE"
               END IF
          END IF 
 
