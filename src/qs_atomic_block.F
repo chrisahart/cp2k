@@ -169,8 +169,8 @@ CONTAINS
               END IF
          END IF 
 
-         PRINT *, "ispin", ispin
-         PRINT *, "rds", rds
+         IF (ounit > 0) PRINT *, "ispin", ispin
+         IF (ounit > 0) PRINT *, "rds", rds
          ! Rescale density matrix 
          CALL dbcsr_scale(matrix_p, rds)
 
@@ -179,7 +179,7 @@ CONTAINS
             CALL mp_sum(nocc, group)
 
             IF (nelectron_spin(ispin) > nocc(ispin)) THEN
-                PRINT *, "nelectron_spin(ispin) > nocc(ispin)"
+                IF (ounit > 0) PRINT *, "nelectron_spin(ispin) > nocc(ispin)"
 
                 ! Set rds to unity if DENSITY_RESCALE=FALSE
                 IF (density_rescale) THEN
