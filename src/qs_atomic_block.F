@@ -83,7 +83,7 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
-      PRINT *, "start calculate_atomic_block_dm"
+      !PRINT *, "start calculate_atomic_block_dm"
 
       natom = SIZE(particle_set)
       nkind = SIZE(atomic_kind_set)
@@ -144,16 +144,16 @@ CONTAINS
       
          CALL dbcsr_scale(matrix_p, rds)
 
-         PRINT *, "rds", rds
-         PRINT *, "density_rescale", density_rescale
+       !  PRINT *, "rds", rds
+       !  PRINT *, "density_rescale", density_rescale
 
          ! Disable density rescaling
          IF (.NOT. density_rescale) THEN
             IF (ounit > 0) THEN
-               WRITE (UNIT=ounit, FMT="(T2, A, F14.3, T2, A, F14.3)") &
-                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 0.0_dp
+               WRITE (UNIT=ounit, FMT="(T2, F14.3, T2, F14.3)") &
+                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 1.0_dp
             END IF
-            rds = 0.0_dp
+            rds = 1.0_dp
          END IF 
 
          IF (ounit > 0) THEN
@@ -172,11 +172,29 @@ CONTAINS
             group = para_env%group
             CALL mp_sum(nocc, group)
             IF (nelectron_spin(ispin) > nocc(ispin)) THEN
-               rds = 0.99_dp
+
+               IF (density_rescale) THEN
+                  rds = 0.99_dp
+               ELSE IF (.NOT. density_rescale) THEN
+                  rds = 1.0_dp
+               END IF 
+
                CALL dbcsr_scale(matrix_p, rds)
-               rds = (1.0_dp - rds)*nelectron_spin(ispin)
+
+               IF (density_rescale) THEN
+                  rds = (1.0_dp - rds)*nelectron_spin(ispin)
+               ELSE IF (.NOT. density_rescale) THEN
+                  rds = 1.0_dp
+               END IF 
+
                CALL dbcsr_get_info(matrix_p, nfullcols_total=nc)
-               rds = rds/REAL(nc, KIND=dp)
+
+               IF (density_rescale) THEN
+                  rds = rds/REAL(nc, KIND=dp)
+               ELSE IF (.NOT. density_rescale) THEN
+                  rds = 1.0_dp
+               END IF 
+
                CALL dbcsr_add_on_diag(matrix_p, rds)
                IF (ounit > 0) THEN
                   WRITE (UNIT=ounit, FMT="(T4,A,/,T4,A,T59,F20.12)") &
@@ -197,7 +215,7 @@ CONTAINS
 
       DEALLOCATE (kind_of, nok)
 
-      PRINT *, "end calculate_atomic_block_dm"
+     ! PRINT *, "end calculate_atomic_block_dm"
 
       CALL timestop(handle)
 
