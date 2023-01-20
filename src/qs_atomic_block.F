@@ -137,22 +137,20 @@ CONTAINS
 
          CALL dbcsr_dot(matrix_p, matrix_s, trps1)
          rds = 0.0_dp
+
          ! could be a ghost-atoms-only simulation
          IF (nelectron_spin(ispin) > 0) THEN
             rds = REAL(nelectron_spin(ispin), dp)/trps1
          END IF
       
+         PRINT *, "rds", rds
          CALL dbcsr_scale(matrix_p, rds)
 
-       !  PRINT *, "rds", rds
-       !  PRINT *, "density_rescale", density_rescale
-
-         ! Disable density rescaling
+         ! Set rds to unity if DENSITY_RESCALE=FALSE
          IF (.NOT. density_rescale) THEN
             IF (ounit > 0) THEN
-            PRINT *, "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 1.0_dp
                WRITE (UNIT=ounit, FMT="(T2, A, F14.3, A, F14.3)") &
-                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "to", 1.0_dp
+                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds, "   to", 1.0_dp
             END IF
             rds = 1.0_dp
          END IF 
@@ -174,15 +172,18 @@ CONTAINS
             CALL mp_sum(nocc, group)
             IF (nelectron_spin(ispin) > nocc(ispin)) THEN
 
-               IF (density_rescale) THEN
+                ! Set rds to unity if DENSITY_RESCALE=FALSE
+                IF (density_rescale) THEN
                   rds = 0.99_dp
                ELSE IF (.NOT. density_rescale) THEN
                   rds = 1.0_dp
                END IF 
 
+               PRINT *, "rds", rds
                CALL dbcsr_scale(matrix_p, rds)
 
-               IF (density_rescale) THEN
+                ! Set rds to unity if DENSITY_RESCALE=FALSE
+                IF (density_rescale) THEN
                   rds = (1.0_dp - rds)*nelectron_spin(ispin)
                ELSE IF (.NOT. density_rescale) THEN
                   rds = 1.0_dp
@@ -190,6 +191,7 @@ CONTAINS
 
                CALL dbcsr_get_info(matrix_p, nfullcols_total=nc)
 
+               ! Set rds to unity if DENSITY_RESCALE=FALSE
                IF (density_rescale) THEN
                   rds = rds/REAL(nc, KIND=dp)
                ELSE IF (.NOT. density_rescale) THEN
@@ -197,6 +199,7 @@ CONTAINS
                END IF 
 
                CALL dbcsr_add_on_diag(matrix_p, rds)
+
                IF (ounit > 0) THEN
                   WRITE (UNIT=ounit, FMT="(T4,A,/,T4,A,T59,F20.12)") &
                      "More MOs than initial guess orbitals detected", &
@@ -215,8 +218,6 @@ CONTAINS
       DEALLOCATE (pmat)
 
       DEALLOCATE (kind_of, nok)
-
-     ! PRINT *, "end calculate_atomic_block_dm"
 
       CALL timestop(handle)
 
