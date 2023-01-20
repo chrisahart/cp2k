@@ -612,7 +612,7 @@ CONTAINS
             ELSE
                CALL calculate_atomic_block_dm(rho_ao, &
                                               matrix_s(1)%matrix, particle_set, atomic_kind_set, qs_kind_set, &
-                                              nspins, nelectron_spin, unit_nr, para_env)
+                                              nspins, nelectron_spin, unit_nr, para_env, dft_control%density_rescale)
             END IF
 
             DO ispin = 1, nspins

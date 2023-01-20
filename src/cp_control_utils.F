@@ -302,6 +302,7 @@ CONTAINS
 
       CALL section_vals_val_get(dft_section, "CHARGE", i_val=dft_control%charge)
       CALL section_vals_val_get(dft_section, "MULTIPLICITY", i_val=dft_control%multiplicity)
+      CALL section_vals_val_get(dft_section, "DENSITY_RESCALE", l_val=dft_control%density_rescale)
       CALL section_vals_val_get(dft_section, "RELAX_MULTIPLICITY", r_val=dft_control%relax_multiplicity)
       IF (dft_control%relax_multiplicity > 0.0_dp) THEN
          IF (.NOT. dft_control%uks) &

@@ -54,7 +54,8 @@ CONTAINS
 !> \param para_env ...
 ! **************************************************************************************************
    SUBROUTINE calculate_atomic_block_dm(pmatrix, matrix_s, particle_set, atomic_kind_set, &
-                                        qs_kind_set, nspin, nelectron_spin, ounit, para_env)
+                                        qs_kind_set, nspin, nelectron_spin, ounit, para_env, &
+                                        density_rescale)
       TYPE(dbcsr_p_type), DIMENSION(:), INTENT(INOUT)    :: pmatrix
       TYPE(dbcsr_type), INTENT(INOUT)                    :: matrix_s
       TYPE(particle_type), DIMENSION(:), POINTER         :: particle_set
@@ -64,6 +65,7 @@ CONTAINS
       INTEGER, DIMENSION(:), INTENT(IN)                  :: nelectron_spin
       INTEGER, INTENT(IN)                                :: ounit
       TYPE(cp_para_env_type)                             :: para_env
+      LOGICAL, INTENT(IN)                                :: density_rescale
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'calculate_atomic_block_dm'
 
@@ -81,6 +83,8 @@ CONTAINS
       TYPE(qs_kind_type), POINTER                        :: qs_kind
 
       CALL timeset(routineN, handle)
+
+      PRINT *, "start calculate_atomic_block_dm"
 
       natom = SIZE(particle_set)
       nkind = SIZE(atomic_kind_set)
@@ -138,9 +142,19 @@ CONTAINS
          IF (nelectron_spin(ispin) > 0) THEN
             rds = REAL(nelectron_spin(ispin), dp)/trps1
          END IF
-         
-         ! Rescale density matrix
-         !CALL dbcsr_scale(matrix_p, rds)
+      
+         CALL dbcsr_scale(matrix_p, rds)
+
+         PRINT *, "rds", rds
+
+         ! Disable density rescaling
+         IF (density_rescale == .FALSE.) THEN
+            IF (ounit > 0) THEN
+               WRITE (UNIT=ounit, FMT="(T2,A,I1)") &
+                     "DENSITY_RESCALE=FALSE is overriding value of rds from", rds "to", 0.0_dp
+            END IF
+            rds = 0.0_dp
+         END IF 
 
          IF (ounit > 0) THEN
             IF (nspin > 1) THEN
@@ -182,6 +196,8 @@ CONTAINS
       DEALLOCATE (pmat)
 
       DEALLOCATE (kind_of, nok)
+
+      PRINT *, "end calculate_atomic_block_dm"
 
       CALL timestop(handle)
 

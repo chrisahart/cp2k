@@ -245,6 +245,12 @@ CONTAINS
                           default_i_val=0) ! this default value is just a flag to get the above
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
+      CALL keyword_create(keyword, __LOCATION__, name="DENSITY_RESCALE", &
+                          description="Rescale the density matrix according to multiplicity.", &
+                          usage="DENSITY_RESCALE TRUE", &
+                          default_l_val=.TRUE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
       CALL keyword_create(keyword, __LOCATION__, name="CHARGE", &
                           description="The total charge of the system", &
                           usage="CHARGE -1", &
