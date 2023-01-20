@@ -138,11 +138,16 @@ CONTAINS
          CALL dbcsr_dot(matrix_p, matrix_s, trps1)
          rds = 0.0_dp
 
-         ! could be a ghost-atoms-only simulation
-         IF (nelectron_spin(ispin) > 0) THEN
-            rds = REAL(nelectron_spin(ispin), dp)/trps1
-         END IF
-      
+         ! Set rds to unity if DENSITY_RESCALE=FALSE
+                IF (density_rescale) THEN
+                  ! could be a ghost-atoms-only simulation
+                  IF (nelectron_spin(ispin) > 0) THEN
+                     rds = REAL(nelectron_spin(ispin), dp)/trps1
+                  END IF
+               ELSE IF (.NOT. density_rescale) THEN
+                  rds = 1.0_dp
+               END IF 
+
          PRINT *, "rds", rds
          CALL dbcsr_scale(matrix_p, rds)
 
