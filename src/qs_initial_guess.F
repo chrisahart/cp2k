@@ -633,7 +633,8 @@ CONTAINS
 
          CALL calculate_atomic_block_dm(p_rmpv, s_sparse(1)%matrix, &
                                         particle_set, atomic_kind_set, qs_kind_set, &
-                                        nspin, nelectron_spin, ounit, para_env)
+                                        nspin, nelectron_spin, ounit, para_env, &
+                                        dft_control%density_rescale)
 
          DO ispin = 1, nspin
 

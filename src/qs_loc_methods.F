@@ -747,7 +747,8 @@ CONTAINS
             END DO
             CALL calculate_atomic_block_dm(p_rmpv, refmatrix, &
                                            particle_set, atomic_kind_set, qs_kind_set, &
-                                           dft_control%nspins, nelectron_spin, 0, para_env)
+                                           dft_control%nspins, nelectron_spin, 0, para_env, &
+                                           dft_control%density_rescale)
          CASE (do_loc_cpo_restart)
             my_guess_atomic = .FALSE.
             my_guess_wan = .TRUE.
