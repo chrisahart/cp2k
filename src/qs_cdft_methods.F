@@ -680,19 +680,17 @@ CONTAINS
       cdft_control => dft_control%qs_control%cdft_control
       hirshfeld_control => cdft_control%hirshfeld_control
       hirshfeld_env => hirshfeld_control%hirshfeld_env
-
+        
       ! Check if only gradient should be calculated, if gradients should be precomputed
       my_just_gradients = .FALSE.
       IF (PRESENT(just_gradients)) my_just_gradients = just_gradients
       IF (my_just_gradients) THEN
          cdft_control%in_memory = .TRUE.
-         cdft_control%atomic_charges = .FALSE.
          hirshfeld_control%print_density = .FALSE.
       END IF
 
       ALLOCATE (coefficients(natom))
       ALLOCATE (is_constraint(natom))
-
       subpatch_pattern = 0
       eps_rho_rspace = dft_control%qs_control%eps_rho_rspace
       radius = 100.0_dp
@@ -923,8 +921,6 @@ CONTAINS
 
       DO igroup = 1, SIZE(cdft_control%group)
 
-         IF (para_env%ionode) PRINT *, "line 925 igroup", igroup
-
          CALL pw_pool_give_back_pw(auxbas_pw_pool, cdft_control%group(igroup)%hw_rho_total_constraint)
 
          IF (.NOT. cdft_control%in_memory .AND. igroup == 1) THEN
@@ -960,9 +956,10 @@ CONTAINS
          END DO
       END IF
 
+
       IF (cdft_control%in_memory) THEN
+
          DO igroup = 1, SIZE(cdft_control%group)
-        IF (para_env%ionode) PRINT *, "line 964 igroup", igroup
 
             ALLOCATE (pab(1, 1))
             nthread = 1
@@ -1080,8 +1077,6 @@ CONTAINS
       IF (cdft_control%in_memory) THEN
          DO igroup = 1, SIZE(cdft_control%group)
 
-                IF (para_env%ionode) PRINT *, "line 1082 igroup", igroup
-
             ALLOCATE (cdft_control%group(igroup)%gradients_y(1*num_atoms, lb_pw(1):ub_pw(1), &
                                                              lb_pw(2):ub_pw(2), lb_pw(3):ub_pw(3)))
             ALLOCATE (cdft_control%group(igroup)%gradients_z(1*num_atoms, lb_pw(1):ub_pw(1), &
@@ -1103,9 +1098,6 @@ CONTAINS
             coefficients(cdft_control%group(igroup)%atoms(i))=cdft_control%group(igroup)%coeff(i)
             is_constraint(cdft_control%group(igroup)%atoms(i)) = .TRUE.
          END DO
-
-
-                IF (para_env%ionode) PRINT *, "line 1098 igroup", igroup
 
             DO k = lb_pw(3), ub_pw(3)
                DO j = lb_pw(2), ub_pw(2)
@@ -1149,8 +1141,8 @@ CONTAINS
 
       CALL rs_grid_release(rs_rho_all)
 
-      IF (ALLOCATED(coefficients)) DEALLOCATE (coefficients)
-      IF (ALLOCATED(is_constraint)) DEALLOCATE (is_constraint)
+     IF (ALLOCATED(coefficients)) DEALLOCATE (coefficients)
+     IF (ALLOCATED(is_constraint)) DEALLOCATE (is_constraint)
 
       CALL timestop(handle)
 
@@ -1206,6 +1198,7 @@ CONTAINS
       cdft_control => dft_control%qs_control%cdft_control
       is_becke = (cdft_control%type == outer_scf_becke_constraint)
       becke_control => cdft_control%becke_control
+      !cdft_control%atomic_charges=.TRUE.
       IF (is_becke .AND. .NOT. ASSOCIATED(becke_control)) &
          CPABORT("Becke control has not been allocated.")
       group => cdft_control%group
