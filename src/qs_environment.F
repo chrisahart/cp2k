@@ -1392,7 +1392,10 @@ CONTAINS
       !   on
       IF (dft_control%qs_control%ofgpw) THEN
 
+          CPWARN("dft_control%qs_control%ofgpw TRUE")
+
          IF (dft_control%nspins == 1) THEN
+         CPWARN("dft_control%nspins == 1")
             maxocc = nelectron
             nelectron_spin(1) = nelectron
             nelectron_spin(2) = 0
@@ -1414,7 +1417,12 @@ CONTAINS
 
       ELSE
 
+      CPWARN("dft_control%qs_control%ofgpw FALSE")
+
          IF (dft_control%nspins == 1) THEN
+
+         CPWARN("dft_control%nspins == 1")
+
             maxocc = 2.0_dp
             nelectron_spin(1) = nelectron
             nelectron_spin(2) = 0
@@ -1425,6 +1433,9 @@ CONTAINS
             END IF
             n_mo(2) = 0
          ELSE
+
+         CPWARN("ft_control%nspins == 2")
+
             maxocc = 1.0_dp
 
             ! The simplist spin distribution is written here. Special cases will
