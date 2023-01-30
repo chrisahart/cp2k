@@ -1436,10 +1436,9 @@ CONTAINS
          ELSE
 
          CPWARN("dft_control%nspins == 2")
-         nelec = (696, 504)
             maxocc = 1.0_dp
 
-         IF (nelec == 0)
+         IF (nelec == 0) THEN
             
                ! The simplist spin distribution is written here. Special cases will
                ! need additional user input
@@ -1459,10 +1458,10 @@ CONTAINS
 
          ELSE
 
-            CPWARN("Overriding number of electrons to"), nelec
+            CPWARN("Overriding number of electrons to"), dft_control%number_electrons
 
-            nelectron_spin(1) = nelec(1)
-            nelectron_spin(2) = nelec(2)
+            nelectron_spin(1) = dft_control%number_electrons(1)
+            nelectron_spin(2) = dft_control%number_electrons(2)
             n_mo(1) = nelectron_spin(1)
             n_mo(2) = nelectron_spin(2)
 

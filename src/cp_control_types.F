@@ -532,6 +532,7 @@ MODULE cp_control_types
       TYPE(maxwell_control_type), POINTER  :: maxwell_control
       TYPE(efield_p_type), POINTER, &
          DIMENSION(:)                      :: efield_fields
+      INTEGER, DIMENSION(2)                :: number_electrons
       INTEGER                              :: nspins, &
                                               charge, &
                                               multiplicity, &

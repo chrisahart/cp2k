@@ -245,6 +245,13 @@ CONTAINS
                           default_i_val=0) ! this default value is just a flag to get the above
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
+      CALL keyword_create(keyword, __LOCATION__, & 
+                          name="NUMBER_ELECTRONS", &
+                          description="Number of electrons.", &
+                          usage="NUMBER_ELECTRONS {integer} {integer}", &
+                          n_var=2, default_r_vals=(/0, 0/) type_of_var=integer_t)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
       CALL keyword_create(keyword, __LOCATION__, name="CHARGE", &
                           description="The total charge of the system", &
                           usage="CHARGE -1", &
