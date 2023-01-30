@@ -1461,22 +1461,24 @@ CONTAINS
                       "Number of electrons overwritten by NELEC_ALPHA and NELEC_BETA, "// &
                       "charge and multiplicity will be ignored.")
 
+         IF (ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha) < 1.0e-5_dp)) THEN
+                CALL cp_warn(__LOCATION__, &
+                      "NELEC_ALPHA is not an integer, "// &
+                      "unexpected behaviour may occur.")
+            END IF 
+            IF (ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta) < 1.0e-5_dp)) THEN
+                CALL cp_warn(__LOCATION__, &
+                      "NELEC_BETA is not an integer, "// &
+                      "unexpected behaviour may occur.")
+            END IF 
+
             nelectron_spin(1) = INT(dft_control%nelec_alpha)
             nelectron_spin(2) = INT(dft_control%nelec_beta)
             n_mo(1) = nelectron_spin(1)
             n_mo(2) = nelectron_spin(2)
             nelectron = INT(dft_control%nelec_alpha + dft_control%nelec_alpha)
 
-            IF (dft_control%nelec_alpha /= INT(dft_control%nelec_alpha)) THEN
-                CALL cp_warn(__LOCATION__, &
-                      "NELEC_ALPHA is not an integer, "// &
-                      "unexpected behaviour may occur.")
-            END IF 
-            IF (dft_control%nelec_beta /= INT(dft_control%nelec_beta)) THEN
-                CALL cp_warn(__LOCATION__, &
-                      "NELEC_BETA is not an integer, "// &
-                      "unexpected behaviour may occur.")
-            END IF 
+            
 
            ! IF (MODULO(nelectron_spin(1), 2) == 0) THEN
            !    n_mo(1) = nelectron_spin(1)/2
