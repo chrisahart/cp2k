@@ -534,7 +534,6 @@ CONTAINS
       REAL(KIND=dp)                                      :: alpha, ccore, ewald_rcut, fxx, maxocc, &
                                                             rcut, total_zeff_corr, verlet_skin, &
                                                             zeff_correction
-      REAL(KIND=dp), DIMENSION(2)                         ::  nelec
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(dft_control_type), POINTER                    :: dft_control
