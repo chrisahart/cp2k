@@ -1438,7 +1438,7 @@ CONTAINS
          CPWARN("dft_control%nspins == 2")
             maxocc = 1.0_dp
 
-         IF (nelec == 0) THEN
+         IF (dft_control%number_electrons(1) == 0) THEN
             
                ! The simplist spin distribution is written here. Special cases will
                ! need additional user input
