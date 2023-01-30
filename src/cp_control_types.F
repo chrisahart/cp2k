@@ -538,8 +538,6 @@ MODULE cp_control_types
                                               sic_method_id, &
                                               plus_u_method_id, &
                                               dir_surf_dip, &
-                                              nelec_alpha, &
-                                              nelec_beta, &
                                               nimages = 1
       INTEGER                              :: sic_list_id
       INTEGER                              :: auto_basis_ri_aux = 1, &
@@ -552,6 +550,8 @@ MODULE cp_control_types
       REAL(KIND=dp)                        :: relax_multiplicity, &
                                               sic_scaling_a, &
                                               sic_scaling_b, &
+                                              nelec_alpha, &
+                                              nelec_beta, &
                                               pos_dir_surf_dip
       LOGICAL                              :: do_tddfpt_calculation, &
                                               do_xas_calculation, &
