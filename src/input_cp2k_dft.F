@@ -249,7 +249,7 @@ CONTAINS
                           name="NUMBER_ELECTRONS", &
                           description="Number of electrons.", &
                           usage="NUMBER_ELECTRONS {integer} {integer}", &
-                          n_var=2, default_r_vals=(/0, 0/) type_of_var=integer_t)
+                          n_var=2, default_r_vals=(/0, 0/), type_of_var=integer_t)
       CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
       CALL keyword_create(keyword, __LOCATION__, name="CHARGE", &
