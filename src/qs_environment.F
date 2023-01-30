@@ -1458,8 +1458,7 @@ CONTAINS
 
          ELSE
 
-            CPWARN("Overriding number of alpha electrons to", dft_control%nelec_alpha)
-            CPWARN("Overriding number of beta electrons to", dft_control%nelec_beta)
+            CPWARN("Overriding number of electrons to NELEC_ALPHA and NELEC_BETA")
 
             nelectron_spin(1) = dft_control%nelec_alpha
             nelectron_spin(2) = dft_control%nelec_beta
