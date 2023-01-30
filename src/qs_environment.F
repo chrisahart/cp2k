@@ -534,6 +534,7 @@ CONTAINS
       REAL(KIND=dp)                                      :: alpha, ccore, ewald_rcut, fxx, maxocc, &
                                                             rcut, total_zeff_corr, verlet_skin, &
                                                             zeff_correction
+      REAL(KIND=dp), DIMENSION(2)                         ::  nelec
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(dft_control_type), POINTER                    :: dft_control
@@ -1434,27 +1435,40 @@ CONTAINS
             n_mo(2) = 0
          ELSE
 
-         CPWARN("ft_control%nspins == 2")
-
+         CPWARN("dft_control%nspins == 2")
+         nelec = (696, 504)
             maxocc = 1.0_dp
 
-            ! The simplist spin distribution is written here. Special cases will
-            ! need additional user input
-            IF (MODULO(nelectron + multiplicity - 1, 2) /= 0) THEN
-               CPABORT("LSD: try to use a different multiplicity")
-            END IF
+         IF (nelec == 0)
+            
+               ! The simplist spin distribution is written here. Special cases will
+               ! need additional user input
+               IF (MODULO(nelectron + multiplicity - 1, 2) /= 0) THEN
+                  CPABORT("LSD: try to use a different multiplicity")
+               END IF
 
-            nelectron_spin(1) = (nelectron + multiplicity - 1)/2
-            nelectron_spin(2) = (nelectron - multiplicity + 1)/2
+               nelectron_spin(1) = (nelectron + multiplicity - 1)/2
+               nelectron_spin(2) = (nelectron - multiplicity + 1)/2
 
-            IF (nelectron_spin(2) < 0) THEN
-               CPABORT("LSD: too few electrons for this multiplicity")
-            END IF
+               IF (nelectron_spin(2) < 0) THEN
+                  CPABORT("LSD: too few electrons for this multiplicity")
+               END IF
 
+               n_mo(1) = nelectron_spin(1)
+               n_mo(2) = nelectron_spin(2)
+
+         ELSE
+
+            CPWARN("Overriding number of electrons to"), nelec
+
+            nelectron_spin(1) = nelec(1)
+            nelectron_spin(2) = nelec(2)
             n_mo(1) = nelectron_spin(1)
             n_mo(2) = nelectron_spin(2)
 
          END IF
+
+         END IF 
 
       END IF
 
