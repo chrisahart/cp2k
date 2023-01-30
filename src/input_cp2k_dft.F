@@ -246,10 +246,17 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
       CALL keyword_create(keyword, __LOCATION__, & 
-                          name="NUMBER_ELECTRONS", &
-                          description="Number of electrons.", &
-                          usage="NUMBER_ELECTRONS {integer} {integer}", &
-                          n_var=2, default_i_vals=(/0, 0/), type_of_var=integer_t)
+                          name="NELEC_ALPHA", &
+                          description="Number of electrons for alpha channel.", &
+                          usage="NELEC_ALPHA 100", &
+                          default_i_val=0, type_of_var=integer_t)
+      CALL section_add_keyword(subsection, keyword)
+      CALL keyword_release(keyword)
+      CALL keyword_create(keyword, __LOCATION__, & 
+                          name="NELEC_BETA", &
+                          description="Number of electrons for beta channel.", &
+                          usage="NELEC_BETA 100", &
+                          default_i_val=0, type_of_var=integer_t)
       CALL section_add_keyword(subsection, keyword)
       CALL keyword_release(keyword)
       CALL keyword_create(keyword, __LOCATION__, name="CHARGE", &

@@ -532,13 +532,14 @@ MODULE cp_control_types
       TYPE(maxwell_control_type), POINTER  :: maxwell_control
       TYPE(efield_p_type), POINTER, &
          DIMENSION(:)                      :: efield_fields
-      INTEGER, DIMENSION(2)                :: number_electrons
       INTEGER                              :: nspins, &
                                               charge, &
                                               multiplicity, &
                                               sic_method_id, &
                                               plus_u_method_id, &
                                               dir_surf_dip, &
+                                              nelec_alpha,
+                                              nelec_beta,
                                               nimages = 1
       INTEGER                              :: sic_list_id
       INTEGER                              :: auto_basis_ri_aux = 1, &
