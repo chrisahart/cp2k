@@ -538,8 +538,8 @@ MODULE cp_control_types
                                               sic_method_id, &
                                               plus_u_method_id, &
                                               dir_surf_dip, &
-                                              nelec_alpha,
-                                              nelec_beta,
+                                              nelec_alpha, &
+                                              nelec_beta, &
                                               nimages = 1
       INTEGER                              :: sic_list_id
       INTEGER                              :: auto_basis_ri_aux = 1, &
