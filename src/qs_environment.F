@@ -1457,14 +1457,24 @@ CONTAINS
 
          ELSE
 
-         CALL CPWARN(__LOCATION__, &
+         CALL cp_warn(__LOCATION__, &
                       "Number of electrons assigned from NELEC_ALPHA and NELEC_BETA. "// &
                       "multiplicity will be ignored.")
 
             nelectron_spin(1) = INT(dft_control%nelec_alpha)
             nelectron_spin(2) = INT(dft_control%nelec_beta)
-            n_mo(1) = nelectron_spin(1)
-            n_mo(2) = nelectron_spin(2)
+
+            IF (MODULO(nelectron_spin(1), 2) == 0) THEN
+               n_mo(1) = nelectron_spin(1)/2
+            ELSE
+               n_mo(1) = INT(nelectron_spin(1)/2._dp) + 1
+            END IF
+
+            IF (MODULO(nelectron_spin(2), 2) == 0) THEN
+               n_mo(2) = nelectron_spin(2)/2
+            ELSE
+               n_mo(2) = INT(nelectron_spin(2)/2._dp) + 1
+            END IF
 
          END IF
 
