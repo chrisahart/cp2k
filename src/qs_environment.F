@@ -251,9 +251,12 @@ CONTAINS
       TYPE(section_vals_type), POINTER                   :: force_env_section, subsys_section
       LOGICAL, INTENT(IN)                                :: use_motion_section
 
-      INTEGER                                            :: ikind, method_id, nelectron_total, nkind
+      INTEGER                                            :: ikind, method_id, nkind
       LOGICAL :: do_admm_rpa, do_et, do_exx, do_hfx, do_kpoints, is_identical, is_semi, &
          mp2_present, my_qmmm, qmmm_decoupl, same_except_frac, silent, use_ref_cell
+      REAL(KIND=dp)                                            :: nelectron
+      REAL(KIND=dp), OPTIONAL                                  :: nelectron_total
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL                    :: nelectron_spin
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: rtmat
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cell_type), POINTER                           :: my_cell, my_cell_ref
@@ -525,9 +528,11 @@ CONTAINS
 
       CHARACTER(len=2)                                   :: element_symbol
       INTEGER :: handle, ikind, ispin, iw, lmax_sphere, maxl, maxlgto, maxlgto_lri, maxlppl, &
-         maxlppnl, method_id, multiplicity, my_ival, n_ao, n_mo_add, natom, nelectron, ngauss, &
+         maxlppnl, method_id, multiplicity, my_ival, n_ao, n_mo_add, natom, ngauss, &
          nkind, output_unit, sort_basis, tnadd_method
-      INTEGER, DIMENSION(2)                              :: n_mo, nelectron_spin
+      REAL(KIND=dp)                                            :: nelectron
+      REAL(KIND=dp), OPTIONAL                                  :: nelectron_total
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL                    :: nelectron_spin
       LOGICAL :: all_potential_present, be_silent, do_kpoints, do_ri_hfx, do_ri_mp2, do_ri_rpa, &
          do_ri_sos_mp2, do_rpa_ri_exx, do_wfc_im_time, e1terms, has_unit_metric, lribas, &
          mp2_present, orb_gradient
@@ -1462,35 +1467,34 @@ CONTAINS
             
             diff_a = ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha))
             diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta))
+            nelectron_spin(1) = dft_control%nelec_alpha
+            nelectron_spin(2) = dft_control%nelec_beta
+             nelectron = nelectron_spin(1)+nelectron_spin(2)
 
             IF (diff_a < threshold) THEN
 
-            nelectron_spin(1) = INT(dft_control%nelec_alpha)
+            n_mo(1) = nelectron_spin(1)
 
             ELSE 
 
                   CALL cp_warn(__LOCATION__, &
                                  "NELEC_ALPHA is not an integer, "// &
                                  "unexpected behaviour may occur.")
-                        nelectron_spin(1) = CEILING(dft_control%nelec_alpha)
+                        n_mo(1) = CEILING(nelectron_spin(1))
             END IF 
 
             IF (diff_b < threshold) THEN
 
-            nelectron_spin(2) = INT(dft_control%nelec_beta)
+            n_mo(2) = nelectron_spin(2)
 
             ELSE 
 
                   CALL cp_warn(__LOCATION__, &
                                  "NELEC_BETA is not an integer, "// &
                                  "unexpected behaviour may occur.")
-                        nelectron_spin(2) = CEILING(dft_control%nelec_beta)
+                        n_mo(2) = CEILING(nelectron_spin(2))
             END IF 
 
-            n_mo(1) = nelectron_spin(1)
-            n_mo(2) = nelectron_spin(2)
-            nelectron = nelectron_spin(1)+nelectron_spin(2)
-        
          END IF
 
       END IF 
