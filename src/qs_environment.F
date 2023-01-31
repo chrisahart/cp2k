@@ -533,7 +533,8 @@ CONTAINS
          mp2_present, orb_gradient
       REAL(KIND=dp)                                      :: alpha, ccore, ewald_rcut, fxx, maxocc, &
                                                             rcut, total_zeff_corr, verlet_skin, &
-                                                            zeff_correction
+                                                            zeff_correction, & 
+                                                            diff_a, diff_b, diff_elec, threshold
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(dft_control_type), POINTER                    :: dft_control
@@ -1392,8 +1393,6 @@ CONTAINS
       !   on
       IF (dft_control%qs_control%ofgpw) THEN
 
-          CPWARN("dft_control%qs_control%ofgpw TRUE")
-
          IF (dft_control%nspins == 1) THEN
          CPWARN("dft_control%nspins == 1")
             maxocc = nelectron
@@ -1417,11 +1416,7 @@ CONTAINS
 
       ELSE
 
-      CPWARN("dft_control%qs_control%ofgpw FALSE")
-
          IF (dft_control%nspins == 1) THEN
-
-         CPWARN("dft_control%nspins == 1")
 
             maxocc = 2.0_dp
             nelectron_spin(1) = nelectron
@@ -1434,7 +1429,6 @@ CONTAINS
             n_mo(2) = 0
          ELSE
 
-         CPWARN("dft_control%nspins == 2")
             maxocc = 1.0_dp
 
          IF (dft_control%nelec_alpha == 0.0_dp) THEN
@@ -1457,32 +1451,51 @@ CONTAINS
 
          ELSE
 
-         CALL cp_warn(__LOCATION__, &
-                      "Number of electrons overwritten by NELEC_ALPHA and NELEC_BETA, "// &
-                      "charge and multiplicity will be ignored.")
+               CALL cp_warn(__LOCATION__, &
+                           "Number of electrons overwritten by NELEC_ALPHA and NELEC_BETA, "// &
+                           "charge and multiplicity will be ignored.")
 
-        nelectron_spin(1) = INT(dft_control%nelec_alpha)
-        nelectron_spin(2) = INT(dft_control%nelec_beta)
-        n_mo(1) = nelectron_spin(1)
-        n_mo(2) = nelectron_spin(2)
-        nelectron = INT(dft_control%nelec_alpha + dft_control%nelec_alpha)
+            threshold = 1.0e-10_dp
+            diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta 
+                            - NINT(dft_control%nelec_beta + dft_control%beta))
+            IF (diff_elec < threshold) CALL CPABORT("Sum of NELEC_ALPHA and NELEC_BETA must be an integer.")
+            
+            diff_a = ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha))
+            diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%beta))
 
-         IF (ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha)) < 1.0e-5_dp) THEN
-                CALL cp_warn(__LOCATION__, &
-                      "NELEC_ALPHA is not an integer, "// &
-                      "unexpected behaviour may occur.")
+            IF (diff_a < threshold) THEN
+
+            nelectron_spin(1) = dft_control%nelec_alpha
+
+            ELSE 
+
+                  CALL cp_warn(__LOCATION__, &
+                                 "NELEC_ALPHA is not an integer, "// &
+                                 "unexpected behaviour may occur.")
+                        nelectron_spin(1) = CEILING(dft_control%nelec_alpha)
             END IF 
-            IF (ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta)) < 1.0e-5_dp) THEN
-                CALL cp_warn(__LOCATION__, &
-                      "NELEC_BETA is not an integer, "// &
-                      "unexpected behaviour may occur.")
+
+            IF (diff_b < threshold) THEN
+
+            nelectron_spin(2) = dft_control%nelec_beta
+
+            ELSE 
+
+                  CALL cp_warn(__LOCATION__, &
+                                 "NELEC_BETA is not an integer, "// &
+                                 "unexpected behaviour may occur.")
+                        nelectron_spin(2) = CEILING(dft_control%nelec_beta)
             END IF 
 
+            n_mo(1) = nelectron_spin(1)
+            n_mo(2) = nelectron_spin(2)
+            nelectron = nelectron_spin(1)+nelectron_spin(2)
+        
          END IF
 
-         END IF 
+      END IF 
 
-      END IF
+   END IF
 
       ! Read the total_zeff_corr here [SGh]
       CALL get_qs_kind_set(qs_kind_set, total_zeff_corr=total_zeff_corr)
