@@ -1457,8 +1457,8 @@ CONTAINS
 
             threshold = 1.0e-10_dp
             diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta &
-                            - NINT(dft_control%nelec_beta + dft_control%nelec_beta))
-            IF (diff_elec < threshold) CPABORT("Sum of NELEC_ALPHA and NELEC_BETA must be an integer.")
+                            - NINT(dft_control%nelec_alpha + dft_control%nelec_beta))
+            IF (diff_elec > threshold) CPABORT("Sum of NELEC_ALPHA and NELEC_BETA must be an integer.")
             
             diff_a = ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha))
             diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta))
