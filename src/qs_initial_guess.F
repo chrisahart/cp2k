@@ -1168,7 +1168,7 @@ CONTAINS
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
       INTEGER, INTENT(IN)                                :: nspin
-      INTEGER, DIMENSION(:), INTENT(IN)                  :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(:), INTENT(IN)            :: nelectron_spin
       TYPE(cp_para_env_type)                             :: para_env
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'calculate_mopac_dm'
@@ -1236,7 +1236,7 @@ CONTAINS
       trps2 = 0.0_dp
       pdiag(:) = 0.0_dp
 
-      IF (SUM(nelectron_spin) /= 0) THEN
+      IF (SUM(nelectron_spin) > 0) THEN
          DO ikind = 1, SIZE(atomic_kind_set)
 
             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)

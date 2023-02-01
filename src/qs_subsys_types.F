@@ -56,7 +56,7 @@ MODULE qs_subsys_types
    TYPE qs_subsys_type
       PRIVATE
       INTEGER                                               :: nelectron_total = -1
-      INTEGER                                               :: nelectron_spin(2) = -1
+      REAL(KIND=dp)                                         :: nelectron_spin(2) = -1_dp
       TYPE(cp_subsys_type), POINTER                         :: cp_subsys => Null()
       TYPE(qs_kind_type), DIMENSION(:), POINTER             :: qs_kind_set => Null()
       TYPE(cell_type), POINTER                              :: cell_ref => Null()
@@ -165,7 +165,7 @@ CONTAINS
          POINTER                                         :: qs_kind_set
       TYPE(cp_subsys_type), OPTIONAL, POINTER            :: cp_subsys
       INTEGER, OPTIONAL                                  :: nelectron_total
-      INTEGER, DIMENSION(2), OPTIONAL                    :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL              :: nelectron_spin
 
       CALL cp_subsys_get(subsys%cp_subsys, &
                          atomic_kinds=atomic_kinds, &
@@ -234,7 +234,7 @@ CONTAINS
       TYPE(qs_kind_type), DIMENSION(:), OPTIONAL, &
          POINTER                                         :: qs_kind_set
       INTEGER, OPTIONAL                                  :: nelectron_total
-      INTEGER, DIMENSION(2), OPTIONAL                    :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL              :: nelectron_spin
 
       IF (PRESENT(cp_subsys)) THEN
          CALL cp_subsys_retain(cp_subsys)
