@@ -573,7 +573,7 @@ CONTAINS
       TYPE(cp_fm_p_type), DIMENSION(:), OPTIONAL, &
          POINTER                                         :: mo_loc_history
       INTEGER, OPTIONAL                                  :: nkind, natom, nelectron_total
-      INTEGER, DIMENSION(2), OPTIONAL                    :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL              :: nelectron_spin
       TYPE(efield_berry_type), OPTIONAL, POINTER         :: efield
       INTEGER, OPTIONAL                                  :: neighbor_list_id
       TYPE(linres_control_type), OPTIONAL, POINTER       :: linres_control

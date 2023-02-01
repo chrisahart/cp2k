@@ -372,7 +372,7 @@ CONTAINS
       TYPE(cp_para_env_type), OPTIONAL, POINTER          :: para_env
       TYPE(cp_blacs_env_type), OPTIONAL, POINTER         :: blacs_env
       INTEGER, OPTIONAL                                  :: nelectron_total
-      INTEGER, DIMENSION(2), OPTIONAL                    :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL              :: nelectron_spin
 
       IF (.NOT. ASSOCIATED(ks_env%subsys)) CPABORT("get_ks_env: subsys not associated")
 

@@ -145,7 +145,7 @@ CONTAINS
          natoms, natoms_tmp, nblocks, nelectron, nmo, nmo_tmp, not_read, nsgf, nspin, nvec, ounit, &
          safe_density_guess, size_atomic_kind_set, z
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: first_sgf, kind_of, last_sgf
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       INTEGER, DIMENSION(:), POINTER                     :: atom_list, elec_conf, nelec_kind, &
                                                             sort_kind
       LOGICAL :: did_guess, do_hfx_ri_mo, do_kpoints, do_std_diag, exist, has_unit_metric, &

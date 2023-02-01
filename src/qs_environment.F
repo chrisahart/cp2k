@@ -251,12 +251,9 @@ CONTAINS
       TYPE(section_vals_type), POINTER                   :: force_env_section, subsys_section
       LOGICAL, INTENT(IN)                                :: use_motion_section
 
-      INTEGER                                            :: ikind, method_id, nkind
+      INTEGER                                            :: ikind, method_id, nelectron_total, nkind
       LOGICAL :: do_admm_rpa, do_et, do_exx, do_hfx, do_kpoints, is_identical, is_semi, &
          mp2_present, my_qmmm, qmmm_decoupl, same_except_frac, silent, use_ref_cell
-      REAL(KIND=dp)                                            :: nelectron
-      REAL(KIND=dp), OPTIONAL                                  :: nelectron_total
-      REAL(KIND=dp), DIMENSION(2), OPTIONAL                    :: nelectron_spin
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: rtmat
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cell_type), POINTER                           :: my_cell, my_cell_ref
@@ -528,10 +525,8 @@ CONTAINS
 
       CHARACTER(len=2)                                   :: element_symbol
       INTEGER :: handle, ikind, ispin, iw, lmax_sphere, maxl, maxlgto, maxlgto_lri, maxlppl, &
-         maxlppnl, method_id, multiplicity, my_ival, n_ao, n_mo_add, natom, ngauss, &
+         maxlppnl, method_id, multiplicity, my_ival, n_ao, n_mo_add, natom, nelectron, ngauss, &
          nkind, output_unit, sort_basis, tnadd_method
-      REAL(KIND=dp)                                            :: nelectron
-      REAL(KIND=dp), OPTIONAL                                  :: nelectron_total
       REAL(KIND=dp), DIMENSION(2), OPTIONAL                    :: nelectron_spin
       LOGICAL :: all_potential_present, be_silent, do_kpoints, do_ri_hfx, do_ri_mp2, do_ri_rpa, &
          do_ri_sos_mp2, do_rpa_ri_exx, do_wfc_im_time, e1terms, has_unit_metric, lribas, &
@@ -1469,7 +1464,7 @@ CONTAINS
             diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta))
             nelectron_spin(1) = dft_control%nelec_alpha
             nelectron_spin(2) = dft_control%nelec_beta
-             nelectron = nelectron_spin(1)+nelectron_spin(2)
+            nelectron = INT(nelectron_spin(1)+nelectron_spin(2))
 
             IF (diff_a < threshold) THEN
 

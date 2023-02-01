@@ -61,7 +61,7 @@ CONTAINS
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
       INTEGER, INTENT(IN)                                :: nspin
-      INTEGER, DIMENSION(:), INTENT(IN)                  :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(:), INTENT(IN)            :: nelectron_spin
       INTEGER, INTENT(IN)                                :: ounit
       TYPE(cp_para_env_type)                             :: para_env
 
