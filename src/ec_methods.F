@@ -230,7 +230,7 @@ CONTAINS
          CALL allocate_mo_set(mo_set=mos(ispin), &
                               nao=n_ao, &
                               nmo=n_mo(ispin), &
-                              nelectron=nelectron_spin(ispin), &
+                              nelectron=INT(nelectron_spin(ispin)), &
                               n_el_f=REAL(nelectron_spin(ispin), dp), &
                               maxocc=maxocc, &
                               flexible_electron_count=dft_control%relax_multiplicity)
