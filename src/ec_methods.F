@@ -160,7 +160,8 @@ CONTAINS
 
       INTEGER                                            :: handle, ispin, multiplicity, n_ao, &
                                                             nelectron, nmo, nspins
-      REAL(KIND=dp), DIMENSION(2)                        :: n_mo, nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
+      INTEGER, DIMENSION(2)                              :: n_mo
       REAL(dp)                                           :: maxocc
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
       TYPE(cp_fm_struct_type), POINTER                   :: fm_struct
@@ -218,8 +219,8 @@ CONTAINS
             CPABORT("LSD: too few electrons for this multiplicity")
          END IF
 
-         n_mo(1) = nelectron_spin(1)
-         n_mo(2) = nelectron_spin(2)
+         n_mo(1) = INT(nelectron_spin(1))
+         n_mo(2) = INT(nelectron_spin(2))
 
       END IF
 
