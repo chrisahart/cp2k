@@ -1410,8 +1410,8 @@ CONTAINS
                CPABORT("LSD: too few electrons for this multiplicity")
             END IF
             maxocc = MAXVAL(nelectron_spin)
-            n_mo(1) = MIN(nelectron_spin(1), 1)
-            n_mo(2) = MIN(nelectron_spin(2), 1)
+            n_mo(1) = INT(MIN(nelectron_spin(1), 1))
+            n_mo(2) = INT(MIN(nelectron_spin(2), 1))
          END IF
 
       ELSE
@@ -1422,7 +1422,7 @@ CONTAINS
             nelectron_spin(1) = nelectron
             nelectron_spin(2) = 0
             IF (MODULO(nelectron, 2) == 0) THEN
-               n_mo(1) = nelectron/2
+               n_mo(1) = INT(nelectron/2)
             ELSE
                n_mo(1) = INT(nelectron/2._dp) + 1
             END IF
@@ -1446,8 +1446,8 @@ CONTAINS
                   CPABORT("LSD: too few electrons for this multiplicity")
                END IF
 
-               n_mo(1) = nelectron_spin(1)
-               n_mo(2) = nelectron_spin(2)
+               n_mo(1) = INT(nelectron_spin(1))
+               n_mo(2) = INT(nelectron_spin(2))
 
          ELSE
 
@@ -1468,7 +1468,7 @@ CONTAINS
 
             IF (diff_a < threshold) THEN
 
-            n_mo(1) = nelectron_spin(1)
+            n_mo(1) = INT(nelectron_spin(1))
 
             ELSE 
 
@@ -1480,7 +1480,7 @@ CONTAINS
 
             IF (diff_b < threshold) THEN
 
-            n_mo(2) = nelectron_spin(2)
+            n_mo(2) = INT(nelectron_spin(2))
 
             ELSE 
 
