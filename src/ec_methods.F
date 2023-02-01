@@ -160,7 +160,7 @@ CONTAINS
 
       INTEGER                                            :: handle, ispin, multiplicity, n_ao, &
                                                             nelectron, nmo, nspins
-      INTEGER, DIMENSION(2)                              :: n_mo, nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: n_mo, nelectron_spin
       REAL(dp)                                           :: maxocc
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
       TYPE(cp_fm_struct_type), POINTER                   :: fm_struct
