@@ -151,7 +151,7 @@ CONTAINS
          DO ispin = 1, dft_control%nspins
             CALL get_mo_set(mo_set=mos(ispin), &
                             homo=homo, &
-                            nelectron=nelectron_spin, &
+                            nelectron=INT(nelectron_spin), &
                             nao=nao, &
                             nmo=nmo)
             IF (dft_control%nspins > 1) THEN
