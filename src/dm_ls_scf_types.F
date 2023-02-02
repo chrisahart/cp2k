@@ -89,7 +89,7 @@ MODULE dm_ls_scf_types
    TYPE ls_scf_env_type
       INTEGER               :: nspins, natoms
       INTEGER               :: nelectron_total
-      INTEGER, DIMENSION(2) :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2) :: nelectron_spin
       REAL(KIND=dp), DIMENSION(2) ::  mu_spin
       REAL(KIND=dp), DIMENSION(2) ::  homo_spin
       REAL(KIND=dp), DIMENSION(2) ::  lumo_spin

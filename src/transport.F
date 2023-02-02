@@ -380,7 +380,8 @@ CONTAINS
       TYPE(transport_env_type), INTENT(INOUT)            :: transport_env
       TYPE(dbcsr_type), INTENT(IN)                       :: matrix_s, matrix_ks
       TYPE(dbcsr_type), INTENT(INOUT)                    :: matrix_p
-      INTEGER, INTENT(IN)                                :: nelectron_spin, natoms
+      INTEGER, INTENT(IN)                                :: natoms
+      REAL(KIND=dp), INTENT(IN)                          :: nelectron_spin
       REAL(dp), INTENT(IN)                               :: energy_diff
       INTEGER, INTENT(IN)                                :: iscf
       LOGICAL, INTENT(IN)                                :: extra_scf
@@ -400,7 +401,7 @@ CONTAINS
                        "MISSING C/C++ ROUTINE: The TRANSPORT section is meant to be used together with an external "// &
                        "program, e.g. the quantum transport code OMEN, that provides CP2K with a density matrix.")
 
-      transport_env%params%n_occ = nelectron_spin
+      transport_env%params%n_occ = INT(nelectron_spin)
       transport_env%params%n_atoms = natoms
       transport_env%params%energy_diff = energy_diff
       transport_env%params%evoltfactor = evolt

@@ -1642,7 +1642,7 @@ CONTAINS
       CHARACTER(*), PARAMETER :: routineN = 'calculate_zmp_potential'
 
       INTEGER                                            :: handle, my_val, nelectron, nspins
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       LOGICAL                                            :: do_zmp_read, fermi_amaldi
       REAL(KIND=dp)                                      :: lambda
       REAL(KIND=dp), DIMENSION(:), POINTER               :: tot_rho_ext_r

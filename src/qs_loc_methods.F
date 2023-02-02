@@ -661,7 +661,7 @@ CONTAINS
       INTEGER :: dim_op, handle, i, imo, imoloc, ir, ispin, istate, j, jstate, l_spin, lb, &
          loc_method, n_rep, nao, ncubes, ndummy, nextra, ngextra, nguess, nmo, nmosub, norextra, &
          s_spin, ub
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       INTEGER, DIMENSION(:), POINTER                     :: bounds, list, list_cubes
       LOGICAL                                            :: append_cube, do_ortho, has_unit_metric, &
                                                             list_cubes_setup, my_guess_atomic, &

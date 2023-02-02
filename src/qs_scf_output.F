@@ -144,7 +144,8 @@ CONTAINS
       TYPE(mo_set_type), DIMENSION(:), INTENT(IN)        :: mos
       TYPE(dft_control_type), POINTER                    :: dft_control
 
-      INTEGER                                            :: homo, ispin, nao, nelectron_spin, nmo
+      INTEGER                                            :: homo, ispin, nao, nmo
+      REAL(KIND=dp)                                      :: nelectron_spin
 
       IF (output_unit > 0) THEN
          DO ispin = 1, dft_control%nspins
