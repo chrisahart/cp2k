@@ -196,7 +196,7 @@ CONTAINS
       REAL(KIND=dp), PARAMETER                           :: zero = 0.0_dp
 
       INTEGER                                            :: i, ispin, re
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(dp), DIMENSION(2)                             :: nelectron_spin
       LOGICAL                                            :: periodic_cell
       TYPE(cell_type), POINTER                           :: cell
       TYPE(cp_fm_type), DIMENSION(:), POINTER            :: mos_new, mos_old
