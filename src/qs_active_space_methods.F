@@ -198,7 +198,8 @@ CONTAINS
          nelec_inactive, nelec_inactive_alpha, nelec_inactive_beta, nelec_total, nmo, nn1, nn2, &
          nrow_global, nspins, nvirt, zval
       INTEGER, ALLOCATABLE, DIMENSION(:, :)              :: active_orbitals
-      INTEGER, DIMENSION(2)                              :: nactive_orb, nepol, ninactive_orb
+      INTEGER, DIMENSION(2)                              :: nactive_orb, ninactive_orb
+      REAL(KIND=dp), DIMENSION(2)                        :: nnepol
       INTEGER, DIMENSION(5)                              :: nshell
       INTEGER, DIMENSION(:), POINTER                     :: invals
       LOGICAL                                            :: do_kpoints, ex_operator, ex_perd, &
@@ -352,8 +353,8 @@ CONTAINS
          active_space_env%nelec_total(1) = nelec_total
          active_space_env%nelec_total(2) = 0
       ELSE
-         active_space_env%nelec_total(1) = nepol(1)
-         active_space_env%nelec_total(2) = nepol(2)
+         active_space_env%nelec_total(1) = INT(nepol(1))
+         active_space_env%nelec_total(2) = INT(nepol(2))
       END IF
       active_space_env%nelec_inactive_spinwise(1) = nelec_inactive_alpha
       active_space_env%nelec_inactive_spinwise(2) = nelec_inactive_beta
