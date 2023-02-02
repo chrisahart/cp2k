@@ -144,21 +144,20 @@ CONTAINS
       TYPE(mo_set_type), DIMENSION(:), INTENT(IN)        :: mos
       TYPE(dft_control_type), POINTER                    :: dft_control
 
-      INTEGER                                            :: homo, ispin, nao, nmo
-      REAL(KIND=dp)                                      :: nelectron_spin
+      INTEGER                                            :: homo, ispin, nao, nmo, nelectron
 
       IF (output_unit > 0) THEN
          DO ispin = 1, dft_control%nspins
             CALL get_mo_set(mo_set=mos(ispin), &
                             homo=homo, &
-                            nelectron=INT(nelectron_spin), &
+                            nelectron=nelectron, &
                             nao=nao, &
                             nmo=nmo)
             IF (dft_control%nspins > 1) THEN
                WRITE (UNIT=output_unit, FMT="(/,T2,A,I2)") "Spin", ispin
             END IF
             WRITE (UNIT=output_unit, FMT="(/,(T2,A,T71,I10))") &
-               "Number of electrons:", nelectron_spin, &
+               "Number of electrons:", nelectron, &
                "Number of occupied orbitals:", homo, &
                "Number of molecular orbitals:", nmo
          END DO

@@ -746,8 +746,9 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER                        :: routineN = 'xas_ot_solver'
 
-      INTEGER                                            :: handle, max_iter, ndo_mo, nelec_spin(2), &
+      INTEGER                                            :: handle, max_iter, ndo_mo, &
                                                             nocc, nrow, output_unit
+      REAL(KIND=dp)                                      :: nelec_spin(2)
       LOGICAL                                            :: do_os
       REAL(dp)                                           :: eps_iter
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
@@ -839,9 +840,10 @@ CONTAINS
       CHARACTER(len=*), PARAMETER                        :: routineN = 'prep_for_ot'
 
       INTEGER :: blk, handle, i, iblk, ido_mo, ispin, jblk, maxel, minel, nao, natom, ndo_mo, &
-         nelec_spin(2), nhomo(2), nlumo(2), nspins, start_block, start_col, start_row
+                 nhomo(2), nlumo(2), nspins, start_block, start_col, start_row
       LOGICAL                                            :: do_os, found
       REAL(dp), DIMENSION(:, :), POINTER                 :: pblock
+      REAL(KIND=dp)                                      :: nelec_spin(2)
       TYPE(cp_fm_type), POINTER                          :: mo_coeff
       TYPE(dbcsr_iterator_type)                          :: iter
       TYPE(mo_set_type), DIMENSION(:), POINTER           :: mos
