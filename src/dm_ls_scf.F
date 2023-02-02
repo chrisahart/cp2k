@@ -625,7 +625,7 @@ CONTAINS
 
                ! compute the density matrix that matches it
                ! we need the proper number of states
-               nelectron_spin_real = ls_scf_env%nelectron_spin(ispin)
+               nelectron_spin_real = INT(ls_scf_env%nelectron_spin(ispin))
                IF (ls_scf_env%nspins == 1) nelectron_spin_real = nelectron_spin_real/2
 
                IF (do_transport) THEN
@@ -995,7 +995,7 @@ CONTAINS
 
          DO ispin = 1, nspin
             ! we need the proper number of states
-            nelectron_spin_real = ls_scf_env%nelectron_spin(ispin)
+            nelectron_spin_real = INT(ls_scf_env%nelectron_spin(ispin))
             IF (ls_scf_env%nspins == 1) nelectron_spin_real = nelectron_spin_real/2
 
             CALL density_matrix_sign_fixed_mu(matrix_p, trace, mu, ls_scf_env%sign_method, &
