@@ -1421,7 +1421,7 @@ CONTAINS
          ELSE
             DO ispin = 1, nspin
                IF (nelectron_spin(ispin) /= 0) THEN
-                  rscale = (REAL(nelectron_spin(ispin), dp) - trps1)/trps2
+                  rscale = (nelectron_spin(ispin) - trps1)/trps2
                   DO isgf = 1, nao
                      IF (pdiag(isgf) < maxocc) pdiag(isgf) = rscale*pdiag(isgf)
                   END DO

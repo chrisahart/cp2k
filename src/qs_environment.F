@@ -1396,16 +1396,16 @@ CONTAINS
          IF (dft_control%nspins == 1) THEN
          CPWARN("dft_control%nspins == 1")
             maxocc = nelectron
-            nelectron_spin(1) = nelectron
-            nelectron_spin(2) = 0
+            nelectron_spin(1) = REAL(nelectron, dp)
+            nelectron_spin(2) = 0.0_dp
             n_mo(1) = 1
             n_mo(2) = 0
          ELSE
             IF (MODULO(nelectron + multiplicity - 1, 2) /= 0) THEN
                CPABORT("LSD: try to use a different multiplicity")
             END IF
-            nelectron_spin(1) = (nelectron + multiplicity - 1)/2
-            nelectron_spin(2) = (nelectron - multiplicity + 1)/2
+            nelectron_spin(1) = REAL((nelectron + multiplicity - 1)/2, dp)
+            nelectron_spin(2) = REAL((nelectron - multiplicity + 1)/2, dp)
             IF (nelectron_spin(1) < 0) THEN
                CPABORT("LSD: too few electrons for this multiplicity")
             END IF
@@ -1419,8 +1419,8 @@ CONTAINS
          IF (dft_control%nspins == 1) THEN
 
             maxocc = 2.0_dp
-            nelectron_spin(1) = nelectron
-            nelectron_spin(2) = 0
+            nelectron_spin(1) = REAL(nelectron, dp)
+            nelectron_spin(2) = 0.0_dp
             IF (MODULO(nelectron, 2) == 0) THEN
                n_mo(1) = INT(nelectron/2)
             ELSE
@@ -1439,8 +1439,8 @@ CONTAINS
                   CPABORT("LSD: try to use a different multiplicity")
                END IF
 
-               nelectron_spin(1) = (nelectron + multiplicity - 1)/2
-               nelectron_spin(2) = (nelectron - multiplicity + 1)/2
+               nelectron_spin(1) = REAL((nelectron + multiplicity - 1)/2, dp)
+               nelectron_spin(2) = REAL((nelectron - multiplicity + 1)/2, dp)
 
                IF (nelectron_spin(2) < 0) THEN
                   CPABORT("LSD: too few electrons for this multiplicity")
@@ -1547,8 +1547,8 @@ CONTAINS
                          "More beta than alpha MOs requested. "// &
                          "The number of beta MOs will be reduced to the number alpha MOs.")
          n_mo(2) = MIN(n_mo(1), n_mo(2))
-         CPASSERT(n_mo(1) >= nelectron_spin(1))
-         CPASSERT(n_mo(2) >= nelectron_spin(2))
+         CPASSERT(n_mo(1) >= INT(nelectron_spin(1)))
+         CPASSERT(n_mo(2) >= INT(nelectron_spin(2)))
       END IF
 
       ! kpoints
@@ -1560,8 +1560,8 @@ CONTAINS
                          "Kpoints: Different number of MOs requested. "// &
                          "The number of beta MOs will be set to the number alpha MOs.")
          n_mo(2) = n_mo(1)
-         CPASSERT(n_mo(1) >= nelectron_spin(1))
-         CPASSERT(n_mo(2) >= nelectron_spin(2))
+         CPASSERT(n_mo(1) >= INT(nelectron_spin(1)))
+         CPASSERT(n_mo(2) >= INT(nelectron_spin(2)))
       END IF
 
       ! Compatibility checks for smearing
@@ -1616,7 +1616,7 @@ CONTAINS
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &
                                  nelectron=INT(nelectron_spin(ispin)), &
-                                 n_el_f=REAL(nelectron_spin(ispin), dp), &
+                                 n_el_f=nelectron_spin(ispin), &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)
          END DO
@@ -1632,7 +1632,7 @@ CONTAINS
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &
                                  nelectron=INT(nelectron_spin(ispin)), &
-                                 n_el_f=REAL(nelectron_spin(ispin), dp), &
+                                 n_el_f=nelectron_spin(ispin), &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)
          END DO

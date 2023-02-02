@@ -195,8 +195,8 @@ CONTAINS
       ! setting maxocc and n_mo
       IF (dft_control%nspins == 1) THEN
          maxocc = 2.0_dp
-         nelectron_spin(1) = nelectron
-         nelectron_spin(2) = 0
+         nelectron_spin(1) = REAL(nelectron, dp)
+         nelectron_spin(2) = 0.0_dp
          IF (MODULO(nelectron, 2) == 0) THEN
             n_mo(1) = nelectron/2
          ELSE
@@ -212,8 +212,8 @@ CONTAINS
             CPABORT("LSD: try to use a different multiplicity")
          END IF
 
-         nelectron_spin(1) = (nelectron + multiplicity - 1)/2
-         nelectron_spin(2) = (nelectron - multiplicity + 1)/2
+         nelectron_spin(1) = REAL((nelectron + multiplicity - 1)/2, dp)
+         nelectron_spin(2) = REAL((nelectron - multiplicity + 1)/2, dp)
 
          IF (nelectron_spin(2) < 0) THEN
             CPABORT("LSD: too few electrons for this multiplicity")
@@ -231,7 +231,7 @@ CONTAINS
                               nao=n_ao, &
                               nmo=n_mo(ispin), &
                               nelectron=INT(nelectron_spin(ispin)), &
-                              n_el_f=REAL(nelectron_spin(ispin), dp), &
+                              n_el_f=nelectron_spin(ispin), &
                               maxocc=maxocc, &
                               flexible_electron_count=dft_control%relax_multiplicity)
       END DO
