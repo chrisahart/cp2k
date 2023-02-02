@@ -142,7 +142,7 @@ CONTAINS
       INTEGER                                            :: i_force_eval, nspins, sub_spin_1, &
                                                             sub_spin_2, total_spin
       REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
-      REAL(KIND=dp), DIMENSION(2, 3)                     :: all_spins
+      INTEGER(KIND=dp), DIMENSION(2, 3)                  :: all_spins
       TYPE(dft_control_type), POINTER                    :: dft_control
 
       change_spin = .FALSE.
@@ -153,7 +153,7 @@ CONTAINS
          DO i_force_eval = 1, ref_subsys_number
             CALL get_qs_env(qs_env=force_env%sub_force_env(i_force_eval)%force_env%qs_env, &
                             nelectron_spin=nelectron_spin, dft_control=dft_control)
-            all_spins(:, i_force_eval) = nelectron_spin
+            all_spins(:, i_force_eval) = INT(nelectron_spin)
             nspins = dft_control%nspins
             all_nspins(i_force_eval) = nspins
          END DO
