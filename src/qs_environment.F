@@ -1454,7 +1454,7 @@ CONTAINS
 
                CALL cp_warn(__LOCATION__, &
                            "Number of electrons overwritten by NELEC_ALPHA and NELEC_BETA, "// &
-                           "charge and multiplicity will be ignored.")
+                           "multiplicity will be ignored.")
 
             threshold = 1.0e-10_dp
             diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta &
