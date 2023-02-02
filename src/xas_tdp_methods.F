@@ -2765,8 +2765,8 @@ CONTAINS
          nlumo = nao - CEILING(nelec_spin)
          nocc = CEILING(nelec_spin)
       ELSE
-         nlumo = nao - CEILINGnelec_spin(1))/2
-         nocc = CEILINGnelec_spin(1))/2
+         nlumo = nao - CEILING(nelec_spin(1))/2
+         nocc = CEILING(nelec_spin(1))/2
       END IF
 
       ALLOCATE (xas_tdp_env%ot_prec(nspins))
