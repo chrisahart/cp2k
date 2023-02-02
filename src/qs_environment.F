@@ -1452,17 +1452,32 @@ CONTAINS
 
          ELSE
 
-         IF (ounit > 0) THEN
-               WRITE (UNIT=ounit, FMT="(T2,A,I1, A, F1)") &
-                  "Number of electrons ", nelectron, ", sum of NELEC_ALPHA and NELEC_BETA is",  &
-                  nelectron_spin(1)+nelectron_spin(2)
-         END IF
+          threshold = 1.0e-10_dp
 
-               CALL cp_warn(__LOCATION__, &
-                           "Number of electrons overwritten by NELEC_ALPHA and NELEC_BETA, "// &
+      CALL cp_warn(__LOCATION__, &
+                           "Number of electrons will be overwritten by NELEC_ALPHA and NELEC_BETA, "// &
                            "multiplicity will be ignored.")
 
-            threshold = 1.0e-10_dp
+
+
+       IF (output_unit > 0) THEN
+         ! it is really not yet tested till the end ! Joost
+         WRITE (output_unit, *) "Number of electrons should be", nelectron, ". Sum of NELEC_ALPHA and NELEC_BETA is",  &
+                  nelectron_spin(1)+nelectron_spin(2)
+      END IF
+
+        ! IF (ounit > 0) THEN
+        !       WRITE (UNIT=ounit, FMT="(T2,A,I1, A, F1)") &
+        !          "Number of electrons should be", nelectron, ". Sum of NELEC_ALPHA and NELEC_BETA is",  &
+        !          nelectron_spin(1)+nelectron_spin(2)
+        ! END IF
+
+         IF (ABS(NINT(nelectron_spin(1)+nelectron_spin(2)) - nelectron) > threshold) THEN
+            CALL cp_warn(__LOCATION__, &
+                              "Sum of NELEC_ALPHA and NELEC_BETA is not equal to the number of electrons, "// &
+                              "unexpected behaviour may occur.")
+
+           
             diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta &
                             - NINT(dft_control%nelec_alpha + dft_control%nelec_beta))
             IF (diff_elec > threshold) CPABORT("Sum of NELEC_ALPHA and NELEC_BETA must be an integer.")
