@@ -142,7 +142,7 @@ CONTAINS
       INTEGER                                            :: i_force_eval, nspins, sub_spin_1, &
                                                             sub_spin_2, total_spin
       REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
-      INTEGER(KIND=dp), DIMENSION(2, 3)                  :: all_spins
+      INTEGER, DIMENSION(2, 3)                           :: all_spins
       TYPE(dft_control_type), POINTER                    :: dft_control
 
       change_spin = .FALSE.
