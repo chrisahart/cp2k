@@ -1463,7 +1463,7 @@ CONTAINS
             
             diff_a = ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha))
             diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta))
-            nelectron_spin(1) = dft_control%nelec_alpha
+            nelectron_spin(1) = dft_control%nelec_alpha - dft_control%charge
             nelectron_spin(2) = dft_control%nelec_beta
             nelectron = INT(nelectron_spin(1)+nelectron_spin(2))
 
