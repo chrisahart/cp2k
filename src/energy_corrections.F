@@ -2442,7 +2442,7 @@ CONTAINS
       nspins = dft_control%nspins
 
       nmo = 0
-      CALL get_qs_env(qs_env=qs_env, nelectron_spin=REAL(nmo, dp)
+      CALL get_qs_env(qs_env=qs_env, nelectron_spin=REAL(nmo, dp))
       focc = 1._dp
       IF (nspins == 1) THEN
          focc = 2._dp
@@ -3117,7 +3117,7 @@ CONTAINS
       ls_env => ec_env%ls_env
 
       nmo = 0
-      CALL get_qs_env(qs_env=qs_env, nelectron_spin=REAL(nmo, dp)
+      CALL get_qs_env(qs_env=qs_env, nelectron_spin=REAL(nmo, dp))
       IF (nspins == 1) nmo(1) = nmo(1)/2
       ls_env%homo_spin(:) = 0.0_dp
       ls_env%lumo_spin(:) = 0.0_dp

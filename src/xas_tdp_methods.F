@@ -2737,9 +2737,10 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER                        :: routineN = 'make_lumo_guess'
 
-      INTEGER                                            :: handle, ispin, nao, nelec_spin(2), &
+      INTEGER                                            :: handle, ispin, nao, &
                                                             nlumo(2), nocc(2), nspins
       LOGICAL                                            :: do_os
+      REAL(dp)                                           :: nelec_spin(2)
       REAL(dp), ALLOCATABLE, DIMENSION(:)                :: evals
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
       TYPE(cp_fm_struct_type), POINTER                   :: fm_struct, lumo_struct
@@ -2761,11 +2762,11 @@ CONTAINS
       CALL dbcsr_get_info(matrix_s(1)%matrix, nfullrows_total=nao)
 
       IF (do_os) THEN
-         nlumo = nao - nelec_spin
-         nocc = nelec_spin
+         nlumo = nao - CEILING(nelec_spin)
+         nocc = CEILING(nelec_spin)
       ELSE
-         nlumo = nao - nelec_spin(1)/2
-         nocc = nelec_spin(1)/2
+         nlumo = nao - CEILINGnelec_spin(1))/2
+         nocc = CEILINGnelec_spin(1))/2
       END IF
 
       ALLOCATE (xas_tdp_env%ot_prec(nspins))
@@ -2837,10 +2838,10 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER :: routineN = 'build_ot_spin_prec'
 
-      INTEGER                                            :: handle, nao, nelec_spin(2), nguess, &
+      INTEGER                                            :: handle, nao, nguess, &
                                                             nocc, nspins
       LOGICAL                                            :: do_os
-      REAL(dp)                                           :: shift
+      REAL(dp)                                           :: shift, nelec_spin(2)
       REAL(dp), ALLOCATABLE, DIMENSION(:)                :: scaling
       TYPE(cp_fm_struct_type), POINTER                   :: fm_struct
       TYPE(cp_fm_type)                                   :: fm_prec, work_fm
@@ -2856,10 +2857,10 @@ CONTAINS
       CALL cp_fm_get_info(evecs, nrow_global=nao, matrix_struct=fm_struct)
       CALL cp_fm_create(fm_prec, fm_struct)
       ALLOCATE (scaling(nao))
-      nocc = nelec_spin(1)/2
+      nocc = CEILING(nelec_spin(1))/2
       nspins = 1
       IF (do_os) THEN
-         nocc = nelec_spin(ispin)
+         nocc = CEILING(nelec_spin(ispin))
          nspins = 2
       END IF
 
