@@ -1454,14 +1454,11 @@ CONTAINS
 
           threshold = 1.0e-10_dp
 
-      CALL cp_warn(__LOCATION__, &
-                           "Number of electrons will be overwritten by NELEC_ALPHA and NELEC_BETA, "// &
-                           "multiplicity will be ignored.")
-
-
+         CALL cp_warn(__LOCATION__, &
+                              "Number of electrons will be overwritten by NELEC_ALPHA and NELEC_BETA, "// &
+                              "multiplicity will be ignored.")
 
        IF (output_unit > 0) THEN
-         ! it is really not yet tested till the end ! Joost
          WRITE (output_unit, *) "Number of electrons should be", nelectron, ". Sum of NELEC_ALPHA and NELEC_BETA is",  &
                   nelectron_spin(1)+nelectron_spin(2)
       END IF
@@ -1476,6 +1473,7 @@ CONTAINS
             CALL cp_warn(__LOCATION__, &
                               "Sum of NELEC_ALPHA and NELEC_BETA is not equal to the number of electrons, "// &
                               "unexpected behaviour may occur.")
+         END IF 
 
            
             diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta &
