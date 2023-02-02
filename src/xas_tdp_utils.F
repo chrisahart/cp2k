@@ -775,7 +775,7 @@ CONTAINS
       max_iter = xas_tdp_control%ot_max_iter
       eps_iter = xas_tdp_control%ot_eps_iter
       nocc = CEILING(nelec_spin(1))/2*ndo_mo
-      IF (do_os) nocc = SUM(nelec_spin)*ndo_mo
+      IF (do_os) nocc = INT(SUM(nelec_spin))*ndo_mo
 
 !  Initialize relevent matrices
       ALLOCATE (ot_prec)
@@ -866,7 +866,7 @@ CONTAINS
 
       !Compute the number of guesses for each spins
       IF (do_os) THEN
-         minel = CEILING(MINLOC(nelec_spin, 1))
+         minel = MINLOC(nelec_spin, 1)
          maxel = 3 - minel
          nlumo(minel) = (neig/ndo_mo + CEILING(nelec_spin(maxel)) - CEILING(nelec_spin(minel)))/2
          nlumo(maxel) = neig/ndo_mo - nlumo(minel)
