@@ -4819,7 +4819,7 @@ CONTAINS
          ! update the density matrix
          DO ispin = 1, nspin
 
-            nelectron_spin_real(1) = almo_scf_env%nelectrons_spin(ispin)
+            nelectron_spin_real(1) = INT(almo_scf_env%nelectrons_spin(ispin))
             IF (almo_scf_env%nspins == 1) &
                nelectron_spin_real(1) = nelectron_spin_real(1)/2
 
