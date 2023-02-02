@@ -1460,16 +1460,10 @@ CONTAINS
 
        IF (output_unit > 0) THEN
          WRITE (output_unit, *) "Number of electrons should be", nelectron, ". Sum of NELEC_ALPHA and NELEC_BETA is",  &
-                  nelectron_spin(1)+nelectron_spin(2)
+                  dft_control%nelec_alpha+dft_control%nelec_beta
       END IF
 
-        ! IF (ounit > 0) THEN
-        !       WRITE (UNIT=ounit, FMT="(T2,A,I1, A, F1)") &
-        !          "Number of electrons should be", nelectron, ". Sum of NELEC_ALPHA and NELEC_BETA is",  &
-        !          nelectron_spin(1)+nelectron_spin(2)
-        ! END IF
-
-         IF (ABS(NINT(nelectron_spin(1)+nelectron_spin(2)) - nelectron) > threshold) THEN
+         IF (ABS(NINT(dft_control%nelec_alpha+dft_control%nelec_beta) - nelectron) > threshold) THEN
             CALL cp_warn(__LOCATION__, &
                               "Sum of NELEC_ALPHA and NELEC_BETA is not equal to the number of electrons, "// &
                               "unexpected behaviour may occur.")
