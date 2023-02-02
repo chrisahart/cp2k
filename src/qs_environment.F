@@ -1459,8 +1459,8 @@ CONTAINS
                               "multiplicity will be ignored.")
 
        IF (output_unit > 0) THEN
-         WRITE (output_unit, *) "Number of electrons should be", nelectron, ". Sum of NELEC_ALPHA and NELEC_BETA is",  &
-                  dft_control%nelec_alpha+dft_control%nelec_beta
+         WRITE (output_unit, *) "Number of electrons should be", nelectron
+         WRITE (output_unit, *) "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
       END IF
 
          IF (ABS(NINT(dft_control%nelec_alpha+dft_control%nelec_beta) - nelectron) > threshold) THEN
@@ -1469,7 +1469,6 @@ CONTAINS
                               "unexpected behaviour may occur.")
          END IF 
 
-           
             diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta &
                             - NINT(dft_control%nelec_alpha + dft_control%nelec_beta))
             IF (diff_elec > threshold) CPABORT("Sum of NELEC_ALPHA and NELEC_BETA must be an integer.")
