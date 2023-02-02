@@ -637,7 +637,7 @@ CONTAINS
                   extra_scf = maxscf_reached .OR. scf_converged
                   ! get the current Kohn-Sham matrix (ks) and return matrix_p evaluated using an external C routine
                   CALL external_scf_method(transport_env, ls_scf_env%matrix_s, matrix_mixing_old(ispin), &
-                                           ls_scf_env%matrix_p(ispin), nelectron_spin_real, ls_scf_env%natoms, &
+                                           ls_scf_env%matrix_p(ispin), REAL(nelectron_spin_real, dp), ls_scf_env%natoms, &
                                            energy_diff, iscf, extra_scf)
 
                ELSE
@@ -645,17 +645,17 @@ CONTAINS
                   CASE (ls_scf_sign)
                      CALL density_matrix_sign(ls_scf_env%matrix_p(ispin), ls_scf_env%mu_spin(ispin), ls_scf_env%fixed_mu, &
                                               ls_scf_env%sign_method, ls_scf_env%sign_order, matrix_mixing_old(ispin), &
-                                              ls_scf_env%matrix_s, ls_scf_env%matrix_s_inv, nelectron_spin_real, &
+                                              ls_scf_env%matrix_s, ls_scf_env%matrix_s_inv, REAL(nelectron_spin_real, dp), &
                                               ls_scf_env%eps_filter, ls_scf_env%sign_symmetric, ls_scf_env%submatrix_sign_method, &
                                               ls_scf_env%matrix_s_sqrt_inv)
                   CASE (ls_scf_tc2)
                      CALL density_matrix_tc2(ls_scf_env%matrix_p(ispin), matrix_mixing_old(ispin), ls_scf_env%matrix_s_sqrt_inv, &
-                                             nelectron_spin_real, ls_scf_env%eps_filter, ls_scf_env%homo_spin(ispin), &
+                                             REAL(nelectron_spin_real, dp), ls_scf_env%eps_filter, ls_scf_env%homo_spin(ispin), &
                                              ls_scf_env%lumo_spin(ispin), non_monotonic=ls_scf_env%non_monotonic, &
                                              eps_lanczos=ls_scf_env%eps_lanczos, max_iter_lanczos=ls_scf_env%max_iter_lanczos)
                   CASE (ls_scf_trs4)
                      CALL density_matrix_trs4(ls_scf_env%matrix_p(ispin), matrix_mixing_old(ispin), ls_scf_env%matrix_s_sqrt_inv, &
-                                              nelectron_spin_real, ls_scf_env%eps_filter, ls_scf_env%homo_spin(ispin), &
+                                              REAL(nelectron_spin_real, dp), ls_scf_env%eps_filter, ls_scf_env%homo_spin(ispin), &
                                               ls_scf_env%lumo_spin(ispin), ls_scf_env%mu_spin(ispin), &
                                               dynamic_threshold=ls_scf_env%dynamic_threshold, &
                                               matrix_ks_deviation=matrix_ks_deviation(ispin), &
@@ -670,7 +670,7 @@ CONTAINS
                         CPABORT("PEXSI library requires double precision datatype. ")
                      CALL density_matrix_pexsi(ls_scf_env%pexsi, ls_scf_env%matrix_p(ispin), ls_scf_env%pexsi%matrix_w(ispin), &
                                                ls_scf_env%pexsi%kTS(ispin), matrix_mixing_old(ispin), ls_scf_env%matrix_s, &
-                                               nelectron_spin_real, ls_scf_env%mu_spin(ispin), iscf, ispin)
+                                               REAL(nelectron_spin_real, dp), ls_scf_env%mu_spin(ispin), iscf, ispin)
                   END SELECT
                END IF
 
