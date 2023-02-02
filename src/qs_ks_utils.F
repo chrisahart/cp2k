@@ -1718,7 +1718,7 @@ CONTAINS
             CALL section_vals_val_get(ext_den_section, "FERMI_AMALDI", l_val=fermi_amaldi)
 
             CALL pw_scale(rho_eff_gspace, a=lambda)
-            nelectron = nelectron_spin(1)
+            nelectron = INT(nelectron_spin(1))
             factor = -1.0_dp/nelectron
             CALL pw_axpy(rho_g(1), rho_eff_gspace, alpha=factor)
 
