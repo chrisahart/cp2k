@@ -1452,6 +1452,12 @@ CONTAINS
 
          ELSE
 
+         IF (ounit > 0) THEN
+               WRITE (UNIT=ounit, FMT="(T2,A,I1, A, F1)") &
+                  "Number of electrons ", nelectron, ", sum of NELEC_ALPHA and NELEC_BETA is",  &
+                  nelectron_spin(1)+nelectron_spin(2)
+         END IF
+
                CALL cp_warn(__LOCATION__, &
                            "Number of electrons overwritten by NELEC_ALPHA and NELEC_BETA, "// &
                            "multiplicity will be ignored.")
