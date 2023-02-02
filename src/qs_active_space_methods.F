@@ -199,7 +199,7 @@ CONTAINS
          nrow_global, nspins, nvirt, zval
       INTEGER, ALLOCATABLE, DIMENSION(:, :)              :: active_orbitals
       INTEGER, DIMENSION(2)                              :: nactive_orb, ninactive_orb
-      REAL(KIND=dp), DIMENSION(2)                        :: nnepol
+      REAL(KIND=dp), DIMENSION(2)                        :: nepol
       INTEGER, DIMENSION(5)                              :: nshell
       INTEGER, DIMENSION(:), POINTER                     :: invals
       LOGICAL                                            :: do_kpoints, ex_operator, ex_perd, &
