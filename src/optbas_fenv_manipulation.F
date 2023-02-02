@@ -54,6 +54,7 @@ MODULE optbas_fenv_manipulation
    USE qs_rho_types,                    ONLY: qs_rho_get,&
                                               qs_rho_type
    USE string_utilities,                ONLY: uppercase
+   USE kinds,                           ONLY: dp
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
