@@ -774,7 +774,7 @@ CONTAINS
       CALL cp_fm_get_info(evecs, nrow_global=nrow)
       max_iter = xas_tdp_control%ot_max_iter
       eps_iter = xas_tdp_control%ot_eps_iter
-      nocc = nelec_spin(1)/2*ndo_mo
+      nocc = CEILING(nelec_spin(1))/2*ndo_mo
       IF (do_os) nocc = SUM(nelec_spin)*ndo_mo
 
 !  Initialize relevent matrices
@@ -866,9 +866,9 @@ CONTAINS
 
       !Compute the number of guesses for each spins
       IF (do_os) THEN
-         minel = MINLOC(nelec_spin, 1)
+         minel = CEILING(MINLOC(nelec_spin, 1))
          maxel = 3 - minel
-         nlumo(minel) = (neig/ndo_mo + nelec_spin(maxel) - nelec_spin(minel))/2
+         nlumo(minel) = (neig/ndo_mo + CEILING(nelec_spin(maxel)) - CEILING(nelec_spin(minel)))/2
          nlumo(maxel) = neig/ndo_mo - nlumo(minel)
       ELSE
          nlumo(1) = neig/ndo_mo
