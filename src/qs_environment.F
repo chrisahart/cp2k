@@ -527,7 +527,7 @@ CONTAINS
       INTEGER :: handle, ikind, ispin, iw, lmax_sphere, maxl, maxlgto, maxlgto_lri, maxlppl, &
          maxlppnl, method_id, multiplicity, my_ival, n_ao, n_mo_add, natom, nelectron, ngauss, &
          nkind, output_unit, sort_basis, tnadd_method
-      REAL(KIND=dp), DIMENSION(2), OPTIONAL              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       INTEGER, DIMENSION(2)                              :: n_mo
       LOGICAL :: all_potential_present, be_silent, do_kpoints, do_ri_hfx, do_ri_mp2, do_ri_rpa, &
          do_ri_sos_mp2, do_rpa_ri_exx, do_wfc_im_time, e1terms, has_unit_metric, lribas, &
@@ -1411,8 +1411,8 @@ CONTAINS
                CPABORT("LSD: too few electrons for this multiplicity")
             END IF
             maxocc = MAXVAL(nelectron_spin)
-            n_mo(1) = INT(MIN(nelectron_spin(1), 1))
-            n_mo(2) = INT(MIN(nelectron_spin(2), 1))
+            n_mo(1) = INT(MIN(nelectron_spin(1), 1.0_dp))
+            n_mo(2) = INT(MIN(nelectron_spin(2), 1.0_dp))
          END IF
 
       ELSE
