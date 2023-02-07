@@ -293,7 +293,8 @@ CONTAINS
          nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
          ! Initialize MO occupations
          mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
-         mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
+         mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
+         !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
       END IF
 
       CPASSERT(nmo >= nomo)
@@ -302,6 +303,8 @@ CONTAINS
       mo_set%homo = nomo
       mo_set%lfomo = nomo + 1
       mo_set%mu = mo_set%eigenvalues(nomo)
+
+      CPWARN("init_mo_set")
 
    END SUBROUTINE init_mo_set
 
