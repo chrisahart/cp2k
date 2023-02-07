@@ -74,6 +74,7 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigval_a, eigval_b, occ_a, occ_b
 
       CALL timeset(routineN, handle)
+      CPWARN("set_mo_occupation_3")
 
       NULLIFY (eigval_a, eigval_b, occ_a, occ_b)
       CALL get_mo_set(mo_set=mo_array(1), nmo=nmo_a, eigenvalues=eigval_a, &
@@ -209,6 +210,8 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigval_a, eigval_b
 
       CALL timeset(routineN, handle)
+
+      CPWARN("set_mo_occupation_2")
 
       ! Fall back for the case that we have only one MO set
       IF (SIZE(mo_array) == 1) THEN

@@ -220,6 +220,8 @@ CONTAINS
       mo_set%mu = 0.0_dp
       mo_set%flexible_electron_count = flexible_electron_count
 
+      CPWARN("allocate_mo_set")
+
       NULLIFY (mo_set%eigenvalues)
       NULLIFY (mo_set%occupation_numbers)
       NULLIFY (mo_set%mo_coeff)
