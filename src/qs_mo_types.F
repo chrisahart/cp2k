@@ -291,6 +291,7 @@ CONTAINS
          mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
       ELSE
          nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
+         
          ! Initialize MO occupations
          mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
          mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc

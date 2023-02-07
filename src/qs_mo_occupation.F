@@ -445,7 +445,8 @@ CONTAINS
             nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
-            mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
+            mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
+            !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
          END IF
 ! introduce applied potential correction here
 ! electron density is adjusted according to applied core correction
@@ -544,11 +545,11 @@ CONTAINS
             nelec = xas_nelectron
          ELSE
             i_first = 1
-            IF (smear%fixed_mag_mom == -1.0_dp) THEN
+           ! IF (smear%fixed_mag_mom == -1.0_dp) THEN
                nelec = REAL(mo_set%nelectron, dp)
-            ELSE
-               nelec = mo_set%n_el_f
-            END IF
+           ! ELSE
+            !   nelec = mo_set%n_el_f
+            !END IF
          END IF
          SELECT CASE (smear%method)
          CASE (smear_fermi_dirac)
