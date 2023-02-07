@@ -280,7 +280,8 @@ CONTAINS
          RETURN
       END IF
 
-      nelec = mo_array(1)%nelectron + mo_array(2)%nelectron
+      !nelec = mo_array(1)%nelectron + mo_array(2)%nelectron
+      nelec = INT(mo_array(1)%n_el_f + mo_array(2)%n_el_f)
 
       multiplicity_old = mo_array(1)%nelectron - mo_array(2)%nelectron + 1
 
