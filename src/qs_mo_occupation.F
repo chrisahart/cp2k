@@ -417,6 +417,8 @@ CONTAINS
          RETURN
       END IF
 
+      CPWARN("set_mo_occupation_1")
+
       xas_estate = -1
       occ_estate = 0.0_dp
       IF (PRESENT(xas_env)) THEN
