@@ -240,12 +240,16 @@ CONTAINS
                             "to correct the electron density")
             END IF
             IF (smear%fixed_mag_mom /= -1.0_dp) THEN
+
+            CPWARN("smear%fixed_mag_mom /= -1.0_dp")
+
                CPASSERT(.NOT. (PRESENT(eval_deriv)))
                CALL set_mo_occupation_3(mo_array, smear=smear)
                CALL timestop(handle)
                RETURN
             END IF
          ELSE
+         CPWARN("nelec_f")
             nelec_f = mo_array(1)%n_el_f + mo_array(2)%n_el_f
             IF (ABS((mo_array(1)%n_el_f - mo_array(2)%n_el_f) - smear%fixed_mag_mom) > smear%eps_fermi_dirac*nelec_f) THEN
                mo_array(1)%n_el_f = nelec_f/2.0_dp + smear%fixed_mag_mom/2.0_dp
@@ -272,6 +276,7 @@ CONTAINS
                CALL set_mo_occupation_1(mo_array(1), smear=smear, tot_zeff_corr=tot_zeff_corr)
                CALL set_mo_occupation_1(mo_array(2), smear=smear, tot_zeff_corr=tot_zeff_corr)
             ELSE
+            CPWARN("CALL set_mo_occupation_1(mo_array(1), smear=smear)")
                CALL set_mo_occupation_1(mo_array(1), smear=smear)
                CALL set_mo_occupation_1(mo_array(2), smear=smear)
             END IF
@@ -426,6 +431,9 @@ CONTAINS
       xas_estate = -1
       occ_estate = 0.0_dp
       IF (PRESENT(xas_env)) THEN
+
+      CPWARN("set_mo_xas_envoccupation_1")
+
          CALL get_xas_env(xas_env=xas_env, xas_nelectron=xas_nelectron, occ_estate=occ_estate, xas_estate=xas_estate)
          nomo = CEILING(xas_nelectron + 1.0 - occ_estate - EPSILON(0.0_dp))
 
