@@ -546,9 +546,9 @@ CONTAINS
          ELSE
             i_first = 1
            ! IF (smear%fixed_mag_mom == -1.0_dp) THEN
-               nelec = REAL(mo_set%nelectron, dp)
+             !  nelec = REAL(mo_set%nelectron, dp)
            ! ELSE
-            !   nelec = mo_set%n_el_f
+              nelec = mo_set%n_el_f
             !END IF
          END IF
          SELECT CASE (smear%method)
