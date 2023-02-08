@@ -452,7 +452,7 @@ CONTAINS
       ELSE
       CPWARN("line 451")
 
-         IF (MODULO(mo_set%nelectron, INT(mo_set%maxocc)) == 0) THEN
+         IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
          CPWARN("line 454")
 
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)
