@@ -149,9 +149,9 @@ CONTAINS
       CHARACTER(LEN=*), PARAMETER                        :: routineN = 'hfx_admm_init'
 
       INTEGER                                            :: handle, ispin, n_rep_hf, nao_aux_fit, &
-                                                            natoms, nelectron, nmo
+                                                            natoms, nmo
       LOGICAL                                            :: s_mstruct_changed
-      REAL(dp)                                           :: maxocc
+      REAL(dp)                                           :: maxocc, nelectron
       TYPE(admm_type), POINTER                           :: admm_env
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
       TYPE(cp_fm_struct_type), POINTER                   :: aux_fit_fm_struct
@@ -223,7 +223,7 @@ CONTAINS
                                  nao=nao_aux_fit, &
                                  nmo=nmo, &
                                  nelectron=nelectron, &
-                                 n_el_f=REAL(nelectron, dp), &
+                                 n_el_f=nelectron, &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)
          END DO
