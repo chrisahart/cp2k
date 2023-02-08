@@ -890,7 +890,7 @@ CONTAINS
                CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, &
                             smear%electronic_temperature, 1.0_dp)
             ELSE
-               nel = ne_a, KIND=dp
+               nel = ne_a
                CALL Fermikp2(wocc(:, :, :), mu, kTS, weig(:, :, :), nel, wkp, &
                              smear%electronic_temperature)
                kTS = kTS/2._dp
