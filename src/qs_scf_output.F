@@ -157,8 +157,10 @@ CONTAINS
             IF (dft_control%nspins > 1) THEN
                WRITE (UNIT=output_unit, FMT="(/,T2,A,I2)") "Spin", ispin
             END IF
-            WRITE (UNIT=output_unit, FMT="(/,(T2,A,T71,I10))") &
-               "Number of electrons INTEGER?:", INT(nelectron), &
+            WRITE (UNIT=output_unit, FMT="(/,(T2,A,T71,F10.3))") &
+               "Number of electrons:", nelectron
+         END DO
+            WRITE (UNIT=output_unit, FMT="((T2,A,T71,I10))") &
                "Number of occupied orbitals:", homo, &
                "Number of molecular orbitals:", nmo
          END DO

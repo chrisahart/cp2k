@@ -358,7 +358,6 @@ CONTAINS
 
       IF (dft_control%correct_el_density_dip) THEN
          tot_corr_zeff = qs_env%total_zeff_corr
-         !WRITE(*,*) "tot_corr_zeff = ", tot_corr_zeff
          IF ((ABS(tot_corr_zeff) > 0.0_dp) .AND. (density_guess /= restart_guess)) THEN
             CALL cp_warn(__LOCATION__, &
                          "Use SCF_GUESS RESTART in conjunction with "// &

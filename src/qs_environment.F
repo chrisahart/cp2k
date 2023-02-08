@@ -1460,7 +1460,9 @@ CONTAINS
 
        IF (output_unit > 0) THEN
          WRITE (output_unit, *) "Number of electrons should be", nelectron
-         WRITE (output_unit, *) "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
+         WRITE (UNIT=output_unit, FMT="(/,T8,A,T71,F10.3)") &
+                  "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
+         !WRITE (output_unit, *) "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
       END IF
 
          IF (ABS(NINT(dft_control%nelec_alpha+dft_control%nelec_beta) - nelectron) > threshold) THEN
@@ -1626,14 +1628,6 @@ CONTAINS
          ALLOCATE (mos(dft_control%nspins))
          DO ispin = 1, dft_control%nspins
 
-         IF (output_unit > 0) THEN
-          WRITE (output_unit, *) "ispin", ispin
-         WRITE (output_unit, *) "n_ao", n_ao
-         WRITE (output_unit, *) "n_mo(ispin)", n_mo(ispin)
-         WRITE (output_unit, *) "CEILING(nelectron_spin(ispin))", CEILING(nelectron_spin(ispin))
-         WRITE (output_unit, *) "nelectron_spin(ispin)", nelectron_spin(ispin)
-         WRITE (output_unit, *) "maxocc", maxocc
-         END IF 
             CALL allocate_mo_set(mo_set=mos(ispin), &
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &

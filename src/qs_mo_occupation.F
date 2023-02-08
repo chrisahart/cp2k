@@ -74,7 +74,6 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigval_a, eigval_b, occ_a, occ_b
 
       CALL timeset(routineN, handle)
-      CPWARN("set_mo_occupation_3")
 
       NULLIFY (eigval_a, eigval_b, occ_a, occ_b)
       CALL get_mo_set(mo_set=mo_array(1), nmo=nmo_a, eigenvalues=eigval_a, &
@@ -211,8 +210,6 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
-      CPWARN("set_mo_occupation_2")
-
       ! Fall back for the case that we have only one MO set
       IF (SIZE(mo_array) == 1) THEN
          IF (PRESENT(eval_deriv)) THEN
@@ -249,7 +246,6 @@ CONTAINS
                RETURN
             END IF
          ELSE
-         CPWARN("nelec_f")
             nelec_f = mo_array(1)%n_el_f + mo_array(2)%n_el_f
             IF (ABS((mo_array(1)%n_el_f - mo_array(2)%n_el_f) - smear%fixed_mag_mom) > smear%eps_fermi_dirac*nelec_f) THEN
                mo_array(1)%n_el_f = nelec_f/2.0_dp + smear%fixed_mag_mom/2.0_dp
@@ -276,11 +272,8 @@ CONTAINS
                CALL set_mo_occupation_1(mo_array(1), smear=smear, tot_zeff_corr=tot_zeff_corr)
                CALL set_mo_occupation_1(mo_array(2), smear=smear, tot_zeff_corr=tot_zeff_corr)
             ELSE
-            CPWARN("CALL set_mo_occupation_1(mo_array(1), smear=smear)")
                CALL set_mo_occupation_1(mo_array(1), smear=smear)
-               CPWARN("mo_array(1)")
                CALL set_mo_occupation_1(mo_array(2), smear=smear)
-               CPWARN("mo_array(2)")
             END IF
          END IF
          CALL timestop(handle)
@@ -351,8 +344,6 @@ CONTAINS
          mo_array(1)%homo = nelec/2 + MODULO(nelec, 2)
          mo_array(2)%homo = nelec/2
       END IF
-
-      CPWARN("355")
 
       mo_array(1)%nelectron = REAL(mo_array(1)%homo, dp)
       mo_array(2)%nelectron = REAL(mo_array(2)%homo, dp)
@@ -430,13 +421,9 @@ CONTAINS
          RETURN
       END IF
 
-      CPWARN("set_mo_occupation_1")
-
       xas_estate = -1
       occ_estate = 0.0_dp
       IF (PRESENT(xas_env)) THEN
-
-      CPWARN("set_mo_xas_envoccupation_1")
 
          CALL get_xas_env(xas_env=xas_env, xas_nelectron=xas_nelectron, occ_estate=occ_estate, xas_estate=xas_estate)
          nomo = CEILING(xas_nelectron + 1.0 - occ_estate - EPSILON(0.0_dp))
@@ -450,17 +437,13 @@ CONTAINS
          is_large = ABS(el_count - xas_nelectron) > xas_nelectron*EPSILON(el_count)
          CPASSERT(.NOT. is_large)
       ELSE
-      CPWARN("line 451")
 
          IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
-         CPWARN("line 454")
 
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
          ELSE
-         CPWARN("line 460")
-
             nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
@@ -479,10 +462,8 @@ CONTAINS
             delectron = 0.0_dp
             IF (total_zeff_corr < 0.0_dp) THEN
 ! remove electron density from the mos
-CPWARN("line 480")
                delectron = ABS(total_zeff_corr) - REAL(mo_set%maxocc, KIND=dp)
                IF (delectron > 0.0_dp) THEN
-CPWARN("line 483")
                   mo_set%occupation_numbers(nomo) = 0.0_dp
                   irmo = CEILING(delectron/REAL(mo_set%maxocc, KIND=dp))
                   DO ir = 1, irmo
@@ -498,16 +479,13 @@ CPWARN("line 483")
                ELSEIF (delectron < 0.0_dp) THEN
                   mo_set%occupation_numbers(nomo) = -delectron
                ELSE
-               CPWARN("line 499")
                   mo_set%occupation_numbers(nomo) = 0.0_dp
                   nomo = nomo - 1
                END IF
             ELSEIF (total_zeff_corr > 0.0_dp) THEN
 ! add electron density to the mos
-CPWARN("line 503")
                delectron = total_zeff_corr - REAL(mo_set%maxocc, KIND=dp)
                IF (delectron > 0.0_dp) THEN
-               CPWARN("line 506")
                   mo_set%occupation_numbers(nomo + 1) = REAL(mo_set%maxocc, KIND=dp)
                   nomo = nomo + 1
                   irmo = CEILING(delectron/REAL(mo_set%maxocc, KIND=dp))
@@ -568,7 +546,6 @@ CPWARN("line 503")
             i_first = xas_estate + 1
             nelec = xas_nelectron
          ELSE
-         CPWARN("line 567")
             i_first = 1
            ! IF (smear%fixed_mag_mom == -1.0_dp) THEN
              !  nelec = REAL(mo_set%nelectron, dp)
