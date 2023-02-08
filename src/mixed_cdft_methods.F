@@ -2098,7 +2098,7 @@ CONTAINS
          nao = nrow_mo(ispin)
          nmo = ncol_mo(ispin)
          ! Only OT with fully occupied orbitals is implicitly supported
-         CALL allocate_mo_set(mo_set(ispin), nao=nao, nmo=nmo, nelectron=INT(maxocc*nmo), &
+         CALL allocate_mo_set(mo_set(ispin), nao=nao, nmo=nmo, nelectron=REAL(maxocc*nmo, dp), &
                               n_el_f=REAL(maxocc*nmo, dp), maxocc=maxocc, &
                               flexible_electron_count=0.0_dp)
          CALL set_mo_set(mo_set(ispin), uniform_occupation=.TRUE., homo=nmo)

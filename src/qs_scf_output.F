@@ -144,7 +144,8 @@ CONTAINS
       TYPE(mo_set_type), DIMENSION(:), INTENT(IN)        :: mos
       TYPE(dft_control_type), POINTER                    :: dft_control
 
-      INTEGER                                            :: homo, ispin, nao, nmo, nelectron
+      INTEGER                                            :: homo, ispin, nao, nmo
+      REAL(KIND=dp)                                      :: nelectron
 
       IF (output_unit > 0) THEN
          DO ispin = 1, dft_control%nspins
@@ -157,7 +158,7 @@ CONTAINS
                WRITE (UNIT=output_unit, FMT="(/,T2,A,I2)") "Spin", ispin
             END IF
             WRITE (UNIT=output_unit, FMT="(/,(T2,A,T71,I10))") &
-               "Number of electrons:", nelectron, &
+               "Number of electrons INTEGER?:", INT(nelectron), &
                "Number of occupied orbitals:", homo, &
                "Number of molecular orbitals:", nmo
          END DO
@@ -187,14 +188,14 @@ CONTAINS
       CHARACTER(LEN=default_string_length), &
          DIMENSION(:), POINTER                           :: tmpstringlist
       INTEGER                                            :: handle, ikp, ispin, iw, kpoint, nao, &
-                                                            nelectron, nkp, nmo, nmo_tmp, nspin
+                                                            nkp, nmo, nmo_tmp, nspin
       INTEGER, DIMENSION(2)                              :: nmos_occ
       INTEGER, DIMENSION(:), POINTER                     :: mo_index_range
       LOGICAL                                            :: do_kpoints, print_eigvals, &
                                                             print_eigvecs, print_mo_info, &
                                                             print_occup, print_occup_stats
       REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, n_el_f, &
-                                                            occup_stats_occ_threshold
+                                                            occup_stats_occ_threshold, nelectron
       REAL(KIND=dp), DIMENSION(:), POINTER               :: mo_eigenvalues, mo_eigenvalues_tmp
       TYPE(admm_type), POINTER                           :: admm_env
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
