@@ -1626,7 +1626,7 @@ CONTAINS
          ALLOCATE (mos(dft_control%nspins))
          DO ispin = 1, dft_control%nspins
           WRITE (output_unit, *) "ispin", ispin
-         WRITE (output_unit, *) "nao", nao
+         WRITE (output_unit, *) "n_ao", n_ao
          WRITE (output_unit, *) "n_mo(ispin)", n_mo(ispin)
          WRITE (output_unit, *) "CEILING(nelectron_spin(ispin))", CEILING(nelectron_spin(ispin))
          WRITE (output_unit, *) "nelectron_spin(ispin)", nelectron_spin(ispin)
