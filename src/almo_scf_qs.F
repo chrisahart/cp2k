@@ -608,7 +608,7 @@ CONTAINS
          CALL allocate_mo_set(mo_set=mos(ispin), &
                               nao=nrow_fm, &
                               nmo=ncol_fm, &
-                              nelectron=almo_scf_env%nelectrons_total, &
+                              nelectron=REAL(almo_scf_env%nelectrons_total, dp), &
                               n_el_f=REAL(almo_scf_env%nelectrons_total, dp), &
                               maxocc=2.0_dp, &
                               flexible_electron_count=dft_control%relax_multiplicity)

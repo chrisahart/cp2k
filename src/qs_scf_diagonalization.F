@@ -1135,9 +1135,8 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER                        :: routineN = 'do_roks_diag'
 
-      INTEGER                                            :: handle, homoa, homob, imo, nalpha, nao, &
-                                                            nbeta, nmo
-      REAL(KIND=dp)                                      :: diis_error, level_shift_loc
+      INTEGER                                            :: handle, homoa, homob, imo, nmo, nao
+      REAL(KIND=dp)                                      :: diis_error, level_shift_loc, nalpha, nbeta
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eiga, eigb, occa, occb
       TYPE(cp_fm_type), POINTER                          :: ksa, ksb, mo2ao, moa, mob, ortho, work
 
@@ -1205,7 +1204,7 @@ CONTAINS
 
          IF (scf_control%roks_scheme == general_roks) THEN
             CALL combine_ks_matrices(ksa, ksb, occa, occb, scf_control%roks_f, &
-                                     nalpha, nbeta)
+                                     INT(nalpha), INT(nbeta))
          ELSE IF (scf_control%roks_scheme == high_spin_roks) THEN
             CALL combine_ks_matrices(ksa, ksb, occa, occb, scf_control%roks_parameter)
          ELSE
