@@ -221,8 +221,6 @@ CONTAINS
       mo_set%mu = 0.0_dp
       mo_set%flexible_electron_count = flexible_electron_count
 
-      CPWARN("allocate_mo_set")
-
       NULLIFY (mo_set%eigenvalues)
       NULLIFY (mo_set%occupation_numbers)
       NULLIFY (mo_set%mo_coeff)
@@ -287,20 +285,15 @@ CONTAINS
          RETURN
       END IF
 
-      ! If mo_set%nelectron even
       IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
-      CPWARN("line 292")
          nomo = NINT(mo_set%nelectron/mo_set%maxocc)
          mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
-      ! If mo_set%nelectron odd
       ELSE
-      CPWARN("line 297")
          nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
          
          ! Initialize MO occupations
          mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
-         mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
-         !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
+         mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
       END IF
 
       CPASSERT(nmo >= nomo)
@@ -309,8 +302,6 @@ CONTAINS
       mo_set%homo = nomo
       mo_set%lfomo = nomo + 1
       mo_set%mu = mo_set%eigenvalues(nomo)
-
-      CPWARN("init_mo_set")
 
    END SUBROUTINE init_mo_set
 
