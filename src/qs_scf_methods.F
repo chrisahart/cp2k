@@ -337,7 +337,8 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER                        :: routineN = 'eigensolver_symm'
 
-      INTEGER                                            :: handle, homo, nao, nelectron, nmo
+      INTEGER                                            :: handle, homo, nao, nmo
+      REAL(KIND=dp)                                      :: nelectron
       REAL(KIND=dp), DIMENSION(:), POINTER               :: mo_eigenvalues
       TYPE(cp_fm_type), POINTER                          :: mo_coeff
 
@@ -414,7 +415,8 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER :: routineN = 'eigensolver_simple'
 
-      INTEGER                                            :: handle, homo, nao, nelectron, nmo
+      INTEGER                                            :: handle, homo, nao, nmo
+      REAL(KIND=dp)                                      :: nelectron
       REAL(KIND=dp), DIMENSION(:), POINTER               :: mo_eigenvalues
       TYPE(cp_fm_type), POINTER                          :: mo_coeff
 
