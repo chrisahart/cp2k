@@ -69,7 +69,7 @@ CONTAINS
       LOGICAL                                            :: do_swap_hf
       REAL(dp) :: a, b, c, c1, da_dDFA, da_ddW0, da_dEx1, da_dEx2, db_dDFA, db_ddW0, db_dEx1, &
          db_dEx2, dc_dDFA, dc_ddW0, dc_dEx1, dc_dEx2, dExc_da, dExc_db, dExc_dc, dfa_energy, &
-         swap_value, nelec_a, nelec_b, 
+         swap_value, nelec_a, nelec_b 
       TYPE(mo_set_type), DIMENSION(:), POINTER           :: mos
 
       do_swap_hf = .FALSE.
