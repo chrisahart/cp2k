@@ -988,7 +988,7 @@ CONTAINS
                      WRITE (rst_unit) nmo, &
                         mo_array(ispin)%homo, &
                         mo_array(ispin)%lfomo, &
-                        mo_array(ispin)%nelectron
+                        INT(mo_array(ispin)%nelectron)
                      WRITE (rst_unit) mo_array(ispin)%eigenvalues(1:nmo), &
                         mo_array(ispin)%occupation_numbers(1:nmo)
                   ELSE
@@ -1044,8 +1044,9 @@ CONTAINS
       CHARACTER(LEN=default_path_length)                 :: filename
       CHARACTER(LEN=default_string_length)               :: my_middle
       INTEGER :: handle, homo_read, i, ispin, lfomo_read, max_nloc, n_rep_val, nao, &
-         nelectron_read, nloc, nmo, nmo_read, nspin, output_unit, rst_unit, source
+                 nloc, nmo, nmo_read, nspin, output_unit, rst_unit, source
       LOGICAL                                            :: file_exists, my_do_mixed
+      REAL(KIND=dp)                                      :: nelectron_read
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: eig_read, occ_read
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: vecbuffer
       TYPE(cp_logger_type), POINTER                      :: logger
@@ -1280,10 +1281,10 @@ CONTAINS
       CHARACTER(len=*), PARAMETER                        :: routineN = 'qs_loc_init'
 
       INTEGER :: handle, homo, i, ilast_intocc, ilow, ispin, iup, n_mo(2), n_mos(2), nao, &
-         nelectron, nextra, nmoloc(2), nocc, npocc, nspin, output_unit
+                 nextra, nmoloc(2), nocc, npocc, nspin, output_unit
       LOGICAL                                            :: my_do_homo, my_do_mixed, my_do_mo_cubes, &
                                                             restart_found
-      REAL(KIND=dp)                                      :: maxocc, my_tot_zeff_corr
+      REAL(KIND=dp)                                      :: maxocc, my_tot_zeff_corr, nelectron
       REAL(KIND=dp), DIMENSION(:), POINTER               :: mo_eigenvalues, occupation
       TYPE(cp_fm_type), POINTER                          :: mo_coeff
       TYPE(cp_logger_type), POINTER                      :: logger
@@ -1386,7 +1387,7 @@ CONTAINS
                   CALL make_mo_eig(mos, nspin, ks_rmpv, scf_control, mo_derivs)
                END IF
                IF (localized_wfn_control%set_of_states == state_loc_all .AND. my_do_homo) THEN
-                  nmoloc(ispin) = NINT(nelectron/occupation(1))
+                  nmoloc(ispin) = NINT(INT(nelectron)/occupation(1))
                   IF (n_mo(ispin) > homo) THEN
                      DO i = nmoloc(ispin), 1, -1
                         IF (occupation(1) - occupation(i) < localized_wfn_control%eps_occ) THEN
