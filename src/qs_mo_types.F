@@ -408,8 +408,8 @@ CONTAINS
 
       TYPE(mo_set_type), INTENT(IN)                      :: mo_set
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: maxocc
-      INTEGER, INTENT(OUT), OPTIONAL                     :: homo, lfomo, nao, nelectron
-      REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: n_el_f
+      INTEGER, INTENT(OUT), OPTIONAL                     :: homo, lfomo, nao
+      REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: n_el_f, nelectron
       INTEGER, INTENT(OUT), OPTIONAL                     :: nmo
       REAL(KIND=dp), DIMENSION(:), OPTIONAL, POINTER     :: eigenvalues, occupation_numbers
       TYPE(cp_fm_type), OPTIONAL, POINTER                :: mo_coeff
@@ -463,8 +463,8 @@ CONTAINS
 
       TYPE(mo_set_type), INTENT(INOUT)                   :: mo_set
       REAL(KIND=dp), INTENT(IN), OPTIONAL                :: maxocc
-      INTEGER, INTENT(IN), OPTIONAL                      :: homo, lfomo, nao, nelectron
-      REAL(KIND=dp), INTENT(IN), OPTIONAL                :: n_el_f
+      INTEGER, INTENT(IN), OPTIONAL                      :: homo, lfomo, nao
+      REAL(KIND=dp), INTENT(IN), OPTIONAL                :: n_el_f, nelectron
       INTEGER, INTENT(IN), OPTIONAL                      :: nmo
       REAL(KIND=dp), DIMENSION(:), OPTIONAL, POINTER     :: eigenvalues, occupation_numbers
       LOGICAL, INTENT(IN), OPTIONAL                      :: uniform_occupation

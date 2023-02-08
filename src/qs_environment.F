@@ -1653,7 +1653,7 @@ CONTAINS
             CALL allocate_mo_set(mo_set=mos_last_converged(ispin), &
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &
-                                 nelectron=CEILING(nelectron_spin(ispin)), &
+                                 nelectron=nelectron_spin(ispin), &
                                  n_el_f=nelectron_spin(ispin), &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)

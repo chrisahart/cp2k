@@ -290,7 +290,7 @@ CONTAINS
       !nelec = mo_array(1)%nelectron + mo_array(2)%nelectron
       nelec = INT(mo_array(1)%n_el_f + mo_array(2)%n_el_f)
 
-      multiplicity_old = mo_array(1)%nelectron - mo_array(2)%nelectron + 1
+      multiplicity_old = INT(mo_array(1)%nelectron - mo_array(2)%nelectron) + 1
 
       IF (mo_array(1)%nelectron >= mo_array(1)%nmo) &
          CALL cp_warn(__LOCATION__, &
@@ -352,9 +352,11 @@ CONTAINS
          mo_array(2)%homo = nelec/2
       END IF
 
-      mo_array(1)%nelectron = mo_array(1)%homo
-      mo_array(2)%nelectron = mo_array(2)%homo
-      multiplicity_new = mo_array(1)%nelectron - mo_array(2)%nelectron + 1
+      CPWARN("355")
+
+      mo_array(1)%nelectron = REAL(mo_array(1)%homo, dp)
+      mo_array(2)%nelectron = REAL(mo_array(2)%homo, dp)
+      multiplicity_new = INT(mo_array(1)%nelectron - mo_array(2)%nelectron) + 1
 
       IF (multiplicity_new /= multiplicity_old) &
          CALL cp_warn(__LOCATION__, &
