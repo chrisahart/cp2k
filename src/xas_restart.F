@@ -114,12 +114,13 @@ CONTAINS
       CHARACTER(LEN=*), PARAMETER                        :: routineN = 'xas_read_restart'
 
       CHARACTER(LEN=default_path_length)                 :: filename
-      INTEGER :: handle, i, ia, ie, ispin, my_spin, nao, nao_read, nelectron, nexc_atoms, &
+      INTEGER :: handle, i, ia, ie, ispin, my_spin, nao, nao_read, nexc_atoms, &
          nexc_atoms_read, nexc_search, nexc_search_read, nmo, nmo_read, output_unit, rst_unit, &
          source, xas_estate, xas_estate_read, xas_method_read
       LOGICAL                                            :: file_exists
       REAL(dp)                                           :: occ_estate, occ_estate_read, &
-                                                            xas_nelectron, xas_nelectron_read
+                                                            xas_nelectron, xas_nelectron_read, &
+                                                            nelectron
       REAL(dp), DIMENSION(:), POINTER                    :: eigenvalues, occupation_numbers
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: eig_read, occ_read
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: vecbuffer
@@ -421,7 +422,7 @@ CONTAINS
          IF (ispin == my_spin) THEN
             IF (xas_env%homo_occ == 0) THEN
                CALL get_mo_set(mos(ispin), nelectron=nelectron)
-               nelectron = nelectron - 1
+               nelectron = nelectron - 1.0_dp
                CALL set_mo_set(mos(ispin), nelectron=nelectron)
             END IF
             CALL set_mo_occupation(mo_set=qs_env%mos(ispin), smear=scf_control%smear, &
