@@ -397,7 +397,8 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'xas_initialize_rho'
 
-      INTEGER                                            :: handle, ispin, my_spin, nelectron
+      INTEGER                                            :: handle, ispin, my_spin
+      REAL(KIND=dp)                                      :: nelectron
       TYPE(cp_para_env_type), POINTER                    :: para_env
       TYPE(dbcsr_p_type), DIMENSION(:), POINTER          :: rho_ao
       TYPE(dft_control_type), POINTER                    :: dft_control
