@@ -1625,16 +1625,19 @@ CONTAINS
       ELSE
          ALLOCATE (mos(dft_control%nspins))
          DO ispin = 1, dft_control%nspins
+
+         IF (output_unit > 0) THEN
           WRITE (output_unit, *) "ispin", ispin
          WRITE (output_unit, *) "n_ao", n_ao
          WRITE (output_unit, *) "n_mo(ispin)", n_mo(ispin)
          WRITE (output_unit, *) "CEILING(nelectron_spin(ispin))", CEILING(nelectron_spin(ispin))
          WRITE (output_unit, *) "nelectron_spin(ispin)", nelectron_spin(ispin)
          WRITE (output_unit, *) "maxocc", maxocc
+         END IF 
             CALL allocate_mo_set(mo_set=mos(ispin), &
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &
-                                 nelectron=CEILING(nelectron_spin(ispin)), &
+                                 nelectron=nelectron_spin(ispin), &
                                  n_el_f=nelectron_spin(ispin), &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)

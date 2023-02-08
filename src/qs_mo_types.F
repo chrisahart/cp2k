@@ -205,8 +205,9 @@ CONTAINS
                               flexible_electron_count)
 
       TYPE(mo_set_type), INTENT(INOUT)                   :: mo_set
-      INTEGER, INTENT(IN)                                :: nao, nmo, nelectron
-      REAL(KIND=dp), INTENT(IN)                          :: n_el_f, maxocc, flexible_electron_count
+      INTEGER, INTENT(IN)                                :: nao, nmo
+      REAL(KIND=dp), INTENT(IN)                          :: n_el_f, nelectro, maxocc, & 
+                                                            flexible_electron_count
 
       mo_set%maxocc = maxocc
       mo_set%nelectron = nelectron
