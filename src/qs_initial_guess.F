@@ -142,7 +142,7 @@ CONTAINS
       CHARACTER(LEN=default_path_length)                 :: file_name, filename
       INTEGER :: atom_a, blk, density_guess, handle, homo, i, iatom, ic, icol, id_nr, ikind, irow, &
          iseed(4), ispin, istart_col, istart_row, j, last_read, n, n_cols, n_rows, nao, natom, &
-         natoms, natoms_tmp, nblocks, nelectron, nmo, nmo_tmp, not_read, nsgf, nspin, nvec, ounit, &
+         natoms, natoms_tmp, nblocks, nmo, nmo_tmp, not_read, nsgf, nspin, nvec, ounit, &
          safe_density_guess, size_atomic_kind_set, z
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: first_sgf, kind_of, last_sgf
       REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
@@ -153,7 +153,7 @@ CONTAINS
       REAL(dp), ALLOCATABLE, DIMENSION(:, :)             :: buff, buff2
       REAL(dp), DIMENSION(:, :), POINTER                 :: pdata
       REAL(KIND=dp)                                      :: checksum, eps, length, maxocc, occ, &
-                                                            rscale, tot_corr_zeff, trps1, zeff
+                                                            rscale, tot_corr_zeff, trps1, zeff, nelectron
       REAL(KIND=dp), DIMENSION(0:3)                      :: edftb
       TYPE(atom_matrix_type), DIMENSION(:), POINTER      :: pmat
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -823,7 +823,7 @@ CONTAINS
             IF (ounit > 0) WRITE (ounit, *) 'P_init occ', occ, ' checksum', checksum
 
             CALL dbcsr_dot(p_rmpv(ispin)%matrix, s_sparse(1)%matrix, trps1)
-            rscale = REAL(nelectron, dp)/trps1
+            rscale = nelectron/trps1
             CALL dbcsr_scale(p_rmpv(ispin)%matrix, rscale)
 
             !CALL dbcsr_verify_matrix(p_rmpv(ispin)%matrix)
