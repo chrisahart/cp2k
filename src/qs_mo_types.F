@@ -60,7 +60,7 @@ MODULE qs_mo_types
       ! 1 for spin unrestricted (polarized) and 2 for spin restricted
       REAL(KIND=dp)                                      :: maxocc = -1
       ! Number of electrons (taking occupations into account)
-      INTEGER                                            :: nelectron = -1
+      REAL(KIND=dp)                                      :: nelectron = -1.0_dp
       REAL(KIND=dp)                                      :: n_el_f = -1.0_dp
       ! Highest orbital with non-zero occupation
       INTEGER                                            :: homo = -1
@@ -206,7 +206,7 @@ CONTAINS
 
       TYPE(mo_set_type), INTENT(INOUT)                   :: mo_set
       INTEGER, INTENT(IN)                                :: nao, nmo
-      REAL(KIND=dp), INTENT(IN)                          :: n_el_f, nelectro, maxocc, & 
+      REAL(KIND=dp), INTENT(IN)                          :: n_el_f, nelectron, maxocc, & 
                                                             flexible_electron_count
 
       mo_set%maxocc = maxocc
@@ -283,14 +283,18 @@ CONTAINS
       ! Initialize MO occupations
       mo_set%occupation_numbers(:) = 0.0_dp
       ! Quick return, if no electrons are available
-      IF (mo_set%nelectron == 0) THEN
+      IF (mo_set%nelectron == 0.0_dp) THEN
          RETURN
       END IF
 
-      IF (MODULO(mo_set%nelectron, INT(mo_set%maxocc)) == 0) THEN
+      ! If mo_set%nelectron even
+      IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
+      CPWARN("line 292")
          nomo = NINT(mo_set%nelectron/mo_set%maxocc)
          mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
+      ! If mo_set%nelectron odd
       ELSE
+      CPWARN("line 297")
          nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
          
          ! Initialize MO occupations
