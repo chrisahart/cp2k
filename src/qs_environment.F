@@ -1487,9 +1487,9 @@ CONTAINS
 
             ELSE 
 
-                  CALL cp_warn(__LOCATION__, &
-                                 "NELEC_ALPHA is not an integer, "// &
-                                 "unexpected behaviour may occur.")
+                 ! CALL cp_warn(__LOCATION__, &
+                  !               "NELEC_ALPHA is not an integer, "// &
+                   !              "unexpected behaviour may occur.")
                         n_mo(1) = CEILING(nelectron_spin(1))
             END IF 
 
@@ -1499,9 +1499,9 @@ CONTAINS
 
             ELSE 
 
-                  CALL cp_warn(__LOCATION__, &
-                                 "NELEC_BETA is not an integer, "// &
-                                 "unexpected behaviour may occur.")
+                 ! CALL cp_warn(__LOCATION__, &
+                  !               "NELEC_BETA is not an integer, "// &
+                   !              "unexpected behaviour may occur.")
                         n_mo(2) = CEILING(nelectron_spin(2))
             END IF 
 
