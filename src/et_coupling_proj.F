@@ -1080,8 +1080,8 @@ CONTAINS
 
             IF (prnt_fm) THEN
                WRITE (output_unit, '(/,T3,I10,F24.4,I10,F19.4)') &
-                  mo(1)%nelectron, mo(1)%mu, &
-                  mo(2)%nelectron, mo(2)%mu
+                  INT(mo(1)%nelectron), mo(1)%mu, &
+                  INT(mo(2)%nelectron), mo(2)%mu
             END IF
 
             ! Spin-restricted calculation
@@ -1098,7 +1098,7 @@ CONTAINS
 
             IF (prnt_fm) THEN
                WRITE (output_unit, '(/,T3,I10,F24.4)') &
-                  mo(1)%nelectron, mo(1)%mu
+                  INT(mo(1)%nelectron), mo(1)%mu
             END IF
 
          END IF
@@ -1527,7 +1527,7 @@ CONTAINS
 
       ! Memory allocation (Use deallocate_mo_set to prevent accidental memory leaks)
       CALL deallocate_mo_set(ec%block(id)%mo(spin))
-      CALL allocate_mo_set(ec%block(id)%mo(spin), n_ao, n_mo, n_el, REAL(n_el, dp), mx_occ, 0.0_dp)
+      CALL allocate_mo_set(ec%block(id)%mo(spin), n_ao, n_mo, REAL(n_el, dp), REAL(n_el, dp), mx_occ, 0.0_dp)
       mo => ec%block(id)%mo(spin)
 
       ! State energies
