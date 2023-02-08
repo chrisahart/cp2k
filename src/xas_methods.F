@@ -165,7 +165,7 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER                        :: routineN = 'xas'
 
-      INTEGER :: handle, homo, i, iat, iatom, ispin, istate, my_homo(2), my_nelectron(2), my_spin, &
+      INTEGER :: handle, homo, i, iat, iatom, ispin, istate, my_homo(2), my_spin, &
          nao, nexc_atoms, nexc_search, nmo, nspins, output_unit, state_to_be_excited
       INTEGER, DIMENSION(2)                              :: added_mos
       INTEGER, DIMENSION(:), POINTER                     :: nexc_states
@@ -173,7 +173,8 @@ CONTAINS
       LOGICAL                                            :: ch_method_flags, converged, my_uocc(2), &
                                                             should_stop, skip_scf, &
                                                             transition_potential
-      REAL(dp)                                           :: maxocc, occ_estate, tmp, xas_nelectron
+      REAL(dp)                                           :: maxocc, occ_estate, tmp, & 
+                                                            my_nelectron(2), xas_nelectron
       REAL(dp), DIMENSION(:), POINTER                    :: eigenvalues
       REAL(dp), DIMENSION(:, :), POINTER                 :: vecbuffer
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -274,7 +275,7 @@ CONTAINS
 
 !   Set initial occupation numbers, and store the original ones
       my_homo = 0
-      my_nelectron = 0
+      my_nelectron = 0.0_dp
       DO ispin = 1, dft_control%nspins
          CALL get_mo_set(mos(ispin), nelectron=my_nelectron(ispin), maxocc=maxocc, &
                          homo=my_homo(ispin), uniform_occupation=my_uocc(ispin))
