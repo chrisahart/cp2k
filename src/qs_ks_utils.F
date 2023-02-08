@@ -712,8 +712,9 @@ CONTAINS
       LOGICAL, INTENT(IN)                                :: just_energy, calculate_forces
       TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
 
-      INTEGER                                            :: i, nelec, nelec_a, nelec_b, nforce
-      REAL(kind=dp)                                      :: ener, full_scaling, scaling
+      INTEGER                                            :: i, nelec, nforce
+      REAL(kind=dp)                                      :: ener, full_scaling, scaling, &
+                                                            nelec_a, nelec_b
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: store_forces
       TYPE(mo_set_type), DIMENSION(:), POINTER           :: mo_array
       TYPE(pw_type)                                      :: work_rho, work_v
@@ -751,7 +752,7 @@ CONTAINS
          CALL get_qs_env(qs_env, mos=mo_array)
          CALL get_mo_set(mo_set=mo_array(1), nelectron=nelec_a)
          CALL get_mo_set(mo_set=mo_array(2), nelectron=nelec_b)
-         nelec = nelec_a + nelec_b
+         nelec = INT(nelec_a + nelec_b)
          CALL pw_copy(rho_g(1), work_rho)
          CALL pw_axpy(rho_g(2), work_rho)
          scaling = 1.0_dp/REAL(nelec, KIND=dp)
