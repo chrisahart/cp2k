@@ -1459,10 +1459,13 @@ CONTAINS
                               "multiplicity will be ignored.")
 
        IF (output_unit > 0) THEN
-         WRITE (UNIT=output_unit, FMT="(/,T2,A,T71,I10)") &
-                  "Number of electrons should be", nelectron
-         WRITE (UNIT=output_unit, FMT="(/,T2,A,T71,F10.3)") &
+       WRITE (UNIT=output_unit, FMT="(/,T2,A,T71,I10, /, T2,A,T71,F10.3)") &
+                  "Number of electrons should be", nelectron, & 
                   "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
+        ! WRITE (UNIT=output_unit, FMT="(/,T2,A,T71,I10)") &
+        !          "Number of electrons should be", nelectron
+        ! WRITE (UNIT=output_unit, FMT="(T2,A,T71,F10.3)") &
+        !          "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
       END IF
 
          IF (ABS(NINT(dft_control%nelec_alpha+dft_control%nelec_beta) - nelectron) > threshold) THEN
