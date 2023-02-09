@@ -238,8 +238,6 @@ CONTAINS
             END IF
             IF (smear%fixed_mag_mom /= -1.0_dp) THEN
 
-            CPWARN("smear%fixed_mag_mom /= -1.0_dp")
-
                CPASSERT(.NOT. (PRESENT(eval_deriv)))
                CALL set_mo_occupation_3(mo_array, smear=smear)
                CALL timestop(handle)

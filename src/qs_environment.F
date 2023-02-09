@@ -1459,13 +1459,9 @@ CONTAINS
                               "multiplicity will be ignored.")
 
        IF (output_unit > 0) THEN
-       WRITE (UNIT=output_unit, FMT="(/,T2,A,T71,I10, /, T2,A,T71,F10.3)") &
+       WRITE (UNIT=output_unit, FMT="(T2,A,T71,I10, /, T2,A,T71,F10.3)") &
                   "Number of electrons should be", nelectron, & 
                   "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
-        ! WRITE (UNIT=output_unit, FMT="(/,T2,A,T71,I10)") &
-        !          "Number of electrons should be", nelectron
-        ! WRITE (UNIT=output_unit, FMT="(T2,A,T71,F10.3)") &
-        !          "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
       END IF
 
          IF (ABS(NINT(dft_control%nelec_alpha+dft_control%nelec_beta) - nelectron) > threshold) THEN
@@ -1490,9 +1486,9 @@ CONTAINS
 
             ELSE 
 
-                 ! CALL cp_warn(__LOCATION__, &
-                  !               "NELEC_ALPHA is not an integer, "// &
-                   !              "unexpected behaviour may occur.")
+                 CALL cp_warn(__LOCATION__, &
+                                 "NELEC_ALPHA is not an integer, "// &
+                                 "many features will not be supported.")
                         n_mo(1) = CEILING(nelectron_spin(1))
             END IF 
 
@@ -1502,9 +1498,9 @@ CONTAINS
 
             ELSE 
 
-                 ! CALL cp_warn(__LOCATION__, &
-                  !               "NELEC_BETA is not an integer, "// &
-                   !              "unexpected behaviour may occur.")
+                  CALL cp_warn(__LOCATION__, &
+                                 "NELEC_BETA is not an integer, "// &
+                                "many features will not be supported.")
                         n_mo(2) = CEILING(nelectron_spin(2))
             END IF 
 
