@@ -72,7 +72,7 @@ CONTAINS
             END IF
          ELSE
             occupation = maxocc
-         END 
+         END IF
          
          PRINT *, "i", i
          PRINT *, "occupation", occupation
