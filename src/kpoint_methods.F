@@ -911,8 +911,12 @@ CONTAINS
          PRINT *, "line 909"
             nel = ne_a
             CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 1.0_dp)
+            PRINT *, "wocc(:, :, 1)"
+            PRINT *, wocc(:, :, 1)
             nel = ne_b
             CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, 0.0_dp, 1.0_dp)
+            PRINT *, "wocc(:, :, 2)"
+            PRINT *, wocc(:, :, 2)
          END IF
       END IF
       DO ikpgr = 1, kplocal

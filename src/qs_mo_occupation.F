@@ -462,8 +462,15 @@ CONTAINS
          CPASSERT(.NOT. is_large)
       ELSE
 
+         ! If integer number of electrons
          IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
 
+         PRINT *, "mo_set%nelectron"
+         PRINT *, mo_set%nelectron
+         PRINT *, "mo_set%maxocc"
+         PRINT *, mo_set%maxocc
+         PRINT *, "MODULO(mo_set%nelectron, mo_set%maxocc)"
+         PRINT *, MODULO(mo_set%nelectron, mo_set%maxocc)
          PRINT *, "line 459"
 
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)

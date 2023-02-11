@@ -140,7 +140,7 @@ CONTAINS
 
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
-      IF (t > 1.0e-14_dp) THEN
+!IF (t > 1.0e-14_dp) THEN
       PRINT *, "line 141"
          beta = 1.0_dp/t
          DO ik = 1, nkp
@@ -169,23 +169,24 @@ CONTAINS
                kTS = kTS + t*maxocc*(term1 + term2)*wk(ik)
             END DO
          END DO
-      ELSE
-      PRINT *, "line 169"
-         DO ik = 1, nkp
-            DO is = 1, nmo
-               IF (e(is, ik) <= mu) THEN
-                  f(is, ik) = maxocc
-               ELSE
+    !  ELSE
+!PRINT *, "line 169"
+      !   DO ik = 1, nkp
+      !      DO is = 1, nmo
+            
+        !       IF (e(is, ik) <= mu) THEN
+          !        f(is, ik) = maxocc
+         !      ELSE
                 !  IF (COUNT==0) THEN 
                  ! f(is, ik) = 0.8_dp
                   !COUNT = COUNT + 1
                   !ELSE 
-                  f(is, ik) = 0.0_dp
+!f(is, ik) = 0.0_dp
                   ! END IF 
-               END IF
-            END DO
-         END DO
-      END IF
+         ! !     END IF
+           ! END DO
+        ! END DO
+      ! IF
 
       nel = 0.0_dp
       DO ik = 1, nkp
