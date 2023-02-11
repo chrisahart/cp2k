@@ -138,6 +138,7 @@ CONTAINS
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
       IF (t > 1.0e-14_dp) THEN
+      PRINT *, "line 141"
          beta = 1.0_dp/t
          DO ik = 1, nkp
             DO is = 1, nmo
@@ -166,6 +167,7 @@ CONTAINS
             END DO
          END DO
       ELSE
+      PRINT *, "line 169"
          DO ik = 1, nkp
             DO is = 1, nmo
                IF (e(is, ik) <= mu) THEN

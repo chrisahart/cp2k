@@ -925,6 +925,7 @@ CONTAINS
             eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
             occupation(1:nmo) = wocc(1:nmo, ik, ispin)
 
+            PRINT *, "line 928"
             PRINT *, "ispin"
             PRINT *, ispin
             PRINT *, "nmo"
