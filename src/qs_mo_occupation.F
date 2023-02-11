@@ -75,6 +75,8 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
+      PRINT *, "set_mo_occupation_3"
+
       NULLIFY (eigval_a, eigval_b, occ_a, occ_b)
       CALL get_mo_set(mo_set=mo_array(1), nmo=nmo_a, eigenvalues=eigval_a, &
                       occupation_numbers=occ_a)
@@ -177,10 +179,14 @@ CONTAINS
             PRINT *, SIZE(occ_a)
             PRINT *, "occ_a"
             PRINT *,   occ_a  
+             PRINT *, "SUM(occ_a)"
+            PRINT *, SUM(occ_a)
              PRINT *, "size(occ_b)"
             PRINT *, SIZE(occ_b)
             PRINT *, "occ_b"
             PRINT *,   occ_b  
+             PRINT *, "SUM(occ_b)"
+            PRINT *, SUM(occ_b)
             
            
             CALL timestop(handle)
@@ -221,6 +227,8 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigval_a, eigval_b
 
       CALL timeset(routineN, handle)
+
+      PRINT *, "set_mo_occupation_2"
 
       ! Fall back for the case that we have only one MO set
       IF (SIZE(mo_array) == 1) THEN
@@ -423,6 +431,8 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
+      PRINT *, "set_mo_occupation_1"
+
       CPASSERT(ASSOCIATED(mo_set%eigenvalues))
       CPASSERT(ASSOCIATED(mo_set%occupation_numbers))
       mo_set%occupation_numbers(:) = 0.0_dp
@@ -436,6 +446,8 @@ CONTAINS
       xas_estate = -1
       occ_estate = 0.0_dp
       IF (PRESENT(xas_env)) THEN
+
+      PRINT *, "line 444"
 
          CALL get_xas_env(xas_env=xas_env, xas_nelectron=xas_nelectron, occ_estate=occ_estate, xas_estate=xas_estate)
          nomo = CEILING(xas_nelectron + 1.0 - occ_estate - EPSILON(0.0_dp))
@@ -452,6 +464,8 @@ CONTAINS
 
          IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
 
+         PRINT *, "line 459"
+
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
@@ -462,11 +476,13 @@ CONTAINS
             mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
             !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%
             
-            PRINT *, "line 451"
+            PRINT *, "line 469"
             PRINT *, "size(mo_set%occupation_numbers)"
             PRINT *, SIZE(mo_set%occupation_numbers)
             PRINT *, "mo_set%occupation_numbers"
             PRINT *, mo_set%occupation_numbers
+            PRINT *, "SUM(mo_set%occupation_numbers)"
+            PRINT *, SUM(mo_set%occupation_numbers)
 
          END IF
 ! introduce applied potential correction here
