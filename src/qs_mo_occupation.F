@@ -446,7 +446,11 @@ CONTAINS
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
             mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
-            !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
+            !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%
+            
+            PRINT *, "mo_set%occupation_numbers"
+            PRINT *, mo_set%occupation_numbers
+
          END IF
 ! introduce applied potential correction here
 ! electron density is adjusted according to applied core correction
