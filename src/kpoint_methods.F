@@ -918,7 +918,8 @@ CONTAINS
             mo_set => kp%mos(1, ispin)
             CALL get_mo_set(mo_set, eigenvalues=eigenvalues, occupation_numbers=occupation)
             eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
-            occupation(1:nmo) = wocc(1:nmo, ik, ispin)
+            !(1:nmo) = wocc(1:nmo, ik, ispin)
+ 
             PRINT *, "occupation"
             PRINT *, occupation
             PRINT *, "ispin"

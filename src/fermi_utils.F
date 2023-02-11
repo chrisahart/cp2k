@@ -122,13 +122,18 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), INTENT(IN)            :: wk
       REAL(KIND=dp), INTENT(IN)                          :: t, maxocc
 
-      INTEGER                                            :: ik, is, nkp, nmo
+      INTEGER                                            :: ik, is, nkp, nmo, count
       REAL(KIND=dp)                                      :: arg, beta, term1, term2, tmp, tmp2, &
                                                             tmp3, tmp4, tmplog
 
       nmo = SIZE(e, 1)
       nkp = SIZE(e, 2)
       kTS = 0.0_dp
+      COUNT = 0
+      PRINT *, "Fermi2"
+      PRINT *, "maxocc"
+      PRINT *, maxocc
+
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
       IF (t > 1.0e-14_dp) THEN
@@ -165,7 +170,12 @@ CONTAINS
                IF (e(is, ik) <= mu) THEN
                   f(is, ik) = maxocc
                ELSE
+                  IF (COUNT==0) THEN 
+                  f(is, ik) = 0.8_dp
+                  COUNT = COUNT + 1
+                  ELSE 
                   f(is, ik) = 0.0_dp
+                   END IF 
                END IF
             END DO
          END DO
