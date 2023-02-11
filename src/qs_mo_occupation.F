@@ -172,7 +172,19 @@ CONTAINS
       CALL set_mo_set(mo_set=mo_array(2), kTS=kTS/2.0_dp, mu=mu, n_el_f=nelec_b, &
                       lfomo=lfomo_b, homo=homo_b, uniform_occupation=.FALSE.)
 
+           PRINT *, "line 701"
+            PRINT *, "size(occ_a)"
+            PRINT *, SIZE(occ_a)
+            PRINT *, "occ_a"
+            PRINT *,   occ_a  
+             PRINT *, "size(occ_b)"
+            PRINT *, SIZE(occ_b)
+            PRINT *, "occ_b"
+            PRINT *,   occ_b  
+            
+           
             CALL timestop(handle)
+            
 
    END SUBROUTINE set_mo_occupation_3
 
@@ -365,12 +377,6 @@ CONTAINS
             CALL set_mo_occupation_1(mo_array(2), smear=smear)
          END IF
       END IF
-
-      PRINT *, "line 369"
-            PRINT *, "size(mo_set%occupation_numbers)"
-            PRINT *, SIZE(mo_set%occupation_numbers)
-            PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers    
 
       CALL timestop(handle)
 
