@@ -560,6 +560,10 @@ CONTAINS
             IF (.NOT. PRESENT(eval_deriv)) THEN
                CALL FermiFixed(mo_set%occupation_numbers, mo_set%mu, mo_set%kTS, mo_set%eigenvalues, Nelec, &
                                smear%electronic_temperature, mo_set%maxocc, xas_estate, occ_estate)
+
+            PRINT *, "CASE (smear_fermi_dirac)"
+            PRINT *, "mo_set%occupation_numbers"
+            PRINT *, mo_set%occupation_numbers              
             ELSE
                ! could be a relatively large matrix, but one could get rid of it by never storing it
                ! we only need dE/df * df/de, one could equally parallelize over entries, this could become expensive

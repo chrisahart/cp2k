@@ -917,13 +917,19 @@ CONTAINS
          DO ispin = 1, nspin
             mo_set => kp%mos(1, ispin)
             CALL get_mo_set(mo_set, eigenvalues=eigenvalues, occupation_numbers=occupation)
+
             eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
+            occupation(1:nmo) = wocc(1:nmo, ik, ispin)
+
             !(1:nmo) = wocc(1:nmo, ik, ispin)
  
-            PRINT *, "occupation"
-            PRINT *, occupation
-            PRINT *, "ispin"
-            PRINT *, ispin
+            !PRINT *, "ispin"
+            !PRINT *, ispin
+            !PRINT *, "nmo"
+            !PRINT *, nmo
+            !PRINT *, "occupation"
+            !PRINT *, occupation
+            
             mo_set%kTS = kTS
             mo_set%mu = mus(ispin)
          END DO
