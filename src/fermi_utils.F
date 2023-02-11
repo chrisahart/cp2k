@@ -55,6 +55,8 @@ CONTAINS
       REAL(KIND=dp)                                      :: arg, occupation, term1, term2, tmp, &
                                                             tmp2, tmp3, tmp4, tmplog
 
+      PRINT *, "start Fermi"
+      
       Nstate = SIZE(e)
       kTS = 0.0_dp
       ! kTS is the entropic contribution to the energy i.e. -TS
@@ -127,11 +129,12 @@ CONTAINS
       REAL(KIND=dp)                                      :: arg, beta, term1, term2, tmp, tmp2, &
                                                             tmp3, tmp4, tmplog
 
+      PRINT *, "start Fermi2"
+      
       nmo = SIZE(e, 1)
       nkp = SIZE(e, 2)
       kTS = 0.0_dp
       COUNT = 0
-      PRINT *, "Fermi2"
       PRINT *, "maxocc"
       PRINT *, maxocc
 
@@ -221,6 +224,8 @@ CONTAINS
       REAL(KIND=dp)                                      :: mu_max, mu_min, mu_now, my_festate, &
                                                             N_max, N_min, N_now
 
+      PRINT *, "start FermiFixed"
+      
       IF (PRESENT(estate) .AND. PRESENT(festate)) THEN
          my_estate = estate
          my_festate = festate
@@ -305,6 +310,8 @@ CONTAINS
       INTEGER                                            :: iter
       REAL(KIND=dp)                                      :: de, mu_max, mu_min, N_now
 
+      PRINT *, "start Fermikp"
+      
       ! bisection search to find mu for a given nel
       de = t*LOG((1.0_dp - epsocc)/epsocc)
       de = MAX(de, 0.5_dp)
@@ -359,7 +366,9 @@ CONTAINS
       REAL(KIND=dp)                                      :: de, kTSa, kTSb, mu_max, mu_min, N_now, &
                                                             na, nb
 
-      ! only do spin polarized case
+       PRINT *, "start Fermikp2"
+       
+       ! only do spin polarized case
       CPASSERT(SIZE(f, 3) == 2 .AND. SIZE(e, 3) == 2)
 
       ! bisection search to find mu for a given nel
