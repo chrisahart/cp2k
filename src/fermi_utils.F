@@ -57,6 +57,7 @@ CONTAINS
 
       PRINT *, "start Fermi"
       
+      
       Nstate = SIZE(e)
       kTS = 0.0_dp
       ! kTS is the entropic contribution to the energy i.e. -TS
@@ -71,7 +72,10 @@ CONTAINS
             END IF
          ELSE
             occupation = maxocc
-         END IF
+         END 
+         
+         PRINT *, "i", i
+         PRINT *, "occupation", occupation
 
          ! have the result of exp go to zero instead of overflowing
          IF (e(i) > mu) THEN
@@ -100,6 +104,9 @@ CONTAINS
          f(i) = occupation*tmp2
          kTS = kTS + T*occupation*(term1 + term2)
       END DO
+
+      PRINT *, "f"
+         PRINT *, f
 
       N = accurate_sum(f)
 
@@ -192,6 +199,9 @@ CONTAINS
       DO ik = 1, nkp
          nel = nel + accurate_sum(f(1:nmo, ik))*wk(ik)
       END DO
+
+       PRINT *, "f"
+         PRINT *, f
 
    END SUBROUTINE Fermi2
 
