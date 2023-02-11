@@ -70,6 +70,7 @@ CONTAINS
          ELSE
             occupation = maxocc
          END IF
+         
          ! have the result of exp go to zero instead of overflowing
          IF (e(i) > mu) THEN
             arg = -(e(i) - mu)/T

@@ -448,6 +448,9 @@ CONTAINS
             mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
             !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%
             
+            PRINT *, "line 451"
+            PRINT *, "size(mo_set%occupation_numbers)"
+            PRINT *, SIZE(mo_set%occupation_numbers)
             PRINT *, "mo_set%occupation_numbers"
             PRINT *, mo_set%occupation_numbers
 
@@ -561,10 +564,19 @@ CONTAINS
                CALL FermiFixed(mo_set%occupation_numbers, mo_set%mu, mo_set%kTS, mo_set%eigenvalues, Nelec, &
                                smear%electronic_temperature, mo_set%maxocc, xas_estate, occ_estate)
 
-            PRINT *, "CASE (smear_fermi_dirac)"
+            PRINT *, "line 567"
+            PRINT *, "size(mo_set%occupation_numbers)"
+            PRINT *, SIZE(mo_set%occupation_numbers)
             PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers              
+            PRINT *, mo_set%occupation_numbers       
+
             ELSE
+            PRINT *, "line 574"
+            PRINT *, "size(mo_set%occupation_numbers)"
+            PRINT *, SIZE(mo_set%occupation_numbers)
+            PRINT *, "mo_set%occupation_numbers"
+            PRINT *, mo_set%occupation_numbers    
+
                ! could be a relatively large matrix, but one could get rid of it by never storing it
                ! we only need dE/df * df/de, one could equally parallelize over entries, this could become expensive
                ALLOCATE (dfde(nmo, nmo))
@@ -685,6 +697,12 @@ CONTAINS
 
       ! zeros don't count as uniform
       mo_set%uniform_occupation = has_uniform_occupation(mo_set=mo_set)
+
+      PRINT *, "line 701"
+            PRINT *, "size(mo_set%occupation_numbers)"
+            PRINT *, SIZE(mo_set%occupation_numbers)
+            PRINT *, "mo_set%occupation_numbers"
+            PRINT *, mo_set%occupation_numbers    
 
       CALL timestop(handle)
 
