@@ -877,6 +877,7 @@ CONTAINS
          ! finite electronic temperature
          SELECT CASE (smear%method)
          CASE (smear_fermi_dirac)
+         PRINT *, "line 880"
             IF (nspin == 1) THEN
                nel = nelectron
                CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, &
@@ -890,6 +891,7 @@ CONTAINS
                CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, &
                             smear%electronic_temperature, 1.0_dp)
             ELSE
+            PRINT *, "line 894"
                nel = ne_a + ne_b
                CALL Fermikp2(wocc(:, :, :), mu, kTS, weig(:, :, :), nel, wkp, &
                              smear%electronic_temperature)
@@ -902,9 +904,11 @@ CONTAINS
       ELSE
          ! fixed occupations (2/1)
          IF (nspin == 1) THEN
+         PRINT *, "line 905"
             nel = nelectron
             CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 2.0_dp)
          ELSE
+         PRINT *, "line 909"
             nel = ne_a
             CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 1.0_dp)
             nel = ne_b
@@ -921,14 +925,14 @@ CONTAINS
             eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
             occupation(1:nmo) = wocc(1:nmo, ik, ispin)
 
-            !(1:nmo) = wocc(1:nmo, ik, ispin)
- 
-            !PRINT *, "ispin"
-            !PRINT *, ispin
-            !PRINT *, "nmo"
-            !PRINT *, nmo
-            !PRINT *, "occupation"
-            !PRINT *, occupation
+            PRINT *, "ispin"
+            PRINT *, ispin
+            PRINT *, "nmo"
+            PRINT *, nmo
+            PRINT *, "SIZE(occupation)"
+            PRINT *, SIZE(occupation)
+            PRINT *, "occupation"
+            PRINT *, occupation
             
             mo_set%kTS = kTS
             mo_set%mu = mus(ispin)

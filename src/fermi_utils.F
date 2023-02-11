@@ -70,7 +70,7 @@ CONTAINS
          ELSE
             occupation = maxocc
          END IF
-         
+
          ! have the result of exp go to zero instead of overflowing
          IF (e(i) > mu) THEN
             arg = -(e(i) - mu)/T
@@ -171,12 +171,12 @@ CONTAINS
                IF (e(is, ik) <= mu) THEN
                   f(is, ik) = maxocc
                ELSE
-                  IF (COUNT==0) THEN 
-                  f(is, ik) = 0.8_dp
-                  COUNT = COUNT + 1
-                  ELSE 
+                !  IF (COUNT==0) THEN 
+                 ! f(is, ik) = 0.8_dp
+                  !COUNT = COUNT + 1
+                  !ELSE 
                   f(is, ik) = 0.0_dp
-                   END IF 
+                  ! END IF 
                END IF
             END DO
          END DO
