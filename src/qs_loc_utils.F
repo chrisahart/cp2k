@@ -1387,7 +1387,7 @@ CONTAINS
                   CALL make_mo_eig(mos, nspin, ks_rmpv, scf_control, mo_derivs)
                END IF
                IF (localized_wfn_control%set_of_states == state_loc_all .AND. my_do_homo) THEN
-                  nmoloc(ispin) = NINT(INT(nelectron)/occupation(1))
+                  nmoloc(ispin) = NINT(nelectron/occupation(1))
                   IF (n_mo(ispin) > homo) THEN
                      DO i = nmoloc(ispin), 1, -1
                         IF (occupation(1) - occupation(i) < localized_wfn_control%eps_occ) THEN

@@ -57,7 +57,7 @@ MODULE qs_subsys_types
    TYPE qs_subsys_type
       PRIVATE
       INTEGER                                               :: nelectron_total = -1
-      REAL(KIND=dp)                                         :: nelectron_spin(2) = -1_dp
+      REAL(KIND=dp)                                         :: nelectron_spin(2) = -1.0_dp
       TYPE(cp_subsys_type), POINTER                         :: cp_subsys => Null()
       TYPE(qs_kind_type), DIMENSION(:), POINTER             :: qs_kind_set => Null()
       TYPE(cell_type), POINTER                              :: cell_ref => Null()

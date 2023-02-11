@@ -919,6 +919,7 @@ CONTAINS
             CALL get_mo_set(mo_set, eigenvalues=eigenvalues, occupation_numbers=occupation)
             eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
             occupation(1:nmo) = wocc(1:nmo, ik, ispin)
+            PRINT *, occupation
             mo_set%kTS = kTS
             mo_set%mu = mus(ispin)
          END DO

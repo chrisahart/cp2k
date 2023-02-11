@@ -1395,7 +1395,6 @@ CONTAINS
       IF (dft_control%qs_control%ofgpw) THEN
 
          IF (dft_control%nspins == 1) THEN
-         CPWARN("dft_control%nspins == 1")
             maxocc = nelectron
             nelectron_spin(1) = REAL(nelectron, dp)
             nelectron_spin(2) = 0.0_dp
@@ -1476,7 +1475,7 @@ CONTAINS
             
             diff_a = ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha))
             diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta))
-            nelectron_spin(1) = dft_control%nelec_alpha - dft_control%charge
+            nelectron_spin(1) = dft_control%nelec_alpha - REAL(dft_control%charge, dp)
             nelectron_spin(2) = dft_control%nelec_beta
             nelectron = INT(nelectron_spin(1)+nelectron_spin(2))
 
