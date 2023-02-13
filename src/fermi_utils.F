@@ -142,8 +142,8 @@ CONTAINS
       nkp = SIZE(e, 2)
       kTS = 0.0_dp
       COUNT = 0
-      PRINT *, "maxocc"
-      PRINT *, maxocc
+     ! PRINT *, "maxocc"
+    !  PRINT *, maxocc
 
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
@@ -200,8 +200,8 @@ CONTAINS
          nel = nel + accurate_sum(f(1:nmo, ik))*wk(ik)
       END DO
 
-       PRINT *, "f"
-         PRINT *, f
+      ! PRINT *, "f"
+      !   PRINT *, f
 
    END SUBROUTINE Fermi2
 
