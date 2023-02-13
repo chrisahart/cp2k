@@ -873,6 +873,13 @@ CONTAINS
       CALL mp_sum(weig, para_env_inter_kp%group)
 
       CALL get_kpoint_info(kpoint, wkp=wkp)
+
+      PRINT *, "kpoint_set_mo_occupation line 877"
+      PRINT *, "mo_set%occupation_numbers"
+            PRINT *, mo_set%occupation_numbers
+            PRINT *, "SUM(mo_set%occupation_numbers)"
+            PRINT *, SUM(mo_set%occupation_numbers)
+
       IF (smear%do_smear) THEN
          ! finite electronic temperature
          SELECT CASE (smear%method)
