@@ -476,6 +476,8 @@ CONTAINS
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
+
+         ! If non-integer number of electrons
          ELSE
             nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
             ! Initialize MO occupations

@@ -200,6 +200,8 @@ PRINT *, "line 169"
          nel = nel + accurate_sum(f(1:nmo, ik))*wk(ik)
       END DO
 
+      PRINT *, "Fermi2 nel", nel
+
       !PRINT *, "f"
       !   PRINT *, f
 
@@ -348,7 +350,6 @@ PRINT *, "line 169"
          iter = iter + 1
          mu = (mu_max + mu_min)/2.0_dp
          CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
-         PRINT *, "N_now", N_now
 
          IF (ABS(N_now - nel) < nel*epsocc) EXIT
 
