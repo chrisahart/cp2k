@@ -299,6 +299,7 @@ CONTAINS
       PRINT *, "mu", mu
       PRINT *, "f"
       PRINT *, f
+       N_now = nel
       CALL Fermi(f, N_now, kTS, e, mu, T, maxocc, my_estate, my_festate)
       PRINT *, "f"
       PRINT *, f
@@ -340,6 +341,7 @@ CONTAINS
       mu_max = MAXVAL(e) + de
       iter = 0
       DO WHILE (mu_max - mu_min > EPSILON(mu)*MAX(1.0_dp, ABS(mu_max), ABS(mu_min)))
+         PRINT *, "iter", iter
          iter = iter + 1
          mu = (mu_max + mu_min)/2.0_dp
          CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
@@ -366,7 +368,7 @@ CONTAINS
       PRINT *, "mu", mu
       PRINT *, "f"
       PRINT *, f
-      N_now = nel
+     ! N_now = nel
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
       PRINT *, "f"
       PRINT *, f
