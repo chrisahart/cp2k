@@ -919,6 +919,8 @@ CONTAINS
             PRINT *, "wocc(:, :, 2)"
             PRINT *, wocc(:, :, 2)
             PRINT *, "nel", nel
+             PRINT *, wkp
+            PRINT *, wkp
          END IF
       END IF
       DO ikpgr = 1, kplocal
