@@ -137,6 +137,7 @@ CONTAINS
                                                             tmp3, tmp4, tmplog
 
       PRINT *, "start Fermi2"
+      PRINT *, "Fermi2 nel start", nel
       
       nmo = SIZE(e, 1)
       nkp = SIZE(e, 2)
@@ -200,7 +201,7 @@ PRINT *, "line 169"
          nel = nel + accurate_sum(f(1:nmo, ik))*wk(ik)
       END DO
 
-      PRINT *, "Fermi2 nel", nel
+      PRINT *, "Fermi2 nel end", nel
 
       !PRINT *, "f"
       !   PRINT *, f
