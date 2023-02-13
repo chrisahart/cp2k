@@ -105,8 +105,8 @@ CONTAINS
          kTS = kTS + T*occupation*(term1 + term2)
       END DO
 
-      PRINT *, "f"
-         PRINT *, f
+      !PRINT *, "f"
+      !PRINT *, f
 
       N = accurate_sum(f)
 
@@ -293,6 +293,12 @@ CONTAINS
       END DO
 
       mu = (mu_max + mu_min)/2.0_dp
+      PRINT *, "line 296 FermiFixed"
+      PRINT *, "N", N
+      PRINT *, "N_now", N_now
+      PRINT *, "mu", mu
+      PRINT *, "f"
+      PRINT *, f
       CALL Fermi(f, N_now, kTS, e, mu, T, maxocc, my_estate, my_festate)
 
    END SUBROUTINE FermiFixed
@@ -349,6 +355,12 @@ CONTAINS
       END DO
 
       mu = (mu_max + mu_min)/2.0_dp
+      PRINT *, "line 296 FermiFixed"
+      PRINT *, "nel", nel
+      PRINT *, "N_now", N_now
+      PRINT *, "mu", mu
+      PRINT *, "f"
+      PRINT *, f
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
 
    END SUBROUTINE Fermikp
