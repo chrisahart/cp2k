@@ -300,6 +300,8 @@ CONTAINS
       PRINT *, "f"
       PRINT *, f
       CALL Fermi(f, N_now, kTS, e, mu, T, maxocc, my_estate, my_festate)
+      PRINT *, "f"
+      PRINT *, f
 
    END SUBROUTINE FermiFixed
 
@@ -365,6 +367,8 @@ CONTAINS
       PRINT *, "f"
       PRINT *, f
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
+      PRINT *, "f"
+      PRINT *, f
 
    END SUBROUTINE Fermikp
 
