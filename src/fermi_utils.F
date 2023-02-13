@@ -177,7 +177,7 @@ IF (t > 1.0e-14_dp) THEN
                kTS = kTS + t*maxocc*(term1 + term2)*wk(ik)
             END DO
          END DO
-     ELSE
+    ELSE
 PRINT *, "line 169"
         DO ik = 1, nkp
             DO is = 1, nmo
@@ -346,6 +346,8 @@ PRINT *, "line 169"
       mu_min = MINVAL(e) - de
       mu_max = MAXVAL(e) + de
       iter = 0
+
+      IF (t > 1.0e-14_dp) THEN 
       DO WHILE (mu_max - mu_min > EPSILON(mu)*MAX(1.0_dp, ABS(mu_max), ABS(mu_min)))
          PRINT *, "iter", iter
          iter = iter + 1
@@ -365,6 +367,9 @@ PRINT *, "line 169"
             EXIT
          END IF
       END DO
+      ELSE
+       kTS = 0.0_dp
+      END IF 
 
       mu = (mu_max + mu_min)/2.0_dp
       PRINT *, "line 296 FermiFixed"
@@ -374,7 +379,9 @@ PRINT *, "line 169"
       PRINT *, "f"
       PRINT *, f
      ! N_now = nel
+     IF (t > 1.0e-14_dp) THEN 
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
+      END IF 
       PRINT *, "f"
       PRINT *, f
 
