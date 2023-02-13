@@ -366,8 +366,8 @@ CONTAINS
       PRINT *, "mu", mu
       PRINT *, "f"
       PRINT *, f
-      !CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
-      CALL Fermi2(f, nel, kTS, e, mu, wk, t, maxocc)
+      N_now = nel
+      CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
       PRINT *, "f"
       PRINT *, f
 
