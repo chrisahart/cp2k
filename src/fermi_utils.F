@@ -335,7 +335,7 @@ CONTAINS
       
       ! bisection search to find mu for a given nel
       de = t*LOG((1.0_dp - epsocc)/epsocc)
-      de = MAX(de, 0.5_dp)0
+      de = MAX(de, 0.5_dp)
       mu_min = MINVAL(e) - de
       mu_max = MAXVAL(e) + de
       iter = 0
@@ -366,7 +366,8 @@ CONTAINS
       PRINT *, "mu", mu
       PRINT *, "f"
       PRINT *, f
-      CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
+      !CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
+      CALL Fermi2(f, nel, kTS, e, mu, wk, t, maxocc)
       PRINT *, "f"
       PRINT *, f
 
