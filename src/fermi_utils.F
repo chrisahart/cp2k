@@ -369,6 +369,7 @@ PRINT *, "line 169"
       END DO
       ELSE
        kTS = 0.0_dp
+        N_now = nel
       END IF 
 
       mu = (mu_max + mu_min)/2.0_dp
@@ -378,7 +379,7 @@ PRINT *, "line 169"
       PRINT *, "mu", mu
       PRINT *, "f"
       PRINT *, f
-      N_now = nel
+     
      IF (t > 1.0e-14_dp) THEN 
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
       END IF 
