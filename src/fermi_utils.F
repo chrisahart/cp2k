@@ -328,10 +328,12 @@ CONTAINS
       REAL(KIND=dp)                                      :: de, mu_max, mu_min, N_now
 
       PRINT *, "start Fermikp"
+
+      PRINT *, "nel", nel
       
       ! bisection search to find mu for a given nel
       de = t*LOG((1.0_dp - epsocc)/epsocc)
-      de = MAX(de, 0.5_dp)
+      de = MAX(de, 0.5_dp)0
       mu_min = MINVAL(e) - de
       mu_max = MAXVAL(e) + de
       iter = 0
@@ -339,6 +341,7 @@ CONTAINS
          iter = iter + 1
          mu = (mu_max + mu_min)/2.0_dp
          CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
+         PRINT *, "N_now", N_now
 
          IF (ABS(N_now - nel) < nel*epsocc) EXIT
 
