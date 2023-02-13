@@ -916,18 +916,20 @@ CONTAINS
             CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 2.0_dp)
          ELSE
          PRINT *, "line 909"
-            nel = ne_a
-            CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 1.0_dp)
-            PRINT *, "wocc(:, :, 1)"
-            PRINT *, wocc(:, :, 1)
-            PRINT *, "nel", nel
-            nel = ne_b
-            CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, 0.0_dp, 1.0_dp)
-            PRINT *, "wocc(:, :, 2)"
-            PRINT *, wocc(:, :, 2)
-            PRINT *, "nel", nel
-             PRINT *, wkp
-            PRINT *, wkp
+         kTS = 0
+
+            !nel = ne_a
+            !CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 1.0_dp)
+            !PRINT *, "wocc(:, :, 1)"
+            !PRINT *, wocc(:, :, 1)
+            !PRINT *, "nel", nel
+            !nel = ne_b
+            !CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, 0.0_dp, 1.0_dp)
+            !PRINT *, "wocc(:, :, 2)"
+            !PRINT *, wocc(:, :, 2)
+            !PRINT *, "nel", nel
+            ! PRINT *, wkp
+            !PRINT *, wkp
          END IF
       END IF
       DO ikpgr = 1, kplocal
@@ -937,8 +939,18 @@ CONTAINS
             mo_set => kp%mos(1, ispin)
             CALL get_mo_set(mo_set, eigenvalues=eigenvalues, occupation_numbers=occupation)
 
-            eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
-            occupation(1:nmo) = wocc(1:nmo, ik, ispin)
+             IF (smear%electronic_temperature > 1.0e-14_dp) THEN 
+               eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
+               occupation(1:nmo) = wocc(1:nmo, ik, ispin)
+               mo_set%kTS = kTS
+               mo_set%mu = mus(ispin)
+             ELSE 
+              mo_set%kTS = 0.0_dp
+            END IF  
+
+            
+
+           
 
             PRINT *, "line 928"
             PRINT *, "ispin"
@@ -950,8 +962,7 @@ CONTAINS
             PRINT *, "occupation"
             PRINT *, occupation
             
-            mo_set%kTS = kTS
-            mo_set%mu = mus(ispin)
+            
          END DO
       END DO
 
