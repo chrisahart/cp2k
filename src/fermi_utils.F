@@ -299,7 +299,7 @@ CONTAINS
       PRINT *, "mu", mu
       PRINT *, "f"
       PRINT *, f
-       N_now = nel
+       N_now = N
       CALL Fermi(f, N_now, kTS, e, mu, T, maxocc, my_estate, my_festate)
       PRINT *, "f"
       PRINT *, f
