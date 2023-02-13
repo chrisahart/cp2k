@@ -147,7 +147,7 @@ CONTAINS
 
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
-!IF (t > 1.0e-14_dp) THEN
+IF (t > 1.0e-14_dp) THEN
       PRINT *, "line 141"
          beta = 1.0_dp/t
          DO ik = 1, nkp
@@ -176,31 +176,31 @@ CONTAINS
                kTS = kTS + t*maxocc*(term1 + term2)*wk(ik)
             END DO
          END DO
-    !  ELSE
-!PRINT *, "line 169"
-      !   DO ik = 1, nkp
-      !      DO is = 1, nmo
+     ELSE
+PRINT *, "line 169"
+        DO ik = 1, nkp
+            DO is = 1, nmo
             
-        !       IF (e(is, ik) <= mu) THEN
-          !        f(is, ik) = maxocc
-         !      ELSE
-                !  IF (COUNT==0) THEN 
+               IF (e(is, ik) <= mu) THEN
+                  f(is, ik) = maxocc
+               ELSE
+                 !IF (COUNT==0) THEN 
                  ! f(is, ik) = 0.8_dp
                   !COUNT = COUNT + 1
                   !ELSE 
-!f(is, ik) = 0.0_dp
+            f(is, ik) = 0.0_dp
                   ! END IF 
-         ! !     END IF
-           ! END DO
-        ! END DO
-      ! IF
+              END IF
+            END DO
+         END DO
+      END IF
 
       nel = 0.0_dp
       DO ik = 1, nkp
          nel = nel + accurate_sum(f(1:nmo, ik))*wk(ik)
       END DO
 
-      ! PRINT *, "f"
+      !PRINT *, "f"
       !   PRINT *, f
 
    END SUBROUTINE Fermi2
@@ -252,6 +252,7 @@ CONTAINS
       iter = 0
       DO
          iter = iter + 1
+         PRINT *, "line 255 iter", iter
          CALL Fermi(f, N_min, kTS, e, mu_min, T, maxocc, my_estate, my_festate)
          IF (N_min > N .OR. iter > 20) THEN
             mu_min = mu_min - T
@@ -264,6 +265,7 @@ CONTAINS
       iter = 0
       DO
          iter = iter + 1
+         PRINT *, "line 268 iter", iter
          CALL Fermi(f, N_max, kTS, e, mu_max, T, maxocc, my_estate, my_festate)
          IF (N_max < N .OR. iter > 20) THEN
             mu_max = mu_max + T
@@ -275,6 +277,7 @@ CONTAINS
       ! now bisect
       iter = 0
       DO WHILE (mu_max - mu_min > EPSILON(mu)*MAX(1.0_dp, ABS(mu_max), ABS(mu_min)))
+      PRINT *, "line 280 iter", iter
          iter = iter + 1
          mu_now = (mu_max + mu_min)/2.0_dp
          CALL Fermi(f, N_now, kTS, e, mu_now, T, maxocc, my_estate, my_festate)
