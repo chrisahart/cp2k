@@ -75,8 +75,6 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
-      PRINT *, "set_mo_occupation_3"
-
       NULLIFY (eigval_a, eigval_b, occ_a, occ_b)
       CALL get_mo_set(mo_set=mo_array(1), nmo=nmo_a, eigenvalues=eigval_a, &
                       occupation_numbers=occ_a)
@@ -174,21 +172,6 @@ CONTAINS
       CALL set_mo_set(mo_set=mo_array(2), kTS=kTS/2.0_dp, mu=mu, n_el_f=nelec_b, &
                       lfomo=lfomo_b, homo=homo_b, uniform_occupation=.FALSE.)
 
-           PRINT *, "line 175"
-            PRINT *, "size(occ_a)"
-            PRINT *, SIZE(occ_a)
-            PRINT *, "occ_a"
-            PRINT *,   occ_a  
-             PRINT *, "SUM(occ_a)"
-            PRINT *, SUM(occ_a)
-             PRINT *, "size(occ_b)"
-            PRINT *, SIZE(occ_b)
-            PRINT *, "occ_b"
-            PRINT *,   occ_b  
-             PRINT *, "SUM(occ_b)"
-            PRINT *, SUM(occ_b)
-            
-           
             CALL timestop(handle)
             
 
@@ -227,8 +210,6 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigval_a, eigval_b
 
       CALL timeset(routineN, handle)
-
-      PRINT *, "set_mo_occupation_2"
 
       ! Fall back for the case that we have only one MO set
       IF (SIZE(mo_array) == 1) THEN
@@ -386,8 +367,6 @@ CONTAINS
          END IF
       END IF
 
-       PRINT *, "line 381"
-
       CALL timestop(handle)
 
    END SUBROUTINE set_mo_occupation_2
@@ -431,8 +410,6 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
-      PRINT *, "set_mo_occupation_1"
-
       CPASSERT(ASSOCIATED(mo_set%eigenvalues))
       CPASSERT(ASSOCIATED(mo_set%occupation_numbers))
       mo_set%occupation_numbers(:) = 0.0_dp
@@ -446,8 +423,6 @@ CONTAINS
       xas_estate = -1
       occ_estate = 0.0_dp
       IF (PRESENT(xas_env)) THEN
-
-      PRINT *, "line 444"
 
          CALL get_xas_env(xas_env=xas_env, xas_nelectron=xas_nelectron, occ_estate=occ_estate, xas_estate=xas_estate)
          nomo = CEILING(xas_nelectron + 1.0 - occ_estate - EPSILON(0.0_dp))
@@ -465,14 +440,6 @@ CONTAINS
          ! If integer number of electrons
          IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
 
-         PRINT *, "mo_set%nelectron"
-         PRINT *, mo_set%nelectron
-         PRINT *, "mo_set%maxocc"
-         PRINT *, mo_set%maxocc
-         PRINT *, "MODULO(mo_set%nelectron, mo_set%maxocc)"
-         PRINT *, MODULO(mo_set%nelectron, mo_set%maxocc)
-         PRINT *, "line 459"
-
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
@@ -483,16 +450,7 @@ CONTAINS
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
             mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
-            !mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%
             
-            PRINT *, "line 469"
-            PRINT *, "size(mo_set%occupation_numbers)"
-            PRINT *, SIZE(mo_set%occupation_numbers)
-            PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers
-            PRINT *, "SUM(mo_set%occupation_numbers)"
-            PRINT *, SUM(mo_set%occupation_numbers)
-
          END IF
 ! introduce applied potential correction here
 ! electron density is adjusted according to applied core correction
@@ -603,19 +561,7 @@ CONTAINS
                CALL FermiFixed(mo_set%occupation_numbers, mo_set%mu, mo_set%kTS, mo_set%eigenvalues, Nelec, &
                                smear%electronic_temperature, mo_set%maxocc, xas_estate, occ_estate)
 
-            PRINT *, "line 567"
-            PRINT *, "size(mo_set%occupation_numbers)"
-            PRINT *, SIZE(mo_set%occupation_numbers)
-            PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers       
-
             ELSE
-            PRINT *, "line 574"
-            PRINT *, "size(mo_set%occupation_numbers)"
-            PRINT *, SIZE(mo_set%occupation_numbers)
-            PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers    
-
                ! could be a relatively large matrix, but one could get rid of it by never storing it
                ! we only need dE/df * df/de, one could equally parallelize over entries, this could become expensive
                ALLOCATE (dfde(nmo, nmo))
@@ -736,12 +682,6 @@ CONTAINS
 
       ! zeros don't count as uniform
       mo_set%uniform_occupation = has_uniform_occupation(mo_set=mo_set)
-
-      PRINT *, "line 701"
-            PRINT *, "size(mo_set%occupation_numbers)"
-            PRINT *, SIZE(mo_set%occupation_numbers)
-            PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers    
 
       CALL timestop(handle)
 

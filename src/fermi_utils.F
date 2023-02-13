@@ -55,9 +55,6 @@ CONTAINS
       REAL(KIND=dp)                                      :: arg, occupation, term1, term2, tmp, &
                                                             tmp2, tmp3, tmp4, tmplog
 
-      PRINT *, "start Fermi"
-      
-      
       Nstate = SIZE(e)
       kTS = 0.0_dp
       ! kTS is the entropic contribution to the energy i.e. -TS
@@ -74,9 +71,6 @@ CONTAINS
             occupation = maxocc
          END IF
          
-         ! PRINT *, "i", i
-         !PRINT *, "occupation", occupation
-
          ! have the result of exp go to zero instead of overflowing
          IF (e(i) > mu) THEN
             arg = -(e(i) - mu)/T
@@ -104,9 +98,6 @@ CONTAINS
          f(i) = occupation*tmp2
          kTS = kTS + T*occupation*(term1 + term2)
       END DO
-
-      !PRINT *, "f"
-      !PRINT *, f
 
       N = accurate_sum(f)
 
@@ -136,20 +127,14 @@ CONTAINS
       REAL(KIND=dp)                                      :: arg, beta, term1, term2, tmp, tmp2, &
                                                             tmp3, tmp4, tmplog
 
-      PRINT *, "start Fermi2"
-      PRINT *, "Fermi2 nel start", nel
-      
       nmo = SIZE(e, 1)
       nkp = SIZE(e, 2)
       kTS = 0.0_dp
       COUNT = 0
-     ! PRINT *, "maxocc"
-    !  PRINT *, maxocc
 
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
 IF (t > 1.0e-14_dp) THEN
-      PRINT *, "line 141"
          beta = 1.0_dp/t
          DO ik = 1, nkp
             DO is = 1, nmo
@@ -178,19 +163,13 @@ IF (t > 1.0e-14_dp) THEN
             END DO
          END DO
     ELSE
-PRINT *, "line 169"
         DO ik = 1, nkp
             DO is = 1, nmo
             
                IF (e(is, ik) <= mu) THEN
                   f(is, ik) = maxocc
                ELSE
-                 !IF (COUNT==0) THEN 
-                 ! f(is, ik) = 0.8_dp
-                  !COUNT = COUNT + 1
-                  !ELSE 
             f(is, ik) = 0.0_dp
-                  ! END IF 
               END IF
             END DO
          END DO
@@ -200,11 +179,6 @@ PRINT *, "line 169"
       DO ik = 1, nkp
          nel = nel + accurate_sum(f(1:nmo, ik))*wk(ik)
       END DO
-
-      PRINT *, "Fermi2 nel end", nel
-
-      !PRINT *, "f"
-      !   PRINT *, f
 
    END SUBROUTINE Fermi2
 
@@ -238,8 +212,6 @@ PRINT *, "line 169"
       REAL(KIND=dp)                                      :: mu_max, mu_min, mu_now, my_festate, &
                                                             N_max, N_min, N_now
 
-      PRINT *, "start FermiFixed"
-      
       IF (PRESENT(estate) .AND. PRESENT(festate)) THEN
          my_estate = estate
          my_festate = festate
@@ -255,7 +227,6 @@ PRINT *, "line 169"
       iter = 0
       DO
          iter = iter + 1
-         PRINT *, "line 255 iter", iter
          CALL Fermi(f, N_min, kTS, e, mu_min, T, maxocc, my_estate, my_festate)
          IF (N_min > N .OR. iter > 20) THEN
             mu_min = mu_min - T
@@ -268,7 +239,6 @@ PRINT *, "line 169"
       iter = 0
       DO
          iter = iter + 1
-         PRINT *, "line 268 iter", iter
          CALL Fermi(f, N_max, kTS, e, mu_max, T, maxocc, my_estate, my_festate)
          IF (N_max < N .OR. iter > 20) THEN
             mu_max = mu_max + T
@@ -280,7 +250,6 @@ PRINT *, "line 169"
       ! now bisect
       iter = 0
       DO WHILE (mu_max - mu_min > EPSILON(mu)*MAX(1.0_dp, ABS(mu_max), ABS(mu_min)))
-      PRINT *, "line 280 iter", iter
          iter = iter + 1
          mu_now = (mu_max + mu_min)/2.0_dp
          CALL Fermi(f, N_now, kTS, e, mu_now, T, maxocc, my_estate, my_festate)
@@ -299,16 +268,7 @@ PRINT *, "line 169"
       END DO
 
       mu = (mu_max + mu_min)/2.0_dp
-      PRINT *, "line 296 FermiFixed"
-      PRINT *, "N", N
-      PRINT *, "N_now", N_now
-      PRINT *, "mu", mu
-      PRINT *, "f"
-      PRINT *, f
-       !N_now = N
       CALL Fermi(f, N_now, kTS, e, mu, T, maxocc, my_estate, my_festate)
-      PRINT *, "f"
-      PRINT *, f
 
    END SUBROUTINE FermiFixed
 
@@ -336,10 +296,6 @@ PRINT *, "line 169"
       INTEGER                                            :: iter
       REAL(KIND=dp)                                      :: de, mu_max, mu_min, N_now
 
-      PRINT *, "start Fermikp"
-
-      PRINT *, "nel", nel
-      
       ! bisection search to find mu for a given nel
       de = t*LOG((1.0_dp - epsocc)/epsocc)
       de = MAX(de, 0.5_dp)
@@ -349,7 +305,6 @@ PRINT *, "line 169"
 
       IF (t > 1.0e-14_dp) THEN 
       DO WHILE (mu_max - mu_min > EPSILON(mu)*MAX(1.0_dp, ABS(mu_max), ABS(mu_min)))
-         PRINT *, "iter", iter
          iter = iter + 1
          mu = (mu_max + mu_min)/2.0_dp
          CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
@@ -373,18 +328,10 @@ PRINT *, "line 169"
       END IF 
 
       mu = (mu_max + mu_min)/2.0_dp
-      PRINT *, "line 296 Fermikp"
-      PRINT *, "nel", nel
-      PRINT *, "N_now", N_now
-      PRINT *, "mu", mu
-      PRINT *, "f"
-      PRINT *, f
      
      IF (t > 1.0e-14_dp) THEN 
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
       END IF 
-      PRINT *, "f"
-      PRINT *, f
 
    END SUBROUTINE Fermikp
 
@@ -412,8 +359,6 @@ PRINT *, "line 169"
       REAL(KIND=dp)                                      :: de, kTSa, kTSb, mu_max, mu_min, N_now, &
                                                             na, nb
 
-       PRINT *, "start Fermikp2"
-       
        ! only do spin polarized case
       CPASSERT(SIZE(f, 3) == 2 .AND. SIZE(e, 3) == 2)
 

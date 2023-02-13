@@ -874,17 +874,10 @@ CONTAINS
 
       CALL get_kpoint_info(kpoint, wkp=wkp)
 
-      PRINT *, "kpoint_set_mo_occupation line 877"
-      PRINT *, "mo_set%occupation_numbers"
-            PRINT *, mo_set%occupation_numbers
-            PRINT *, "SUM(mo_set%occupation_numbers)"
-            PRINT *, SUM(mo_set%occupation_numbers)
-
       IF (smear%do_smear) THEN
          ! finite electronic temperature
          SELECT CASE (smear%method)
          CASE (smear_fermi_dirac)
-         PRINT *, "line 880"
             IF (nspin == 1) THEN
                nel = nelectron
                CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, &
@@ -898,7 +891,6 @@ CONTAINS
                CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, &
                             smear%electronic_temperature, 1.0_dp)
             ELSE
-            PRINT *, "line 894"
                nel = ne_a + ne_b
                CALL Fermikp2(wocc(:, :, :), mu, kTS, weig(:, :, :), nel, wkp, &
                              smear%electronic_temperature)
@@ -911,25 +903,10 @@ CONTAINS
       ELSE
          ! fixed occupations (2/1)
          IF (nspin == 1) THEN
-         PRINT *, "line 905"
             nel = nelectron
             CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 2.0_dp)
          ELSE
-         PRINT *, "line 909"
          kTS = 0
-
-            !nel = ne_a
-            !CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 1.0_dp)
-            !PRINT *, "wocc(:, :, 1)"
-            !PRINT *, wocc(:, :, 1)
-            !PRINT *, "nel", nel
-            !nel = ne_b
-            !CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, 0.0_dp, 1.0_dp)
-            !PRINT *, "wocc(:, :, 2)"
-            !PRINT *, wocc(:, :, 2)
-            !PRINT *, "nel", nel
-            ! PRINT *, wkp
-            !PRINT *, wkp
          END IF
       END IF
       DO ikpgr = 1, kplocal
@@ -948,21 +925,6 @@ CONTAINS
               mo_set%kTS = 0.0_dp
             END IF  
 
-            
-
-           
-
-            PRINT *, "line 928"
-            PRINT *, "ispin"
-            PRINT *, ispin
-            PRINT *, "nmo"
-            PRINT *, nmo
-            PRINT *, "SIZE(occupation)"
-            PRINT *, SIZE(occupation)
-            PRINT *, "occupation"
-            PRINT *, occupation
-            
-            
          END DO
       END DO
 
