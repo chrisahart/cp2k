@@ -369,7 +369,7 @@ CONTAINS
      !       WRITE (*, *) "i", i
      !       END DO
      !    END DO
-     END IF
+     !END IF
 
       ! Diagonaliztion section
       IF (scf_control%use_diag) THEN
