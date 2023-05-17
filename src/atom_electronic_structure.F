@@ -158,7 +158,9 @@ CONTAINS
 
       IF (iw > 0) THEN
                WRITE (iw, *) "hello from line 160 SUBROUTINE calculate_atom_restricted"
-               WRITE (iw, *) "eps_scf", eps_scf
+               WRITE (iw, *) "atom%method_type", atom%method_type
+               WRITE (iw, *) "atom%optimization%max_iter", atom%optimization%max_iter
+               WRITE (iw, *) "atom%optimization%eps_scf", atom%optimization%eps_scf
             END IF
 
 
