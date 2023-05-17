@@ -478,14 +478,15 @@ CONTAINS
       LOGICAL, INTENT(IN)                                :: should_stop, outer_loop_converged
       REAL(KIND=dp)                                      :: outer_loop_eps
 
+      ! Print previous EPS_SCF
       IF (output_unit > 0) THEN
          WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf", scf_control%eps_scf
          WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
-         WRITE (output_unit, *) "scf_env%outer_scf%iter_count", scf_env%outer_scf%iter_count
+         WRITE (output_unit, FMT="(A,I5)") "scf_env%outer_scf%iter_count", scf_env%outer_scf%iter_count
         
          IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
          WRITE (output_unit, FMT="(A,9ES9.2)") "scf_control%eps_scf_array", scf_control%eps_scf_array
-         WRITE (output_unit, *) "SIZE(scf_control%eps_scf_array)", SIZE(scf_control%eps_scf_array)
+         WRITE (output_unit, FMT="(A,I5)") "SIZE(scf_control%eps_scf_array)", SIZE(scf_control%eps_scf_array)
          WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)", & 
                         scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
          END IF 
@@ -493,12 +494,13 @@ CONTAINS
       END IF 
 
        ! Decrease EPS_SCF is requested
-       IF (SIZE(scf_control%eps_scf_array) > 1 ) THEN
+       IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
          scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
        ELSE
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
        END IF 
 
+      ! Print next EPS_SCF
       IF (output_unit > 0) THEN
         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf", scf_control%eps_scf
       END IF 
