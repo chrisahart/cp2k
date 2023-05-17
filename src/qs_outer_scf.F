@@ -483,6 +483,7 @@ CONTAINS
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
          outer_scf_history(1, ivec) = 0.0_dp
+         qs_env%outer_scf_ihistory = 0
          !WRITE (*, *) "hello from line 477 SUBROUTINE outer_loop_extrapolate"
       CASE (outer_scf_ddapc_constraint)
          DO n = 1, SIZE(dft_control%qs_control%ddapc_restraint_control)
