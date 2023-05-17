@@ -126,7 +126,7 @@ MODULE scf_control_types
       TYPE(diagonalization_type)            :: diagonalization
       INTEGER                               :: density_guess, mixing_method
       REAL(KIND=dp)                         :: eps_eigval, eps_scf, eps_scf_hist, &
-                                               level_shift, eps_scf_muiltiplier, &
+                                               level_shift, eps_scf_multiplier, &
                                                eps_lumos, eps_diis
       INTEGER                               :: max_iter_lumos, max_diis, nmixing
       INTEGER                               :: max_scf, max_scf_hist, &
@@ -338,7 +338,7 @@ CONTAINS
       END IF
       CALL section_vals_val_get(scf_section, "NOTCONV_STOPALL", l_val=scf_control%stop_higher_iter_level)
       CALL section_vals_val_get(scf_section, "eps_scf", r_val=scf_control%eps_scf)
-      CALL section_vals_val_get(scf_section, "eps_scf_muiltiplier", r_val=scf_control%eps_scf_multiplier)
+      CALL section_vals_val_get(scf_section, "eps_scf_multiplier", r_val=scf_control%eps_scf_multiplier)
       CALL section_vals_val_get(scf_section, "level_shift", r_val=scf_control%level_shift)
       CALL section_vals_val_get(scf_section, "max_diis", i_val=scf_control%max_diis)
       CALL section_vals_val_get(scf_section, "max_scf", i_val=scf_control%max_scf)
