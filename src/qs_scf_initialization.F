@@ -987,9 +987,9 @@ CONTAINS
                                         "PRINT%PROGRAM_RUN_INFO")
 
       ! extrapolate outer loop variables
-      IF (scf_control%outer_scf%have_scf) THEN
-         CALL outer_loop_extrapolate(qs_env)
-      END IF
+      !IF (scf_control%outer_scf%have_scf) THEN
+      !   CALL outer_loop_extrapolate(qs_env)
+      !END IF
 
       ! initializes rho and the mos
       IF (ASSOCIATED(qs_env%xas_env)) THEN
