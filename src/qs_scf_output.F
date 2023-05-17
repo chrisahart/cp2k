@@ -483,6 +483,9 @@ CONTAINS
       WRITE (*, *) "qs_scf_outer_loop_info"
       WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
       WRITE (*, *) "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
+
+      IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+      WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
       END IF 
 
       scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier

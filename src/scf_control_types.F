@@ -348,15 +348,15 @@ CONTAINS
 
       CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", r_vals=scf_control%eps_scf_array)
 
-      IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
-      WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
+      !IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+     ! WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
            ! IF (SIZE(cutofflist, 1) /= ngrid_level) THEN
            !    CPABORT("Number of multi-grids requested and number of cutoff values do not match")
            ! END IF
            ! DO igrid_level = 1, ngrid_level
            !    qs_control%e_cutoff(igrid_level) = cutofflist(igrid_level)
            ! END DO
-         END IF
+       !  END IF
       
       ! loop over list of EPS_SCF_ARRAY
      ! CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", n_rep_val=n_rep)
@@ -370,8 +370,6 @@ CONTAINS
      !       END DO
      !    END DO
      ! END IF
-
-      WRITE (*, *) "rlist", rlist
 
       ! Diagonaliztion section
       IF (scf_control%use_diag) THEN
