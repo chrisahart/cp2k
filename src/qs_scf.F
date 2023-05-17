@@ -279,17 +279,17 @@ CONTAINS
          IF ((ASSOCIATED(qs_env%wf_history)) .AND. &
              ((scf_control%density_guess .NE. history_guess) .OR. &
               (.NOT. first_step_flag))) THEN
-            IF (.NOT. dft_control%qs_control%cdft) THEN
-               CALL wfi_update(qs_env%wf_history, qs_env=qs_env, dt=1.0_dp)
-            ELSE
-               IF (dft_control%qs_control%cdft_control%should_purge) THEN
+         !   IF (.NOT. dft_control%qs_control%cdft) THEN
+         !      CALL wfi_update(qs_env%wf_history, qs_env=qs_env, dt=1.0_dp)
+         !   ELSE
+         !      IF (dft_control%qs_control%cdft_control%should_purge) THEN
                   CALL wfi_purge_history(qs_env)
                   CALL outer_loop_purge_history(qs_env)
-                  dft_control%qs_control%cdft_control%should_purge = .FALSE.
-               ELSE
-                  CALL wfi_update(qs_env%wf_history, qs_env=qs_env, dt=1.0_dp)
-               END IF
-            END IF
+          !        dft_control%qs_control%cdft_control%should_purge = .FALSE.
+          !     ELSE
+           !       CALL wfi_update(qs_env%wf_history, qs_env=qs_env, dt=1.0_dp)
+           !    END IF
+           ! END IF
          ELSE IF ((scf_control%density_guess .EQ. history_guess) .AND. &
                   (first_step_flag)) THEN
             scf_control%max_scf = max_scf_tmp

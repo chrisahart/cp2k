@@ -993,8 +993,10 @@ CONTAINS
       !   CALL outer_loop_extrapolate(qs_env)
       !END IF
 
+      IF (output_unit > 0)  WRITE (UNIT=output_unit, *) "init_scf_run line 996"
+
       CALL outer_loop_purge_history(qs_env)
-      IF (output_unit > 0)  WRITE (*, *) "init_scf_run line 997"
+      
 
       ! initializes rho and the mos
       IF (ASSOCIATED(qs_env%xas_env)) THEN
