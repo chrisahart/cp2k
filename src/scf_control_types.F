@@ -280,6 +280,10 @@ CONTAINS
       END IF
       DEALLOCATE (scf_control%smear)
 
+      IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+         DEALLOCATE (scf_control%eps_scf_array)
+      END IF
+
       IF (ASSOCIATED(scf_control%outer_scf%cdft_opt_control)) &
          CALL cdft_opt_type_release(scf_control%outer_scf%cdft_opt_control)
 
