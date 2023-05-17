@@ -995,7 +995,7 @@ CONTAINS
 
       IF (output_unit > 0)  WRITE (UNIT=output_unit, FMT="(A)") "init_scf_run line 996"
 
-      CALL outer_loop_purge_history(qs_env)
+      !CALL outer_loop_purge_history(qs_env)
       
 
       ! initializes rho and the mos
