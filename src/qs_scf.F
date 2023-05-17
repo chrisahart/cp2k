@@ -255,26 +255,26 @@ CONTAINS
          IF (ASSOCIATED(qs_env%mp2_env)) qs_env%mp2_env%hf_fail = .NOT. converged
 
          ! Add the converged outer_scf SCF gradient(s)/variable(s) to history
-         IF (scf_control%outer_scf%have_scf) THEN
-            ihistory = scf_env%outer_scf%iter_count
-            CALL get_qs_env(qs_env, gradient_history=gradient_history, &
-                            variable_history=variable_history)
-            ! We only store the latest two values
-            gradient_history(:, 1) = gradient_history(:, 2)
-            gradient_history(:, 2) = scf_env%outer_scf%gradient(:, ihistory)
-            variable_history(:, 1) = variable_history(:, 2)
-            variable_history(:, 2) = scf_env%outer_scf%variables(:, ihistory)
+      !   IF (scf_control%outer_scf%have_scf) THEN
+      !      ihistory = scf_env%outer_scf%iter_count
+       !     CALL get_qs_env(qs_env, gradient_history=gradient_history, &
+        !                    variable_history=variable_history)
+         !   ! We only store the latest two values
+        !    gradient_history(:, 1) = gradient_history(:, 2)
+        !    gradient_history(:, 2) = scf_env%outer_scf%gradient(:, ihistory)
+        !    variable_history(:, 1) = variable_history(:, 2)
+        !    variable_history(:, 2) = scf_env%outer_scf%variables(:, ihistory)
             ! Reset flag
-            IF (used_history) used_history = .FALSE.
+        !    IF (used_history) used_history = .FALSE.
             ! Update a counter and check if the Jacobian should be deallocated
-            IF (ASSOCIATED(scf_env%outer_scf%inv_jacobian)) THEN
-               scf_control%outer_scf%cdft_opt_control%ijacobian(2) = scf_control%outer_scf%cdft_opt_control%ijacobian(2) + 1
-               IF (scf_control%outer_scf%cdft_opt_control%ijacobian(2) .GE. &
-                   scf_control%outer_scf%cdft_opt_control%jacobian_freq(2) .AND. &
-                   scf_control%outer_scf%cdft_opt_control%jacobian_freq(2) > 0) &
-                  scf_env%outer_scf%deallocate_jacobian = .TRUE.
-            END IF
-         END IF
+         !   IF (ASSOCIATED(scf_env%outer_scf%inv_jacobian)) THEN
+         !      scf_control%outer_scf%cdft_opt_control%ijacobian(2) = scf_control%outer_scf%cdft_opt_control%ijacobian(2) + 1
+         !      IF (scf_control%outer_scf%cdft_opt_control%ijacobian(2) .GE. &
+         !          scf_control%outer_scf%cdft_opt_control%jacobian_freq(2) .AND. &
+         !          scf_control%outer_scf%cdft_opt_control%jacobian_freq(2) > 0) &
+         !         scf_env%outer_scf%deallocate_jacobian = .TRUE.
+         !   END IF
+         !END IF
          !   *** add the converged wavefunction to the wavefunction history
          IF ((ASSOCIATED(qs_env%wf_history)) .AND. &
              ((scf_control%density_guess .NE. history_guess) .OR. &
