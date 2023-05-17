@@ -991,6 +991,8 @@ CONTAINS
       !   CALL outer_loop_extrapolate(qs_env)
       !END IF
 
+      CALL outer_loop_purge_history(qs_env)
+
       ! initializes rho and the mos
       IF (ASSOCIATED(qs_env%xas_env)) THEN
          ! if just optimized wfn, e.g. ground state
