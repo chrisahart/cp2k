@@ -477,13 +477,18 @@ CONTAINS
       INTEGER                                            :: total_steps
       LOGICAL, INTENT(IN)                                :: should_stop, outer_loop_converged
 
-      REAL(KIND=dp)                                      :: outer_loop_eps
+      REAL(KIND=dp)                                      :: outer_loop_eps, eps_scf_multiplier
 
       IF (output_unit > 0) THEN
       WRITE (*, *) "qs_scf_outer_loop_info"
       WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
       WRITE (*, *) "scf_control%eps_scf=scf_control%eps_scf/5_dp"
-      scf_control%eps_scf = scf_control%eps_scf / 5_dp
+      END IF 
+
+      eps_scf_multiplier = 0.5_dp
+      scf_control%eps_scf = scf_control%eps_scf * eps_scf_multiplier
+
+      IF (output_unit > 0) THEN
       WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
       END IF 
       
