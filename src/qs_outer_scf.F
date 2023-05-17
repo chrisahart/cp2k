@@ -125,6 +125,8 @@ CONTAINS
 
       scf_env%outer_scf%energy(ihistory) = energy%total
 
+      WRITE (*, *) "hello from outer_loop_gradient"
+
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
          ! just pass the inner loop scf criterion to the outer loop one
@@ -201,6 +203,8 @@ CONTAINS
       ihistory = scf_env%outer_scf%iter_count
       optimizer_type = scf_control%outer_scf%optimizer
       NULLIFY (inv_jacobian)
+
+      WRITE (*, *) "hello from outer_loop_optimize"
 
       IF (scf_control%outer_scf%type == outer_scf_basis_center_opt) THEN
          scf_env%outer_scf%variables(:, ihistory + 1) = scf_env%outer_scf%variables(:, ihistory)
@@ -401,6 +405,8 @@ CONTAINS
 
       CALL get_qs_env(qs_env=qs_env, scf_control=scf_control, dft_control=dft_control)
       ihistory = scf_env%outer_scf%iter_count
+
+      WRITE (*, *) "hello from outer_loop_update_qs_env"
 
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
