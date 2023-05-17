@@ -479,21 +479,22 @@ CONTAINS
       REAL(KIND=dp)                                      :: outer_loop_eps
 
       IF (output_unit > 0) THEN
-         WRITE (output_unit, *) "qs_scf_outer_loop_info"
-         WRITE (output_unit, *) "scf_control%eps_scf", scf_control%eps_scf
-         WRITE (output_unit, *) "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
-         WRITE (output_unit, *) "scf_control%eps_scf_array", scf_env%outer_scf%iter_count
+         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf", scf_control%eps_scf
+         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
+         WRITE (output_unit, *) "scf_env%outer_scf%iter_count", scf_env%outer_scf%iter_count
+        
          IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
-         WRITE (output_unit, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
+         WRITE (output_unit, FMT="(A,9ES9.2)") "scf_control%eps_scf_array", scf_control%eps_scf_array
          WRITE (output_unit, *) "SIZE(scf_control%eps_scf_array)", SIZE(scf_control%eps_scf_array)
-         WRITE (output_unit, *) "scf_control%eps_scf_array(scf_env%outer_scf%iter_count)", & 
-                        scf_control%eps_scf_array(scf_env%outer_scf%iter_count)
+         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)", & 
+                        scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
          END IF 
+
       END IF 
 
        ! Decrease EPS_SCF is requested
        IF (SIZE(scf_control%eps_scf_array) > 1 ) THEN
-         scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count)
+         scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
        ELSE
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
        END IF 

@@ -601,9 +601,9 @@ CONTAINS
                WRITE (UNIT=output_unit, FMT="(T25,A,T71,2I5)") &
                   "added MOs          ", scf_control%added_mos
             END IF
-            IF (ASSOCIATED(scf_control%eps_scf_array .AND. & 
-                SIZE(scf_control%eps_scf_array) > 1 )) THEN
-                  WRITE (UNIT=output_unit, FMT="(T25,A,T71, *)") &
+            IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. & 
+                (SIZE(scf_control%eps_scf_array) > 1) )) THEN
+                  WRITE (UNIT=output_unit, FMT="(T25,A,T71, 9ES9.2)") &
                         "eps_scf_array          ", scf_control%eps_scf_array
             ELSE 
             WRITE (UNIT=output_unit, FMT="(T25,A,T71,ES9.2)") &
