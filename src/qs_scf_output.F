@@ -500,6 +500,8 @@ CONTAINS
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
        END IF 
 
+        WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
+
       ! Print next EPS_SCF
       IF (output_unit > 0) THEN
         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf", scf_control%eps_scf

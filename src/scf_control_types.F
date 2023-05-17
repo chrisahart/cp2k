@@ -557,7 +557,8 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'scf_c_write_parameters'
 
-      INTEGER                                            :: handle, output_unit, roks_scheme
+      INTEGER                                            :: handle, output_unit, roks_scheme, &
+                                                            count
       LOGICAL                                            :: roks
       REAL(KIND=dp)                                      :: elec_temp
       TYPE(cp_logger_type), POINTER                      :: logger
@@ -607,8 +608,10 @@ CONTAINS
             END IF
             IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. & 
                 (SIZE(scf_control%eps_scf_array) > 1) )) THEN
-                  WRITE (UNIT=output_unit, FMT="(T25,A,T71, 9ES9.2)") &
-                        "eps_scf_array          ", scf_control%eps_scf_array
+                DO count = 1, SIZE(scf_control%eps_scf_array)
+                  WRITE (UNIT=output_unit, FMT="(T25,A,I5,A,T71, ES9.2)") &
+                        "eps_scf_array(", i, ")      ", scf_control%eps_scf_array(i)
+                 END DO 
             ELSE 
             WRITE (UNIT=output_unit, FMT="(T25,A,T71,ES9.2)") &
                         "eps_scf_multiplier:", scf_control%eps_scf_multiplier
