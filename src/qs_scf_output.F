@@ -487,6 +487,7 @@ CONTAINS
       IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
       WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
       END IF 
+      END IF 
 
       scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
 

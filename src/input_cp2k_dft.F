@@ -4798,7 +4798,9 @@ CONTAINS
       CALL keyword_create(keyword, __LOCATION__, name="EPS_SCF_ARRAY", &
                           description="Array of EPS_SCF for OUTER_SCF loop", &
                           usage="EPS_SCF_ARRAY <FLOAT> <FLOAT>", &
-                          type_of_var=real_t, n_var=-1)
+                          default_r_vals=(/1.0e-6_dp/),  &
+                          type_of_var=real_t, &
+                           n_var=-1)
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
