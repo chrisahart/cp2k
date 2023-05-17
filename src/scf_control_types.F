@@ -137,6 +137,7 @@ MODULE scf_control_types
       INTEGER                               :: roks_scheme
       REAL(KIND=dp)                         :: roks_f
       REAL(KIND=dp), DIMENSION(0:2, 0:2, 1:2) :: roks_parameter
+      REAL(dp), DIMENSION(:), POINTER                    :: eps_scf_array
    END TYPE scf_control_type
 
 CONTAINS
@@ -183,6 +184,8 @@ CONTAINS
       scf_control%eps_diis = 0.1_dp
       scf_control%added_mos(:) = 0
       scf_control%max_scf_hist = 0
+
+      NULLIFY (eps_scf_array)
 
       !Mixing
       scf_control%mixing_method = direct_p_mix
@@ -303,13 +306,14 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'scf_c_read_parameters'
 
-      INTEGER                                            :: cholesky_flag, handle, ialgo
+      INTEGER                                            :: cholesky_flag, handle, ialgo, n_rep
       INTEGER, DIMENSION(:), POINTER                     :: added_mos
       LOGICAL                                            :: do_mixing
       REAL(KIND=dp), DIMENSION(:), POINTER               :: roks_parameter
+      REAL(KIND=dp), DIMENSION(:), POINTER               :: rlist
       TYPE(section_vals_type), POINTER                   :: mixing_section, outer_scf_section, &
                                                             scf_section, smear_section
-
+      NULLIFY (mgrid_section, cutofflist)
       CALL timeset(routineN, handle)
 
       scf_section => section_vals_get_subs_vals(inp_section, "SCF")
@@ -342,6 +346,33 @@ CONTAINS
       CALL section_vals_val_get(scf_section, "level_shift", r_val=scf_control%level_shift)
       CALL section_vals_val_get(scf_section, "max_diis", i_val=scf_control%max_diis)
       CALL section_vals_val_get(scf_section, "max_scf", i_val=scf_control%max_scf)
+
+      CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", r_vals=scf_control%eps_scf_array)
+
+      IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+      WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
+           ! IF (SIZE(cutofflist, 1) /= ngrid_level) THEN
+           !    CPABORT("Number of multi-grids requested and number of cutoff values do not match")
+           ! END IF
+           ! DO igrid_level = 1, ngrid_level
+           !    qs_control%e_cutoff(igrid_level) = cutofflist(igrid_level)
+           ! END DO
+         END IF
+      
+      ! loop over list of EPS_SCF_ARRAY
+     ! CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", n_rep_val=n_rep)
+     ! IF (n_rep == 0) THEN
+     !    CPABORT("n_rep == 0")
+     ! ELSE
+     !    DO i_rep = 1, n_rep
+     !       CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", r_rep_val=r_rep, r_vals=rlist)
+     !       DO i = 1, SIZE(rlist, 1)
+     !       WRITE (*, *) "i", i
+     !       END DO
+     !    END DO
+     ! END IF
+
+      WRITE (*, *) "rlist", rlist
 
       ! Diagonaliztion section
       IF (scf_control%use_diag) THEN
