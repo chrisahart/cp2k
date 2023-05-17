@@ -476,20 +476,27 @@ CONTAINS
       TYPE(qs_energy_type), POINTER                      :: energy
       INTEGER                                            :: total_steps
       LOGICAL, INTENT(IN)                                :: should_stop, outer_loop_converged
-
       REAL(KIND=dp)                                      :: outer_loop_eps
 
       IF (output_unit > 0) THEN
-      WRITE (*, *) "qs_scf_outer_loop_info"
-      WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
-      WRITE (*, *) "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
+         WRITE (*, *) "qs_scf_outer_loop_info"
+         WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
+         WRITE (*, *) "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
+         WRITE (*, *) "scf_control%eps_scf_array", scf_env%outer_scf%iter_count
 
-      IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
-      WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
-      END IF 
+         IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+         WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
+         WRITE (*, *) "scf_control%eps_scf_array(scf_env%outer_scf%iter_count)", & 
+                        scf_control%eps_scf_array(scf_env%outer_scf%iter_count)
+         END IF 
       END IF 
 
-      scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
+       ! Modify scf_control%eps_scf
+       IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+         scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count)
+         ELSE
+         scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
+         END IF 
 
       IF (output_unit > 0) THEN
       WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
