@@ -482,7 +482,7 @@ CONTAINS
       IF (output_unit > 0) THEN
       WRITE (*, *) "qs_scf_outer_loop_info"
       WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
-      WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf_multiplier
+      WRITE (*, *) "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
       END IF 
 
       scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier

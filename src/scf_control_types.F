@@ -126,7 +126,7 @@ MODULE scf_control_types
       TYPE(diagonalization_type)            :: diagonalization
       INTEGER                               :: density_guess, mixing_method
       REAL(KIND=dp)                         :: eps_eigval, eps_scf, eps_scf_hist, &
-                                               level_shift, eps_scf_muiltiplier &
+                                               level_shift, eps_scf_muiltiplier, &
                                                eps_lumos, eps_diis
       INTEGER                               :: max_iter_lumos, max_diis, nmixing
       INTEGER                               :: max_scf, max_scf_hist, &
@@ -658,7 +658,6 @@ CONTAINS
                   CPABORT("")
                END SELECT
                WRITE (output_unit, '(T25,A,T72,ES9.2)') "eps_scf", scf_control%outer_scf%eps_scf
-               WRITE (output_unit, '(T25,A,T72,ES9.2)') "eps_scf_multiplier", scf_control%outer_scf%eps_scf_multiplier
                WRITE (output_unit, '(T25,A,T72,I9)') "max_scf", scf_control%outer_scf%max_scf
                SELECT CASE (scf_control%outer_scf%optimizer)
                CASE (outer_scf_optimizer_none)
