@@ -474,10 +474,6 @@ CONTAINS
                WRITE (*, *) "hello from line 468 SUBROUTINE outer_loop_extrapolate"
                WRITE (*, *) "scf_control%outer_scf%eps_scf", scf_control%outer_scf%eps_scf
                WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
-               WRITE (*, *) "scf_control%eps_scf=scf_control%eps_scf/5_dp"
-               !scf_control%eps_scf = 1e-7_dp
-               scf_control%eps_scf = scf_control%eps_scf / 5_dp
-               WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
                
                
 
