@@ -74,6 +74,7 @@ MODULE scf_control_types
 !>        (CORE,RANDOM,RESTART,ATOMIC,FROZEN)
 !> \param eps_eigval wanted error on the eigenvalues
 !> \param eps_scf whanted error on the whole scf
+!> \param eps_scf_multiplier mltiplier for each iteration of OUTER_SCF
 !> \param level_shift amount of level shift
 !> \param p_mix how to mix the new and old densities in non diss iterations
 !> \param eps_lumos error on the lumos calculated at the end of the scf
@@ -125,7 +126,7 @@ MODULE scf_control_types
       TYPE(diagonalization_type)            :: diagonalization
       INTEGER                               :: density_guess, mixing_method
       REAL(KIND=dp)                         :: eps_eigval, eps_scf, eps_scf_hist, &
-                                               level_shift, &
+                                               level_shift, eps_scf_muiltiplier &
                                                eps_lumos, eps_diis
       INTEGER                               :: max_iter_lumos, max_diis, nmixing
       INTEGER                               :: max_scf, max_scf_hist, &
@@ -163,6 +164,7 @@ CONTAINS
       scf_control%density_guess = atomic_guess
       scf_control%eps_eigval = 1.0E-5_dp
       scf_control%eps_scf = 1.0E-5_dp
+      scf_control%eps_scf_multiplier = 1.0_dp
       scf_control%eps_scf_hist = 0.0_dp
       scf_control%eps_lumos = 1.0E-5_dp
       scf_control%max_iter_lumos = 2999
@@ -336,6 +338,7 @@ CONTAINS
       END IF
       CALL section_vals_val_get(scf_section, "NOTCONV_STOPALL", l_val=scf_control%stop_higher_iter_level)
       CALL section_vals_val_get(scf_section, "eps_scf", r_val=scf_control%eps_scf)
+      CALL section_vals_val_get(scf_section, "eps_scf_muiltiplier", r_val=scf_control%eps_scf_multiplier)
       CALL section_vals_val_get(scf_section, "level_shift", r_val=scf_control%level_shift)
       CALL section_vals_val_get(scf_section, "max_diis", i_val=scf_control%max_diis)
       CALL section_vals_val_get(scf_section, "max_scf", i_val=scf_control%max_scf)
@@ -562,6 +565,7 @@ CONTAINS
                "max_scf_history:   ", scf_control%max_scf_hist, &
                "max_diis:          ", scf_control%max_diis, &
                "eps_scf:           ", scf_control%eps_scf, &
+               "eps_scf_multiplier:", scf_control%eps_scf_multiplier, &
                "eps_scf_history:   ", scf_control%eps_scf_hist, &
                "eps_diis:          ", scf_control%eps_diis, &
                "eps_eigval:        ", scf_control%eps_eigval, &
@@ -654,6 +658,7 @@ CONTAINS
                   CPABORT("")
                END SELECT
                WRITE (output_unit, '(T25,A,T72,ES9.2)') "eps_scf", scf_control%outer_scf%eps_scf
+               WRITE (output_unit, '(T25,A,T72,ES9.2)') "eps_scf_multiplier", scf_control%outer_scf%eps_scf_multiplier
                WRITE (output_unit, '(T25,A,T72,I9)') "max_scf", scf_control%outer_scf%max_scf
                SELECT CASE (scf_control%outer_scf%optimizer)
                CASE (outer_scf_optimizer_none)

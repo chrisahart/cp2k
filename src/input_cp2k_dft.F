@@ -4789,6 +4789,12 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="EPS_SCF_MULTIPLIER", &
+                          description="Multiplier for each iteration of OUTER_SCF.", &
+                          usage="EPS_SCF_MULTIPLIER 5e-1", default_r_val=1.0_dp)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="EPS_SCF_HISTORY", variants=(/"EPS_SCF_HIST"/), &
                           description="Target accuracy for the SCF convergence after the history pipeline is filled.", &
                           usage="EPS_SCF_HISTORY 1.e-5", default_r_val=0.0_dp, lone_keyword_r_val=1.0e-5_dp)
