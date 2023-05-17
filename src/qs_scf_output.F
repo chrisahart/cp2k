@@ -483,7 +483,6 @@ CONTAINS
          WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
          WRITE (*, *) "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
          WRITE (*, *) "scf_control%eps_scf_array", scf_env%outer_scf%iter_count
-
          IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
          WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
          WRITE (*, *) "scf_control%eps_scf_array(scf_env%outer_scf%iter_count)", & 
@@ -491,15 +490,15 @@ CONTAINS
          END IF 
       END IF 
 
-       ! Modify scf_control%eps_scf
+       ! Decrease EPS_SCF is requested
        IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
          scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count)
-         ELSE
+       ELSE
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
-         END IF 
+       END IF 
 
       IF (output_unit > 0) THEN
-      WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
+        WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
       END IF 
       
       outer_loop_eps = SQRT(MAXVAL(scf_env%outer_scf%gradient(:, scf_env%outer_scf%iter_count)**2))
