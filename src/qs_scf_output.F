@@ -487,11 +487,13 @@ CONTAINS
        ! Decrease EPS_SCF is requested
        IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
          scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
-         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)", & 
-                                                scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
+         IF (output_unit > 0) WRITE (output_unit, FMT="(A,ES9.2)") & 
+                  "scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)", & 
+                  scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
        ELSE
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
-         WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_multiplier", scf_control%eps_scf_multiplier
+         IF (output_unit > 0) WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_multiplier", &
+                                                                    scf_control%eps_scf_multiplier
        END IF 
 
         WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
