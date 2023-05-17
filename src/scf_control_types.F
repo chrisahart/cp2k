@@ -593,7 +593,6 @@ CONTAINS
                "max_scf_history:   ", scf_control%max_scf_hist, &
                "max_diis:          ", scf_control%max_diis, &
                "eps_scf:           ", scf_control%eps_scf, &
-               "eps_scf_multiplier:", scf_control%eps_scf_multiplier, &
                "eps_scf_history:   ", scf_control%eps_scf_hist, &
                "eps_diis:          ", scf_control%eps_diis, &
                "eps_eigval:        ", scf_control%eps_eigval, &
@@ -602,9 +601,13 @@ CONTAINS
                WRITE (UNIT=output_unit, FMT="(T25,A,T71,2I5)") &
                   "added MOs          ", scf_control%added_mos
             END IF
-            IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+            IF (ASSOCIATED(scf_control%eps_scf_array .AND. & 
+                SIZE(scf_control%eps_scf_array) > 1 )) THEN
+                  WRITE (UNIT=output_unit, FMT="(T25,A,T71, *)") &
+                        "eps_scf_array          ", scf_control%eps_scf_array
+            ELSE 
             WRITE (UNIT=output_unit, FMT="(T25,A,T71,ES9.2)") &
-                  "eps_scf_array          ", scf_control%eps_scf_array
+                        "eps_scf_multiplier:", scf_control%eps_scf_multiplier
              END IF 
 
             IF (scf_control%diagonalization%mom) THEN
