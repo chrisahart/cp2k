@@ -185,7 +185,7 @@ CONTAINS
       scf_control%added_mos(:) = 0
       scf_control%max_scf_hist = 0
 
-      NULLIFY (eps_scf_array)
+      NULLIFY (scf_control%eps_scf_array)
 
       !Mixing
       scf_control%mixing_method = direct_p_mix
@@ -313,7 +313,6 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), POINTER               :: rlist
       TYPE(section_vals_type), POINTER                   :: mixing_section, outer_scf_section, &
                                                             scf_section, smear_section
-      NULLIFY (mgrid_section, cutofflist)
       CALL timeset(routineN, handle)
 
       scf_section => section_vals_get_subs_vals(inp_section, "SCF")
