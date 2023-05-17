@@ -608,7 +608,7 @@ CONTAINS
             END IF
             IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1) )) THEN
                 DO count = 1, SIZE(scf_control%eps_scf_array)
-                  WRITE (UNIT=output_unit, FMT="(T25,A,I,A,T71, ES9.2)") &
+                  WRITE (UNIT=output_unit, FMT="(T25,A,I1,A,T71, ES9.2)") &
                         "eps_scf_array(", count, ")      ", scf_control%eps_scf_array(count)
                  END DO 
             ELSE 
