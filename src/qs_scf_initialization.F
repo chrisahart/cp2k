@@ -87,6 +87,7 @@ MODULE qs_scf_initialization
                                               init_mo_set,&
                                               mo_set_type
    USE qs_outer_scf,                    ONLY: outer_loop_extrapolate,&
+                                              outer_loop_purge_history,&
                                               outer_loop_switch,&
                                               outer_loop_variables_count
    USE qs_rho_atom_types,               ONLY: rho_atom_type
@@ -109,6 +110,7 @@ MODULE qs_scf_initialization
    USE scf_control_types,               ONLY: scf_control_type
    USE xas_env_types,                   ONLY: xas_environment_type
    USE xas_restart,                     ONLY: xas_initialize_rho
+   
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
