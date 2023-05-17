@@ -465,8 +465,8 @@ CONTAINS
       ALLOCATE (extrapolation(nvariables))
       CPASSERT(nhistory > 0)
 
-               WRITE (iw, *) "hello from line 468 SUBROUTINE outer_loop_extrapolate"
-               WRITE (iw, *) "scf_control%outer_scf%eps_scf", scf_control%outer_scf%eps_scf
+               WRITE (*, *) "hello from line 468 SUBROUTINE outer_loop_extrapolate"
+               WRITE (*, *) "scf_control%outer_scf%eps_scf", scf_control%outer_scf%eps_scf
 
       ! add the current version of qs_env to the history
       outer_scf_ihistory = outer_scf_ihistory + 1
@@ -474,7 +474,7 @@ CONTAINS
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
          outer_scf_history(1, ivec) = 0.0_dp
-         WRITE (iw, *) "hello from line 477 SUBROUTINE outer_loop_extrapolate"
+         WRITE (*, *) "hello from line 477 SUBROUTINE outer_loop_extrapolate"
       CASE (outer_scf_ddapc_constraint)
          DO n = 1, SIZE(dft_control%qs_control%ddapc_restraint_control)
             NULLIFY (ddapc_restraint_control)
