@@ -610,7 +610,7 @@ CONTAINS
                 (SIZE(scf_control%eps_scf_array) > 1) )) THEN
                 DO count = 1, SIZE(scf_control%eps_scf_array)
                   WRITE (UNIT=output_unit, FMT="(T25,A,I5,A,T71, ES9.2)") &
-                        "eps_scf_array(", i, ")      ", scf_control%eps_scf_array(i)
+                        "eps_scf_array(", count, ")      ", scf_control%eps_scf_array(i)
                  END DO 
             ELSE 
             WRITE (UNIT=output_unit, FMT="(T25,A,T71,ES9.2)") &
