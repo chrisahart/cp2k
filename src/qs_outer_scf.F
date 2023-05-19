@@ -125,10 +125,14 @@ CONTAINS
 
       scf_env%outer_scf%energy(ihistory) = energy%total
 
-      !WRITE (*, *) "hello from outer_loop_gradient"
+      
 
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
+      WRITE (*, *) "hello from outer_loop_gradient"
+      WRITE (*, *) "scf_env%outer_scf%gradient(1, ihistory)", scf_env%outer_scf%gradient(1, ihistory)
+      WRITE (*, *) "scf_env%iter_delta", scf_env%iter_delta
+
          ! just pass the inner loop scf criterion to the outer loop one
          scf_env%outer_scf%variables(1, ihistory) = scf_env%iter_delta
          scf_env%outer_scf%gradient(1, ihistory) = scf_env%iter_delta
