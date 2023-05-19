@@ -260,7 +260,7 @@ CONTAINS
            CALL get_qs_env(qs_env, gradient_history=gradient_history, &
                             variable_history=variable_history)
          !   ! We only store the latest two values
-         WRITE (*, *) "scf line 263", scf line 263
+         WRITE (*, *) "scf line 263"
          WRITE (*, *) "gradient_history", gradient_history
            gradient_history(:, 1) = gradient_history(:, 2)
             gradient_history(:, 2) = scf_env%outer_scf%gradient(:, ihistory)
