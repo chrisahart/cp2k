@@ -459,9 +459,9 @@ CONTAINS
 
       CALL qs_rho_get(rho, rho_ao_kp=rho_ao_kp)
 
-      SELECT CASE (scf_env%mixing_method)
-
       WRITE (*, *) "scf_env%mixing_method", scf_env%mixing_method
+
+      SELECT CASE (scf_env%mixing_method)
 
       CASE (direct_mixing_nr)
       WRITE (*, *) "line 467 qs_scf_density_mixing line 464"
