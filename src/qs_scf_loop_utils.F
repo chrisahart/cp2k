@@ -469,7 +469,7 @@ CONTAINS
       SELECT CASE (scf_env%mixing_method)
 
       CASE (direct_mixing_nr)
-      WRITE (*, *) "line 467 qs_scf_density_mixing line 464"
+      WRITE (*, *) "line 472 CASE (direct_mixing_nr)"
        WRITE (*, *) "line 468 scf_env%iter_delta", scf_env%iter_delta
 
          CALL scf_env_density_mixing(scf_env%p_mix_new, &
@@ -480,8 +480,8 @@ CONTAINS
       CASE (gspace_mixing_nr, pulay_mixing_nr, broyden_mixing_nr, &
             broyden_mixing_new_nr, multisecant_mixing_nr)
 
-            WRITE (*, *) "line 478 qs_scf_density_mixing line 473"
-       WRITE (*, *) "line 479 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 483 CASE(broyden_mixing_nr"
+       WRITE (*, *) "line 484 scf_env%iter_delta", scf_env%iter_delta
 
          ! Compute the difference p_out-p_in
          CALL self_consistency_check(rho_ao_kp, scf_env%p_delta, para_env, scf_env%p_mix_new, &

@@ -127,6 +127,7 @@ CONTAINS
       DO ic = 1, SIZE(p_mix_new, 2)
          DO ispin = 1, SIZE(p_mix_new, 1)
             IF (my_invert) THEN
+             WRITE (*, *) "line 130 scf_env_density_mixing"
                CPASSERT(my_p_mix /= 0.0_dp)
                IF (my_p_mix /= 1.0_dp) THEN
                   CALL dbcsr_add(matrix_a=p_mix_new(ispin, ic)%matrix, &
@@ -135,6 +136,7 @@ CONTAINS
                                  beta_scalar=(my_p_mix - 1.0_dp)/my_p_mix)
                END IF
             ELSE
+             WRITE (*, *) "line 139 scf_env_density_mixing"
                CALL cp_sm_mix(m1=p_mix_new(ispin, ic)%matrix, &
                               m2=rho_ao(ispin, ic)%matrix, &
                               p_mix=my_p_mix, &
