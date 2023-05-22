@@ -609,7 +609,7 @@ CONTAINS
          temp = scf_env%iter_delta
          WRITE (*, *) "line 610 temp", temp
             CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
-                                        rho_ao_kp, para_env, iter_delta=temp, &
+                                        rho_ao_kp, para_env, temp, &
                                         scf_env%iter_count, diis=diis_step, &
                                         invert=.TRUE.)
             WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
