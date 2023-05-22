@@ -607,7 +607,7 @@ CONTAINS
          CASE (direct_mixing_nr)
          WRITE (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
             CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
-                                        rho_ao_kp, para_env, scf_env%iter_delta=temp, &
+                                        rho_ao_kp, para_env, iter_delta=temp, &
                                         scf_env%iter_count, diis=diis_step, &
                                         invert=.TRUE.)
             WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
