@@ -516,6 +516,8 @@ CONTAINS
          scf_env%outer_scf%iter_count = scf_env%outer_scf%iter_count + 1
          outer_loop_converged = .FALSE.
 
+          WRITE (*, *) "line 519 scf_env%iter_delta", scf_env%iter_delta
+
          CALL outer_loop_gradient(qs_env, scf_env)
          ! Multiple constraints: get largest deviation
          outer_loop_eps = SQRT(MAXVAL(scf_env%outer_scf%gradient(:, scf_env%outer_scf%iter_count)**2))

@@ -522,10 +522,12 @@ CONTAINS
 
             ! In case we decide to exit we perform few more check to see if this one
             ! is really the last SCF step
+            WRITE (*, *) "line 525 scf_env%iter_delta", scf_env%iter_delta
             IF (exit_inner_loop) THEN
 
                CALL qs_scf_inner_finalize(scf_env, qs_env, diis_step, output_unit)
 
+               WRITE (*, *) "line 530 scf_env%iter_delta", scf_env%iter_delta
                CALL qs_scf_check_outer_exit(qs_env, scf_env, scf_control, should_stop, &
                                             outer_loop_converged, exit_outer_loop)
 
@@ -1351,6 +1353,7 @@ CONTAINS
                   CALL outer_loop_switch(scf_env, scf_control, cdft_control, ot2cdft)
                   ! Update (iter_count + 1) element of gradient and print constraint info
                   scf_env%outer_scf%iter_count = scf_env%outer_scf%iter_count + 1
+                   WRITE (*, *) "line 1354 scf_env%iter_delta", scf_env%iter_delta
                   CALL outer_loop_gradient(qs_env, scf_env)
                   CALL qs_scf_cdft_info(output_unit, scf_control, scf_env, cdft_control, &
                                         energy_qs, cdft_control%total_steps, &
