@@ -196,6 +196,7 @@ CONTAINS
       ELSE
       WRITE (*, *) "line 197 scf_env%mixing_method", scf_env%mixing_method
        WRITE (*, *) "line 198 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 199 scf_control%mixing_method", scf_control%mixing_method
          IF (scf_env%mixing_method == 0) THEN
             scf_env%iter_method = "NoMix/Diag."
          ELSE IF (scf_env%mixing_method == 1) THEN

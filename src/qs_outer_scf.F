@@ -125,9 +125,13 @@ CONTAINS
 
       scf_env%outer_scf%energy(ihistory) = energy%total
 
-      WRITE (*, *) "line 132 hello from outer_loop_gradient"
-      WRITE (*, *) "line 133 scf_env%outer_scf%gradient(1, ihistory)", scf_env%outer_scf%gradient(1, ihistory)
-      WRITE (*, *) "line 134 scf_env%iter_delta", scf_env%iter_delta
+      WRITE (*, *) "line 128 hello from outer_loop_gradient"
+      WRITE (*, *) "line 129 scf_env%outer_scf%gradient(1, ihistory)", scf_env%outer_scf%gradient(1, ihistory)
+      WRITE (*, *) "line 130 scf_env%iter_delta", scf_env%iter_delta
+
+      WRITE (*, *) "line 132 scf_env%mixing_method", scf_env%mixing_method
+      scf_env%mixing_method=0
+      WRITE (*, *) "line 134 scf_env%mixing_method",scf_env%mixing_method
 
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)

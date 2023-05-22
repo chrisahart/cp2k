@@ -1117,6 +1117,10 @@ CONTAINS
       END IF
 
       ! Some preparation for the mixing
+       WRITE (*, *) "line 1120 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 1121 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 1122 scf_control%mixing_method", scf_control%mixing_method
+
       IF (scf_env%mixing_method > 1) THEN
          IF (dft_control%qs_control%gapw) THEN
             CALL get_qs_env(qs_env=qs_env, rho_atom_set=rho_atom)
