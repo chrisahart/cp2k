@@ -326,6 +326,8 @@ CONTAINS
       CASE (general_diag_method_nr)
          ! Diagonlization in non orthonormal case
          diis_step = .FALSE.
+          WRITE (*, *) "line 329 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 330 scf_env%iter_method", scf_env%iter_method
          IF (scf_env%mixing_method == 0) THEN
             scf_env%iter_method = "NoMix/Diag."
          ELSE IF (scf_env%mixing_method == 1) THEN
