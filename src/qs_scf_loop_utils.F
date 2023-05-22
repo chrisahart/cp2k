@@ -596,7 +596,7 @@ CONTAINS
       CHARACTER(len=default_string_length)               :: name
       INTEGER                                            :: ic, ispin, nc
       TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER       :: rho_ao_kp
-      REAL(KIND=dp) :: temp
+      REAL(KIND=dp)                                      :: temp
 
       NULLIFY (rho_ao_kp)
 
@@ -606,11 +606,14 @@ CONTAINS
          SELECT CASE (scf_env%mixing_method)
          CASE (direct_mixing_nr)
          WRITE (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
+         temp = scf_env%iter_delta
+         WRITE (*, *) "line 610 temp", temp
             CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
                                         rho_ao_kp, para_env, iter_delta=temp, &
                                         scf_env%iter_count, diis=diis_step, &
                                         invert=.TRUE.)
             WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
+             WRITE (*, *) "line 610 temp", 616
             DO ic = 1, nc
                DO ispin = 1, dft_control%nspins
                   CALL dbcsr_get_info(rho_ao_kp(ispin, ic)%matrix, name=name) ! keep the name
