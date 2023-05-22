@@ -502,7 +502,9 @@ CONTAINS
             ! Print requested MO information (can be computationally expensive with OT)
             CALL qs_scf_write_mos(qs_env, scf_env, final_mos=.FALSE.)
 
+            WRITE (*, *) "line 505 scf_env%iter_delta", scf_env%iter_delta
             CALL qs_scf_density_mixing(scf_env, rho, para_env, diis_step)
+            WRITE (*, *) "line 507 scf_env%iter_delta", scf_env%iter_delta
 
             t2 = m_walltime()
 
@@ -626,6 +628,8 @@ CONTAINS
 
       CALL cp_rm_iter_level(logger%iter_info, level_name="QS_SCF")
       CALL timestop(handle)
+
+      WRITE (*, *) "line 632 scf_env%iter_delta", scf_env%iter_delta
 
    END SUBROUTINE scf_env_do_scf
 

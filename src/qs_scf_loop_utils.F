@@ -460,25 +460,28 @@ CONTAINS
       CALL qs_rho_get(rho, rho_ao_kp=rho_ao_kp)
 
       SELECT CASE (scf_env%mixing_method)
+
+      WRITE (*, *) "scf_env%mixing_method", scf_env%mixing_method
+
       CASE (direct_mixing_nr)
-      WRITE (*, *) "qs_scf_density_mixing line 464"
-       WRITE (*, *) "scf_env%iter_delta", scf_env%iter_delta
+      WRITE (*, *) "line 467 qs_scf_density_mixing line 464"
+       WRITE (*, *) "line 468 scf_env%iter_delta", scf_env%iter_delta
 
          CALL scf_env_density_mixing(scf_env%p_mix_new, &
                                      scf_env%mixing_store, rho_ao_kp, para_env, scf_env%iter_delta, scf_env%iter_count, &
                                      diis=diis_step)
-         WRITE (*, *) "scf_env%iter_delta", scf_env%iter_delta
-                                     
+         WRITE (*, *) "line 473 scf_env%iter_delta", scf_env%iter_delta
+
       CASE (gspace_mixing_nr, pulay_mixing_nr, broyden_mixing_nr, &
             broyden_mixing_new_nr, multisecant_mixing_nr)
 
-            WRITE (*, *) "qs_scf_density_mixing line 473"
-       WRITE (*, *) "scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 478 qs_scf_density_mixing line 473"
+       WRITE (*, *) "line 479 scf_env%iter_delta", scf_env%iter_delta
 
          ! Compute the difference p_out-p_in
          CALL self_consistency_check(rho_ao_kp, scf_env%p_delta, para_env, scf_env%p_mix_new, &
                                      delta=scf_env%iter_delta)
-          WRITE (*, *) "scf_env%iter_delta", scf_env%iter_delta                           
+          WRITE (*, *) "line 484 scf_env%iter_delta", scf_env%iter_delta                           
       CASE (no_mixing_nr)
       CASE DEFAULT
          CALL cp_abort(__LOCATION__, &
