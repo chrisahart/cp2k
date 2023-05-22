@@ -236,6 +236,9 @@ CONTAINS
             CALL qs_scf_env_initialize(qs_env, scf_env)
          END IF
 
+         IF ((first_step_flag)) WRITE (*, *) "line 239 first_step_flag", first_step_flag
+         !IF ((first_step_flag)) scf_env%mixing_method=0
+
          IF ((scf_control%density_guess .EQ. history_guess) .AND. (first_step_flag)) THEN
             max_scf_tmp = scf_control%max_scf
             scf_control%max_scf = 1
