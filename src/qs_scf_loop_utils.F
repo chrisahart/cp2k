@@ -603,23 +603,24 @@ CONTAINS
       IF (scf_env%mixing_method > 0) THEN
          CALL qs_rho_get(rho, rho_ao_kp=rho_ao_kp)
          nc = SIZE(scf_env%p_mix_new, 2)
+
          SELECT CASE (scf_env%mixing_method)
          CASE (direct_mixing_nr)
-         WRITE (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
-         temp = scf_env%iter_delta
-         WRITE (*, *) "line 610 temp", temp
-            CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
-                                        rho_ao_kp, para_env, temp, &
-                                        scf_env%iter_count, diis=diis_step, &
-                                        invert=.TRUE.)
-            WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
-             WRITE (*, *) "line 610 temp", 616
-            DO ic = 1, nc
-               DO ispin = 1, dft_control%nspins
-                  CALL dbcsr_get_info(rho_ao_kp(ispin, ic)%matrix, name=name) ! keep the name
-                  CALL dbcsr_copy(rho_ao_kp(ispin, ic)%matrix, scf_env%p_mix_new(ispin, ic)%matrix, name=name)
+            WRITE (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
+            temp = scf_env%iter_delta
+            WRITE (*, *) "line 610 temp", temp
+               CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
+                                          rho_ao_kp, para_env, temp, &
+                                          scf_env%iter_count, diis=diis_step, &
+                                          invert=.TRUE.)
+               WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
+               WRITE (*, *) "line 610 temp", 616
+               DO ic = 1, nc
+                  DO ispin = 1, dft_control%nspins
+                     CALL dbcsr_get_info(rho_ao_kp(ispin, ic)%matrix, name=name) ! keep the name
+                     CALL dbcsr_copy(rho_ao_kp(ispin, ic)%matrix, scf_env%p_mix_new(ispin, ic)%matrix, name=name)
+                  END DO
                END DO
-            END DO
          CASE (gspace_mixing_nr, pulay_mixing_nr, broyden_mixing_nr, &
                broyden_mixing_new_nr, multisecant_mixing_nr)
             DO ic = 1, nc
