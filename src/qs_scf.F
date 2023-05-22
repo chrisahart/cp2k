@@ -216,9 +216,11 @@ CONTAINS
       logger => cp_get_default_logger()
       CPASSERT(ASSOCIATED(qs_env))
       IF (PRESENT(has_converged)) THEN
+      WRITE (*, *) "scf line 219"
          has_converged = .FALSE.
       END IF
       IF (PRESENT(total_scf_steps)) THEN
+      WRITE (*, *) "scf line 223"
          total_scf_steps = 0
       END IF
       CALL get_qs_env(qs_env, scf_env=scf_env, input=input, &
@@ -313,10 +315,13 @@ CONTAINS
 
          IF (PRESENT(has_converged)) THEN
             has_converged = converged
+            WRITE (*, *) "scf line 316"
             first_step_flag = .TRUE.
          END IF
          IF (PRESENT(total_scf_steps)) THEN
             total_scf_steps = tsteps
+            WRITE (*, *) "scf line 321"
+            first_step_flag = .TRUE.
          END IF
 
       END IF
