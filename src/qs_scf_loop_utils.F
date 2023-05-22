@@ -546,6 +546,12 @@ CONTAINS
          END IF
          inner_loop_converged = .TRUE.
          exit_inner_loop = .TRUE.
+
+          IF (output_unit > 0) THEN
+          WRITE (*,*)  "qs_scf_check_inner_exit "
+            WRITE (*,*)  "scf_env%iter_delta ", scf_env%iter_delta
+         END IF
+
       ELSE IF (should_stop .OR. scf_env%iter_count >= scf_control%max_scf) THEN
          inner_loop_converged = .FALSE.
          exit_inner_loop = .TRUE.

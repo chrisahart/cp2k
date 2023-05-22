@@ -539,6 +539,10 @@ CONTAINS
       TYPE(qs_energy_type), POINTER                      :: energy
 
       IF ((output_unit > 0) .AND. scf_env%print_iter_line) THEN
+      WRITE(*,*) "scf_env%iter_delta", scf_env%iter_delta
+      END IF 
+      
+      IF ((output_unit > 0) .AND. scf_env%print_iter_line) THEN
          IF (just_energy) THEN
             WRITE (UNIT=output_unit, &
                    FMT="(T2,I5,1X,A,T20,E8.2,1X,F6.1,16X,F20.10)") &

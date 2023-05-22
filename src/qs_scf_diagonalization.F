@@ -807,6 +807,9 @@ CONTAINS
                                rho, para_env, scf_env%iter_count)
          END IF
 
+         WRITE (*, *) "iter_delta", iter_delta
+         WRITE (*, *) "subspace_env%eps_adapt*scf_env%iter_delta", subspace_env%eps_adapt*scf_env%iter_delta
+
          ene_diff = energy%total - ene_old
          converged = (ABS(ene_diff) < subspace_env%eps_ene .AND. &
                       iter_delta < subspace_env%eps_adapt*scf_env%iter_delta)
