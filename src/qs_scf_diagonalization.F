@@ -175,6 +175,11 @@ CONTAINS
          diis_step = .FALSE.
       END IF
 
+      WRITE (*, *) "line 197 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 198 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 199 scf_control%mixing_method", scf_control%mixing_method
+       WRITE (*, *) "line 200 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+
       do_level_shift = ((scf_control%level_shift /= 0.0_dp) .AND. &
                         ((scf_control%density_guess == core_guess) .OR. &
                          (scf_env%iter_count > 1)))
@@ -194,10 +199,7 @@ CONTAINS
             scf_env%iter_method = "DIIS/Diag."
          END IF
       ELSE
-      WRITE (*, *) "line 197 scf_env%mixing_method", scf_env%mixing_method
-       WRITE (*, *) "line 198 scf_env%iter_method", scf_env%iter_method
-       WRITE (*, *) "line 199 scf_control%mixing_method", scf_control%mixing_method
-       WRITE (*, *) "line 200 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+      
          IF (scf_env%mixing_method == 0) THEN
             scf_env%iter_method = "NoMix/Diag."
          ELSE IF (scf_env%mixing_method == 1) THEN
@@ -328,6 +330,11 @@ CONTAINS
 
       nspin = SIZE(matrix_ks)
 
+      WRITE (*, *) "line 333 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 334 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 335 scf_control%mixing_method", scf_control%mixing_method
+       WRITE (*, *) "line 336 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+
       CALL general_eigenproblem(scf_env, mos, matrix_ks, &
                                 matrix_s, scf_control, scf_section, diis_step)
 
@@ -443,6 +450,11 @@ CONTAINS
       para_env => kpoints%blacs_env_all%para_env
       nspin = SIZE(matrix_ks, 1)
       ALLOCATE (info(kplocal*nspin*nkp_groups, 4))
+
+      WRITE (*, *) "line 454 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 455 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 456 scf_control%mixing_method", scf_control%mixing_method
+       WRITE (*, *) "line 457 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
 
       ! Setup and start all the communication
       indx = 0

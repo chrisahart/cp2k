@@ -77,8 +77,13 @@ CONTAINS
                mixing_store%dacharge(ia, 1:ns, imin) = mixing_store%acharge(ia, 1:ns, imin) - charges(ii, 1:ns)
             END DO
          END IF
+
+         WRITE (*, *) "line 81 charge_mixing"
+         WRITE (*, *) "iter_count", iter_count
+
          IF ((iter_count == 1) .OR. (iter_count + 1 <= mixing_store%nskip_mixing)) THEN
             ! skip mixing
+            WRITE (*, *) "skip mixing"
             mixing_store%iter_method = "NoMix"
          ELSEIF (((iter_count + 1 - mixing_store%nskip_mixing) <= mixing_store%n_simple_mix) .OR. (nvec == 1)) THEN
             CALL mix_charges_only(mixing_store, charges, alpha, imin, ns, para_env)
