@@ -355,6 +355,8 @@ CONTAINS
                        cp_to_string(scf_env%method))
       END SELECT
 
+      WRITE (*, *) "line 358 scf_env%iter_method", scf_env%iter_method
+
       CALL get_qs_env(qs_env=qs_env, energy=energy)
       energy%kTS = 0.0_dp
       energy%efermi = 0.0_dp
