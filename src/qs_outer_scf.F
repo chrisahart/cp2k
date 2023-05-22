@@ -130,8 +130,11 @@ CONTAINS
       WRITE (*, *) "line 130 scf_env%iter_delta", scf_env%iter_delta
 
       WRITE (*, *) "line 132 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+      WRITE (*, *) "line 133 scf_env%iter_method ", scf_env%iter_method 
       scf_env%mixing_store%iter_method = "NoMix"
-      WRITE (*, *) "line 134 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+      scf_env%iter_method = "NoMix"
+      WRITE (*, *) "line 136 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+      WRITE (*, *) "line 137 scf_env%iter_method ", scf_env%iter_method 
       
 
       !WRITE (*, *) "line 132 scf_env%mixing_method", scf_env%mixing_method
