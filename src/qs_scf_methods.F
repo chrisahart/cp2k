@@ -111,6 +111,8 @@ CONTAINS
 
       CALL timeset(routineN, handle)
 
+       WRITE (*, *) "line 114 scf_env_density_mixing"
+
       my_diis = .FALSE.
       IF (PRESENT(diis)) my_diis = diis
       my_invert = .FALSE.

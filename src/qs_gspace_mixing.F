@@ -597,6 +597,8 @@ CONTAINS
       CALL get_qs_env(qs_env, dft_control=dft_control)
       CALL qs_rho_get(rho, rho_g=rho_g)
 
+       WRITE (*, *) "line 600 broyden_mixing of qs_gspace_mixing.F"
+
       nspin = SIZE(rho_g, 1)
       ng = SIZE(mixing_store%res_buffer(1, 1)%cc)
 

@@ -174,6 +174,9 @@ CONTAINS
       IF (imin == 0) imin = nvec
       nv = nvec - 1
 
+       WRITE (*, *) "line 117 broyden_mixing of qs_charge_mixing.F"
+
+
       ! charge vectors
       q_now => mixing_store%acharge(:, :, inow)
       q_last => mixing_store%acharge(:, :, imin)
