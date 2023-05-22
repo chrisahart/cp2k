@@ -236,7 +236,8 @@ CONTAINS
             CALL qs_scf_env_initialize(qs_env, scf_env)
          END IF
 
-         IF ((first_step_flag)) WRITE (*, *) "line 239 first_step_flag", first_step_flag
+         WRITE (*, *) "line 239 first_step_flag", first_step_flag
+
          !IF ((first_step_flag)) scf_env%mixing_method=0
 
          IF ((scf_control%density_guess .EQ. history_guess) .AND. (first_step_flag)) THEN
@@ -312,6 +313,7 @@ CONTAINS
 
          IF (PRESENT(has_converged)) THEN
             has_converged = converged
+            first_step_flag = .TRUE.
          END IF
          IF (PRESENT(total_scf_steps)) THEN
             total_scf_steps = tsteps
@@ -415,6 +417,11 @@ CONTAINS
 
       IF (output_unit > 0) WRITE (UNIT=output_unit, FMT="(/,/,T2,A)") &
          "SCF WAVEFUNCTION OPTIMIZATION"
+
+         WRITE (*, *) "line 419 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 420 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 421 scf_control%mixing_method", scf_control%mixing_method
+       WRITE (*, *) "line 422 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
 
 ! when switch_surf_dip is switched on, indicate storing mos from the last converged step
       IF (dft_control%switch_surf_dip) THEN
