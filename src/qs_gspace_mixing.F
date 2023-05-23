@@ -96,9 +96,9 @@ CONTAINS
          WRITE (*, *) "line 123 iter_count", iter_count
          WRITE (*, *) "line 124 mixing_store%ncall", mixing_store%ncall
 
-        ! IF (iter_count == 0) THEN
-        ! mixing_store%ncall = 0
-        ! END IF 
+         IF (iter_count == 1) THEN
+         mixing_store%ncall = 0
+         END IF 
 
 
       IF (.NOT. (dft_control%qs_control%dftb .OR. dft_control%qs_control%xtb .OR. &
