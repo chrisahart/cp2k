@@ -101,11 +101,7 @@ CONTAINS
          !mixing_allocate(qs_env, mixing_method, p_mix_new, p_delta, nspins, mixing_store)
          mixing_store%ncall = 0
 
-         DO ispin = 1, nspin
-               DO ig = 1, ng
-                  mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
-               END DO
-            END DO
+        
 
 
        !  IF (nspin == 2) THEN
@@ -643,6 +639,12 @@ CONTAINS
       mixing_store%ncall = mixing_store%ncall + 1
       IF (mixing_store%ncall == 1) THEN
          only_kerker = .TRUE.
+
+          DO ispin = 1, nspin
+               DO ig = 1, ng
+                  mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
+               END DO
+            END DO
 
       ELSE
          only_kerker = .FALSE.
