@@ -92,11 +92,12 @@ CONTAINS
 
       CALL get_qs_env(qs_env, dft_control=dft_control, pw_env=pw_env)
 
-       WRITE (*, *) "line 122 gspace_mixing"
-         WRITE (*, *) "line 123 iter_count", iter_count
-         WRITE (*, *) "line 124 mixing_store%ncall", mixing_store%ncall
+       WRITE (*, *) "line 95 gspace_mixing"
+         WRITE (*, *) "line 96 iter_count", iter_count
+         WRITE (*, *) "line 97 mixing_store%ncall", mixing_store%ncall
 
          IF (iter_count == 1) THEN
+         WRITE (*, *) "line 100 setting mixing_store%ncall = 0"
          mixing_store%ncall = 0
          END IF 
 
