@@ -319,6 +319,8 @@ CONTAINS
       ng = SIZE(mixing_store%res_buffer(1, 1)%cc)
       vol = rho_g(1)%pw_grid%vol
 
+       WRITE (*, *) "line 322 pulay_mixing of qs_gspace_mixing.F"
+
       alpha_kerker = mixing_store%alpha
       beta = mixing_store%pulay_beta
       alpha_pulay = mixing_store%pulay_alpha
@@ -598,6 +600,8 @@ CONTAINS
       CALL qs_rho_get(rho, rho_g=rho_g)
 
        WRITE (*, *) "line 600 broyden_mixing of qs_gspace_mixing.F"
+        WRITE (*, *) "line 601 mixing_store%ncall", mixing_store%ncall
+
 
       nspin = SIZE(rho_g, 1)
       ng = SIZE(mixing_store%res_buffer(1, 1)%cc)
@@ -617,6 +621,13 @@ CONTAINS
          nb = MIN(mixing_store%ncall - 1, nbuffer)
          ib = MODULO(mixing_store%ncall - 2, nbuffer) + 1
       END IF
+
+      WRITE (*, *) "line 623 nbuffer", nbuffer
+      WRITE (*, *) "line 624 ng", ng
+      WRITE (*, *) "line 625 nb", nb
+      WRITE (*, *) "line 626 ib", ib
+      WRITE (*, *) "line 627 only_kerker", only_kerker
+
 
       IF (gapw) THEN
          CALL get_qs_env(qs_env=qs_env, rho_atom_set=rho_atom)
@@ -923,6 +934,8 @@ CONTAINS
       sqt_uvol = SQRT(uvol)
       alpha = mixing_store%alpha
       beta = mixing_store%beta
+
+       WRITE (*, *) "line 936 broyden_mixing_new of qs_gspace_mixing.F"
 
       wc = mixing_store%wc
       wmax = mixing_store%wmax
