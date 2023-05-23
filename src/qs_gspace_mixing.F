@@ -119,6 +119,16 @@ CONTAINS
             CALL pw_scale(rho_g(2), -1.0_dp)
          END IF
 
+         WRITE (*, *) "line 122 gspace_mixing"
+         WRITE (*, *) "iter_count", iter_count
+         WRITE (*, *) "mixing_store%ncall", mixing_store%ncall
+
+        ! IF (iter_count == 0) THEN
+        ! mixing_store%ncall = 0
+        ! END IF 
+
+         
+
          IF (iter_count + 1 <= mixing_store%nskip_mixing) THEN
             ! skip mixing
             DO ispin = 1, nspin
