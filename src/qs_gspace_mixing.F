@@ -100,8 +100,6 @@ CONTAINS
          WRITE (*, *) "line 100 setting mixing_store%ncall = 0"
          !mixing_allocate(qs_env, mixing_method, p_mix_new, p_delta, nspins, mixing_store)
          mixing_store%ncall = 0
-         mixing_store%kerker_factor = 1.0_dp
-         mixing_store%special_metric = 1.0_dp    
          END IF 
 
 
@@ -617,6 +615,8 @@ CONTAINS
        WRITE (*, *) "line 600 broyden_mixing of qs_gspace_mixing.F"
         WRITE (*, *) "line 601 mixing_store%ncall", mixing_store%ncall
 
+        
+
 
       nspin = SIZE(rho_g, 1)
       ng = SIZE(mixing_store%res_buffer(1, 1)%cc)
@@ -631,6 +631,15 @@ CONTAINS
       mixing_store%ncall = mixing_store%ncall + 1
       IF (mixing_store%ncall == 1) THEN
          only_kerker = .TRUE.
+
+         IF (nspin == 2) THEN
+         mixing_store%rhoin(1)%cc = rho_g(1)%cc + rho_g(2)%cc
+         mixing_store%rhoin(2)%cc = rho_g(1)%cc - rho_g(2)%cc
+         IF (ASSOCIATED(mixing_store%rhoin_buffer)) THEN
+            mixing_store%rhoin_buffer(1, 1)%cc = rho_g(1)%cc + rho_g(2)%cc
+            mixing_store%rhoin_buffer(1, 2)%cc = rho_g(1)%cc - rho_g(2)%cc
+         END IF
+      END IF
       ELSE
          only_kerker = .FALSE.
          nb = MIN(mixing_store%ncall - 1, nbuffer)
