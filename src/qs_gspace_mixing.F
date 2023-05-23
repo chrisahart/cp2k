@@ -100,6 +100,18 @@ CONTAINS
          WRITE (*, *) "line 100 setting mixing_store%ncall = 0"
          !mixing_allocate(qs_env, mixing_method, p_mix_new, p_delta, nspins, mixing_store)
          mixing_store%ncall = 0
+
+         DO ispin = 1, nspin
+               DO ig = 1, ng
+                  mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
+               END DO
+            END DO
+
+
+       !  IF (nspin == 2) THEN
+       !  mixing_store%rhoin(1)%cc = rho_g(1)%cc + rho_g(2)%cc
+       !  mixing_store%rhoin(2)%cc = rho_g(1)%cc - rho_g(2)%cc
+      !END IF
          END IF 
 
 
@@ -632,14 +644,6 @@ CONTAINS
       IF (mixing_store%ncall == 1) THEN
          only_kerker = .TRUE.
 
-         IF (nspin == 2) THEN
-         mixing_store%rhoin(1)%cc = rho_g(1)%cc + rho_g(2)%cc
-         mixing_store%rhoin(2)%cc = rho_g(1)%cc - rho_g(2)%cc
-         IF (ASSOCIATED(mixing_store%rhoin_buffer)) THEN
-            mixing_store%rhoin_buffer(1, 1)%cc = rho_g(1)%cc + rho_g(2)%cc
-            mixing_store%rhoin_buffer(1, 2)%cc = rho_g(1)%cc - rho_g(2)%cc
-         END IF
-      END IF
       ELSE
          only_kerker = .FALSE.
          nb = MIN(mixing_store%ncall - 1, nbuffer)
