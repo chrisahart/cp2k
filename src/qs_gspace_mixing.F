@@ -98,7 +98,10 @@ CONTAINS
 
          IF (iter_count == 1) THEN
          WRITE (*, *) "line 100 setting mixing_store%ncall = 0"
+         !mixing_allocate(qs_env, mixing_method, p_mix_new, p_delta, nspins, mixing_store)
          mixing_store%ncall = 0
+         mixing_store%kerker_factor = 1.0_dp
+         mixing_store%special_metric = 1.0_dp    
          END IF 
 
 
