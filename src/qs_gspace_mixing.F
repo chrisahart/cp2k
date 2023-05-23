@@ -91,6 +91,16 @@ CONTAINS
       CALL timeset(routineN, handle)
 
       CALL get_qs_env(qs_env, dft_control=dft_control, pw_env=pw_env)
+
+       WRITE (*, *) "line 122 gspace_mixing"
+         WRITE (*, *) "line 123 iter_count", iter_count
+         WRITE (*, *) "line 124 mixing_store%ncall", mixing_store%ncall
+
+        ! IF (iter_count == 0) THEN
+        ! mixing_store%ncall = 0
+        ! END IF 
+
+
       IF (.NOT. (dft_control%qs_control%dftb .OR. dft_control%qs_control%xtb .OR. &
                  dft_control%qs_control%semi_empirical)) THEN
 
@@ -119,16 +129,7 @@ CONTAINS
             CALL pw_scale(rho_g(2), -1.0_dp)
          END IF
 
-         WRITE (*, *) "line 122 gspace_mixing"
-         WRITE (*, *) "iter_count", iter_count
-         WRITE (*, *) "mixing_store%ncall", mixing_store%ncall
-
-        ! IF (iter_count == 0) THEN
-        ! mixing_store%ncall = 0
-        ! END IF 
-
-         
-
+        
          IF (iter_count + 1 <= mixing_store%nskip_mixing) THEN
             ! skip mixing
             DO ispin = 1, nspin
