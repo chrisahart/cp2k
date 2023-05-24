@@ -644,11 +644,11 @@ CONTAINS
          only_kerker = .TRUE.
 
           ! Try to reset density
-          DO ispin = 1, nspin
-               DO ig = 1, ng
-                  mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
-               END DO
-            END DO
+          !DO ispin = 1, nspin
+          !     DO ig = 1, ng
+          !        mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
+          !     END DO
+          !  END DO
 
       !      IF (nspin == 2) THEN
       !   mixing_store%rhoin(1)%cc = rho_g(1)%cc + rho_g(2)%cc

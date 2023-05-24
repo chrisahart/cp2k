@@ -113,11 +113,24 @@ CONTAINS
       TYPE(qs_energy_type), POINTER                      :: energy
       TYPE(s2_restraint_type), POINTER                   :: s2_restraint_control
       TYPE(scf_control_type), POINTER                    :: scf_control
+      
+      TYPE(qs_rho_type), POINTER                         :: rho
+      TYPE(cp_para_env_type), POINTER                    :: para_env
+
+      NULLIFY (rho, para_env)
 
       CALL timeset(routineN, handle)
 
-      CALL get_qs_env(qs_env=qs_env, scf_control=scf_control, &
-                      dft_control=dft_control, energy=energy)
+     ! CALL get_qs_env(qs_env=qs_env, scf_control=scf_control, &
+       !               dft_control=dft_control, energy=energy)
+
+      CALL get_qs_env(qs_env, &
+                      rho=rho, &
+                      scf_control=scf_control, &
+                      dft_control=dft_control, &
+                      energy=energy, &
+                      para_env=para_env)
+                      
       CPASSERT(scf_control%outer_scf%have_scf)
 
       ihistory = scf_env%outer_scf%iter_count
@@ -135,6 +148,9 @@ CONTAINS
       scf_env%iter_method = "NoMix"
       WRITE (*, *) "line 136 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
       WRITE (*, *) "line 137 scf_env%iter_method ", scf_env%iter_method 
+
+      CALL mixing_init(scf_env%mixing_method, rho, scf_env%mixing_store, &
+                             para_env)
       
 
       !WRITE (*, *) "line 132 scf_env%mixing_method", scf_env%mixing_method
