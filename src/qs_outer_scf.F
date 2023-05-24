@@ -38,6 +38,10 @@ MODULE qs_outer_scf
                                               set_qs_env
    USE qs_scf_types,                    ONLY: qs_scf_env_type
    USE scf_control_types,               ONLY: scf_control_type
+   USE cp_para_types,                   ONLY: cp_para_env_type
+   USE qs_rho_types,                    ONLY: qs_rho_create,&
+                                              qs_rho_get,&
+                                              qs_rho_type
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -113,7 +117,7 @@ CONTAINS
       TYPE(qs_energy_type), POINTER                      :: energy
       TYPE(s2_restraint_type), POINTER                   :: s2_restraint_control
       TYPE(scf_control_type), POINTER                    :: scf_control
-      
+
       TYPE(qs_rho_type), POINTER                         :: rho
       TYPE(cp_para_env_type), POINTER                    :: para_env
 
