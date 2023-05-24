@@ -144,6 +144,7 @@ CONTAINS
         
          IF (iter_count + 1 <= mixing_store%nskip_mixing) THEN
             ! skip mixing
+             WRITE (*, *) "line 147 mixing_store%nskip_mixing", mixing_store%nskip_mixing
             DO ispin = 1, nspin
                DO ig = 1, ng
                   mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
@@ -642,11 +643,17 @@ CONTAINS
       IF (mixing_store%ncall == 1) THEN
          only_kerker = .TRUE.
 
+          ! Try to reset density
           DO ispin = 1, nspin
                DO ig = 1, ng
                   mixing_store%rhoin(ispin)%cc(ig) = rho_g(ispin)%cc(ig)
                END DO
             END DO
+
+      !      IF (nspin == 2) THEN
+      !   mixing_store%rhoin(1)%cc = rho_g(1)%cc + rho_g(2)%cc
+      !   mixing_store%rhoin(2)%cc = rho_g(1)%cc - rho_g(2)%cc
+      !END IF
 
       ELSE
          only_kerker = .FALSE.
@@ -694,6 +701,7 @@ CONTAINS
          END DO
 
          IF (only_kerker) THEN
+           WRITE (*, *) "line 698 only_kerker", only_kerker
             DO ig = 1, ng
                mixing_store%last_res(ispin)%cc(ig) = res_rho(ig)
                f_mix = alpha*mixing_store%kerker_factor(ig)
@@ -725,6 +733,8 @@ CONTAINS
                END IF
             END IF
          ELSE
+
+          WRITE (*, *) "line 731 only_kerker", only_kerker
 
             ALLOCATE (a(nb, nb))
             a = 0.0_dp
@@ -806,6 +816,8 @@ CONTAINS
                   END DO
                END IF
 
+                WRITE (*, *) "line 813 broyden_mixing"
+
                a(:, :) = 0.0_dp
                DO ig = 1, ng
                   f_mix = alpha*mixing_store%kerker_factor(ig)
@@ -858,6 +870,7 @@ CONTAINS
             END DO
 
             IF (mixing_store%gmix_p) THEN
+             WRITE (*, *) "line 867 broyden_mixing"
                IF (gapw) THEN
                   DO iatom = 1, natom
                      IF (mixing_store%paw(iatom)) THEN
@@ -896,6 +909,7 @@ CONTAINS
 
       END DO ! ispin
       IF (nspin == 2) THEN
+       WRITE (*, *) "line 906 broyden_mixing"
          DO ig = 1, ng
             rho_g(2)%cc(ig) = rho_g(1)%cc(ig) - rho_g(2)%cc(ig)
             mixing_store%rhoin(2)%cc(ig) = mixing_store%rhoin(1)%cc(ig) - mixing_store%rhoin(2)%cc(ig)

@@ -508,6 +508,7 @@ CONTAINS
       END DO
 
       IF (nspin == 2) THEN
+      WRITE (*, *) "line 511 mixing_init"
          mixing_store%rhoin(1)%cc = rho_g(1)%cc + rho_g(2)%cc
          mixing_store%rhoin(2)%cc = rho_g(1)%cc - rho_g(2)%cc
          IF (ASSOCIATED(mixing_store%rhoin_buffer)) THEN
