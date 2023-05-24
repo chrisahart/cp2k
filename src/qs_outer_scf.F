@@ -42,6 +42,9 @@ MODULE qs_outer_scf
    USE qs_rho_types,                    ONLY: qs_rho_create,&
                                               qs_rho_get,&
                                               qs_rho_type
+     USE qs_mixing_utils,                 ONLY: charge_mixing_init,&
+                                              mixing_allocate,&
+                                              mixing_init                                         
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
