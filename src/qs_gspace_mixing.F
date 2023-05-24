@@ -110,6 +110,8 @@ CONTAINS
       !END IF
          END IF 
 
+          WRITE (*, *) "line 113 mixing_store%ncall", mixing_store%ncall
+
 
       IF (.NOT. (dft_control%qs_control%dftb .OR. dft_control%qs_control%xtb .OR. &
                  dft_control%qs_control%semi_empirical)) THEN
