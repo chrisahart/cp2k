@@ -836,7 +836,7 @@ CONTAINS
             CALL m_flush(output_unit)
          END IF
          IF (converged) THEN
-            IF (output_unit > 0) !WRITE (output_unit, "(T10,A,I6,A,/)") &
+            IF (output_unit > 0) WRITE (output_unit, "(T10,A,I6,A,/)") &
                " Reached convergence in ", iloop, " iterations "
             EXIT
          END IF
@@ -1537,7 +1537,7 @@ CONTAINS
                t1 = m_walltime()
                IF (scf_env%krylov_space%max_res_norm < eps_iter) THEN
                   converged = .TRUE.
-                  IF (output_unit > 0) !WRITE (output_unit, *) &
+                  IF (output_unit > 0) WRITE (output_unit, *) &
                      " Reached convergence in ", iter, " iterations "
                   EXIT
                END IF
