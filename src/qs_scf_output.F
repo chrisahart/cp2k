@@ -481,35 +481,10 @@ CONTAINS
 
        IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
          scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
-       ELSE
+       ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp)
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
        END IF 
 
-      ! Print previous EPS_SCF
-     ! IF (output_unit > 0) THEN
-     !    WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf", scf_control%eps_scf
-     !    WRITE (output_unit, FMT="(A,I5)") "scf_env%outer_scf%iter_count", scf_env%outer_scf%iter_count
-     ! END IF 
-
-       ! Decrease EPS_SCF is requested
-      ! IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
-         scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
-      !   IF (output_unit > 0) WRITE (output_unit, FMT="(A,ES9.2)") & 
-       !           "scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)", & 
-        !          scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
-      ! ELSE
-     !    scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
-       !  IF (output_unit > 0) WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf_multiplier", &
-       !                                                             scf_control%eps_scf_multiplier
-     !  END IF 
-
-        !WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
-
-      ! Print next EPS_SCF
-   !   IF (output_unit > 0) THEN
-     !   WRITE (output_unit, FMT="(A,ES9.2)") "scf_control%eps_scf", scf_control%eps_scf
-     ! END IF 
-      
       outer_loop_eps = SQRT(MAXVAL(scf_env%outer_scf%gradient(:, scf_env%outer_scf%iter_count)**2))
       IF (output_unit > 0) WRITE (output_unit, '(/,T3,A,I4,A,E10.2,A,F22.10)') &
          "outer SCF iter = ", scf_env%outer_scf%iter_count, &
