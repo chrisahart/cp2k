@@ -491,6 +491,14 @@ CONTAINS
          " RMS gradient = ", outer_loop_eps, " energy =", energy%total
 
       IF (outer_loop_converged) THEN
+
+       ! Reset EPS_SCF if required
+       IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
+         scf_control%eps_scf = scf_control%eps_scf_array(1)
+       ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp) THEN
+        scf_control%eps_scf = scf_control%eps_scf / (scf_control%eps_scf_multiplier * scf_env%outer_scf%iter_count)
+       END IF 
+
          IF (output_unit > 0) WRITE (output_unit, '(T3,A,I4,A,I4,A,/)') &
             "outer SCF loop converged in", scf_env%outer_scf%iter_count, &
             " iterations or ", total_steps, " steps"
