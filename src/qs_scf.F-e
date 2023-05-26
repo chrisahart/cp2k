@@ -216,11 +216,11 @@ CONTAINS
       logger => cp_get_default_logger()
       CPASSERT(ASSOCIATED(qs_env))
       IF (PRESENT(has_converged)) THEN
-      !WRITE (*, *) (*, *) "scf line 219"
+      WRITE (*, *) "scf line 219"
          has_converged = .FALSE.
       END IF
       IF (PRESENT(total_scf_steps)) THEN
-      !WRITE (*, *) (*, *) "scf line 223"
+      WRITE (*, *) "scf line 223"
          total_scf_steps = 0
       END IF
       CALL get_qs_env(qs_env, scf_env=scf_env, input=input, &
@@ -238,7 +238,7 @@ CONTAINS
             CALL qs_scf_env_initialize(qs_env, scf_env)
          END IF
 
-         !WRITE (*, *) (*, *) "line 239 first_step_flag", first_step_flag
+         WRITE (*, *) "line 239 first_step_flag", first_step_flag
 
          !IF ((first_step_flag)) scf_env%mixing_method=0
 
@@ -266,8 +266,8 @@ CONTAINS
            CALL get_qs_env(qs_env, gradient_history=gradient_history, &
                             variable_history=variable_history)
          !   ! We only store the latest two values
-         !WRITE (*, *) (*, *) "scf line 263"
-         !WRITE (*, *) (*, *) "gradient_history", gradient_history
+         WRITE (*, *) "scf line 263"
+         WRITE (*, *) "gradient_history", gradient_history
            gradient_history(:, 1) = gradient_history(:, 2)
             gradient_history(:, 2) = scf_env%outer_scf%gradient(:, ihistory)
             variable_history(:, 1) = variable_history(:, 2)
@@ -315,12 +315,12 @@ CONTAINS
 
          IF (PRESENT(has_converged)) THEN
             has_converged = converged
-            !WRITE (*, *) (*, *) "scf line 316"
+            WRITE (*, *) "scf line 316"
             first_step_flag = .TRUE.
          END IF
          IF (PRESENT(total_scf_steps)) THEN
             total_scf_steps = tsteps
-            !WRITE (*, *) (*, *) "scf line 321"
+            WRITE (*, *) "scf line 321"
             first_step_flag = .TRUE.
          END IF
 
@@ -420,13 +420,13 @@ CONTAINS
       output_unit = cp_print_key_unit_nr(logger, scf_section, "PRINT%PROGRAM_RUN_INFO", &
                                          extension=".scfLog")
 
-      IF (output_unit > 0) !WRITE (*, *) (UNIT=output_unit, FMT="(/,/,T2,A)") &
+      IF (output_unit > 0) WRITE (UNIT=output_unit, FMT="(/,/,T2,A)") &
          "SCF WAVEFUNCTION OPTIMIZATION"
 
-         !WRITE (*, *) (*, *) "line 419 scf_env%mixing_method", scf_env%mixing_method
-       !WRITE (*, *) (*, *) "line 420 scf_env%iter_method", scf_env%iter_method
-       !WRITE (*, *) (*, *) "line 421 scf_control%mixing_method", scf_control%mixing_method
-       !WRITE (*, *) (*, *) "line 422 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+         WRITE (*, *) "line 419 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 420 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 421 scf_control%mixing_method", scf_control%mixing_method
+       WRITE (*, *) "line 422 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
 
 ! when switch_surf_dip is switched on, indicate storing mos from the last converged step
       IF (dft_control%switch_surf_dip) THEN
@@ -434,12 +434,12 @@ CONTAINS
          DO ispin = 1, dft_control%nspins
             CALL reassign_allocated_mos(mos(ispin), mos_last_converged(ispin))
          END DO
-         IF (output_unit > 0) !WRITE (*, *) (UNIT=output_unit, FMT="(/,/,T2,A)") &
+         IF (output_unit > 0) WRITE (UNIT=output_unit, FMT="(/,/,T2,A)") &
             "COPIED mos_last_converged ---> mos"
       END IF
 
       IF ((output_unit > 0) .AND. (.NOT. scf_control%use_ot)) THEN
-         !WRITE (*, *) (UNIT=output_unit, &
+         WRITE (UNIT=output_unit, &
                 FMT="(/,T3,A,T12,A,T31,A,T39,A,T59,A,T75,A,/,T3,A)") &
             "Step", "Update method", "Time", "Convergence", "Total energy", "Change", &
             REPEAT("-", 78)
@@ -483,7 +483,7 @@ CONTAINS
              (scf_env%outer_scf%iter_count > FLOOR(scf_control%outer_scf%max_scf/2.0_dp))) THEN
             IF (dft_control%switch_surf_dip) THEN
                dft_control%surf_dip_correct_switch = .FALSE.
-               IF (output_unit > 0) !WRITE (*, *) (UNIT=output_unit, FMT="(/,/,T2,A)") &
+               IF (output_unit > 0) WRITE (UNIT=output_unit, FMT="(/,/,T2,A)") &
                   "SURFACE DIPOLE CORRECTION switched off"
             END IF
          END IF
@@ -517,9 +517,9 @@ CONTAINS
             ! Print requested MO information (can be computationally expensive with OT)
             CALL qs_scf_write_mos(qs_env, scf_env, final_mos=.FALSE.)
 
-            !WRITE (*, *) (*, *) "line 505 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 505 scf_env%iter_delta", scf_env%iter_delta
             CALL qs_scf_density_mixing(scf_env, rho, para_env, diis_step)
-            !WRITE (*, *) (*, *) "line 507 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 507 scf_env%iter_delta", scf_env%iter_delta
 
             t2 = m_walltime()
 
@@ -537,12 +537,12 @@ CONTAINS
 
             ! In case we decide to exit we perform few more check to see if this one
             ! is really the last SCF step
-            !WRITE (*, *) (*, *) "line 525 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 525 scf_env%iter_delta", scf_env%iter_delta
             IF (exit_inner_loop) THEN
 
                CALL qs_scf_inner_finalize(scf_env, qs_env, diis_step, output_unit)
 
-               !WRITE (*, *) (*, *) "line 530 scf_env%iter_delta", scf_env%iter_delta
+               WRITE (*, *) "line 530 scf_env%iter_delta", scf_env%iter_delta
                CALL qs_scf_check_outer_exit(qs_env, scf_env, scf_control, should_stop, &
                                             outer_loop_converged, exit_outer_loop)
 
@@ -598,7 +598,7 @@ CONTAINS
                DO ispin = 1, dft_control%nspins
                   CALL reassign_allocated_mos(mos_last_converged(ispin), mos(ispin))
                END DO
-               IF (output_unit > 0) !WRITE (*, *) (UNIT=output_unit, FMT="(/,/,T2,A)") &
+               IF (output_unit > 0) WRITE (UNIT=output_unit, FMT="(/,/,T2,A)") &
                   "COPIED mos ---> mos_last_converged"
             END IF
          END IF
@@ -646,7 +646,7 @@ CONTAINS
       CALL cp_rm_iter_level(logger%iter_info, level_name="QS_SCF")
       CALL timestop(handle)
 
-      !WRITE (*, *) (*, *) "line 632 scf_env%iter_delta", scf_env%iter_delta
+      WRITE (*, *) "line 632 scf_env%iter_delta", scf_env%iter_delta
 
    END SUBROUTINE scf_env_do_scf
 
@@ -1045,7 +1045,7 @@ CONTAINS
 
       ! Write some info about the CDFT calculation
       IF (output_unit > 0) THEN
-         !WRITE (*, *) (UNIT=output_unit, FMT="(/,/,T2,A)") &
+         WRITE (UNIT=output_unit, FMT="(/,/,T2,A)") &
             "CDFT EXTERNAL SCF WAVEFUNCTION OPTIMIZATION"
          CALL qs_scf_cdft_initial_info(output_unit, cdft_control)
       END IF
@@ -1336,21 +1336,21 @@ CONTAINS
             CALL cp_add_default_logger(tmp_logger)
             DO i = 1, nvar
                IF (output_unit > 0) THEN
-                  !WRITE (*, *) (output_unit, FMT="(A)") " "
-                  !WRITE (*, *) (output_unit, FMT="(A)") " #####################################"
-                  !WRITE (*, *) (output_unit, '(A,I3,A,I3,A)') &
+                  WRITE (output_unit, FMT="(A)") " "
+                  WRITE (output_unit, FMT="(A)") " #####################################"
+                  WRITE (output_unit, '(A,I3,A,I3,A)') &
                      " ###  Constraint        ", i, " of ", nvar, " ###"
-                  !WRITE (*, *) (output_unit, FMT="(A)") " #####################################"
+                  WRITE (output_unit, FMT="(A)") " #####################################"
                END IF
                counter = 0
                DO iwork = nwork, pwork
                   IF (iwork == 0) CYCLE
                   counter = counter + 1
                   IF (output_unit > 0) THEN
-                     !WRITE (*, *) (output_unit, FMT="(A)") " #####################################"
-                     !WRITE (*, *) (output_unit, '(A,I3,A,I3,A)') &
+                     WRITE (output_unit, FMT="(A)") " #####################################"
+                     WRITE (output_unit, '(A,I3,A,I3,A)') &
                         " ###  Energy evaluation ", counter, " of ", twork, " ###"
-                     !WRITE (*, *) (output_unit, FMT="(A)") " #####################################"
+                     WRITE (output_unit, FMT="(A)") " #####################################"
                   END IF
                   IF (SIZE(scf_control%outer_scf%cdft_opt_control%jacobian_step) == 1) THEN
                      step_size = scf_control%outer_scf%cdft_opt_control%jacobian_step(1)
@@ -1368,7 +1368,7 @@ CONTAINS
                   CALL outer_loop_switch(scf_env, scf_control, cdft_control, ot2cdft)
                   ! Update (iter_count + 1) element of gradient and print constraint info
                   scf_env%outer_scf%iter_count = scf_env%outer_scf%iter_count + 1
-                   !WRITE (*, *) (*, *) "line 1354 scf_env%iter_delta", scf_env%iter_delta
+                   WRITE (*, *) "line 1354 scf_env%iter_delta", scf_env%iter_delta
                   CALL outer_loop_gradient(qs_env, scf_env)
                   CALL qs_scf_cdft_info(output_unit, scf_control, scf_env, cdft_control, &
                                         energy_qs, cdft_control%total_steps, &
@@ -1412,7 +1412,7 @@ CONTAINS
             END DO
             DEALLOCATE (mos_stashed, jacobian, gradient, energy, coeff, step_multiplier, dh)
             IF (output_unit > 0) THEN
-               !WRITE (*, *) (output_unit, FMT="(/,A)") &
+               WRITE (output_unit, FMT="(/,A)") &
                   " ================================== JACOBIAN CALCULATED =================================="
                CALL close_file(unit_number=output_unit)
             END IF
@@ -1547,30 +1547,30 @@ CONTAINS
             END IF
             ! Print some info
             IF (output_unit > 0) THEN
-               !WRITE (*, *) (output_unit, FMT="(/,A)") &
+               WRITE (output_unit, FMT="(/,A)") &
                   " ================================== LINE SEARCH STARTED  =================================="
-               !WRITE (*, *) (output_unit, FMT="(A,I5,A)") &
+               WRITE (output_unit, FMT="(A,I5,A)") &
                   " Evaluating optimal step size for optimizer using a maximum of", max_linesearch, " steps"
                IF (continue_ls) THEN
-                  !WRITE (*, *) (output_unit, FMT="(A)") &
+                  WRITE (output_unit, FMT="(A)") &
                      " Line search continues until best step size is found or max steps are reached"
                END IF
-               !WRITE (*, *) (output_unit, '(/,A,F5.3)') &
+               WRITE (output_unit, '(/,A,F5.3)') &
                   " Initial step size: ", alpha
-               !WRITE (*, *) (output_unit, '(/,A,F5.3)') &
+               WRITE (output_unit, '(/,A,F5.3)') &
                   " Step size update factor: ", factor
-               !WRITE (*, *) (output_unit, '(/,A,I10,A,I10)') &
+               WRITE (output_unit, '(/,A,I10,A,I10)') &
                   " Energy evaluation: ", cdft_control%ienergy, ", CDFT SCF iteration: ", iter_count
             END IF
             ! Perform backtracking line search
             CALL cp_add_default_logger(tmp_logger)
             DO i = 1, max_linesearch
                IF (output_unit > 0) THEN
-                  !WRITE (*, *) (output_unit, FMT="(A)") " "
-                  !WRITE (*, *) (output_unit, FMT="(A)") " #####################################"
-                  !WRITE (*, *) (output_unit, '(A,I10,A)') &
+                  WRITE (output_unit, FMT="(A)") " "
+                  WRITE (output_unit, FMT="(A)") " #####################################"
+                  WRITE (output_unit, '(A,I10,A)') &
                      " ###  Line search step: ", i, " ###"
-                  !WRITE (*, *) (output_unit, FMT="(A)") " #####################################"
+                  WRITE (output_unit, FMT="(A)") " #####################################"
                END IF
                inv_jacobian => scf_env%outer_scf%inv_jacobian
                ! Newton update of CDFT variables with a step size of alpha
@@ -1711,7 +1711,7 @@ CONTAINS
             DEALLOCATE (mos_stashed, gradient, energy)
             IF (ALLOCATED(positive_sign)) DEALLOCATE (positive_sign)
             IF (output_unit > 0) THEN
-               !WRITE (*, *) (output_unit, FMT="(/,A)") &
+               WRITE (output_unit, FMT="(/,A)") &
                   " ================================== LINE SEARCH COMPLETE =================================="
                CALL close_file(unit_number=output_unit)
             END IF

@@ -326,9 +326,9 @@ CONTAINS
       CASE (general_diag_method_nr)
          ! Diagonlization in non orthonormal case
          diis_step = .FALSE.
-          !WRITE (*, *) (*, *) "line 329 scf_env%mixing_method", scf_env%mixing_method
-       !WRITE (*, *) (*, *) "line 330 scf_env%iter_method", scf_env%iter_method
-       !WRITE (*, *) (*, *) "line 331 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+          WRITE (*, *) "line 329 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 330 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 331 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
          IF (scf_env%mixing_method == 0) THEN
             scf_env%iter_method = "NoMix/Diag."
          ELSE IF (scf_env%mixing_method == 1) THEN
@@ -356,7 +356,7 @@ CONTAINS
                        cp_to_string(scf_env%method))
       END SELECT
 
-      !WRITE (*, *) (*, *) "line 358 scf_env%iter_method", scf_env%iter_method
+      WRITE (*, *) "line 358 scf_env%iter_method", scf_env%iter_method
 
       CALL get_qs_env(qs_env=qs_env, energy=energy)
       energy%kTS = 0.0_dp
@@ -464,29 +464,29 @@ CONTAINS
 
       CALL qs_rho_get(rho, rho_ao_kp=rho_ao_kp)
 
-      !WRITE (*, *) (*, *) "scf_env%mixing_method", scf_env%mixing_method
+      WRITE (*, *) "scf_env%mixing_method", scf_env%mixing_method
 
       SELECT CASE (scf_env%mixing_method)
 
       CASE (direct_mixing_nr)
-      !WRITE (*, *) (*, *) "line 472 CASE (direct_mixing_nr)"
-       !WRITE (*, *) (*, *) "line 468 scf_env%iter_delta", scf_env%iter_delta
+      WRITE (*, *) "line 472 CASE (direct_mixing_nr)"
+       WRITE (*, *) "line 468 scf_env%iter_delta", scf_env%iter_delta
 
          CALL scf_env_density_mixing(scf_env%p_mix_new, &
                                      scf_env%mixing_store, rho_ao_kp, para_env, scf_env%iter_delta, scf_env%iter_count, &
                                      diis=diis_step)
-         !WRITE (*, *) (*, *) "line 478 scf_env%iter_delta", scf_env%iter_delta
+         WRITE (*, *) "line 478 scf_env%iter_delta", scf_env%iter_delta
 
       CASE (gspace_mixing_nr, pulay_mixing_nr, broyden_mixing_nr, &
             broyden_mixing_new_nr, multisecant_mixing_nr)
 
-            !WRITE (*, *) (*, *) "line 483 CASE(broyden_mixing_nr"
-       !WRITE (*, *) (*, *) "line 484 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 483 CASE(broyden_mixing_nr"
+       WRITE (*, *) "line 484 scf_env%iter_delta", scf_env%iter_delta
 
          ! Compute the difference p_out-p_in
          CALL self_consistency_check(rho_ao_kp, scf_env%p_delta, para_env, scf_env%p_mix_new, &
                                      delta=scf_env%iter_delta)
-          !WRITE (*, *) (*, *) "line 489 scf_env%iter_delta", scf_env%iter_delta                           
+          WRITE (*, *) "line 489 scf_env%iter_delta", scf_env%iter_delta                           
       CASE (no_mixing_nr)
       CASE DEFAULT
          CALL cp_abort(__LOCATION__, &
@@ -521,7 +521,7 @@ CONTAINS
          scf_env%outer_scf%iter_count = scf_env%outer_scf%iter_count + 1
          outer_loop_converged = .FALSE.
 
-          !WRITE (*, *) (*, *) "line 519 scf_env%iter_delta", scf_env%iter_delta
+          WRITE (*, *) "line 519 scf_env%iter_delta", scf_env%iter_delta
 
          CALL outer_loop_gradient(qs_env, scf_env)
          ! Multiple constraints: get largest deviation
@@ -561,22 +561,22 @@ CONTAINS
                             start_time=qs_env%start_time)
       IF (scf_env%iter_delta < scf_control%eps_scf) THEN
          IF (output_unit > 0) THEN
-            !WRITE (*, *) (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
+            WRITE (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
                "*** SCF run converged in ", scf_env%iter_count, " steps ***"
          END IF
          inner_loop_converged = .TRUE.
          exit_inner_loop = .TRUE.
 
           IF (output_unit > 0) THEN
-          !WRITE (*, *) (*,*)  "qs_scf_check_inner_exit "
-            !WRITE (*, *) (*,*)  "scf_env%iter_delta ", scf_env%iter_delta
+          WRITE (*,*)  "qs_scf_check_inner_exit "
+            WRITE (*,*)  "scf_env%iter_delta ", scf_env%iter_delta
          END IF
 
       ELSE IF (should_stop .OR. scf_env%iter_count >= scf_control%max_scf) THEN
          inner_loop_converged = .FALSE.
          exit_inner_loop = .TRUE.
          IF (output_unit > 0) THEN
-            !WRITE (*, *) (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
+            WRITE (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
                "Leaving inner SCF loop after reaching ", scf_env%iter_count, " steps."
          END IF
       END IF
@@ -611,15 +611,15 @@ CONTAINS
 
          SELECT CASE (scf_env%mixing_method)
          CASE (direct_mixing_nr)
-            !WRITE (*, *) (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
             temp = scf_env%iter_delta
-            !WRITE (*, *) (*, *) "line 610 temp", temp
+            WRITE (*, *) "line 610 temp", temp
                CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
                                           rho_ao_kp, para_env, temp, &
                                           scf_env%iter_count, diis=diis_step, &
                                           invert=.TRUE.)
-               !WRITE (*, *) (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
-               !WRITE (*, *) (*, *) "line 610 temp", 616
+               WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
+               WRITE (*, *) "line 610 temp", 616
                DO ic = 1, nc
                   DO ispin = 1, dft_control%nspins
                      CALL dbcsr_get_info(rho_ao_kp(ispin, ic)%matrix, name=name) ! keep the name
