@@ -831,7 +831,7 @@ CONTAINS
                       iter_delta < subspace_env%eps_adapt*scf_env%iter_delta)
          t2 = m_walltime()
          IF (output_unit > 0) THEN
-            !WRITE (output_unit, "(T4,I5,T11,F8.3,T18,E14.4,T34,F12.5,T46,F16.8,T62,E14.4)") &
+            WRITE (output_unit, "(T4,I5,T11,F8.3,T18,E14.4,T34,F12.5,T46,F16.8,T62,E14.4)") &
                iloop, t2 - t1, iter_delta, sum_band, energy%total, ene_diff
             CALL m_flush(output_unit)
          END IF
@@ -1503,8 +1503,8 @@ CONTAINS
 
          t1 = m_walltime()
          IF (output_unit > 0) THEN
-            !WRITE (output_unit, "(/T15,A)") '<<<<<<<<<   LANCZOS REFINEMENT    <<<<<<<<<<'
-            !WRITE (output_unit, "(T8,A,T15,A,T23,A,T36,A,T49,A,T60,A,/,T8,A)") &
+            WRITE (output_unit, "(/T15,A)") '<<<<<<<<<   LANCZOS REFINEMENT    <<<<<<<<<<'
+            WRITE (output_unit, "(T8,A,T15,A,T23,A,T36,A,T49,A,T60,A,/,T8,A)") &
                " Spin ", " Cycle ", &
                " conv. MOS ", " B2MAX ", " B2MIN ", " Time", REPEAT("-", 60)
          END IF
@@ -1518,7 +1518,7 @@ CONTAINS
                                     nao, eps_iter, ispin, check_moconv_only=my_check_moconv_only)
             t2 = m_walltime()
             IF (output_unit > 0) &
-               !WRITE (output_unit, '(T8,I3,T16,I5,T24,I6,T33,E12.4,2x,E12.4,T60,F8.3)') &
+               WRITE (output_unit, '(T8,I3,T16,I5,T24,I6,T33,E12.4,2x,E12.4,T60,F8.3)') &
                ispin, iter, scf_env%krylov_space%nmo_conv, &
                scf_env%krylov_space%max_res_norm, scf_env%krylov_space%min_res_norm, t2 - t1
 
