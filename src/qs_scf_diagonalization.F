@@ -744,7 +744,7 @@ CONTAINS
       ene_old = 0.0_dp
       ene_diff = 0.0_dp
       IF (output_unit > 0) THEN
-         !WRITE (*, *) (output_unit, "(/T19,A)") '<<<<<<<<<   SUBSPACE ROTATION    <<<<<<<<<<'
+         WRITE (*, *) (output_unit, "(/T19,A)") '<<<<<<<<<   SUBSPACE ROTATION    <<<<<<<<<<'
          !WRITE (*, *) (output_unit, "(T4,A,T13,A,T21,A,T38,A,T51,A,T65,A/,T4,A)") &
             "In-step", "Time", "Convergence", "Band ene.", "Total ene.", "Energy diff.", REPEAT("-", 74)
       END IF
@@ -1584,7 +1584,7 @@ CONTAINS
       END DO ! ispin
 
       IF (output_unit > 0) THEN
-         !WRITE (*, *) (output_unit, "(T15,A/)") '<<<<<<<<< END LANCZOS REFINEMENT  <<<<<<<<<<'
+         WRITE (*, *) (output_unit, "(T15,A/)") '<<<<<<<<< END LANCZOS REFINEMENT  <<<<<<<<<<'
       END IF
 
       CALL cp_print_key_finished_output(output_unit, logger, scf_section, &
@@ -1697,7 +1697,7 @@ CONTAINS
       END DO
 
       IF (output_unit > 0) THEN
-         !WRITE (*, *) (output_unit, "(T15,A/)") '<<<<<<<<< END DAVIDSON ITERATION  <<<<<<<<<<'
+         WRITE (*, *) (output_unit, "(T15,A/)") '<<<<<<<<< END DAVIDSON ITERATION  <<<<<<<<<<'
       END IF
 
       CALL cp_print_key_finished_output(output_unit, logger, scf_section, &
