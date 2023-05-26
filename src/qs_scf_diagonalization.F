@@ -745,7 +745,7 @@ CONTAINS
       ene_diff = 0.0_dp
       IF (output_unit > 0) THEN
          WRITE (output_unit, "(/T19,A)") '<<<<<<<<<   SUBSPACE ROTATION    <<<<<<<<<<'
-         !WRITE (output_unit, "(T4,A,T13,A,T21,A,T38,A,T51,A,T65,A/,T4,A)") &
+         WRITE (output_unit, "(T4,A,T13,A,T21,A,T38,A,T51,A,T65,A/,T4,A)") &
             "In-step", "Time", "Convergence", "Band ene.", "Total ene.", "Energy diff.", REPEAT("-", 74)
       END IF
 
@@ -1102,7 +1102,7 @@ CONTAINS
          CALL calculate_subspace_eigenvalues(mo_coeff, matrix_ks(ispin)%matrix, &
                                              evals_arg=eigenvalues, &
                                              do_rotation=.TRUE.)
-         !MK !WRITE (*, *)(*,*) routinen//' copy_dbcsr_to_fm'
+         !MK WRITE (*, *) routinen//' copy_dbcsr_to_fm'
          CALL copy_fm_to_dbcsr(mos(ispin)%mo_coeff, &
                                mos(ispin)%mo_coeff_b)
          !fm->dbcsr
@@ -1530,7 +1530,7 @@ CONTAINS
                                           nao, eps_iter, ispin)
                t2 = m_walltime()
                IF (output_unit > 0) THEN
-                  !WRITE (output_unit, '(T8,I3,T16,I5,T24,I6,T33,E12.4,2x,E12.4,T60,F8.3)') &
+                  WRITE (output_unit, '(T8,I3,T16,I5,T24,I6,T33,E12.4,2x,E12.4,T60,F8.3)') &
                      ispin, iter, scf_env%krylov_space%nmo_conv, &
                      scf_env%krylov_space%max_res_norm, scf_env%krylov_space%min_res_norm, t2 - t1
                END IF
@@ -1544,11 +1544,11 @@ CONTAINS
             END DO
 
             IF (.NOT. converged .AND. output_unit > 0) THEN
-               !WRITE (output_unit, "(T4, A)") " WARNING Lanczos refinement could "// &
+               WRITE (output_unit, "(T4, A)") " WARNING Lanczos refinement could "// &
                   "not converge all the mos:"
-               !WRITE (output_unit, "(T40,A,T70,I10)") " number of not converged mos ", &
+               WRITE (output_unit, "(T40,A,T70,I10)") " number of not converged mos ", &
                   scf_env%krylov_space%nmo_nc
-               !WRITE (output_unit, "(T40,A,T70,E10.2)") " max norm of the residual ", &
+               WRITE (output_unit, "(T40,A,T70,E10.2)") " max norm of the residual ", &
                   scf_env%krylov_space%max_res_norm
 
             END IF
@@ -1633,7 +1633,7 @@ CONTAINS
                                          extension=".scfLog")
 
       IF (output_unit > 0) &
-         !WRITE (output_unit, "(/T15,A)") '<<<<<<<<<  DAVIDSON ITERATIONS   <<<<<<<<<<'
+         WRITE (output_unit, "(/T15,A)") '<<<<<<<<<  DAVIDSON ITERATIONS   <<<<<<<<<<'
 
       IF (scf_env%mixing_method == 1) THEN
          scf_env%iter_param = scf_env%p_mix_alpha
