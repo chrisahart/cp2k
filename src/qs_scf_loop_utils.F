@@ -561,22 +561,22 @@ CONTAINS
                             start_time=qs_env%start_time)
       IF (scf_env%iter_delta < scf_control%eps_scf) THEN
          IF (output_unit > 0) THEN
-            !WRITE (*, *) (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
+            WRITE (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
                "*** SCF run converged in ", scf_env%iter_count, " steps ***"
          END IF
          inner_loop_converged = .TRUE.
          exit_inner_loop = .TRUE.
 
-          IF (output_unit > 0) THEN
+        !  IF (output_unit > 0) THEN
           !WRITE (*, *) (*,*)  "qs_scf_check_inner_exit "
             !WRITE (*, *) (*,*)  "scf_env%iter_delta ", scf_env%iter_delta
-         END IF
+        ! END IF
 
       ELSE IF (should_stop .OR. scf_env%iter_count >= scf_control%max_scf) THEN
          inner_loop_converged = .FALSE.
          exit_inner_loop = .TRUE.
          IF (output_unit > 0) THEN
-            !WRITE (*, *) (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
+            WRITE (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
                "Leaving inner SCF loop after reaching ", scf_env%iter_count, " steps."
          END IF
       END IF
