@@ -611,7 +611,7 @@ CONTAINS
                   WRITE (UNIT=output_unit, FMT="(T25,A,I2,A,T71, ES9.2)") &
                         "eps_scf_array(", count, ")      ", scf_control%eps_scf_array(count)
                  END DO 
-            ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp)
+            ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp) THEN
                WRITE (UNIT=output_unit, FMT="(T25,A,T71,ES9.2)") &
                            "eps_scf_multiplier:", scf_control%eps_scf_multiplier
              END IF 

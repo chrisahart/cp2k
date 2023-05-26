@@ -481,7 +481,7 @@ CONTAINS
 
        IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
          scf_control%eps_scf = scf_control%eps_scf_array(scf_env%outer_scf%iter_count+1)
-       ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp)
+       ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp) THEN
          scf_control%eps_scf = scf_control%eps_scf * scf_control%eps_scf_multiplier
        END IF 
 
