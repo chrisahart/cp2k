@@ -1077,6 +1077,14 @@ CONTAINS
                       dft_control=dft_control, &
                       para_env=para_env)
 
+
+       WRITE (*, *) "line SUBROUTINE scf_env_initial_rho_setup"
+       WRITE (*, *) "resetting scf_control%eps_scf", scf_control%eps_scf
+       IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1))) THEN
+         scf_control%eps_scf = scf_control%eps_scf_array(1)
+       END IF 
+       WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
+
       extrapolation_method_nr = wfi_use_guess_method_nr
       IF (ASSOCIATED(qs_env%wf_history)) THEN
          CALL wfi_extrapolate(qs_env%wf_history, &
@@ -1116,10 +1124,7 @@ CONTAINS
          CALL qs_ks_did_change(qs_env%ks_env, rho_changed=.TRUE.)
       END IF
 
-      ! Some preparation for the mixing
-       !WRITE (*, *) "line 1120 scf_env%mixing_method", scf_env%mixing_method
-       !WRITE (*, *) "line 1121 scf_env%iter_method", scf_env%iter_method
-       !WRITE (*, *) "line 1122 scf_control%mixing_method", scf_control%mixing_method
+  
 
       IF (scf_env%mixing_method > 1) THEN
          IF (dft_control%qs_control%gapw) THEN
