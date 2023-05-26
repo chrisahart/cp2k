@@ -1062,7 +1062,7 @@ CONTAINS
             delta_res(ib, ispin)%cc(:) = delta_res(ib, ispin)%cc(:)*norm
             delta_res_p(:) = delta_res_p(:)*norm
 
-            IF (para_env%ionode) !WRITE (*, *) (*, *) 'norm ', norm
+           ! IF (para_env%ionode) !WRITE (*, *) (*, *) 'norm ', norm
             ! Vector U_{i-1}(G) =  Drho_{i-1} + k(G)  * DR_{i-1}(G)
             DO ig = 1, ng
                tmp(ig) = (mixing_store%rhoin(ispin)%cc(ig) - &
