@@ -579,6 +579,11 @@ CONTAINS
             WRITE (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
                "Leaving inner SCF loop after reaching ", scf_env%iter_count, " steps."
          END IF
+
+      IF (scf_control%stop_higher_iter_level) THEN
+         CPWARN("stop_higher_iter_level")
+      END IF
+
       END IF
 
    END SUBROUTINE qs_scf_check_inner_exit
