@@ -575,9 +575,9 @@ CONTAINS
                "Leaving inner SCF loop after reaching ", scf_env%iter_count, " steps."
          END IF
 
-      ! Exit CP2K if not converged and NOTCONV_STOPALL TRUE
-      IF (scf_control%stop_higher_iter_level) THEN
-         CPABORT("SCF not converged and NOTCONV_STOPALL TRUE, CP2K will now stop")
+      ! Exit CP2K if not converged and MUST_CONVERGE TRUE
+      IF (scf_control%must_converge) THEN
+         CPABORT("SCF not converged and MUST_CONVERGE TRUE, CP2K will now stop")
       END IF
 
       END IF

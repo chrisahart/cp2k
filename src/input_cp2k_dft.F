@@ -4929,6 +4929,12 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="MUST_CONVERGE", &
+                          description="If True, CP2K will exit if inner SCF does not converge", &
+                          usage="MUST_CONVERGE logical_value", default_l_val=.FALSE., lone_keyword_l_val=.TRUE.)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL section_create(subsection, __LOCATION__, name="PRINT", &
                           description="Printing of information during the SCF.", repeats=.FALSE.)
 
