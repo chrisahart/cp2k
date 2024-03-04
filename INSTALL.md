@@ -465,12 +465,22 @@ Calls to `offload_dgemm` also accept pointers on GPU or a combination of them.
 
 ### 2y. DeePMD-kit (optional, wider range of interaction potentials)
 
-DeePMD-kit - Deep Potential Molecular Dyanmics. Support for DeePMD-kit can be enabled via the flag
+DeePMD-kit - Deep Potential Molecular Dynamics. Support for DeePMD-kit can be enabled via the flag
 `-D__DEEPMD`.
 
 - DeePMD-kit C interface can be downloaded from
   <https://docs.deepmodeling.com/projects/deepmd/en/master/install/install-from-c-library.html>
 - For more information see <https://github.com/deepmodeling/deepmd-kit.git>.
+
+### 2y. libsmeagol (optional, electron transport calculation with current-induced forces)
+
+- libsmeagol is an external library to compute electron transport properties using
+  Non-Equilibrium Green Functions (NEGF) method. The library can be downloaded from
+  <https://github.com/StefanoSanvitoGroup/libsmeagol>.
+- During the installation, the directories `$(LIBSMEAGOL_DIR)/lib` and `$(LIBGRPP_DIR)/obj` are
+  created.
+- Add `-D__SMEAGOL` to DFLAGS, `-I$(LIBSMEAGOL_DIR)/obj` to FCFLAGS and
+  `-L$(LIBSMEAGOL_DIR)/lib -lsmeagol` to LIBS
 
 ## 3. Compile
 

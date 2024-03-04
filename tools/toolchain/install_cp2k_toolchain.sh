@@ -229,6 +229,8 @@ The --with-PKG options follow the rules:
                           Default = install
   --with-libtorch         Enable libtorch the machine learning framework needed for NequIP and Allegro
                           Default = no
+  --with-libsmeagol       Enable interface to SMEAGOL NEGF library
+                          Default = no
 
 FURTHER INSTRUCTIONS
 
@@ -266,7 +268,7 @@ mpi_list="mpich openmpi intelmpi"
 math_list="mkl acml openblas"
 lib_list="fftw libint libxc libgrpp libxsmm cosma scalapack elpa cusolvermp plumed \
           spfft spla ptscotch superlu pexsi quip gsl spglib hdf5 libvdwxc sirius
-          libvori libtorch deepmd"
+          libvori libtorch deepmd libsmeagol"
 package_list="${tool_list} ${mpi_list} ${math_list} ${lib_list}"
 # ------------------------------------------------------------------------
 
@@ -315,6 +317,7 @@ with_spla="__DONTUSE__"
 with_cosma="__INSTALL__"
 with_libvori="__INSTALL__"
 with_libtorch="__DONTUSE__"
+with_smeagol="__DONTUSE__"
 # for MPI, we try to detect system MPI variant
 if (command -v mpiexec > /dev/null 2>&1); then
   # check if we are dealing with openmpi, mpich or intelmpi
@@ -649,6 +652,9 @@ while [ $# -ge 1 ]; do
       ;;
     --with-spla*)
       with_spla=$(read_with "${1}")
+      ;;
+    --with-libsmeagol*)
+      with_libsmeagol=$(read_with "${1}")
       ;;
     --help*)
       show_help

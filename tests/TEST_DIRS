@@ -362,3 +362,5 @@ Fist/regtest-deepmd                                         deepmd
 Fist/regtest-16
 DFTB/regtest-vdw
 QS/regtest-bse                                              libint
+QS/regtest-smeagol-1
+QS/regtest-smeagol-2                                        libsmeagol
