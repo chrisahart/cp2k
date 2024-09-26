@@ -183,6 +183,20 @@ CONTAINS
                           default_i_val=0) ! this default value is just a flag to get the above
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
+      CALL keyword_create(keyword, __LOCATION__, & 
+                          name="NELEC_ALPHA", &
+                          description="Number of electrons for alpha channel.", &
+                          usage="NELEC_ALPHA 100", &
+                          default_r_val=0.0_dp)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+      CALL keyword_create(keyword, __LOCATION__, & 
+                          name="NELEC_BETA", &
+                          description="Number of electrons for beta channel.", &
+                          usage="NELEC_BETA 100", &
+                          default_r_val=0.0_dp)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
       CALL keyword_create(keyword, __LOCATION__, name="CHARGE", &
                           description="The total charge of the system", &
                           usage="CHARGE -1", &

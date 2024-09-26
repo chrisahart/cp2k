@@ -679,9 +679,10 @@ CONTAINS
 
       INTEGER :: homo, homo_read, i, iatom, ikind, imat, irow, iset, iset_read, ishell, &
          ishell_read, iso, ispin, lfomo_read, lmax, lshell, my_mult, nao, nao_read, natom_read, &
-         nelectron, nelectron_read, nmo, nmo_read, nnshell, nset, nset_max, nshell_max, nspin, &
+         nmo, nmo_read, nnshell, nset, nset_max, nshell_max, nspin, &
          nspin_read, offset_read
       INTEGER, DIMENSION(:), POINTER                     :: nset_info, nshell
+      REAL(KIND=dp)                                      :: nelectron, nelectron_read
       INTEGER, DIMENSION(:, :), POINTER                  :: l, nshell_info
       INTEGER, DIMENSION(:, :, :), POINTER               :: nso_info, offset_info
       LOGICAL                                            :: minbas, natom_match, use_this

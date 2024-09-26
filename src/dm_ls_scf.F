@@ -625,7 +625,7 @@ CONTAINS
 
                ! compute the density matrix that matches it
                ! we need the proper number of states
-               nelectron_spin_real = ls_scf_env%nelectron_spin(ispin)
+               nelectron_spin_real = INT(ls_scf_env%nelectron_spin(ispin))
                IF (ls_scf_env%nspins == 1) nelectron_spin_real = nelectron_spin_real/2
 
                IF (do_transport) THEN
@@ -637,7 +637,7 @@ CONTAINS
                   extra_scf = maxscf_reached .OR. scf_converged
                   ! get the current Kohn-Sham matrix (ks) and return matrix_p evaluated using an external C routine
                   CALL external_scf_method(transport_env, ls_scf_env%matrix_s, matrix_mixing_old(ispin), &
-                                           ls_scf_env%matrix_p(ispin), nelectron_spin_real, ls_scf_env%natoms, &
+                                           ls_scf_env%matrix_p(ispin), REAL(nelectron_spin_real, dp), ls_scf_env%natoms, &
                                            energy_diff, iscf, extra_scf)
 
                ELSE
@@ -993,7 +993,7 @@ CONTAINS
 
          DO ispin = 1, nspin
             ! we need the proper number of states
-            nelectron_spin_real = ls_scf_env%nelectron_spin(ispin)
+            nelectron_spin_real = INT(ls_scf_env%nelectron_spin(ispin))
             IF (ls_scf_env%nspins == 1) nelectron_spin_real = nelectron_spin_real/2
 
             CALL density_matrix_sign_fixed_mu(matrix_p, trace, mu, ls_scf_env%sign_method, &

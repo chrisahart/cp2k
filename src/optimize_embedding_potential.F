@@ -133,7 +133,7 @@ CONTAINS
 
       INTEGER                                            :: i_force_eval, nspins, sub_spin_1, &
                                                             sub_spin_2, total_spin
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       INTEGER, DIMENSION(2, 3)                           :: all_spins
       TYPE(dft_control_type), POINTER                    :: dft_control
 
@@ -145,7 +145,7 @@ CONTAINS
          DO i_force_eval = 1, ref_subsys_number
             CALL get_qs_env(qs_env=force_env%sub_force_env(i_force_eval)%force_env%qs_env, &
                             nelectron_spin=nelectron_spin, dft_control=dft_control)
-            all_spins(:, i_force_eval) = nelectron_spin
+            all_spins(:, i_force_eval) = INT(nelectron_spin)
             nspins = dft_control%nspins
             all_nspins(i_force_eval) = nspins
          END DO
@@ -213,7 +213,7 @@ CONTAINS
       LOGICAL                                            :: Coulomb_guess, grid_opt
 
       INTEGER                                            :: nelectrons
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       REAL(KIND=dp)                                      :: factor
       TYPE(pw_env_type), POINTER                         :: pw_env
       TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
@@ -268,7 +268,7 @@ CONTAINS
          CALL pw_copy(v_hartree_r_space, embed_pot)
 
          ! Calculate the number of electrons
-         nelectrons = nelectron_spin(1) + nelectron_spin(2)
+         nelectrons = INT(nelectron_spin(1) + nelectron_spin(2))
          factor = (REAL(nelectrons, dp) - 1.0_dp)/(REAL(nelectrons, dp))
 
          ! Scale the Hartree potential to get Fermi-Amaldi

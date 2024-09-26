@@ -88,13 +88,13 @@ CONTAINS
       CHARACTER(LEN=6), DIMENSION(:), POINTER            :: bsgf_symbol
       CHARACTER(len=default_string_length)               :: filename
       INTEGER :: handle, i, iatom, icgf, ico, ikind, iloop, imo, ipgf, irow, iset, isgf, ishell, &
-         ispin, iwfx, lshell, max_l, ncgf, ncol_global, nelec_alpha, nelec_beta, nkpoint, noccup, &
+         ispin, iwfx, lshell, max_l, ncgf, ncol_global, nkpoint, noccup, &
          nrow_global, nset, nsgf, nspins, num_atoms, output_unit, roks_high, roks_low, tot_npgf
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: atom_of_kind, atomic_numbers, kind_of
       INTEGER, DIMENSION(:), POINTER                     :: lmax, npgf, nshell
       INTEGER, DIMENSION(:, :), POINTER                  :: l
       LOGICAL                                            :: do_kpoints, newl, periodic, unrestricted
-      REAL(KIND=dp)                                      :: zeta
+      REAL(KIND=dp)                                      :: zeta, nelec_alpha, nelec_beta
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: atoms_cart, cmatrix, smatrix
       REAL(KIND=dp), DIMENSION(:), POINTER               :: core_charges
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: zet
@@ -177,7 +177,7 @@ CONTAINS
 
          nspins = SIZE(mos)
          IF (nspins == 1) THEN
-            nelec_alpha = mos(1)%nelectron/2
+            nelec_alpha = mos(1)%nelectron/2.0_dp
             nelec_beta = nelec_alpha
          ELSE
             nelec_alpha = mos(1)%nelectron

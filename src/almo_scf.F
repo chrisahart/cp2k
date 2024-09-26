@@ -525,7 +525,7 @@ CONTAINS
       CHARACTER(LEN=default_path_length)                 :: file_name, project_name
       INTEGER                                            :: handle, iaspc, ispin, istore, naspc, &
                                                             nspins, unit_nr
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       LOGICAL                                            :: aspc_guess, has_unit_metric
       REAL(KIND=dp)                                      :: alpha, cs_pos, energy, kTS_sum
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set

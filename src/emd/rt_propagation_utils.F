@@ -626,10 +626,11 @@ CONTAINS
 
       CHARACTER(LEN=10)                                  :: spin
       CHARACTER(LEN=2*default_string_length)             :: name
-      INTEGER                                            :: handle, i, ispin, nao, nelectron, nmo, &
+      INTEGER                                            :: handle, i, ispin, nao, nmo, &
                                                             nspins
       LOGICAL                                            :: print_eigvecs, print_mo_info
-      REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, n_el_f
+      REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, &
+                                                             n_el_f, nelectron
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_fm_type), DIMENSION(:), POINTER            :: mos_new
       TYPE(cp_logger_type), POINTER                      :: logger

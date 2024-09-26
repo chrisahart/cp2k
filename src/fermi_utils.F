@@ -70,6 +70,7 @@ CONTAINS
          ELSE
             occupation = maxocc
          END IF
+         
          ! have the result of exp go to zero instead of overflowing
          IF (e(i) > mu) THEN
             arg = -(e(i) - mu)/T
@@ -122,16 +123,18 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:), INTENT(IN)            :: wk
       REAL(KIND=dp), INTENT(IN)                          :: t, maxocc
 
-      INTEGER                                            :: ik, is, nkp, nmo
+      INTEGER                                            :: ik, is, nkp, nmo, count
       REAL(KIND=dp)                                      :: arg, beta, term1, term2, tmp, tmp2, &
                                                             tmp3, tmp4, tmplog
 
       nmo = SIZE(e, 1)
       nkp = SIZE(e, 2)
       kTS = 0.0_dp
+      COUNT = 0
+
       ! kTS is the entropic contribution to the energy i.e. -TS
       ! kTS= kT*[f ln f + (1-f) ln (1-f)]
-      IF (t > 1.0e-14_dp) THEN
+IF (t > 1.0e-14_dp) THEN
          beta = 1.0_dp/t
          DO ik = 1, nkp
             DO is = 1, nmo
@@ -159,14 +162,15 @@ CONTAINS
                kTS = kTS + t*maxocc*(term1 + term2)*wk(ik)
             END DO
          END DO
-      ELSE
-         DO ik = 1, nkp
+    ELSE
+        DO ik = 1, nkp
             DO is = 1, nmo
+            
                IF (e(is, ik) <= mu) THEN
                   f(is, ik) = maxocc
                ELSE
-                  f(is, ik) = 0.0_dp
-               END IF
+            f(is, ik) = 0.0_dp
+              END IF
             END DO
          END DO
       END IF
@@ -298,6 +302,8 @@ CONTAINS
       mu_min = MINVAL(e) - de
       mu_max = MAXVAL(e) + de
       iter = 0
+
+      IF (t > 1.0e-14_dp) THEN 
       DO WHILE (mu_max - mu_min > EPSILON(mu)*MAX(1.0_dp, ABS(mu_max), ABS(mu_min)))
          iter = iter + 1
          mu = (mu_max + mu_min)/2.0_dp
@@ -316,9 +322,16 @@ CONTAINS
             EXIT
          END IF
       END DO
+      ELSE
+       kTS = 0.0_dp
+        N_now = nel
+      END IF 
 
       mu = (mu_max + mu_min)/2.0_dp
+     
+     IF (t > 1.0e-14_dp) THEN 
       CALL Fermi2(f, N_now, kTS, e, mu, wk, t, maxocc)
+      END IF 
 
    END SUBROUTINE Fermikp
 
@@ -346,7 +359,7 @@ CONTAINS
       REAL(KIND=dp)                                      :: de, kTSa, kTSb, mu_max, mu_min, N_now, &
                                                             na, nb
 
-      ! only do spin polarized case
+       ! only do spin polarized case
       CPASSERT(SIZE(f, 3) == 2 .AND. SIZE(e, 3) == 2)
 
       ! bisection search to find mu for a given nel

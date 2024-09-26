@@ -347,7 +347,7 @@ CONTAINS
          ! for printing purposes we now copy the QUAMBOs into MO format
          ALLOCATE (mbas(nspin))
          DO ispin = 1, nspin
-            CALL allocate_mo_set(mbas(ispin), nao, nmao, nmao, 0.0_dp, 1.0_dp, 0.0_dp)
+            CALL allocate_mo_set(mbas(ispin), nao, nmao, REAL(nmao, dp), 0.0_dp, 1.0_dp, 0.0_dp)
             CALL set_mo_set(mbas(ispin), homo=nmao)
             ALLOCATE (mbas(ispin)%eigenvalues(nmao))
             mbas(ispin)%eigenvalues = 0.0_dp

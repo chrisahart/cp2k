@@ -65,11 +65,11 @@ CONTAINS
       REAL(dp), INTENT(INOUT)                            :: scale_dEx1, scale_ddW0, scale_dDFA, &
                                                             scale_dEx2, total_energy_xc
 
-      INTEGER                                            :: nelec_a, nelec_b, nelectron, nspins
+      INTEGER                                            :: nelectron, nspins
       LOGICAL                                            :: do_swap_hf
       REAL(dp) :: a, b, c, c1, da_dDFA, da_ddW0, da_dEx1, da_dEx2, db_dDFA, db_ddW0, db_dEx1, &
          db_dEx2, dc_dDFA, dc_ddW0, dc_dEx1, dc_dEx2, dExc_da, dExc_db, dExc_dc, dfa_energy, &
-         swap_value
+         swap_value, nelec_a, nelec_b 
       TYPE(mo_set_type), DIMENSION(:), POINTER           :: mos
 
       do_swap_hf = .FALSE.
@@ -92,7 +92,7 @@ CONTAINS
       ELSE
          nelec_b = 0
       END IF
-      nelectron = nelec_a + nelec_b
+      nelectron = INT(nelec_a + nelec_b)
       dfa_energy = energy%exc + energy%exc1
       a = hf_energy(1)
       b = -c1*2.0_dp*adiabatic_omega*oorootpi*nelectron !-0.23163_dp*2.0_dp*0.2_dp*oorootpi*nelectron

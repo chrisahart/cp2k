@@ -747,8 +747,9 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER                        :: routineN = 'xas_ot_solver'
 
-      INTEGER                                            :: handle, max_iter, ndo_mo, nelec_spin(2), &
+      INTEGER                                            :: handle, max_iter, ndo_mo, &
                                                             nocc, nrow, output_unit
+      REAL(KIND=dp)                                      :: nelec_spin(2)
       LOGICAL                                            :: do_os
       REAL(dp)                                           :: eps_iter
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
@@ -774,8 +775,8 @@ CONTAINS
       CALL cp_fm_get_info(evecs, nrow_global=nrow)
       max_iter = xas_tdp_control%ot_max_iter
       eps_iter = xas_tdp_control%ot_eps_iter
-      nocc = nelec_spin(1)/2*ndo_mo
-      IF (do_os) nocc = SUM(nelec_spin)*ndo_mo
+      nocc = CEILING(nelec_spin(1))/2*ndo_mo
+      IF (do_os) nocc = INT(SUM(nelec_spin))*ndo_mo
 
 !  Initialize relevent matrices
       ALLOCATE (ot_prec)
@@ -840,9 +841,10 @@ CONTAINS
       CHARACTER(len=*), PARAMETER                        :: routineN = 'prep_for_ot'
 
       INTEGER :: blk, handle, i, iblk, ido_mo, ispin, jblk, maxel, minel, nao, natom, ndo_mo, &
-         nelec_spin(2), nhomo(2), nlumo(2), nspins, start_block, start_col, start_row
+                 nhomo(2), nlumo(2), nspins, start_block, start_col, start_row
       LOGICAL                                            :: do_os, found
       REAL(dp), DIMENSION(:, :), POINTER                 :: pblock
+      REAL(KIND=dp)                                      :: nelec_spin(2)
       TYPE(cp_fm_type), POINTER                          :: mo_coeff
       TYPE(dbcsr_iterator_type)                          :: iter
       TYPE(mo_set_type), DIMENSION(:), POINTER           :: mos
@@ -867,7 +869,7 @@ CONTAINS
       IF (do_os) THEN
          minel = MINLOC(nelec_spin, 1)
          maxel = 3 - minel
-         nlumo(minel) = (neig/ndo_mo + nelec_spin(maxel) - nelec_spin(minel))/2
+         nlumo(minel) = (neig/ndo_mo + CEILING(nelec_spin(maxel)) - CEILING(nelec_spin(minel)))/2
          nlumo(maxel) = neig/ndo_mo - nlumo(minel)
       ELSE
          nlumo(1) = neig/ndo_mo

@@ -653,7 +653,7 @@ CONTAINS
          CALL matrix_qs_to_ls(ls_scf_env%matrix_ks(ispin), matrix_ks(ispin)%matrix, &
                               ls_scf_env%ls_mstruct, covariant=.TRUE.)
 
-         nelectron_spin_real = ls_scf_env%nelectron_spin(ispin)
+         nelectron_spin_real = INT(ls_scf_env%nelectron_spin(ispin))
          IF (ls_scf_env%nspins == 1) nelectron_spin_real = nelectron_spin_real/2
          CALL density_matrix_trs4(ls_scf_env%matrix_p(ispin), ls_scf_env%matrix_ks(ispin), &
                                   ls_scf_env%matrix_s_sqrt_inv, &

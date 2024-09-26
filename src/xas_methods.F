@@ -165,7 +165,7 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER                        :: routineN = 'xas'
 
-      INTEGER :: handle, homo, i, iat, iatom, ispin, istate, my_homo(2), my_nelectron(2), my_spin, &
+      INTEGER :: handle, homo, i, iat, iatom, ispin, istate, my_homo(2), my_spin, &
          nao, nexc_atoms, nexc_search, nmo, nspins, output_unit, state_to_be_excited
       INTEGER, DIMENSION(2)                              :: added_mos
       INTEGER, DIMENSION(:), POINTER                     :: nexc_states
@@ -173,7 +173,8 @@ CONTAINS
       LOGICAL                                            :: ch_method_flags, converged, my_uocc(2), &
                                                             should_stop, skip_scf, &
                                                             transition_potential
-      REAL(dp)                                           :: maxocc, occ_estate, tmp, xas_nelectron
+      REAL(dp)                                           :: maxocc, occ_estate, tmp, & 
+                                                            my_nelectron(2), xas_nelectron
       REAL(dp), DIMENSION(:), POINTER                    :: eigenvalues
       REAL(dp), DIMENSION(:, :), POINTER                 :: vecbuffer
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -274,7 +275,7 @@ CONTAINS
 
 !   Set initial occupation numbers, and store the original ones
       my_homo = 0
-      my_nelectron = 0
+      my_nelectron = 0.0_dp
       DO ispin = 1, dft_control%nspins
          CALL get_mo_set(mos(ispin), nelectron=my_nelectron(ispin), maxocc=maxocc, &
                          homo=my_homo(ispin), uniform_occupation=my_uocc(ispin))
@@ -603,7 +604,7 @@ CONTAINS
 
       CHARACTER(LEN=default_string_length)               :: name_sto
       INTEGER :: homo, i, iat, iatom, ik, ikind, ispin, j, l, lfomo, my_spin, n_mo(2), n_rep, nao, &
-         natom, ncubes, nelectron, nexc_atoms, nexc_search, nj, nk, nkind, nmo, nmoloc(2), &
+         natom, ncubes, nexc_atoms, nexc_search, nj, nk, nkind, nmo, nmoloc(2), &
          nsgf_gto, nsgf_sto, nspins, nvirtual, nvirtual2
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: first_sgf, kind_type_tmp, kind_z_tmp, &
                                                             last_sgf
@@ -611,7 +612,7 @@ CONTAINS
       INTEGER, DIMENSION(:), POINTER                     :: bounds, list, lq, nq, row_blk_sizes
       LOGICAL                                            :: ihavethis
       REAL(dp)                                           :: nele, occ_estate, occ_homo, &
-                                                            occ_homo_plus, zatom
+                                                            occ_homo_plus, zatom, nelectron
       REAL(dp), DIMENSION(:), POINTER                    :: sto_zet
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(atomic_kind_type), POINTER                    :: atomic_kind
@@ -721,37 +722,37 @@ CONTAINS
       ! initialize operators for the calculation of the oscillator strengths
       IF (xas_control%xas_method == xas_tp_hh) THEN
          occ_estate = 0.5_dp
-         nele = REAL(nelectron, dp) - 0.5_dp
+         nele = nelectron - 0.5_dp
          occ_homo = 1.0_dp
          occ_homo_plus = 0._dp
       ELSEIF (xas_control%xas_method == xas_tp_xhh) THEN
          occ_estate = 0.5_dp
-         nele = REAL(nelectron, dp)
+         nele = nelectron
          occ_homo = 1.0_dp
          occ_homo_plus = 0.5_dp
       ELSEIF (xas_control%xas_method == xas_tp_fh) THEN
          occ_estate = 0.0_dp
-         nele = REAL(nelectron, dp) - 1.0_dp
+         nele = nelectron - 1.0_dp
          occ_homo = 1.0_dp
          occ_homo_plus = 0._dp
       ELSEIF (xas_control%xas_method == xas_tp_xfh) THEN
          occ_estate = 0.0_dp
-         nele = REAL(nelectron, dp)
+         nele = nelectron
          occ_homo = 1.0_dp
          occ_homo_plus = 1._dp
       ELSEIF (xas_control%xas_method == xes_tp_val) THEN
          occ_estate = xas_control%xes_core_occupation
-         nele = REAL(nelectron, dp) - xas_control%xes_core_occupation
+         nele = nelectron - xas_control%xes_core_occupation
          occ_homo = xas_control%xes_homo_occupation
       ELSEIF (xas_control%xas_method == xas_dscf) THEN
          occ_estate = 0.0_dp
-         nele = REAL(nelectron, dp)
+         nele = nelectron
          occ_homo = 1.0_dp
          occ_homo_plus = 1._dp
       ELSEIF (xas_control%xas_method == xas_tp_flex) THEN
          nele = REAL(xas_control%nel_tot, dp)
          occ_estate = REAL(xas_control%xas_core_occupation, dp)
-         IF (nele < 0.0_dp) nele = REAL(nelectron, dp) - (1.0_dp - occ_estate)
+         IF (nele < 0.0_dp) nele = nelectron - (1.0_dp - occ_estate)
          occ_homo = 1.0_dp
       END IF
       CALL set_xas_env(xas_env=xas_env, occ_estate=occ_estate, xas_nelectron=nele, &

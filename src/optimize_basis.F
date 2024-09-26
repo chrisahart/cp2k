@@ -257,9 +257,10 @@ CONTAINS
 
       CHARACTER(len=8)                                   :: basis_type
       INTEGER                                            :: bas_id, handle, icalc, icomb, ispin, &
-                                                            mp_id, my_id, nao, ncalc, nelectron, &
+                                                            mp_id, my_id, nao, ncalc, &
                                                             nmo, nspins, set_id
-      REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, n_el_f
+      REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, &
+                                                            nelectron, n_el_f
       REAL(KIND=dp), DIMENSION(:), POINTER               :: cond_vec, energy, f_vec, my_time, &
                                                             start_time
       REAL(KIND=dp), DIMENSION(:, :), POINTER            :: gdata

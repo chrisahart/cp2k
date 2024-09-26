@@ -109,11 +109,10 @@ CONTAINS
 
       CHARACTER(len=*), PARAMETER                        :: routineN = 'qs_vxc_create'
 
-      INTEGER                                            :: handle, ispin, mspin, myfun, &
-                                                            nelec_spin(2), vdw
+      INTEGER                                            :: handle, ispin, mspin, myfun, vdw
       LOGICAL :: compute_virial, do_adiabatic_rescaling, my_just_energy, rho_g_valid, &
          sic_scaling_b_zero, tau_r_valid, uf_grid, vdW_nl
-      REAL(KIND=dp)                                      :: exc_m, factor, &
+      REAL(KIND=dp)                                      :: exc_m, factor, nelec_spin(2), &
                                                             my_adiabatic_rescale_factor, &
                                                             my_scaling, nelec_s_inv
       REAL(KIND=dp), DIMENSION(3, 3)                     :: virial_xc_tmp

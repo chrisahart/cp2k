@@ -75,6 +75,7 @@ MODULE scf_control_types
 !>        (CORE,RANDOM,RESTART,ATOMIC,FROZEN)
 !> \param eps_eigval wanted error on the eigenvalues
 !> \param eps_scf whanted error on the whole scf
+!> \param eps_scf_multiplier mltiplier for each iteration of OUTER_SCF
 !> \param level_shift amount of level shift
 !> \param p_mix how to mix the new and old densities in non diss iterations
 !> \param eps_lumos error on the lumos calculated at the end of the scf
@@ -128,7 +129,8 @@ MODULE scf_control_types
       INTEGER                               :: density_guess = -1, mixing_method = -1
       REAL(KIND=dp)                         :: eps_eigval = -1.0_dp, eps_scf = -1.0_dp, eps_scf_hist = -1.0_dp, &
                                                level_shift = -1.0_dp, &
-                                               eps_lumos = -1.0_dp, eps_diis = -1.0_dp
+                                               eps_lumos = -1.0_dp, eps_diis = -1.0_dp, &
+                                               eps_scf_multiplier = 0.0_dp
       INTEGER                               :: max_iter_lumos = -1, max_diis = -1, nmixing = -1
       INTEGER                               :: max_scf = -1, max_scf_hist = -1, &
                                                maxl = -1, nkind = -1
@@ -136,7 +138,9 @@ MODULE scf_control_types
                                                use_cholesky = .FALSE., use_ot = .FALSE., &
                                                use_diag = .FALSE., do_outer_scf_reortho = .FALSE., &
                                                ignore_convergence_failure = .FALSE.
-      LOGICAL                               :: non_selfconsistent = .FALSE.
+      LOGICAL                               :: non_selfconsistent = .FALSE., & 
+                                               must_converge = .FALSE., &
+                                               stop_higher_iter_level = .FALSE.
       INTEGER, DIMENSION(2)                 :: added_mos = -1
       INTEGER                               :: roks_scheme = -1
       REAL(KIND=dp)                         :: roks_f = -1.0_dp
@@ -172,6 +176,7 @@ CONTAINS
       END IF
       scf_control%eps_eigval = 1.0E-5_dp
       scf_control%eps_scf = 1.0E-5_dp
+      scf_control%eps_scf_multiplier = 1.0_dp
       scf_control%eps_scf_hist = 0.0_dp
       scf_control%eps_lumos = 1.0E-5_dp
       scf_control%max_iter_lumos = 2999
@@ -184,12 +189,15 @@ CONTAINS
       scf_control%use_diag = .TRUE.
       scf_control%do_diag_sub = .FALSE.
       scf_control%use_ot = .FALSE.
+      scf_control%must_converge = .FALSE.
       scf_control%ignore_convergence_failure = .FALSE.
       scf_control%do_outer_scf_reortho = .TRUE.
       scf_control%max_diis = 4
       scf_control%eps_diis = 0.1_dp
       scf_control%added_mos(:) = 0
       scf_control%max_scf_hist = 0
+
+      NULLIFY (scf_control%eps_scf_array)
 
       !Mixing
       IF (scf_control%non_selfconsistent) THEN
@@ -288,6 +296,10 @@ CONTAINS
       END IF
       DEALLOCATE (scf_control%smear)
 
+      IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+         DEALLOCATE (scf_control%eps_scf_array)
+      END IF
+
       IF (ASSOCIATED(scf_control%outer_scf%cdft_opt_control)) &
          CALL cdft_opt_type_release(scf_control%outer_scf%cdft_opt_control)
 
@@ -314,13 +326,13 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'scf_c_read_parameters'
 
-      INTEGER                                            :: cholesky_flag, handle, ialgo
+      INTEGER                                            :: cholesky_flag, handle, ialgo, n_rep
       INTEGER, DIMENSION(:), POINTER                     :: added_mos
       LOGICAL                                            :: do_mixing
       REAL(KIND=dp), DIMENSION(:), POINTER               :: roks_parameter
+      REAL(KIND=dp), DIMENSION(:), POINTER               :: rlist
       TYPE(section_vals_type), POINTER                   :: mixing_section, outer_scf_section, &
                                                             scf_section, smear_section
-
       CALL timeset(routineN, handle)
 
       scf_section => section_vals_get_subs_vals(inp_section, "SCF")
@@ -348,10 +360,37 @@ CONTAINS
          scf_control%use_cholesky = .TRUE.
       END IF
       CALL section_vals_val_get(scf_section, "IGNORE_CONVERGENCE_FAILURE", l_val=scf_control%ignore_convergence_failure)
+      CALL section_vals_val_get(scf_section, "MUST_CONVERGE", l_val=scf_control%must_converge)
       CALL section_vals_val_get(scf_section, "eps_scf", r_val=scf_control%eps_scf)
+      CALL section_vals_val_get(scf_section, "eps_scf_multiplier", r_val=scf_control%eps_scf_multiplier)
       CALL section_vals_val_get(scf_section, "level_shift", r_val=scf_control%level_shift)
       CALL section_vals_val_get(scf_section, "max_diis", i_val=scf_control%max_diis)
       CALL section_vals_val_get(scf_section, "max_scf", i_val=scf_control%max_scf)
+
+      CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", r_vals=scf_control%eps_scf_array)
+
+      !IF (ASSOCIATED(scf_control%eps_scf_array)) THEN
+     ! WRITE (*, *) "scf_control%eps_scf_array", scf_control%eps_scf_array
+           ! IF (SIZE(cutofflist, 1) /= ngrid_level) THEN
+           !    CPABORT("Number of multi-grids requested and number of cutoff values do not match")
+           ! END IF
+           ! DO igrid_level = 1, ngrid_level
+           !    qs_control%e_cutoff(igrid_level) = cutofflist(igrid_level)
+           ! END DO
+       !  END IF
+      
+      ! loop over list of EPS_SCF_ARRAY
+     ! CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", n_rep_val=n_rep)
+     ! IF (n_rep == 0) THEN
+     !    CPABORT("n_rep == 0")
+     ! ELSE
+     !    DO i_rep = 1, n_rep
+     !       CALL section_vals_val_get(scf_section, "EPS_SCF_ARRAY", r_rep_val=r_rep, r_vals=rlist)
+     !       DO i = 1, SIZE(rlist, 1)
+     !       WRITE (*, *) "i", i
+     !       END DO
+     !    END DO
+     !END IF
 
       ! Diagonaliztion section
       IF (scf_control%use_diag) THEN
@@ -535,7 +574,8 @@ CONTAINS
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'scf_c_write_parameters'
 
-      INTEGER                                            :: handle, output_unit, roks_scheme
+      INTEGER                                            :: handle, output_unit, roks_scheme, &
+                                                            count
       LOGICAL                                            :: roks
       REAL(KIND=dp)                                      :: elec_temp
       TYPE(cp_logger_type), POINTER                      :: logger
@@ -586,6 +626,15 @@ CONTAINS
                WRITE (UNIT=output_unit, FMT="(T25,A,T71,2I5)") &
                   "added MOs          ", scf_control%added_mos
             END IF
+            IF ((ASSOCIATED(scf_control%eps_scf_array) .AND. (SIZE(scf_control%eps_scf_array) > 1) )) THEN
+                DO count = 1, SIZE(scf_control%eps_scf_array)
+                  WRITE (UNIT=output_unit, FMT="(T25,A,I2,A,T71, ES9.2)") &
+                        "eps_scf_array(", count, ")      ", scf_control%eps_scf_array(count)
+                 END DO 
+            ELSE IF (scf_control%eps_scf_multiplier /= 1.0_dp) THEN
+               WRITE (UNIT=output_unit, FMT="(T25,A,T71,ES9.2)") &
+                           "eps_scf_multiplier:", scf_control%eps_scf_multiplier
+             END IF 
 
             IF (scf_control%diagonalization%mom) THEN
                ! TODO extend the output with further parameters

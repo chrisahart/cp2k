@@ -207,7 +207,7 @@ CONTAINS
       REAL(KIND=dp), PARAMETER                           :: zero = 0.0_dp
 
       INTEGER                                            :: i, ispin, re
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(dp), DIMENSION(2)                             :: nelectron_spin
       TYPE(cp_fm_type), DIMENSION(:), POINTER            :: mos_new, mos_old
       TYPE(dbcsr_p_type), DIMENSION(:), POINTER          :: matrix_ks, rho_new, rho_old
       TYPE(dft_control_type), POINTER                    :: dft_control

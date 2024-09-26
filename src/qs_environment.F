@@ -598,13 +598,15 @@ CONTAINS
       INTEGER :: handle, ikind, ispin, iw, lmax_sphere, maxl, maxlgto, maxlgto_lri, maxlppl, &
          maxlppnl, method_id, multiplicity, my_ival, n_ao, n_mo_add, natom, nelectron, ngauss, &
          nkind, output_unit, sort_basis, tnadd_method
-      INTEGER, DIMENSION(2)                              :: n_mo, nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
+      INTEGER, DIMENSION(2)                              :: n_mo
       LOGICAL :: all_potential_present, be_silent, do_kpoints, do_ri_hfx, do_ri_mp2, do_ri_rpa, &
          do_ri_sos_mp2, do_rpa_ri_exx, do_wfc_im_time, e1terms, has_unit_metric, lribas, &
          mp2_present, orb_gradient
       REAL(KIND=dp)                                      :: alpha, ccore, ewald_rcut, fxx, maxocc, &
                                                             rcut, total_zeff_corr, verlet_skin, &
-                                                            zeff_correction
+                                                            zeff_correction, & 
+                                                            diff_a, diff_b, diff_elec, threshold
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_logger_type), POINTER                      :: logger
       TYPE(dft_control_type), POINTER                    :: dft_control
@@ -1495,58 +1497,118 @@ CONTAINS
 
          IF (dft_control%nspins == 1) THEN
             maxocc = nelectron
-            nelectron_spin(1) = nelectron
-            nelectron_spin(2) = 0
+            nelectron_spin(1) = REAL(nelectron, dp)
+            nelectron_spin(2) = 0.0_dp
             n_mo(1) = 1
             n_mo(2) = 0
          ELSE
             IF (MODULO(nelectron + multiplicity - 1, 2) /= 0) THEN
                CPABORT("LSD: try to use a different multiplicity")
             END IF
-            nelectron_spin(1) = (nelectron + multiplicity - 1)/2
-            nelectron_spin(2) = (nelectron - multiplicity + 1)/2
+            nelectron_spin(1) = REAL((nelectron + multiplicity - 1)/2, dp)
+            nelectron_spin(2) = REAL((nelectron - multiplicity + 1)/2, dp)
             IF (nelectron_spin(1) < 0) THEN
                CPABORT("LSD: too few electrons for this multiplicity")
             END IF
             maxocc = MAXVAL(nelectron_spin)
-            n_mo(1) = MIN(nelectron_spin(1), 1)
-            n_mo(2) = MIN(nelectron_spin(2), 1)
+            n_mo(1) = INT(MIN(nelectron_spin(1), 1.0_dp))
+            n_mo(2) = INT(MIN(nelectron_spin(2), 1.0_dp))
          END IF
 
       ELSE
 
          IF (dft_control%nspins == 1) THEN
+
             maxocc = 2.0_dp
-            nelectron_spin(1) = nelectron
-            nelectron_spin(2) = 0
+            nelectron_spin(1) = REAL(nelectron, dp)
+            nelectron_spin(2) = 0.0_dp
             IF (MODULO(nelectron, 2) == 0) THEN
-               n_mo(1) = nelectron/2
+               n_mo(1) = INT(nelectron/2)
             ELSE
                n_mo(1) = INT(nelectron/2._dp) + 1
             END IF
             n_mo(2) = 0
          ELSE
+
             maxocc = 1.0_dp
 
-            ! The simplist spin distribution is written here. Special cases will
-            ! need additional user input
-            IF (MODULO(nelectron + multiplicity - 1, 2) /= 0) THEN
-               CPABORT("LSD: try to use a different multiplicity")
-            END IF
+         IF (dft_control%nelec_alpha == 0.0_dp) THEN
+            
+               ! The simplist spin distribution is written here. Special cases will
+               ! need additional user input
+               IF (MODULO(nelectron + multiplicity - 1, 2) /= 0) THEN
+                  CPABORT("LSD: try to use a different multiplicity")
+               END IF
 
-            nelectron_spin(1) = (nelectron + multiplicity - 1)/2
-            nelectron_spin(2) = (nelectron - multiplicity + 1)/2
+               nelectron_spin(1) = REAL((nelectron + multiplicity - 1)/2, dp)
+               nelectron_spin(2) = REAL((nelectron - multiplicity + 1)/2, dp)
 
-            IF (nelectron_spin(2) < 0) THEN
-               CPABORT("LSD: too few electrons for this multiplicity")
-            END IF
+               IF (nelectron_spin(2) < 0) THEN
+                  CPABORT("LSD: too few electrons for this multiplicity")
+               END IF
 
-            n_mo(1) = nelectron_spin(1)
-            n_mo(2) = nelectron_spin(2)
+               n_mo(1) = INT(nelectron_spin(1))
+               n_mo(2) = INT(nelectron_spin(2))
+
+         ELSE
+
+          threshold = 1.0e-10_dp
+
+         CALL cp_warn(__LOCATION__, &
+                              "Number of electrons will be overwritten by NELEC_ALPHA and NELEC_BETA, "// &
+                              "multiplicity will be ignored.")
+
+       IF (output_unit > 0) THEN
+       WRITE (UNIT=output_unit, FMT="(T2,A,T71,I10, /, T2,A,T71,F10.3)") &
+                  "Number of electrons should be", nelectron, & 
+                  "Sum of NELEC_ALPHA and NELEC_BETA is", dft_control%nelec_alpha+dft_control%nelec_beta
+      END IF
+
+         IF (ABS(NINT(dft_control%nelec_alpha+dft_control%nelec_beta) - nelectron) > threshold) THEN
+            CALL cp_warn(__LOCATION__, &
+                              "Sum of NELEC_ALPHA and NELEC_BETA is not equal to the number of electrons, "// &
+                              "unexpected behaviour may occur.")
+         END IF 
+
+            diff_elec = ABS(dft_control%nelec_alpha + dft_control%nelec_beta &
+                            - NINT(dft_control%nelec_alpha + dft_control%nelec_beta))
+            IF (diff_elec > threshold) CPABORT("Sum of NELEC_ALPHA and NELEC_BETA must be an integer.")
+            
+            diff_a = ABS(dft_control%nelec_alpha - NINT(dft_control%nelec_alpha))
+            diff_b = ABS(dft_control%nelec_beta - NINT(dft_control%nelec_beta))
+            nelectron_spin(1) = dft_control%nelec_alpha - REAL(dft_control%charge, dp)
+            nelectron_spin(2) = dft_control%nelec_beta
+            nelectron = INT(nelectron_spin(1)+nelectron_spin(2))
+
+            IF (diff_a < threshold) THEN
+
+            n_mo(1) = INT(nelectron_spin(1))
+
+            ELSE 
+
+                 CALL cp_warn(__LOCATION__, &
+                                 "NELEC_ALPHA is not an integer, "// &
+                                 "many features will not be supported.")
+                        n_mo(1) = CEILING(nelectron_spin(1))
+            END IF 
+
+            IF (diff_b < threshold) THEN
+
+            n_mo(2) = INT(nelectron_spin(2))
+
+            ELSE 
+
+                  CALL cp_warn(__LOCATION__, &
+                                 "NELEC_BETA is not an integer, "// &
+                                "many features will not be supported.")
+                        n_mo(2) = CEILING(nelectron_spin(2))
+            END IF 
 
          END IF
 
-      END IF
+      END IF 
+
+   END IF
 
       ! Read the total_zeff_corr here [SGh]
       CALL get_qs_kind_set(qs_kind_set, total_zeff_corr=total_zeff_corr)
@@ -1599,8 +1661,8 @@ CONTAINS
                          "More beta than alpha MOs requested. "// &
                          "The number of beta MOs will be reduced to the number alpha MOs.")
          n_mo(2) = MIN(n_mo(1), n_mo(2))
-         CPASSERT(n_mo(1) >= nelectron_spin(1))
-         CPASSERT(n_mo(2) >= nelectron_spin(2))
+         CPASSERT(n_mo(1) >= INT(nelectron_spin(1)))
+         CPASSERT(n_mo(2) >= INT(nelectron_spin(2)))
       END IF
 
       ! kpoints
@@ -1612,8 +1674,8 @@ CONTAINS
                          "Kpoints: Different number of MOs requested. "// &
                          "The number of beta MOs will be set to the number alpha MOs.")
          n_mo(2) = n_mo(1)
-         CPASSERT(n_mo(1) >= nelectron_spin(1))
-         CPASSERT(n_mo(2) >= nelectron_spin(2))
+         CPASSERT(n_mo(1) >= INT(nelectron_spin(1)))
+         CPASSERT(n_mo(2) >= INT(nelectron_spin(2)))
       END IF
 
       ! Compatibility checks for smearing
@@ -1676,11 +1738,12 @@ CONTAINS
       ELSE
          ALLOCATE (mos(dft_control%nspins))
          DO ispin = 1, dft_control%nspins
+
             CALL allocate_mo_set(mo_set=mos(ispin), &
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &
                                  nelectron=nelectron_spin(ispin), &
-                                 n_el_f=REAL(nelectron_spin(ispin), dp), &
+                                 n_el_f=nelectron_spin(ispin), &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)
          END DO
@@ -1696,7 +1759,7 @@ CONTAINS
                                  nao=n_ao, &
                                  nmo=n_mo(ispin), &
                                  nelectron=nelectron_spin(ispin), &
-                                 n_el_f=REAL(nelectron_spin(ispin), dp), &
+                                 n_el_f=nelectron_spin(ispin), &
                                  maxocc=maxocc, &
                                  flexible_electron_count=dft_control%relax_multiplicity)
          END DO

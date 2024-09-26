@@ -108,7 +108,7 @@ MODULE almo_scf_types
 
       INTEGER :: nspins = 0, nelectrons_total = 0, naos = 0
       INTEGER :: natoms = 0, nmolecules = 0
-      INTEGER, DIMENSION(2) :: nelectrons_spin = 0
+      REAL(KIND=dp), DIMENSION(2) :: nelectrons_spin = 0
 
       ! Definitions:
       ! I.  Domain - a subset of basis functions (e.g. AOs),

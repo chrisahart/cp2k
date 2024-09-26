@@ -140,10 +140,10 @@ CONTAINS
       CHARACTER(LEN=default_path_length)                 :: file_name, filename
       INTEGER :: atom_a, blk, density_guess, handle, homo, i, iatom, ic, icol, id_nr, ikind, irow, &
          iseed(4), ispin, istart_col, istart_row, j, last_read, n, n_cols, n_rows, nao, natom, &
-         natoms, natoms_tmp, nblocks, nelectron, nmo, nmo_tmp, not_read, nsgf, nspin, nvec, ounit, &
+         natoms, natoms_tmp, nblocks, nmo, nmo_tmp, not_read, nsgf, nspin, nvec, ounit, &
          safe_density_guess, size_atomic_kind_set, z
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: first_sgf, kind_of, last_sgf
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       INTEGER, DIMENSION(:), POINTER                     :: atom_list, elec_conf, nelec_kind, &
                                                             sort_kind
       LOGICAL :: did_guess, do_hfx_ri_mo, do_kpoints, do_std_diag, exist, has_unit_metric, &
@@ -151,7 +151,7 @@ CONTAINS
       REAL(dp), ALLOCATABLE, DIMENSION(:, :)             :: buff, buff2
       REAL(dp), DIMENSION(:, :), POINTER                 :: pdata
       REAL(KIND=dp)                                      :: checksum, eps, length, maxocc, occ, &
-                                                            rscale, tot_corr_zeff, trps1, zeff
+                                                            rscale, tot_corr_zeff, trps1, zeff, nelectron
       REAL(KIND=dp), DIMENSION(0:3)                      :: edftb
       TYPE(atom_matrix_type), DIMENSION(:), POINTER      :: pmat
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
@@ -358,7 +358,6 @@ CONTAINS
 
       IF (dft_control%correct_el_density_dip) THEN
          tot_corr_zeff = qs_env%total_zeff_corr
-         !WRITE(*,*) "tot_corr_zeff = ", tot_corr_zeff
          IF ((ABS(tot_corr_zeff) > 0.0_dp) .AND. (density_guess /= restart_guess)) THEN
             CALL cp_warn(__LOCATION__, &
                          "Use SCF_GUESS RESTART in conjunction with "// &
@@ -841,7 +840,7 @@ CONTAINS
             IF (ounit > 0) WRITE (ounit, *) 'P_init occ', occ, ' checksum', checksum
 
             CALL dbcsr_dot(p_rmpv(ispin)%matrix, s_sparse(1)%matrix, trps1)
-            rscale = REAL(nelectron, dp)/trps1
+            rscale = nelectron/trps1
             CALL dbcsr_scale(p_rmpv(ispin)%matrix, rscale)
 
             !CALL dbcsr_verify_matrix(p_rmpv(ispin)%matrix)
@@ -1182,7 +1181,7 @@ CONTAINS
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
       INTEGER, INTENT(IN)                                :: nspin
-      INTEGER, DIMENSION(:), INTENT(IN)                  :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(:), INTENT(IN)            :: nelectron_spin
       TYPE(mp_para_env_type)                             :: para_env
 
       CHARACTER(LEN=*), PARAMETER :: routineN = 'calculate_mopac_dm'
@@ -1248,7 +1247,7 @@ CONTAINS
       trps2 = 0.0_dp
       pdiag(:) = 0.0_dp
 
-      IF (SUM(nelectron_spin) /= 0) THEN
+      IF (SUM(nelectron_spin) > 0) THEN
          DO ikind = 1, SIZE(atomic_kind_set)
 
             CALL get_atomic_kind(atomic_kind_set(ikind), natom=natom, atom_list=atom_list)
@@ -1433,7 +1432,7 @@ CONTAINS
          ELSE
             DO ispin = 1, nspin
                IF (nelectron_spin(ispin) /= 0) THEN
-                  rscale = (REAL(nelectron_spin(ispin), dp) - trps1)/trps2
+                  rscale = (nelectron_spin(ispin) - trps1)/trps2
                   DO isgf = 1, nao
                      IF (pdiag(isgf) < maxocc) pdiag(isgf) = rscale*pdiag(isgf)
                   END DO

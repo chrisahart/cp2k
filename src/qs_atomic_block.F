@@ -56,7 +56,7 @@ CONTAINS
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(qs_kind_type), DIMENSION(:), POINTER          :: qs_kind_set
       INTEGER, INTENT(IN)                                :: nspin
-      INTEGER, DIMENSION(:), INTENT(IN)                  :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(:), INTENT(IN)            :: nelectron_spin
       INTEGER, INTENT(IN)                                :: ounit
       TYPE(mp_para_env_type)                             :: para_env
 
@@ -128,7 +128,7 @@ CONTAINS
          rds = 0.0_dp
          ! could be a ghost-atoms-only simulation
          IF (nelectron_spin(ispin) > 0) THEN
-            rds = REAL(nelectron_spin(ispin), dp)/trps1
+            rds = nelectron_spin(ispin)/trps1
          END IF
          CALL dbcsr_scale(matrix_p, rds)
 
@@ -141,7 +141,7 @@ CONTAINS
                   "Re-scaling the density matrix to get the right number of electrons"
             END IF
             WRITE (ounit, '(T19,A,T44,A,T67,A)') "# Electrons", "Trace(P)", "Scaling factor"
-            WRITE (ounit, '(T20,I10,T40,F12.3,T67,F14.3)') nelectron_spin(ispin), trps1, rds
+            WRITE (ounit, '(T20,F12.3,T40,F12.3,T67,F14.3)') nelectron_spin(ispin), trps1, rds
          END IF
 
          IF (nspin > 1) THEN

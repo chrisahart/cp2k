@@ -139,7 +139,7 @@ CONTAINS
       CHARACTER(len=2)                                   :: spin_string
       CHARACTER(len=default_string_length)               :: name
       INTEGER :: filtered_nfullrowsORcols_total, handle, homo_filtered, ispin, lfomo_filtered, &
-         my_nmo, nao, ndep, nelectron, nmo, nmo_filtered, nspin, original_nfullrowsORcols_total
+         my_nmo, nao, ndep, nmo, nmo_filtered, nspin, original_nfullrowsORcols_total
       INTEGER, DIMENSION(:), POINTER                     :: filtered_rowORcol_block_sizes, &
                                                             original_rowORcol_block_sizes
       LOGICAL                                            :: collective_com
@@ -147,6 +147,7 @@ CONTAINS
          flexible_electron_count, KTS_filtered, maxocc, mu_filtered
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigenvalues, eigenvalues_filtered, occ, &
                                                             occ_filtered
+      REAL(KIND=dp)                                      :: nelectron
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
       TYPE(cp_fm_struct_type), POINTER                   :: filter_fm_struct, fm_struct
       TYPE(cp_fm_type)                                   :: fm_matrix_filter, fm_matrix_filtered_ks, &
@@ -318,7 +319,7 @@ CONTAINS
                               nao=filtered_nfullrowsORcols_total, &
                               nmo=filtered_nfullrowsORcols_total, &
                               nelectron=nelectron, &
-                              n_el_f=REAL(nelectron, dp), &
+                              n_el_f=nelectron, &
                               maxocc=maxocc, &
                               flexible_electron_count=flexible_electron_count)
       END DO ! ispin

@@ -124,7 +124,8 @@ CONTAINS
          ispin, max_nset, my_bin_size, n_rep_hf, n_threads, nao, natom, ndep, nfullcols_total, &
          nfullrows_total, nkind, nspins, unit_nr
       INTEGER(KIND=int_8)                                :: mem
-      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: kind_of, nelec
+      INTEGER, ALLOCATABLE, DIMENSION(:)                 :: kind_of
+      REAL(KIND=dp), ALLOCATABLE, DIMENSION(:)           :: nelec
       LOGICAL :: calc_ex, do_admm, do_admm_rpa_exx, do_dynamic_load_balancing, do_exx, do_gw, &
          do_im_time, do_kpoints_cubic_RPA, free_hfx_buffer, reuse_hfx, update_xc_energy
       REAL(KIND=dp) :: E_admm_from_GW(2), E_ex_from_GW, Emp2, Emp2_AA, Emp2_AA_Cou, Emp2_AA_ex, &
@@ -366,7 +367,7 @@ CONTAINS
                               nao=nao, &
                               nmo=nao, &
                               nelectron=nelec(ispin), &
-                              n_el_f=REAL(nelec(ispin), dp), &
+                              n_el_f=nelec(ispin), &
                               maxocc=maxocc, &
                               flexible_electron_count=dft_control%relax_multiplicity)
 
@@ -501,7 +502,7 @@ CONTAINS
             Emp2_AA = 0.0_dp
             Emp2_AA_Cou = 0.0_dp
             Emp2_AA_ex = 0.0_dp
-            CALL mp2_direct_energy(dimen, nelec(1), nelec(1), mp2_biel, &
+            CALL mp2_direct_energy(dimen, INT(nelec(1)), INT(nelec(1)), mp2_biel, &
                                    mp2_env, C(:, :, 1), Auto(:, 1), Emp2_AA, Emp2_AA_Cou, Emp2_AA_ex, &
                                    qs_env, para_env, unit_nr)
             IF (unit_nr > 0) WRITE (unit_nr, '(T3,A,T56,F25.14)') 'MP2 Energy Alpha-Alpha = ', Emp2_AA
@@ -510,7 +511,7 @@ CONTAINS
             Emp2_BB = 0.0_dp
             Emp2_BB_Cou = 0.0_dp
             Emp2_BB_ex = 0.0_dp
-            CALL mp2_direct_energy(dimen, nelec(2), nelec(2), mp2_biel, mp2_env, &
+            CALL mp2_direct_energy(dimen, INT(nelec(2)), INT(nelec(2)), mp2_biel, mp2_env, &
                                    C(:, :, 2), Auto(:, 2), Emp2_BB, Emp2_BB_Cou, Emp2_BB_ex, &
                                    qs_env, para_env, unit_nr)
             IF (unit_nr > 0) WRITE (unit_nr, '(T3,A,T56,F25.14)') 'MP2 Energy Beta-Beta= ', Emp2_BB
@@ -519,7 +520,7 @@ CONTAINS
             Emp2_AB = 0.0_dp
             Emp2_AB_Cou = 0.0_dp
             Emp2_AB_ex = 0.0_dp
-            CALL mp2_direct_energy(dimen, nelec(1), nelec(2), mp2_biel, mp2_env, C(:, :, 1), &
+            CALL mp2_direct_energy(dimen, INT(nelec(1)), INT(nelec(2)), mp2_biel, mp2_env, C(:, :, 1), &
                                    Auto(:, 1), Emp2_AB, Emp2_AB_Cou, Emp2_AB_ex, &
                                    qs_env, para_env, unit_nr, C(:, :, 2), Auto(:, 2))
             IF (unit_nr > 0) WRITE (unit_nr, '(T3,A,T56,F25.14)') 'MP2 Energy Alpha-Beta= ', Emp2_AB
@@ -536,7 +537,7 @@ CONTAINS
 
             IF (unit_nr > 0) WRITE (unit_nr, '(T3,A)') 'Canonical Direct Methods:'
 
-            CALL mp2_direct_energy(dimen, nelec(1)/2, nelec(1)/2, mp2_biel, mp2_env, &
+            CALL mp2_direct_energy(dimen, INT(nelec(1))/2, INT(nelec(1))/2, mp2_biel, mp2_env, &
                                    C(:, :, 1), Auto(:, 1), Emp2, Emp2_Cou, Emp2_ex, &
                                    qs_env, para_env, unit_nr)
 
@@ -567,13 +568,13 @@ CONTAINS
 
          ! optimize basis
          IF (nspins == 2) THEN
-            CALL optimize_ri_basis_main(Emp2, Emp2_Cou, Emp2_ex, Emp2_S, Emp2_T, dimen, natom, nelec(1), &
+            CALL optimize_ri_basis_main(Emp2, Emp2_Cou, Emp2_ex, Emp2_S, Emp2_T, dimen, natom, INT(nelec(1)), &
                                         mp2_biel, mp2_env, C(:, :, 1), Auto(:, 1), &
                                         kind_of, qs_env, para_env, unit_nr, &
-                                        nelec(2), C(:, :, 2), Auto(:, 2))
+                                        INT(nelec(2)), C(:, :, 2), Auto(:, 2))
 
          ELSE
-            CALL optimize_ri_basis_main(Emp2, Emp2_Cou, Emp2_ex, Emp2_S, Emp2_T, dimen, natom, nelec(1)/2, &
+            CALL optimize_ri_basis_main(Emp2, Emp2_Cou, Emp2_ex, Emp2_S, Emp2_T, dimen, natom, INT(nelec(1))/2, &
                                         mp2_biel, mp2_env, C(:, :, 1), Auto(:, 1), &
                                         kind_of, qs_env, para_env, unit_nr)
          END IF

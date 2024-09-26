@@ -60,7 +60,7 @@ MODULE qs_mo_types
       ! 1 for spin unrestricted (polarized) and 2 for spin restricted
       REAL(KIND=dp)                                      :: maxocc = -1
       ! Number of electrons (taking occupations into account)
-      INTEGER                                            :: nelectron = -1
+      REAL(KIND=dp)                                      :: nelectron = -1.0_dp
       REAL(KIND=dp)                                      :: n_el_f = -1.0_dp
       ! Highest orbital with non-zero occupation
       INTEGER                                            :: homo = -1
@@ -205,8 +205,9 @@ CONTAINS
                               flexible_electron_count)
 
       TYPE(mo_set_type), INTENT(INOUT)                   :: mo_set
-      INTEGER, INTENT(IN)                                :: nao, nmo, nelectron
-      REAL(KIND=dp), INTENT(IN)                          :: n_el_f, maxocc, flexible_electron_count
+      INTEGER, INTENT(IN)                                :: nao, nmo
+      REAL(KIND=dp), INTENT(IN)                          :: n_el_f, nelectron, maxocc, & 
+                                                            flexible_electron_count
 
       mo_set%maxocc = maxocc
       mo_set%nelectron = nelectron
@@ -280,15 +281,16 @@ CONTAINS
       ! Initialize MO occupations
       mo_set%occupation_numbers(:) = 0.0_dp
       ! Quick return, if no electrons are available
-      IF (mo_set%nelectron == 0) THEN
+      IF (mo_set%nelectron == 0.0_dp) THEN
          RETURN
       END IF
 
-      IF (MODULO(mo_set%nelectron, INT(mo_set%maxocc)) == 0) THEN
+      IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
          nomo = NINT(mo_set%nelectron/mo_set%maxocc)
          mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
       ELSE
          nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
+         
          ! Initialize MO occupations
          mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
          mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
@@ -397,8 +399,8 @@ CONTAINS
 
       TYPE(mo_set_type), INTENT(IN)                      :: mo_set
       REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: maxocc
-      INTEGER, INTENT(OUT), OPTIONAL                     :: homo, lfomo, nao, nelectron
-      REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: n_el_f
+      INTEGER, INTENT(OUT), OPTIONAL                     :: homo, lfomo, nao
+      REAL(KIND=dp), INTENT(OUT), OPTIONAL               :: n_el_f, nelectron
       INTEGER, INTENT(OUT), OPTIONAL                     :: nmo
       REAL(KIND=dp), DIMENSION(:), OPTIONAL, POINTER     :: eigenvalues, occupation_numbers
       TYPE(cp_fm_type), OPTIONAL, POINTER                :: mo_coeff
@@ -452,8 +454,8 @@ CONTAINS
 
       TYPE(mo_set_type), INTENT(INOUT)                   :: mo_set
       REAL(KIND=dp), INTENT(IN), OPTIONAL                :: maxocc
-      INTEGER, INTENT(IN), OPTIONAL                      :: homo, lfomo, nao, nelectron
-      REAL(KIND=dp), INTENT(IN), OPTIONAL                :: n_el_f
+      INTEGER, INTENT(IN), OPTIONAL                      :: homo, lfomo, nao
+      REAL(KIND=dp), INTENT(IN), OPTIONAL                :: n_el_f, nelectron
       INTEGER, INTENT(IN), OPTIONAL                      :: nmo
       REAL(KIND=dp), DIMENSION(:), OPTIONAL, POINTER     :: eigenvalues, occupation_numbers
       LOGICAL, INTENT(IN), OPTIONAL                      :: uniform_occupation

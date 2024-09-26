@@ -765,8 +765,9 @@ CONTAINS
       LOGICAL, INTENT(IN)                                :: just_energy, calculate_forces
       TYPE(pw_pool_type), POINTER                        :: auxbas_pw_pool
 
-      INTEGER                                            :: i, nelec, nelec_a, nelec_b, nforce
-      REAL(kind=dp)                                      :: ener, full_scaling, scaling
+      INTEGER                                            :: i, nelec, nforce
+      REAL(kind=dp)                                      :: ener, full_scaling, scaling, &
+                                                            nelec_a, nelec_b
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :)        :: store_forces
       TYPE(mo_set_type), DIMENSION(:), POINTER           :: mo_array
       TYPE(pw_c1d_gs_type)                               :: work_rho, work_v
@@ -800,7 +801,7 @@ CONTAINS
          CALL get_qs_env(qs_env, mos=mo_array)
          CALL get_mo_set(mo_set=mo_array(1), nelectron=nelec_a)
          CALL get_mo_set(mo_set=mo_array(2), nelectron=nelec_b)
-         nelec = nelec_a + nelec_b
+         nelec = INT(nelec_a + nelec_b)
          CALL pw_copy(rho_g(1), work_rho)
          CALL pw_axpy(rho_g(2), work_rho)
          scaling = 1.0_dp/REAL(nelec, KIND=dp)
@@ -1675,7 +1676,7 @@ CONTAINS
       CHARACTER(*), PARAMETER :: routineN = 'calculate_zmp_potential'
 
       INTEGER                                            :: handle, my_val, nelectron, nspins
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       LOGICAL                                            :: do_zmp_read, fermi_amaldi
       REAL(KIND=dp)                                      :: lambda
       REAL(KIND=dp), DIMENSION(:), POINTER               :: tot_rho_ext_r
@@ -1743,7 +1744,7 @@ CONTAINS
             CALL section_vals_val_get(ext_den_section, "FERMI_AMALDI", l_val=fermi_amaldi)
 
             CALL pw_scale(rho_eff_gspace, a=lambda)
-            nelectron = nelectron_spin(1)
+            nelectron = INT(nelectron_spin(1))
             factor = -1.0_dp/nelectron
             CALL pw_axpy(rho_g(1), rho_eff_gspace, alpha=factor)
 

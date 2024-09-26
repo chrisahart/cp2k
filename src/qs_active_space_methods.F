@@ -204,6 +204,7 @@ CONTAINS
          ishell, isp, ispin, iw, j, jm, m, max_orb_ind, mselect, n1, n2, nao, natom, nel, &
          nelec_active, nelec_inactive, nelec_total, nmo, nmo_active, nmo_available, nmo_inactive, &
          nmo_inactive_remaining, nmo_occ, nmo_virtual, nn1, nn2, nrow_global, nspins
+      REAL(KIND=dp), DIMENSION(2)                        :: nepol
       INTEGER, DIMENSION(5)                              :: nshell
       INTEGER, DIMENSION(:), POINTER                     :: invals
       LOGICAL                                            :: do_kpoints, ex_operator, ex_perd, &
@@ -329,7 +330,16 @@ CONTAINS
 
       active_space_env%nelec_active = nelec_active
       active_space_env%nelec_inactive = nelec_inactive
-      active_space_env%nelec_total = nelec_total
+      IF (nspins == 1) THEN
+         active_space_env%nelec_total(1) = nelec_total
+         active_space_env%nelec_total(2) = 0
+      ELSE
+         active_space_env%nelec_total(1) = INT(nepol(1))
+         active_space_env%nelec_total(2) = INT(nepol(2))
+      END IF
+      active_space_env%nelec_inactive_spinwise(1) = nelec_inactive_alpha
+      active_space_env%nelec_inactive_spinwise(2) = nelec_inactive_beta
+      active_space_env%multiplicity = dft_control%multiplicity
       active_space_env%nspins = nspins
       active_space_env%multiplicity = dft_control%multiplicity
 
@@ -432,7 +442,7 @@ CONTAINS
             CALL get_mo_set(mos(ispin), mo_coeff=mo_ref, nao=nao)
             CALL cp_fm_get_info(mo_ref, context=context, para_env=para_env, nrow_global=nrow_global)
             ! the right number of active electrons per spin channel is initialized further down
-            CALL allocate_mo_set(active_space_env%mos_active(ispin), nao, nmo_occ, 0, 0.0_dp, maxocc, 0.0_dp)
+            CALL allocate_mo_set(active_space_env%mos_active(ispin), nao, nmo_occ, 0.0_dp, 0.0_dp, maxocc, 0.0_dp)
             CALL cp_fm_struct_create(fm_struct_tmp, para_env=para_env, context=context, &
                                      nrow_global=nrow_global, ncol_global=nmo_occ)
             CALL init_mo_set(active_space_env%mos_active(ispin), fm_struct=fm_struct_tmp, name="Active Space MO")
@@ -442,7 +452,8 @@ CONTAINS
             ELSE
                nel = nelec_inactive
             END IF
-            CALL allocate_mo_set(active_space_env%mos_inactive(ispin), nao, nmo_occ, nel, &
+            CALL allocate_mo_set(active_space_env%mos_inactive(ispin), nao, nmo_occ, & 
+                                 REAL(nel, KIND=dp), &
                                  REAL(nel, KIND=dp), maxocc, 0.0_dp)
             CALL cp_fm_struct_create(fm_struct_tmp, para_env=para_env, context=context, &
                                      nrow_global=nrow_global, ncol_global=nmo_occ)
@@ -618,7 +629,7 @@ CONTAINS
                ! init active orbitals
                CALL get_mo_set(mos(ispin), mo_coeff=mo_ref, nao=nao)
                CALL cp_fm_get_info(mo_ref, context=context, para_env=para_env, nrow_global=nrow_global)
-               CALL allocate_mo_set(active_space_env%mos_active(ispin), nao, max_orb_ind, 0, 0.0_dp, maxocc, 0.0_dp)
+               CALL allocate_mo_set(active_space_env%mos_active(ispin), nao, max_orb_ind, 0.0_dp, 0.0_dp, maxocc, 0.0_dp)
                CALL cp_fm_struct_create(fm_struct_tmp, para_env=para_env, context=context, &
                                         nrow_global=nrow_global, ncol_global=max_orb_ind)
                CALL init_mo_set(active_space_env%mos_active(ispin), fm_struct=fm_struct_tmp, name="Active Space MO")
@@ -630,7 +641,8 @@ CONTAINS
                ELSE
                   nel = nelec_inactive
                END IF
-               CALL allocate_mo_set(active_space_env%mos_inactive(ispin), nao, max_orb_ind, nel, REAL(nel, KIND=dp), maxocc, 0.0_dp)
+               CALL allocate_mo_set(active_space_env%mos_inactive(ispin), nao, max_orb_ind, & 
+                                    REAL(nel, KIND=dp), REAL(nel, KIND=dp), maxocc, 0.0_dp)
                CALL cp_fm_struct_create(fm_struct_tmp, para_env=para_env, context=context, &
                                         nrow_global=nrow_global, ncol_global=max_orb_ind)
                CALL init_mo_set(active_space_env%mos_inactive(ispin), fm_struct=fm_struct_tmp, name="Inactive Space MO")

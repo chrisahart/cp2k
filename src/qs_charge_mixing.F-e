@@ -1,6 +1,6 @@
 !--------------------------------------------------------------------------------------------------!
 !   CP2K: A general program to perform molecular dynamics simulations                              !
-!   Copyright 2000-2024 CP2K developers group <https://cp2k.org>                                   !
+!   Copyright 2000-2023 CP2K developers group <https://cp2k.org>                                   !
 !                                                                                                  !
 !   SPDX-License-Identifier: GPL-2.0-or-later                                                      !
 !--------------------------------------------------------------------------------------------------!
@@ -8,10 +8,12 @@
 ! **************************************************************************************************
 MODULE qs_charge_mixing
 
+   USE cp_para_types,                   ONLY: cp_para_env_type
    USE kinds,                           ONLY: dp
    USE mathlib,                         ONLY: get_pseudo_inverse_svd
-   USE message_passing,                 ONLY: mp_para_env_type
-   USE qs_density_mixing_types,         ONLY: broyden_mixing_nr,&
+   USE message_passing,                 ONLY: mp_sum
+   USE qs_density_mixing_types,         ONLY: broyden_mixing_new_nr,&
+                                              broyden_mixing_nr,&
                                               gspace_mixing_nr,&
                                               mixing_storage_type,&
                                               multisecant_mixing_nr,&
@@ -42,7 +44,7 @@ CONTAINS
       INTEGER, INTENT(IN)                                :: mixing_method
       TYPE(mixing_storage_type), POINTER                 :: mixing_store
       REAL(KIND=dp), DIMENSION(:, :), INTENT(INOUT)      :: charges
-      TYPE(mp_para_env_type), POINTER                    :: para_env
+      TYPE(cp_para_env_type), POINTER                    :: para_env
       INTEGER, INTENT(IN)                                :: iter_count
 
       CHARACTER(len=*), PARAMETER                        :: routineN = 'charge_mixing'
@@ -76,12 +78,12 @@ CONTAINS
             END DO
          END IF
 
-         !WRITE (*, *) (*, *) "line 81 charge_mixing"
-         !WRITE (*, *) (*, *) "iter_count", iter_count
+         WRITE (*, *) "line 81 charge_mixing"
+         WRITE (*, *) "iter_count", iter_count
 
          IF ((iter_count == 1) .OR. (iter_count + 1 <= mixing_store%nskip_mixing)) THEN
             ! skip mixing
-            !WRITE (*, *) (*, *) "skip mixing"
+            WRITE (*, *) "skip mixing"
             mixing_store%iter_method = "NoMix"
          ELSEIF (((iter_count + 1 - mixing_store%nskip_mixing) <= mixing_store%n_simple_mix) .OR. (nvec == 1)) THEN
             CALL mix_charges_only(mixing_store, charges, alpha, imin, ns, para_env)
@@ -93,6 +95,8 @@ CONTAINS
          ELSEIF (mixing_method == broyden_mixing_nr) THEN
             CALL broyden_mixing(mixing_store, charges, imin, nvec, ns, para_env)
             mixing_store%iter_method = "Broy."
+         ELSEIF (mixing_method == broyden_mixing_new_nr) THEN
+            CPABORT("Broyden_mixing_new method not available for Charge Mixing")
          ELSEIF (mixing_method == multisecant_mixing_nr) THEN
             CPABORT("Multisecant_mixing method not available for Charge Mixing")
          END IF
@@ -124,7 +128,7 @@ CONTAINS
       REAL(KIND=dp), DIMENSION(:, :), INTENT(INOUT)      :: charges
       REAL(KIND=dp), INTENT(IN)                          :: alpha
       INTEGER, INTENT(IN)                                :: imin, ns
-      TYPE(mp_para_env_type), POINTER                    :: para_env
+      TYPE(cp_para_env_type), POINTER                    :: para_env
 
       INTEGER                                            :: ia, ii
 
@@ -135,7 +139,7 @@ CONTAINS
          charges(ii, 1:ns) = alpha*mixing_store%dacharge(ia, 1:ns, imin) - mixing_store%acharge(ia, 1:ns, imin)
       END DO
 
-      CALL para_env%sum(charges)
+      CALL mp_sum(charges, para_env%group)
 
    END SUBROUTINE mix_charges_only
 
@@ -153,7 +157,7 @@ CONTAINS
       TYPE(mixing_storage_type), POINTER                 :: mixing_store
       REAL(KIND=dp), DIMENSION(:, :), INTENT(INOUT)      :: charges
       INTEGER, INTENT(IN)                                :: inow, nvec, ns
-      TYPE(mp_para_env_type), POINTER                    :: para_env
+      TYPE(cp_para_env_type), POINTER                    :: para_env
 
       INTEGER                                            :: i, ia, ii, imin, j, nbuffer, nv
       REAL(KIND=dp)                                      :: alpha, maxw, minw, omega0, rskip, wdf, &
@@ -170,7 +174,7 @@ CONTAINS
       IF (imin == 0) imin = nvec
       nv = nvec - 1
 
-       !WRITE (*, *) (*, *) "line 117 broyden_mixing of qs_charge_mixing.F"
+       WRITE (*, *) "line 117 broyden_mixing of qs_charge_mixing.F"
 
 
       ! charge vectors
@@ -199,7 +203,7 @@ CONTAINS
       wfac = 0.01_dp
 
       mixing_store%wbroy(nv) = SUM(dq_now(:, :)**2)
-      CALL para_env%sum(mixing_store%wbroy(nv))
+      CALL mp_sum(mixing_store%wbroy(nv), para_env%group)
       mixing_store%wbroy(nv) = SQRT(mixing_store%wbroy(nv))
       IF (mixing_store%wbroy(nv) > (wfac/maxw)) THEN
          mixing_store%wbroy(nv) = wfac/mixing_store%wbroy(nv)
@@ -211,14 +215,14 @@ CONTAINS
       ! dfbroy
       mixing_store%dfbroy(:, :, nv) = dq_now(:, :) - dq_last(:, :)
       wdf = SUM(mixing_store%dfbroy(:, :, nv)**2)
-      CALL para_env%sum(wdf)
+      CALL mp_sum(wdf, para_env%group)
       wdf = 1.0_dp/SQRT(wdf)
       mixing_store%dfbroy(:, :, nv) = wdf*mixing_store%dfbroy(:, :, nv)
 
       ! abroy matrix
       DO i = 1, nv
          wfac = SUM(mixing_store%dfbroy(:, :, i)*mixing_store%dfbroy(:, :, nv))
-         CALL para_env%sum(wfac)
+         CALL mp_sum(wfac, para_env%group)
          mixing_store%abroy(i, nv) = wfac
          mixing_store%abroy(nv, i) = wfac
       END DO
@@ -227,7 +231,7 @@ CONTAINS
       ALLOCATE (amat(nv, nv), beta(nv, nv), cvec(nv), gammab(nv))
       DO i = 1, nv
          wfac = SUM(mixing_store%dfbroy(:, :, i)*dq_now(:, :))
-         CALL para_env%sum(wfac)
+         CALL mp_sum(wfac, para_env%group)
          cvec(i) = mixing_store%wbroy(i)*wfac
       END DO
 
@@ -256,7 +260,7 @@ CONTAINS
             charges(ii, 1:ns) = charges(ii, 1:ns) - mixing_store%wbroy(i)*gammab(i)*mixing_store%ubroy(ia, 1:ns, i)
          END DO
       END DO
-      CALL para_env%sum(charges)
+      CALL mp_sum(charges, para_env%group)
 
       DEALLOCATE (amat, beta, cvec, gammab)
 

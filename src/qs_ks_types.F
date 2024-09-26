@@ -62,6 +62,7 @@ MODULE qs_ks_types
    USE task_list_types,                 ONLY: deallocate_task_list,&
                                               task_list_type
    USE virial_types,                    ONLY: virial_type
+   USE kinds,                           ONLY: dp
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -381,7 +382,7 @@ CONTAINS
       TYPE(mp_para_env_type), OPTIONAL, POINTER          :: para_env
       TYPE(cp_blacs_env_type), OPTIONAL, POINTER         :: blacs_env
       INTEGER, OPTIONAL                                  :: nelectron_total
-      INTEGER, DIMENSION(2), OPTIONAL                    :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2), OPTIONAL              :: nelectron_spin
 
       IF (.NOT. ASSOCIATED(ks_env%subsys)) CPABORT("get_ks_env: subsys not associated")
 

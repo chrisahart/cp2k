@@ -1,6 +1,6 @@
 !--------------------------------------------------------------------------------------------------!
 !   CP2K: A general program to perform molecular dynamics simulations                              !
-!   Copyright 2000-2024 CP2K developers group <https://cp2k.org>                                   !
+!   Copyright 2000-2023 CP2K developers group <https://cp2k.org>                                   !
 !                                                                                                  !
 !   SPDX-License-Identifier: GPL-2.0-or-later                                                      !
 !--------------------------------------------------------------------------------------------------!
@@ -145,24 +145,24 @@ CONTAINS
 
       scf_env%outer_scf%energy(ihistory) = energy%total
 
-      !WRITE (*, *) (*, *) "line 128 hello from outer_loop_gradient"
-      !WRITE (*, *) (*, *) "line 129 scf_env%outer_scf%gradient(1, ihistory)", scf_env%outer_scf%gradient(1, ihistory)
-      !WRITE (*, *) (*, *) "line 130 scf_env%iter_delta", scf_env%iter_delta
+      WRITE (*, *) "line 128 hello from outer_loop_gradient"
+      WRITE (*, *) "line 129 scf_env%outer_scf%gradient(1, ihistory)", scf_env%outer_scf%gradient(1, ihistory)
+      WRITE (*, *) "line 130 scf_env%iter_delta", scf_env%iter_delta
 
-      !WRITE (*, *) (*, *) "line 132 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
-      !WRITE (*, *) (*, *) "line 133 scf_env%iter_method ", scf_env%iter_method 
+      WRITE (*, *) "line 132 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+      WRITE (*, *) "line 133 scf_env%iter_method ", scf_env%iter_method 
       scf_env%mixing_store%iter_method = "NoMix"
       scf_env%iter_method = "NoMix"
-      !WRITE (*, *) (*, *) "line 136 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
-      !WRITE (*, *) (*, *) "line 137 scf_env%iter_method ", scf_env%iter_method 
+      WRITE (*, *) "line 136 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+      WRITE (*, *) "line 137 scf_env%iter_method ", scf_env%iter_method 
 
       CALL mixing_init(scf_env%mixing_method, rho, scf_env%mixing_store, &
                              para_env)
       
 
-      !!WRITE (*, *) (*, *) "line 132 scf_env%mixing_method", scf_env%mixing_method
+      !WRITE (*, *) "line 132 scf_env%mixing_method", scf_env%mixing_method
       !scf_env%mixing_method=0
-      !!WRITE (*, *) (*, *) "line 134 scf_env%mixing_method",scf_env%mixing_method
+      !WRITE (*, *) "line 134 scf_env%mixing_method",scf_env%mixing_method
 
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
@@ -242,7 +242,7 @@ CONTAINS
       optimizer_type = scf_control%outer_scf%optimizer
       NULLIFY (inv_jacobian)
 
-    !  !WRITE (*, *) (*, *) "hello from outer_loop_optimize"
+    !  WRITE (*, *) "hello from outer_loop_optimize"
 
       IF (scf_control%outer_scf%type == outer_scf_basis_center_opt) THEN
          scf_env%outer_scf%variables(:, ihistory + 1) = scf_env%outer_scf%variables(:, ihistory)
@@ -444,7 +444,7 @@ CONTAINS
       CALL get_qs_env(qs_env=qs_env, scf_control=scf_control, dft_control=dft_control)
       ihistory = scf_env%outer_scf%iter_count
 
-    !  !WRITE (*, *) (*, *) "hello from outer_loop_update_qs_env"
+    !  WRITE (*, *) "hello from outer_loop_update_qs_env"
 
       SELECT CASE (scf_control%outer_scf%type)
       CASE (outer_scf_none)
@@ -509,9 +509,9 @@ CONTAINS
       ALLOCATE (extrapolation(nvariables))
       CPASSERT(nhistory > 0)
 
-               ! !WRITE (*, *) (*, *) "hello from line 468 SUBROUTINE outer_loop_extrapolate"
-               ! !WRITE (*, *) (*, *) "scf_control%outer_scf%eps_scf", scf_control%outer_scf%eps_scf
-               ! !WRITE (*, *) (*, *) "scf_control%eps_scf", scf_control%eps_scf
+               ! WRITE (*, *) "hello from line 468 SUBROUTINE outer_loop_extrapolate"
+               ! WRITE (*, *) "scf_control%outer_scf%eps_scf", scf_control%outer_scf%eps_scf
+               ! WRITE (*, *) "scf_control%eps_scf", scf_control%eps_scf
                
                
 
@@ -522,7 +522,7 @@ CONTAINS
       CASE (outer_scf_none)
          outer_scf_history(1, ivec) = 0.0_dp
          qs_env%outer_scf_ihistory = 0
-         !!WRITE (*, *) (*, *) "hello from line 477 SUBROUTINE outer_loop_extrapolate"
+         !WRITE (*, *) "hello from line 477 SUBROUTINE outer_loop_extrapolate"
       CASE (outer_scf_ddapc_constraint)
          DO n = 1, SIZE(dft_control%qs_control%ddapc_restraint_control)
             NULLIFY (ddapc_restraint_control)

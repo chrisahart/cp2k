@@ -54,6 +54,7 @@ MODULE optbas_fenv_manipulation
    USE qs_rho_types,                    ONLY: qs_rho_get,&
                                               qs_rho_type
    USE string_utilities,                ONLY: uppercase
+   USE kinds,                           ONLY: dp
 #include "./base/base_uses.f90"
 
    IMPLICIT NONE
@@ -156,7 +157,7 @@ CONTAINS
       TYPE(qs_environment_type), POINTER                 :: qs_env
 
       INTEGER                                            :: ispin
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       LOGICAL                                            :: natom_mismatch
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_fm_pool_p_type), DIMENSION(:), POINTER     :: ao_mo_fm_pools

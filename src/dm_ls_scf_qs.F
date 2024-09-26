@@ -460,7 +460,7 @@ CONTAINS
       CHARACTER(len=*), PARAMETER :: routineN = 'ls_scf_qs_atomic_guess'
 
       INTEGER                                            :: handle, nspin, unit_nr
-      INTEGER, DIMENSION(2)                              :: nelectron_spin
+      REAL(KIND=dp), DIMENSION(2)                        :: nelectron_spin
       LOGICAL                                            :: has_unit_metric
       TYPE(atomic_kind_type), DIMENSION(:), POINTER      :: atomic_kind_set
       TYPE(cp_logger_type), POINTER                      :: logger

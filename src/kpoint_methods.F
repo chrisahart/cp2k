@@ -489,10 +489,11 @@ CONTAINS
       CHARACTER(LEN=*), PARAMETER :: routineN = 'kpoint_initialize_mos'
 
       INTEGER                                            :: handle, ic, ik, is, nadd, nao, nc, &
-                                                            nelectron, nkp_loc, nmo, nmorig(2), &
+                                                           nkp_loc, nmo, nmorig(2), &
                                                             nspin
       LOGICAL                                            :: aux_fit
-      REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, n_el_f
+      REAL(KIND=dp)                                      :: flexible_electron_count, maxocc, & 
+                                                            n_el_f, nelectron
       TYPE(cp_blacs_env_type), POINTER                   :: blacs_env
       TYPE(cp_fm_pool_p_type), DIMENSION(:), POINTER     :: ao_ao_fm_pools
       TYPE(cp_fm_struct_type), POINTER                   :: matrix_struct
@@ -912,9 +913,9 @@ CONTAINS
       CHARACTER(LEN=*), PARAMETER :: routineN = 'kpoint_set_mo_occupation'
 
       INTEGER                                            :: handle, ik, ikpgr, ispin, kplocal, nb, &
-                                                            ne_a, ne_b, nelectron, nkp, nmo, nspin
+                                                            nkp, nmo, nspin
       INTEGER, DIMENSION(2)                              :: kp_range
-      REAL(KIND=dp)                                      :: kTS, mu, mus(2), nel
+      REAL(KIND=dp)                                      :: kTS, mu, mus(2), nel, nelectron, ne_b, ne_a
       REAL(KIND=dp), ALLOCATABLE, DIMENSION(:, :, :)     :: weig, wocc
       REAL(KIND=dp), DIMENSION(:), POINTER               :: eigenvalues, occupation, wkp
       TYPE(kpoint_env_type), POINTER                     :: kp
@@ -952,24 +953,25 @@ CONTAINS
       CALL para_env_inter_kp%sum(weig)
 
       CALL get_kpoint_info(kpoint, wkp=wkp)
+
       IF (smear%do_smear) THEN
          ! finite electronic temperature
          SELECT CASE (smear%method)
          CASE (smear_fermi_dirac)
             IF (nspin == 1) THEN
-               nel = REAL(nelectron, KIND=dp)
+               nel = nelectron
                CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, &
                             smear%electronic_temperature, 2.0_dp)
             ELSE IF (smear%fixed_mag_mom > 0.0_dp) THEN
                CPABORT("kpoints: Smearing with fixed magnetic moments not (yet) supported")
-               nel = REAL(ne_a, KIND=dp)
+               nel = ne_a
                CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, &
                             smear%electronic_temperature, 1.0_dp)
-               nel = REAL(ne_b, KIND=dp)
+               nel = ne_b
                CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, &
                             smear%electronic_temperature, 1.0_dp)
             ELSE
-               nel = REAL(ne_a, KIND=dp) + REAL(ne_b, KIND=dp)
+               nel = ne_a + ne_b
                CALL Fermikp2(wocc(:, :, :), mu, kTS, weig(:, :, :), nel, wkp, &
                              smear%electronic_temperature)
                kTS = kTS/2._dp
@@ -981,13 +983,10 @@ CONTAINS
       ELSE
          ! fixed occupations (2/1)
          IF (nspin == 1) THEN
-            nel = REAL(nelectron, KIND=dp)
+            nel = nelectron
             CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 2.0_dp)
          ELSE
-            nel = REAL(ne_a, KIND=dp)
-            CALL Fermikp(wocc(:, :, 1), mus(1), kTS, weig(:, :, 1), nel, wkp, 0.0_dp, 1.0_dp)
-            nel = REAL(ne_b, KIND=dp)
-            CALL Fermikp(wocc(:, :, 2), mus(2), kTS, weig(:, :, 2), nel, wkp, 0.0_dp, 1.0_dp)
+         kTS = 0
          END IF
       END IF
       DO ikpgr = 1, kplocal
@@ -996,10 +995,16 @@ CONTAINS
          DO ispin = 1, nspin
             mo_set => kp%mos(1, ispin)
             CALL get_mo_set(mo_set, eigenvalues=eigenvalues, occupation_numbers=occupation)
-            eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
-            occupation(1:nmo) = wocc(1:nmo, ik, ispin)
-            mo_set%kTS = kTS
-            mo_set%mu = mus(ispin)
+
+             IF (smear%electronic_temperature > 1.0e-14_dp) THEN 
+               eigenvalues(1:nmo) = weig(1:nmo, ik, ispin)
+               occupation(1:nmo) = wocc(1:nmo, ik, ispin)
+               mo_set%kTS = kTS
+               mo_set%mu = mus(ispin)
+             ELSE 
+              mo_set%kTS = 0.0_dp
+            END IF  
+
          END DO
       END DO
 

@@ -248,12 +248,12 @@ CONTAINS
       REAL(kind=dp), PARAMETER                           :: eps_dp = EPSILON(0.0_dp)
 
       INTEGER :: cholesky_method_inout, handle, icol_global, icol_local, imo, iounit, irow_global, &
-         irow_local, nao, ncol_local, nelectrons, nmo_occ, nmo_scf, nmo_virt, nrow_local, sign_int
+         irow_local, nao, ncol_local, nmo_occ, nmo_scf, nmo_virt, nrow_local, sign_int
       INTEGER, ALLOCATABLE, DIMENSION(:)                 :: minrow_neg_array, minrow_pos_array, &
                                                             sum_sign_array
       INTEGER, DIMENSION(:), POINTER                     :: col_indices, row_indices
       LOGICAL                                            :: do_eigen, print_phases
-      REAL(kind=dp)                                      :: element, maxocc
+      REAL(kind=dp)                                      :: element, maxocc, nelectrons
       REAL(KIND=dp), CONTIGUOUS, DIMENSION(:, :), &
          POINTER                                         :: my_block
       REAL(kind=dp), DIMENSION(:), POINTER               :: mo_evals_extended, mo_occ_extended, &
@@ -324,7 +324,7 @@ CONTAINS
          CALL cp_fm_struct_create(wfn_fm_struct, nrow_global=nao, ncol_global=nmo_occ + nmo_virt, context=blacs_env)
          ALLOCATE (mos_extended)
          CALL allocate_mo_set(mos_extended, nao, nmo_occ + nmo_virt, nelectrons, &
-                              REAL(nelectrons, dp), maxocc, flexible_electron_count=0.0_dp)
+                              nelectrons, maxocc, flexible_electron_count=0.0_dp)
          CALL init_mo_set(mos_extended, fm_struct=wfn_fm_struct, name="mos-extended")
          CALL cp_fm_struct_release(wfn_fm_struct)
          CALL get_mo_set(mos_extended, mo_coeff=mo_coeff_extended, &

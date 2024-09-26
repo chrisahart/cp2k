@@ -587,6 +587,8 @@ MODULE cp_control_types
       REAL(KIND=dp)                        :: relax_multiplicity = 0.0_dp, &
                                               sic_scaling_a = 0.0_dp, &
                                               sic_scaling_b = 0.0_dp, &
+                                              nelec_alpha = 0.0_dp, &
+                                              nelec_beta = 0.0_dp, &
                                               pos_dir_surf_dip = 0.0_dp
       LOGICAL                              :: do_tddfpt_calculation = .FALSE., &
                                               do_xas_calculation = .FALSE., &

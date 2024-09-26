@@ -172,7 +172,8 @@ CONTAINS
       CALL set_mo_set(mo_set=mo_array(2), kTS=kTS/2.0_dp, mu=mu, n_el_f=nelec_b, &
                       lfomo=lfomo_b, homo=homo_b, uniform_occupation=.FALSE.)
 
-      CALL timestop(handle)
+            CALL timestop(handle)
+            
 
    END SUBROUTINE set_mo_occupation_3
 
@@ -237,6 +238,7 @@ CONTAINS
                             "to correct the electron density")
             END IF
             IF (smear%fixed_mag_mom /= -1.0_dp) THEN
+
                CPASSERT(.NOT. (PRESENT(eval_deriv)))
                CALL set_mo_occupation_3(mo_array, smear=smear)
                CALL timestop(handle)
@@ -277,9 +279,10 @@ CONTAINS
          RETURN
       END IF
 
-      nelec = mo_array(1)%nelectron + mo_array(2)%nelectron
+      !nelec = mo_array(1)%nelectron + mo_array(2)%nelectron
+      nelec = INT(mo_array(1)%n_el_f + mo_array(2)%n_el_f)
 
-      multiplicity_old = mo_array(1)%nelectron - mo_array(2)%nelectron + 1
+      multiplicity_old = INT(mo_array(1)%nelectron - mo_array(2)%nelectron) + 1
 
       IF (mo_array(1)%nelectron >= mo_array(1)%nmo) &
          CALL cp_warn(__LOCATION__, &
@@ -341,9 +344,9 @@ CONTAINS
          mo_array(2)%homo = nelec/2
       END IF
 
-      mo_array(1)%nelectron = mo_array(1)%homo
-      mo_array(2)%nelectron = mo_array(2)%homo
-      multiplicity_new = mo_array(1)%nelectron - mo_array(2)%nelectron + 1
+      mo_array(1)%nelectron = REAL(mo_array(1)%homo, dp)
+      mo_array(2)%nelectron = REAL(mo_array(2)%homo, dp)
+      multiplicity_new = INT(mo_array(1)%nelectron - mo_array(2)%nelectron) + 1
 
       IF (multiplicity_new /= multiplicity_old) &
          CALL cp_warn(__LOCATION__, &
@@ -420,6 +423,7 @@ CONTAINS
       xas_estate = -1
       occ_estate = 0.0_dp
       IF (PRESENT(xas_env)) THEN
+
          CALL get_xas_env(xas_env=xas_env, xas_nelectron=xas_nelectron, occ_estate=occ_estate, xas_estate=xas_estate)
          nomo = CEILING(xas_nelectron + 1.0 - occ_estate - EPSILON(0.0_dp))
 
@@ -432,15 +436,21 @@ CONTAINS
          is_large = ABS(el_count - xas_nelectron) > xas_nelectron*EPSILON(el_count)
          CPASSERT(.NOT. is_large)
       ELSE
-         IF (MODULO(mo_set%nelectron, INT(mo_set%maxocc)) == 0) THEN
+
+         ! If integer number of electrons
+         IF (MODULO(mo_set%nelectron, mo_set%maxocc) == 0) THEN
+
             nomo = NINT(mo_set%nelectron/mo_set%maxocc)
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo) = mo_set%maxocc
+
+         ! If non-integer number of electrons
          ELSE
             nomo = INT(mo_set%nelectron/mo_set%maxocc) + 1
             ! Initialize MO occupations
             mo_set%occupation_numbers(1:nomo - 1) = mo_set%maxocc
-            mo_set%occupation_numbers(nomo) = mo_set%nelectron - (nomo - 1)*mo_set%maxocc
+            mo_set%occupation_numbers(nomo) = mo_set%n_el_f - (nomo - 1)*mo_set%maxocc
+            
          END IF
 ! introduce applied potential correction here
 ! electron density is adjusted according to applied core correction
@@ -539,17 +549,18 @@ CONTAINS
             nelec = xas_nelectron
          ELSE
             i_first = 1
-            IF (smear%fixed_mag_mom == -1.0_dp) THEN
-               nelec = REAL(mo_set%nelectron, dp)
-            ELSE
-               nelec = mo_set%n_el_f
-            END IF
+           ! IF (smear%fixed_mag_mom == -1.0_dp) THEN
+             !  nelec = REAL(mo_set%nelectron, dp)
+           ! ELSE
+              nelec = mo_set%n_el_f
+            !END IF
          END IF
          SELECT CASE (smear%method)
          CASE (smear_fermi_dirac)
             IF (.NOT. PRESENT(eval_deriv)) THEN
                CALL FermiFixed(mo_set%occupation_numbers, mo_set%mu, mo_set%kTS, mo_set%eigenvalues, Nelec, &
                                smear%electronic_temperature, mo_set%maxocc, xas_estate, occ_estate)
+
             ELSE
                ! could be a relatively large matrix, but one could get rid of it by never storing it
                ! we only need dE/df * df/de, one could equally parallelize over entries, this could become expensive

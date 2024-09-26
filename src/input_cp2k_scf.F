@@ -171,6 +171,21 @@ CONTAINS
       CALL section_add_keyword(section, keyword)
       CALL keyword_release(keyword)
 
+      CALL keyword_create(keyword, __LOCATION__, name="EPS_SCF_MULTIPLIER", &
+                          description="Multiplier for each iteration of OUTER_SCF loop.", &
+                          usage="EPS_SCF_MULTIPLIER 1e-1", default_r_val=1.0_dp)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
+      CALL keyword_create(keyword, __LOCATION__, name="EPS_SCF_ARRAY", &
+                          description="Array of EPS_SCF for OUTER_SCF loop", &
+                          usage="EPS_SCF_ARRAY <FLOAT> <FLOAT>", &
+                          default_r_vals=(/1.0e-6_dp/),  &
+                          type_of_var=real_t, &
+                           n_var=-1)
+      CALL section_add_keyword(section, keyword)
+      CALL keyword_release(keyword)
+
       CALL keyword_create(keyword, __LOCATION__, name="EPS_SCF_HISTORY", variants=(/"EPS_SCF_HIST"/), &
                           description="Target accuracy for the SCF convergence after the history pipeline is filled.", &
                           usage="EPS_SCF_HISTORY 1.e-5", default_r_val=0.0_dp, lone_keyword_r_val=1.0e-5_dp)

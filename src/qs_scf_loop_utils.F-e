@@ -1,6 +1,6 @@
 !--------------------------------------------------------------------------------------------------!
 !   CP2K: A general program to perform molecular dynamics simulations                              !
-!   Copyright 2000-2024 CP2K developers group <https://cp2k.org>                                   !
+!   Copyright 2000-2023 CP2K developers group <https://cp2k.org>                                   !
 !                                                                                                  !
 !   SPDX-License-Identifier: GPL-2.0-or-later                                                      !
 !--------------------------------------------------------------------------------------------------!
@@ -9,19 +9,20 @@
 ! **************************************************************************************************
 MODULE qs_scf_loop_utils
    USE cp_control_types,                ONLY: dft_control_type
-   USE cp_dbcsr_api,                    ONLY: dbcsr_copy,&
+   USE cp_external_control,             ONLY: external_control
+   USE cp_log_handling,                 ONLY: cp_to_string
+   USE cp_para_types,                   ONLY: cp_para_env_type
+   USE dbcsr_api,                       ONLY: dbcsr_copy,&
                                               dbcsr_get_info,&
                                               dbcsr_p_type,&
                                               dbcsr_type
-   USE cp_external_control,             ONLY: external_control
-   USE cp_log_handling,                 ONLY: cp_to_string
    USE input_section_types,             ONLY: section_vals_type
    USE kinds,                           ONLY: default_string_length,&
                                               dp
    USE kpoint_types,                    ONLY: kpoint_type
-   USE message_passing,                 ONLY: mp_para_env_type
    USE qs_density_matrices,             ONLY: calculate_density_matrix
-   USE qs_density_mixing_types,         ONLY: broyden_mixing_nr,&
+   USE qs_density_mixing_types,         ONLY: broyden_mixing_new_nr,&
+                                              broyden_mixing_nr,&
                                               direct_mixing_nr,&
                                               gspace_mixing_nr,&
                                               multisecant_mixing_nr,&
@@ -189,8 +190,10 @@ CONTAINS
 
          IF (ABS(qs_env%total_zeff_corr) > 0.0_dp) THEN
             CALL cp_abort(__LOCATION__, &
-                          "CORE_CORRECTION /= 0.0 plus SURFACE_DIPOLE_CORRECTION TRUE "// &
-                          "requires SCF%DIAGONALIZATION: ALGORITHM STANDARD")
+                          "CORE_CORRECTION /= 0.0 plus"// &
+                          "SURFACE_DIPOLE_CORRECTION  TRUE"// &
+                          "requires SCF%DIAGONALIZATION: "// &
+                          "ALGORITHM STANDARD")
          END IF
          CALL fb_env_do_diag(scf_env%filter_matrix_env, qs_env, &
                              matrix_ks, matrix_s, scf_section, diis_step)
@@ -299,7 +302,6 @@ CONTAINS
 
       INTEGER                                            :: handle, ispin
       LOGICAL                                            :: has_unit_metric
-      REAL(dp)                                           :: diis_error
       TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER       :: matrix_ks, matrix_s
       TYPE(dft_control_type), POINTER                    :: dft_control
       TYPE(kpoint_type), POINTER                         :: kpoints
@@ -323,23 +325,21 @@ CONTAINS
                        cp_to_string(scf_env%method))
       CASE (general_diag_method_nr)
          ! Diagonlization in non orthonormal case
-         CALL get_qs_env(qs_env, matrix_ks_kp=matrix_ks, matrix_s_kp=matrix_s)
-         CALL do_general_diag_kp(matrix_ks, matrix_s, kpoints, scf_env, scf_control, .TRUE., &
-                                 diis_step, diis_error, qs_env)
-         IF (diis_step) THEN
-            scf_env%iter_param = diis_error
-            scf_env%iter_method = "DIIS/Diag."
-         ELSE
-            IF (scf_env%mixing_method == 0) THEN
-               scf_env%iter_method = "NoMix/Diag."
-            ELSE IF (scf_env%mixing_method == 1) THEN
-               scf_env%iter_param = scf_env%p_mix_alpha
-               scf_env%iter_method = "P_Mix/Diag."
-            ELSEIF (scf_env%mixing_method > 1) THEN
-               scf_env%iter_param = scf_env%mixing_store%alpha
-               scf_env%iter_method = TRIM(scf_env%mixing_store%iter_method)//"/Diag."
-            END IF
+         diis_step = .FALSE.
+          WRITE (*, *) "line 329 scf_env%mixing_method", scf_env%mixing_method
+       WRITE (*, *) "line 330 scf_env%iter_method", scf_env%iter_method
+       WRITE (*, *) "line 331 scf_env%mixing_store%iter_method", scf_env%mixing_store%iter_method
+         IF (scf_env%mixing_method == 0) THEN
+            scf_env%iter_method = "NoMix/Diag."
+         ELSE IF (scf_env%mixing_method == 1) THEN
+            scf_env%iter_param = scf_env%p_mix_alpha
+            scf_env%iter_method = "P_Mix/Diag."
+         ELSEIF (scf_env%mixing_method > 1) THEN
+            scf_env%iter_param = scf_env%mixing_store%alpha
+            scf_env%iter_method = TRIM(scf_env%mixing_store%iter_method)//"/Diag."
          END IF
+         CALL get_qs_env(qs_env, matrix_ks_kp=matrix_ks, matrix_s_kp=matrix_s)
+         CALL do_general_diag_kp(matrix_ks, matrix_s, kpoints, scf_env, scf_control, .TRUE.)
       CASE (special_diag_method_nr)
          CALL get_qs_env(qs_env=qs_env, has_unit_metric=has_unit_metric)
          CPASSERT(has_unit_metric)
@@ -356,7 +356,7 @@ CONTAINS
                        cp_to_string(scf_env%method))
       END SELECT
 
-      !WRITE (*, *) (*, *) "line 358 scf_env%iter_method", scf_env%iter_method
+      WRITE (*, *) "line 358 scf_env%iter_method", scf_env%iter_method
 
       CALL get_qs_env(qs_env=qs_env, energy=energy)
       energy%kTS = 0.0_dp
@@ -455,7 +455,7 @@ CONTAINS
    SUBROUTINE qs_scf_density_mixing(scf_env, rho, para_env, diis_step)
       TYPE(qs_scf_env_type), POINTER                     :: scf_env
       TYPE(qs_rho_type), POINTER                         :: rho
-      TYPE(mp_para_env_type), POINTER                    :: para_env
+      TYPE(cp_para_env_type), POINTER                    :: para_env
       LOGICAL                                            :: diis_step
 
       TYPE(dbcsr_p_type), DIMENSION(:, :), POINTER       :: rho_ao_kp
@@ -464,25 +464,29 @@ CONTAINS
 
       CALL qs_rho_get(rho, rho_ao_kp=rho_ao_kp)
 
-      !WRITE (*, *) (*, *) "scf_env%mixing_method", scf_env%mixing_method
+      WRITE (*, *) "scf_env%mixing_method", scf_env%mixing_method
 
       SELECT CASE (scf_env%mixing_method)
 
       CASE (direct_mixing_nr)
-      !WRITE (*, *) (*, *) "line 472 CASE (direct_mixing_nr)"
-       !WRITE (*, *) (*, *) "line 468 scf_env%iter_delta", scf_env%iter_delta
+      WRITE (*, *) "line 472 CASE (direct_mixing_nr)"
+       WRITE (*, *) "line 468 scf_env%iter_delta", scf_env%iter_delta
 
          CALL scf_env_density_mixing(scf_env%p_mix_new, &
                                      scf_env%mixing_store, rho_ao_kp, para_env, scf_env%iter_delta, scf_env%iter_count, &
                                      diis=diis_step)
-         !WRITE (*, *) (*, *) "line 478 scf_env%iter_delta", scf_env%iter_delta
+         WRITE (*, *) "line 478 scf_env%iter_delta", scf_env%iter_delta
 
       CASE (gspace_mixing_nr, pulay_mixing_nr, broyden_mixing_nr, &
-            multisecant_mixing_nr)
+            broyden_mixing_new_nr, multisecant_mixing_nr)
+
+            WRITE (*, *) "line 483 CASE(broyden_mixing_nr"
+       WRITE (*, *) "line 484 scf_env%iter_delta", scf_env%iter_delta
+
          ! Compute the difference p_out-p_in
          CALL self_consistency_check(rho_ao_kp, scf_env%p_delta, para_env, scf_env%p_mix_new, &
                                      delta=scf_env%iter_delta)
-          !WRITE (*, *) (*, *) "line 489 scf_env%iter_delta", scf_env%iter_delta                           
+          WRITE (*, *) "line 489 scf_env%iter_delta", scf_env%iter_delta                           
       CASE (no_mixing_nr)
       CASE DEFAULT
          CALL cp_abort(__LOCATION__, &
@@ -517,7 +521,7 @@ CONTAINS
          scf_env%outer_scf%iter_count = scf_env%outer_scf%iter_count + 1
          outer_loop_converged = .FALSE.
 
-          !WRITE (*, *) (*, *) "line 519 scf_env%iter_delta", scf_env%iter_delta
+          WRITE (*, *) "line 519 scf_env%iter_delta", scf_env%iter_delta
 
          CALL outer_loop_gradient(qs_env, scf_env)
          ! Multiple constraints: get largest deviation
@@ -563,6 +567,11 @@ CONTAINS
          inner_loop_converged = .TRUE.
          exit_inner_loop = .TRUE.
 
+          IF (output_unit > 0) THEN
+          WRITE (*,*)  "qs_scf_check_inner_exit "
+            WRITE (*,*)  "scf_env%iter_delta ", scf_env%iter_delta
+         END IF
+
       ELSE IF (should_stop .OR. scf_env%iter_count >= scf_control%max_scf) THEN
          inner_loop_converged = .FALSE.
          exit_inner_loop = .TRUE.
@@ -570,12 +579,6 @@ CONTAINS
             WRITE (UNIT=output_unit, FMT="(/,T3,A,I5,A/)") &
                "Leaving inner SCF loop after reaching ", scf_env%iter_count, " steps."
          END IF
-
-      ! Exit CP2K if not converged and MUST_CONVERGE TRUE
-      IF (scf_control%must_converge) THEN
-         CPABORT("SCF not converged and MUST_CONVERGE TRUE, CP2K will now stop")
-      END IF
-
       END IF
 
    END SUBROUTINE qs_scf_check_inner_exit
@@ -592,7 +595,7 @@ CONTAINS
       TYPE(qs_scf_env_type), POINTER                     :: scf_env
       TYPE(qs_rho_type), POINTER                         :: rho
       TYPE(dft_control_type), POINTER                    :: dft_control
-      TYPE(mp_para_env_type), POINTER                    :: para_env
+      TYPE(cp_para_env_type), POINTER                    :: para_env
       LOGICAL                                            :: diis_step
 
       CHARACTER(len=default_string_length)               :: name
@@ -608,15 +611,15 @@ CONTAINS
 
          SELECT CASE (scf_env%mixing_method)
          CASE (direct_mixing_nr)
-            !WRITE (*, *) (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
+            WRITE (*, *) "line 607 scf_env%iter_delta", scf_env%iter_delta
             temp = scf_env%iter_delta
-            !WRITE (*, *) (*, *) "line 610 temp", temp
+            WRITE (*, *) "line 610 temp", temp
                CALL scf_env_density_mixing(scf_env%p_mix_new, scf_env%mixing_store, &
                                           rho_ao_kp, para_env, temp, &
                                           scf_env%iter_count, diis=diis_step, &
                                           invert=.TRUE.)
-               !WRITE (*, *) (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
-               !WRITE (*, *) (*, *) "line 610 temp", 616
+               WRITE (*, *) "line 612 scf_env%iter_delta", scf_env%iter_delta
+               WRITE (*, *) "line 610 temp", 616
                DO ic = 1, nc
                   DO ispin = 1, dft_control%nspins
                      CALL dbcsr_get_info(rho_ao_kp(ispin, ic)%matrix, name=name) ! keep the name
@@ -624,7 +627,7 @@ CONTAINS
                   END DO
                END DO
          CASE (gspace_mixing_nr, pulay_mixing_nr, broyden_mixing_nr, &
-               multisecant_mixing_nr)
+               broyden_mixing_new_nr, multisecant_mixing_nr)
             DO ic = 1, nc
                DO ispin = 1, dft_control%nspins
                   CALL dbcsr_get_info(rho_ao_kp(ispin, ic)%matrix, name=name) ! keep the name
@@ -650,7 +653,7 @@ CONTAINS
       TYPE(qs_ks_env_type), POINTER                      :: ks_env
       LOGICAL, INTENT(IN)                                :: mix_rho
 
-      TYPE(mp_para_env_type), POINTER                    :: para_env
+      TYPE(cp_para_env_type), POINTER                    :: para_env
 
       NULLIFY (para_env)
       CALL get_qs_env(qs_env, para_env=para_env)
@@ -680,8 +683,8 @@ CONTAINS
       INTEGER, INTENT(IN)                                :: output_unit
 
       LOGICAL                                            :: do_kpoints
+      TYPE(cp_para_env_type), POINTER                    :: para_env
       TYPE(dft_control_type), POINTER                    :: dft_control
-      TYPE(mp_para_env_type), POINTER                    :: para_env
       TYPE(qs_energy_type), POINTER                      :: energy
       TYPE(qs_ks_env_type), POINTER                      :: ks_env
       TYPE(qs_rho_type), POINTER                         :: rho
